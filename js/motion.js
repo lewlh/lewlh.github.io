@@ -29,60 +29,47 @@ NexT.motion.integrator = {
 NexT.motion.middleWares = {
   logo: function(integrator) {
     const sequence = [];
-    const brand = document.querySelector('.brand');
+    const header = document.querySelector('.header-inner');
     const image = document.querySelector('.custom-logo-image');
     const title = document.querySelector('.site-title');
     const subtitle = document.querySelector('.site-subtitle');
-    const logoLineTop = document.querySelector('.logo-line-before');
-    const logoLineBottom = document.querySelector('.logo-line-after');
-
-    brand && sequence.push({
-      e: brand,
-      p: {opacity: 1},
-      o: {duration: 200}
-    });
+    const toggle = document.querySelectorAll('.site-brand-container .toggle');
+    const logoLine = document.querySelectorAll('.logo-line');
 
     function getMistLineSettings(element) {
       Velocity.hook(element, 'scaleX', 0);
-      return {
+      sequence.push({
         e: element,
-        p: {scaleX: 1},
+        p: {
+          scaleX: 1
+        },
         o: {
           duration     : 500,
           sequenceQueue: false
         }
-      };
-    }
-
-    function pushImageToSequence() {
-      sequence.push({
-        e: image,
-        p: {opacity: 1, top: 0},
-        o: {duration: 200}
       });
     }
 
-    CONFIG.scheme === 'Mist' && logoLineTop && logoLineBottom
-    && sequence.push(
-      getMistLineSettings(logoLineTop),
-      getMistLineSettings(logoLineBottom)
-    );
+    function pushToSequence(element) {
+      sequence.push({
+        e: element,
+        p: {
+          opacity: 1,
+          top    : 0
+        },
+        o: {
+          duration: 200
+        }
+      });
+    }
 
-    CONFIG.scheme === 'Muse' && image && pushImageToSequence();
-
-    title && sequence.push({
-      e: title,
-      p: {opacity: 1, top: 0},
-      o: {duration: 200}
-    });
-
-    subtitle && sequence.push({
-      e: subtitle,
-      p: {opacity: 1, top: 0},
-      o: {duration: 200}
-    });
-
-    (CONFIG.scheme === 'Pisces' || CONFIG.scheme === 'Gemini') && image && pushImageToSequence();
+    header && pushToSequence(header);
+    CONFIG.scheme === 'Mist' && logoLine.length && getMistLineSettings(logoLine);
+    CONFIG.scheme === 'Muse' && image && pushToSequence(image);
+    title && pushToSequence(title);
+    subtitle && pushToSequence(subtitle);
+    toggle.length && pushToSequence(toggle);
+    (CONFIG.scheme === 'Pisces' || CONFIG.scheme === 'Gemini') && image && pushToSequence(image);
 
     if (sequence.length > 0) {
       sequence[sequence.length - 1].o.complete = function() {

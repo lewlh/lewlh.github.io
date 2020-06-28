@@ -1166,6 +1166,10 @@ pre code {
   flex-shrink: 0;
   padding: 0 10px;
 }
+.use-motion .header-inner,
+.use-motion .site-brand-container .toggle {
+  opacity: 0;
+}
 .site-meta {
   flex-grow: 1;
   text-align: center;
@@ -1202,9 +1206,6 @@ pre code {
   color: #ddd;
   font-size: 0.8125em;
   margin: 10px 0;
-}
-.use-motion .brand {
-  opacity: 0;
 }
 .use-motion .site-title,
 .use-motion .site-subtitle,
@@ -1407,9 +1408,13 @@ pre code {
   }
 }
 .sidebar-nav {
+  display: none;
   margin: 0;
   padding-bottom: 20px;
   padding-left: 0;
+}
+.sidebar-nav-active .sidebar-nav {
+  display: block;
 }
 .sidebar-nav li {
   border-bottom: 1px solid transparent;
@@ -1424,11 +1429,13 @@ pre code {
 .sidebar-nav li:hover {
   color: #fc6423;
 }
-.sidebar-nav .sidebar-nav-active {
+.sidebar-toc-active .sidebar-nav-toc,
+.sidebar-overview-active .sidebar-nav-overview {
   border-bottom-color: #fc6423;
   color: #fc6423;
 }
-.sidebar-nav .sidebar-nav-active:hover {
+.sidebar-toc-active .sidebar-nav-toc:hover,
+.sidebar-overview-active .sidebar-nav-overview:hover {
   color: #fc6423;
 }
 .sidebar-panel {
@@ -1437,7 +1444,8 @@ pre code {
   overflow-x: hidden;
   overflow-y: auto;
 }
-.sidebar-panel-active {
+.sidebar-toc-active .post-toc-wrap,
+.sidebar-overview-active .site-overview-wrap {
   display: block;
 }
 .sidebar-toggle {

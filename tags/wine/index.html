@@ -53,7 +53,8 @@
   <style>
   body { margin-top: 2rem; }
 
-  .use-motion .brand,
+  .use-motion .header-inner,
+  .use-motion .site-brand-container .toggle,
   .use-motion .menu-item,
   .sidebar-inner,
   .use-motion .post-block,
@@ -64,19 +65,19 @@
   .use-motion .collection-header { opacity: initial; }
 
   .use-motion .site-title,
-  .use-motion .site-subtitle {
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
     opacity: initial;
     top: initial;
   }
 
-  .use-motion .logo-line-before, .use-motion .logo-line-after {
+  .use-motion .logo-line {
     transform: scaleX(1);
   }
 
   .search-pop-overlay, .sidebar-nav { display: none; }
   .sidebar-panel { display: block; }
   </style>
-  <div id="noscript-warning">Theme NexT works best with JavaScript enabled</div>
 </noscript>
 
 </head>
@@ -99,9 +100,9 @@
   <div class="site-meta">
 
     <a href="/" class="brand" rel="start">
-      <i class="logo-line-before"></i>
+      <i class="logo-line"></i>
       <h1 class="site-title">Lewlh's blog</h1>
-      <i class="logo-line-after"></i>
+      <i class="logo-line"></i>
     </a>
   </div>
 
@@ -184,9 +185,9 @@
   </div>
 
   <aside class="sidebar">
-    <div class="sidebar-inner">
 
-      <ul class="sidebar-nav motion-element">
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
         </li>
@@ -196,11 +197,11 @@
       </ul>
 
       <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-      </div>
+      <section class="post-toc-wrap sidebar-panel">
+      </section>
       <!--/noindex-->
 
-      <div class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
   <p class="site-author-name" itemprop="name">Lewlh</p>
   <div class="site-description" itemprop="description"></div>
@@ -225,7 +226,7 @@
 
 
 
-      </div>
+      </section>
     </div>
   </aside>
   <div id="sidebar-dimmer"></div>
@@ -239,6 +240,10 @@
     <span>0%</span>
   </div>
   <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div id="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
 
 
       <div class="main-inner">
