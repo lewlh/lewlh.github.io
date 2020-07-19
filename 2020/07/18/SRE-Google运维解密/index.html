@@ -30,11 +30,14 @@
 <meta property="og:description" content="笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享我的感悟。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-07-18T13:07:52.000Z">
-<meta property="article:modified_time" content="2020-07-18T15:17:02.762Z">
+<meta property="article:modified_time" content="2020-07-19T05:43:06.888Z">
 <meta property="article:author" content="Lewlh">
 <meta property="article:tag" content="google">
 <meta property="article:tag" content="SRE">
 <meta property="article:tag" content="运维">
+<meta property="article:tag" content="Ops">
+<meta property="article:tag" content="Dev">
+<meta property="article:tag" content="错误预算">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://lewlh.github.io/2020/07/18/SRE-Google%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86/">
@@ -142,7 +145,7 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">17</span></a>
+    <a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">20</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
@@ -211,7 +214,7 @@
 
       <!--noindex-->
       <section class="post-toc-wrap sidebar-panel">
-          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#第一章-介绍"><span class="nav-number">1.</span> <span class="nav-text">第一章 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#系统管理员模式"><span class="nav-number">1.1.</span> <span class="nav-text">系统管理员模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SRE-方法论"><span class="nav-number">1.2.</span> <span class="nav-text">SRE 方法论</span></a></li></ol></li></ol></div>
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#第一章-介绍"><span class="nav-number">1.</span> <span class="nav-text">第一章 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#系统管理员模式"><span class="nav-number">1.1.</span> <span class="nav-text">系统管理员模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SRE-方法论"><span class="nav-number">1.2.</span> <span class="nav-text">SRE 方法论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#确保长期关注研发工作"><span class="nav-number">1.2.1.</span> <span class="nav-text">确保长期关注研发工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在保障服务-SLO-的前提下最大化迭代速度"><span class="nav-number">1.2.2.</span> <span class="nav-text">在保障服务 SLO 的前提下最大化迭代速度</span></a></li></ol></li></ol></li></ol></div>
       </section>
       <!--/noindex-->
 
@@ -232,7 +235,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -294,10 +297,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-07-18 21:07:52 / 修改时间：23:17:02" itemprop="dateCreated datePublished" datetime="2020-07-18T21:07:52+08:00">2020-07-18</time>
+              <time title="创建时间：2020-07-18 21:07:52" itemprop="dateCreated datePublished" datetime="2020-07-18T21:07:52+08:00">2020-07-18</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-07-19 13:43:06" itemprop="dateModified" datetime="2020-07-19T13:43:06+08:00">2020-07-19</time>
+              </span>
 
           
             <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
@@ -312,14 +321,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1k</span>
+              <span>1.7k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>2 分钟</span>
             </span>
 
         </div>
@@ -359,24 +368,27 @@
 <h2 id="SRE-方法论"><a href="#SRE-方法论" class="headerlink" title="SRE 方法论"></a>SRE 方法论</h2><p>本节作者介绍如何变革传统的模式，告诉读者，什么是 SRE。</p>
 <ol>
 <li>Google SRE 团队从2003年开始组建，由7名软件工程师组成。到2016年，约1000余人。</li>
-<li>SRE 团队由两种层次的工程师组成：<ol>
-<li>50%~60% 是 Google 标准工程师；</li>
-<li>40%<del>50% 是比标准工程师要求低一些的人，但具备其他能力的工程师，如 UNIX 内部细节和1</del>3层网络知识；</li>
+<li>SRE 团队由两种层次的工程师组成：<br>a. 50%<del>60% 是 Google 标准工程师;<br>b. 40%</del>50% 是比标准工程师要求低一些的人，但具备其他能力的工程师，如 UNIX 内部细节和1-3层网络知识;</li>
+<li>SRE 团队成员有如下特点：<br>a. 对重复性、手工性的操作天然的排斥感。<br>b. 有足够的技术能力快速开发出软件系统以替代人工操作。</li>
+<li>避免团队的大小与所服务的产品负载呈线性同步增长：<br>a. 负责运维服务的团队必须有足够的时间编程，否则他们会被运维工作淹没;<br>b. 传统运维工作包括：工单处理，手工操作等，运维工程师最多只能花50%的时间放在传统运维工作;<br>c. SRE 管理层需要主动维护每一个 SRE 团队的工作平衡;<br>d. SRE 团队和研发队员之间的成员可以自由流动，可以获得更全面的体验及知识;</li>
+<li>由于 SRE 模型中为了提高可用性需要采取一些与常规做法违背的做法，所以需要强有力的管理层支持才能推行下去。</li>
 </ol>
-</li>
-<li>SRE 团队成员有如下特点：<ol>
-<li>对重复性、手工性的操作天然的排斥感。</li>
-<li>有足够的技术能力快速开发出软件系统以替代人工操作。</li>
-</ol>
-</li>
-<li>避免团队的大小与所服务的产品负载呈线性同步增长：<ol>
-<li>负责运维服务的团队必须有足够的时间编程，否则他们会被运维工作淹没；</li>
-<li>传统运维工作包括：工单处理，手工操作等，运维工程师最多只能花50%的时间放在传统运维工作；</li>
-<li>SRE 管理层需要主动维护每一个 SRE 团队的工作平衡；</li>
-<li>SRE 团队和研发队员之间的成员可以自由流动，可以获得更全面的体验及知识；</li>
-</ol>
-</li>
-</ol>
+<h3 id="确保长期关注研发工作"><a href="#确保长期关注研发工作" class="headerlink" title="确保长期关注研发工作"></a>确保长期关注研发工作</h3><ul>
+<li>SRE 团队的运维工作限制在50%以内，他们应该将剩余时间花在研发项目上。</li>
+<li>可采取一些暂时性的措施将过多的运维压力移回给开发团队处理。</li>
+<li>SRE 处理运维工作的一项准则是：在每8~12小时的 on-call 轮值期间最多只处理两个紧急事件。</li>
+<li>所有的产品事故都应该有对应的事后总结，无论有没有触发警报。事后总结应该包括以下内容：事故发生、发现、解决的全过程，事故的根本原因，预防或者优化的解决方案。</li>
+</ul>
+<h3 id="在保障服务-SLO-的前提下最大化迭代速度"><a href="#在保障服务-SLO-的前提下最大化迭代速度" class="headerlink" title="在保障服务 SLO 的前提下最大化迭代速度"></a>在保障服务 SLO 的前提下最大化迭代速度</h3><blockquote>
+<p><strong>错误预算 p7</strong><br>“错误预算”起源于这样一个理念：任何产品都不是，也不应该做到 100% 可靠（显然这并不适用于心脏起搏器和防抱死刹车系统等）。一般来说，任何软件系统都不应该一味地追求 100% 可靠。因为对最终用户来说，99.999% 和 100% 的可用性是没有实质区别的。</p>
+</blockquote>
+<p>可靠性目标必须考虑以下几个方面：</p>
+<ul>
+<li>基于用户的使用习惯，服务可靠性要达到什么程度用户才会满意？</li>
+<li>如果这项服务的可靠程度不够，用户是否有其他的替代选择？</li>
+<li>服务的可靠程度是否会影响用户对这项服务的使用模式？<br>从这几个方面，我们就可以推导出“错误预算”。通过引进“错误预算”的概念，我们解决了研发团队和 SRE 团队之间的组织架构冲突。</li>
+</ul>
+<p><strong>点评：</strong> 错误预算这一概念是 SRE 得以持续发展的基石，它提供了一个可度量的标尺，让资源可以得到充分地、高效的使用。</p>
 
     </div>
 
@@ -389,6 +401,9 @@
               <a href="/tags/google/" rel="tag"># google</a>
               <a href="/tags/SRE/" rel="tag"># SRE</a>
               <a href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag"># 运维</a>
+              <a href="/tags/Ops/" rel="tag"># Ops</a>
+              <a href="/tags/Dev/" rel="tag"># Dev</a>
+              <a href="/tags/%E9%94%99%E8%AF%AF%E9%A2%84%E7%AE%97/" rel="tag"># 错误预算</a>
           </div>
 
         
