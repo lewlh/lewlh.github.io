@@ -6,6 +6,14 @@ HTMLElement.prototype.wrap = function(wrapper) {
   wrapper.appendChild(this);
 };
 
+// https://caniuse.com/#feat=mdn-api_element_classlist_replace
+if (typeof DOMTokenList.prototype.replace !== 'function') {
+  DOMTokenList.prototype.replace = function(remove, add) {
+    this.remove(remove);
+    this.add(add);
+  };
+}
+
 NexT.utils = {
 
   /**
@@ -66,17 +74,14 @@ NexT.utils = {
     document.querySelectorAll('figure.highlight').forEach(element => {
       element.querySelectorAll('.code .line span').forEach(span => {
         span.classList.forEach(name => {
-          // https://caniuse.com/#feat=mdn-api_element_classlist_replace
-          span.classList.remove(name);
-          span.classList.add(`hljs-${name}`);
+          span.classList.replace(name, `hljs-${name}`);
         });
       });
       if (!CONFIG.copycode) return;
       element.insertAdjacentHTML('beforeend', '<div class="copy-btn"><i class="fa fa-clipboard fa-fw"></i></div>');
       const button = element.querySelector('.copy-btn');
-      button.addEventListener('click', event => {
-        const target = event.currentTarget;
-        const code = [...target.parentNode.querySelectorAll('.code .line')].map(line => line.innerText).join('\n');
+      button.addEventListener('click', () => {
+        const code = [...button.parentNode.querySelectorAll('.code .line')].map(line => line.innerText).join('\n');
         const ta = document.createElement('textarea');
         ta.style.top = window.scrollY + 'px'; // Prevent page scrolling
         ta.style.position = 'absolute';
@@ -88,9 +93,9 @@ NexT.utils = {
         ta.setSelectionRange(0, code.length);
         ta.readOnly = false;
         const result = document.execCommand('copy');
-        target.querySelector('i').className = result ? 'fa fa-check-circle fa-fw' : 'fa fa-times-circle fa-fw';
+        button.querySelector('i').className = result ? 'fa fa-check-circle fa-fw' : 'fa fa-times-circle fa-fw';
         ta.blur(); // For iOS
-        target.blur();
+        button.blur();
         document.body.removeChild(ta);
       });
       element.addEventListener('mouseleave', () => {
@@ -179,23 +184,21 @@ NexT.utils = {
     document.querySelectorAll('.tabs ul.nav-tabs .tab').forEach(element => {
       element.addEventListener('click', event => {
         event.preventDefault();
-        const target = event.currentTarget;
         // Prevent selected tab to select again.
-        if (!target.classList.contains('active')) {
-          // Add & Remove active class on `nav-tabs` & `tab-content`.
-          [...target.parentNode.children].forEach(element => {
-            element.classList.toggle('active', element === target);
-          });
-          // https://stackoverflow.com/questions/20306204/using-queryselector-with-ids-that-are-numbers
-          const tActive = document.getElementById(target.querySelector('a').getAttribute('href').replace('#', ''));
-          [...tActive.parentNode.children].forEach(element => {
-            element.classList.toggle('active', element === tActive);
-          });
-          // Trigger event
-          tActive.dispatchEvent(new Event('tabs:click', {
-            bubbles: true
-          }));
-        }
+        if (element.classList.contains('active')) return;
+        // Add & Remove active class on `nav-tabs` & `tab-content`.
+        element.parentNode.childNodes.forEach(target => {
+          target.classList.toggle('active', target === element);
+        });
+        // https://stackoverflow.com/questions/20306204/using-queryselector-with-ids-that-are-numbers
+        const tActive = document.getElementById(element.querySelector('a').getAttribute('href').replace('#', ''));
+        tActive.parentNode.childNodes.forEach(target => {
+          target.classList.toggle('active', target === tActive);
+        });
+        // Trigger event
+        tActive.dispatchEvent(new Event('tabs:click', {
+          bubbles: true
+        }));
       });
     });
 
