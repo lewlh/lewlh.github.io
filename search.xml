@@ -1,6 +1,357 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>《SRE Google运维解密》读书笔记</title>
+    <url>/2020/07/18/SRE-Google%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86/</url>
+    <content><![CDATA[<p>笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享感悟。</p>
+<a id="more"></a>
+
+<h2 id="第-1-章-介绍"><a href="#第-1-章-介绍" class="headerlink" title="第 1 章 介绍"></a>第 1 章 介绍</h2><p>本章节目录：</p>
+<ul>
+<li>系统管理员模式</li>
+<li>Google 的解决之道：SRE</li>
+<li>SRE 方法论<ul>
+<li>确保长期关注研发工作</li>
+<li>在保障服务 SLO 的前提下最大化迭代速度</li>
+<li>监控系统</li>
+<li>应急事件处理</li>
+<li>变更管理</li>
+<li>需求预测和容量规划</li>
+<li>资源部署</li>
+<li>效率与性能</li>
+</ul>
+</li>
+<li>小结</li>
+</ul>
+<h3 id="系统管理员模式"><a href="#系统管理员模式" class="headerlink" title="系统管理员模式"></a>系统管理员模式</h3><p>行业内传统的做法是分别研发部门与运维部门，前者负责研发系统，开发业务逻辑，后者负责把新程序发布到生产环境，并维护系统的日常运行。作者从两方面分析这种做法的弊端：</p>
+<ol>
+<li>直接成本。运维团队的大小基本与系统负载成线性相关，共同成长。</li>
+<li>间接成本。线上问题大部分都与发版相关，研发部门期望“随时随地发布新功能，没有任何阻拦”，运维部门厌恶变化，为发版设置越来越多的门槛、限制，两者存在非常多的冲突。</li>
+</ol>
+<p>我认为，传统的“系统管理员模式”，只能解决低复杂度系统问题。随着系统复杂度的增长，系统模块、运行实例规模都高了几个数量级，对运维工作提出了更高的要。新功能必须在方案设计、指标设置、技术开发、监控系统、性能分析等方面提前规划。研发部门要提前考虑运维问题，运维部门也需要了解模块的实现机制，两者的工作逐渐融合。</p>
+<h3 id="SRE-方法论"><a href="#SRE-方法论" class="headerlink" title="SRE 方法论"></a>SRE 方法论</h3><p>本节作者介绍如何变革传统的模式，告诉读者，什么是 SRE。</p>
+<ol>
+<li>Google SRE 团队从2003年开始组建，由7名软件工程师组成。到2016年，约1000余人。</li>
+<li>SRE 团队由两种层次的工程师组成：<br>a. 50%-60% 是 Google 标准工程师；；<br>b. 40%-50% 是比标准工程师要求低一些的人，但具备其他能力的工程师，如 UNIX 内部细节和1-3层网络知识；</li>
+<li>SRE 团队成员有如下特点：<br>a. 对重复性、手工性的操作天然的排斥感。<br>b. 有足够的技术能力快速开发出软件系统以替代人工操作。</li>
+<li>避免团队的大小与所服务的产品负载呈线性同步增长：<br>a. 负责运维服务的团队必须有足够的时间编程，否则他们会被运维工作淹没；<br>b. 传统运维工作包括：工单处理，手工操作等，运维工程师最多只能花50%的时间放在传统运维工作；<br>c. SRE 管理层需要主动维护每一个 SRE 团队的工作平衡；<br>d. SRE 团队和研发队员之间的成员可以自由流动，可以获得更全面的体验及知识；</li>
+<li>由于 SRE 模型中为了提高可用性需要采取一些与常规做法违背的做法，所以需要强有力的管理层支持才能推行下去。</li>
+</ol>
+<h4 id="确保长期关注研发工作"><a href="#确保长期关注研发工作" class="headerlink" title="确保长期关注研发工作"></a>确保长期关注研发工作</h4><ul>
+<li>SRE 团队的运维工作限制在50%以内，他们应该将剩余时间花在研发项目上。</li>
+<li>可采取一些暂时性的措施将过多的运维压力移回给开发团队处理。</li>
+<li>SRE 处理运维工作的一项准则是：在每8~12小时的 on-call 轮值期间最多只处理两个紧急事件。</li>
+<li>所有的产品事故都应该有对应的事后总结，无论有没有触发警报。事后总结应该包括以下内容：事故发生、发现、解决的全过程，</li>
+</ul>
+<p>事故的根本原因，预防或者优化的解决方案。</p>
+<h4 id="在保障服务-SLO-的前提下最大化迭代速度"><a href="#在保障服务-SLO-的前提下最大化迭代速度" class="headerlink" title="在保障服务 SLO 的前提下最大化迭代速度"></a>在保障服务 SLO 的前提下最大化迭代速度</h4><blockquote>
+<p><strong>错误预算 p7</strong><br>“错误预算”起源于这样一个理念：任何产品都不是，也不应该做到 100% 可靠（显然这并不适用于心脏起搏器和防抱死刹车系统等）。一般来说，任何软件系统都不应该一味地追求 100% 可靠。因为对最终用户来说，99.999% 和 100% 的可用性是没有实质区别的。</p>
+</blockquote>
+<p>可靠性目标必须考虑以下几个方面：</p>
+<ul>
+<li>基于用户的使用习惯，服务可靠性要达到什么程度用户才会满意？</li>
+<li>如果这项服务的可靠程度不够，用户是否有其他的替代选择？</li>
+<li>服务的可靠程度是否会影响用户对这项服务的使用模式？<br>从这几个方面，我们就可以推导出“错误预算”。通过引进“错误预算”的概念，我们解决了研发团队和 SRE 团队之间的组织架构冲突。</li>
+</ul>
+<p><strong>点评：</strong> 错误预算这一概念是 SRE 得以持续发展的基石，它提供了一个可度量的标尺，让资源可以得到充分地、高效的使用。</p>
+<h4 id="监控系统"><a href="#监控系统" class="headerlink" title="监控系统"></a>监控系统</h4><p>监控系统不应该依赖人来分析警报信息，而是应该由系统自动分析，仅当需要用户执行某种操作时，才需要通知用户。一个监控系统应该只有三类输出。</p>
+<ul>
+<li>紧急警报(alert)</li>
+<li>工单(ticker)</li>
+<li>日志(logging)</li>
+</ul>
+<h4 id="需求预测和容量规划"><a href="#需求预测和容量规划" class="headerlink" title="需求预测和容量规划"></a>需求预测和容量规划</h4><p>容量规划有几个步骤是必需的：</p>
+<ul>
+<li>必须有一个准确的自然增长需求预测模型，需求预测的时间应该超过资源获取的时间。</li>
+<li>规划中必须有准确的非自然增长的需求来源的统计；</li>
+<li>必须有周期性压力测试，以便准确地将系统原始资源信息域业务容量信息对应起来。</li>
+</ul>
+<blockquote>
+<p>SRE 应该主导容量规划的过程，这也意味着 SRE 需要主导资源部署的过程。</p>
+</blockquote>
+<h4 id="资源部署"><a href="#资源部署" class="headerlink" title="资源部署"></a>资源部署</h4><p>新资源测部署与配置是一个相对比较危险的操作，必须要小心谨慎地执行。</p>
+<h4 id="效率与性能"><a href="#效率与性能" class="headerlink" title="效率与性能"></a>效率与性能</h4><p>保证服务可用性的前提下，提高资源的利用率，最终实现服务成本的降低。</p>
+<h2 id="第-2-章-Google-生产环境：SRE视角"><a href="#第-2-章-Google-生产环境：SRE视角" class="headerlink" title="第 2 章 Google 生产环境：SRE视角"></a>第 2 章 Google 生产环境：SRE视角</h2><p>本章节目录：</p>
+<ul>
+<li>硬件</li>
+<li>管理物理服务器的系统管理软件<ul>
+<li>管理物理服务器</li>
+<li>存储</li>
+<li>网络</li>
+</ul>
+</li>
+<li>其他系统软件<ul>
+<li>分布式锁服务</li>
+<li>监控与警报系统</li>
+</ul>
+</li>
+<li>软件基础设施</li>
+<li>研发环境</li>
+<li>莎士比亚搜索：一个示范服务<ul>
+<li>用户请求的处理过程</li>
+<li>任务和数据的组织方式</li>
+</ul>
+</li>
+</ul>
+<h3 id="硬件"><a href="#硬件" class="headerlink" title="硬件"></a>硬件</h3><p>本节介绍了 Google 的服务集群情况。</p>
+<h3 id="管理物理服务器的系统管理软件"><a href="#管理物理服务器的系统管理软件" class="headerlink" title="管理物理服务器的系统管理软件"></a>管理物理服务器的系统管理软件</h3><h4 id="管理物理服务器"><a href="#管理物理服务器" class="headerlink" title="管理物理服务器"></a>管理物理服务器</h4><p><strong>点评：</strong>Kubernetes，开源容器化集群编排系统，Google 创立于2014年。Kubernetes到今天已经成为业界事实上的行业标准，是管理物理服务器的最佳实践。</p>
+<h4 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h4><p>本节介绍了 Google 存储系统架构。存储系统有别与微服务容器，数据是需要落地的，因此管理难度更高。<br>下图是Google 存储系统：<br><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-3Google%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F.png" alt="图2-3. Google 存储系统" title="Google 存储系统"></p>
+<h4 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h4><p>Google 使用一个基于 OpenFlow 协议的软件定义网络（SDN），并构建了全球负载均衡系统（GSLB）。GSLB 在三个层面上负责负载均衡工作：</p>
+<ul>
+<li>利用地理位置信息进行负载均衡 DNS 请求。</li>
+<li>在用户服务层面进行负载均衡。</li>
+<li>在远程调用（RPC）层面进行负载均衡。</li>
+</ul>
+<h3 id="其他系统软件"><a href="#其他系统软件" class="headerlink" title="其他系统软件"></a>其他系统软件</h3><h4 id="分布式锁服务"><a href="#分布式锁服务" class="headerlink" title="分布式锁服务"></a>分布式锁服务</h4><p>Google 使用 Chubby 提供分布式锁服务。</p>
+<h4 id="监控与警报系统"><a href="#监控与警报系统" class="headerlink" title="监控与警报系统"></a>监控与警报系统</h4><p>Google 使用 Borgmon 提供监控与警报系统服务。</p>
+<h3 id="软件基础设施"><a href="#软件基础设施" class="headerlink" title="软件基础设施"></a>软件基础设施</h3><ul>
+<li>每一个软件服务器都有一个内置的 HTTP 服务，提供一些调式信息和统计信息，供在线调试、监控使用。</li>
+<li>使用 gRPC 进行远程调用通信。</li>
+</ul>
+<h3 id="研发环境"><a href="#研发环境" class="headerlink" title="研发环境"></a>研发环境</h3><ul>
+<li>除部分开源项目之外，Google 工程师全部使用同一个共享软件仓库开发。</li>
+<li>完善的代码评审，CI/CD 流程。</li>
+</ul>
+<h3 id="莎士比亚搜索：一个示范服务"><a href="#莎士比亚搜索：一个示范服务" class="headerlink" title="莎士比亚搜索：一个示范服务"></a>莎士比亚搜索：一个示范服务</h3><p>本节举例说明 Google 的系统是如何运转的。<br><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-4%E7%94%A8%E6%88%B7%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E8%BF%87%E7%A8%8B.png" alt="图2-4. 用户请求处理过程" title="用户请求处理过程"></p>
+<h2 id="第-3-章-拥抱风险"><a href="#第-3-章-拥抱风险" class="headerlink" title="第 3 章 拥抱风险"></a>第 3 章 拥抱风险</h2><p>本章节目录：</p>
+<ul>
+<li>管理风险</li>
+<li>度量服务的风险</li>
+<li>服务风险的容忍度<ul>
+<li>辨别消费者服务的风险容忍度</li>
+<li>基础设施服务的风险容忍度</li>
+</ul>
+</li>
+<li>使用错误预算的目的<ul>
+<li>错误预算的构建过程</li>
+<li>好处</li>
+</ul>
+</li>
+</ul>
+<h3 id="管理风险"><a href="#管理风险" class="headerlink" title="管理风险"></a>管理风险</h3><p>在 SRE 团队中，我们管理服务的可靠性很大程度上是通过管理风险来进行的。可靠性需要成本，主要存在于以下两个维度:</p>
+<ul>
+<li>冗余物理服务器 / 计算资源的成本。通过投入冗余设备，我们可以进行常规的系统离线或者其他预料之外的维护性操作。又或者可以利用一些空间来存储奇偶校验码块，以此来提供一定程度的数据持久性保证。</li>
+<li>机会成本。这类成本由某一个组织承担。当该组织分配工程资源来构建减少风险的系统或功能，而非那些用户直接可用的功能时需要承担这些成本。这些工程师不能再从事为终端用户设计新功能和新产品的工作。</li>
+</ul>
+<h3 id="度量服务的风险"><a href="#度量服务的风险" class="headerlink" title="度量服务的风险"></a>度量服务的风险</h3><p>可用性评估的两种方式：</p>
+<ol>
+<li>基于时间的可用性：可用性 = 系统正常运行时间 / （系统正常运行时间 + 停机时间）</li>
+<li>合计可用性：可用性 = 成功请求数 / 总的请求数<br>Google 内部是使用第二项，合计可用性。</li>
+</ol>
+<h3 id="服务风险的容忍度"><a href="#服务风险的容忍度" class="headerlink" title="服务风险的容忍度"></a>服务风险的容忍度</h3><p>本文以消费者服务、基础设施服务两个角度，从可用性目标、故障的类型、成本等维度分析风险情况。</p>
+<h3 id="使用错误预算的目的"><a href="#使用错误预算的目的" class="headerlink" title="使用错误预算的目的"></a>使用错误预算的目的</h3><p>错误预算就是一个双方同意的客观指标，平衡了可用性以及风险，让决策基于数据成为可能。</p>
+<h4 id="错误预算的构建过程"><a href="#错误预算的构建过程" class="headerlink" title="错误预算的构建过程"></a>错误预算的构建过程</h4><ul>
+<li>产品管理层定义一个 SLO，确定一项服务在每个季度预计的正常运行时间。</li>
+<li>实际在线时间是通过一个中立第三方来测算的：我们的监控系统。</li>
+<li>这两个数字的差值就是这个季度中剩余的不可靠性预算。</li>
+<li>只要测算出的正常在线时间高于 SLO，也就是说，只要仍然有剩余的错误预算，就可以发布新的版本。</li>
+</ul>
+<h4 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h4><p>错误预算的主要好处就是它能够激励产品研发和 SRE 一起找出创新和可靠性之间合理的平衡点。</p>
+<blockquote>
+<ul>
+<li>管理服务的可靠性主要在于管理风险，而且管理风险的成本可能很高。</li>
+<li>100% 可能永远都不是一个正确的可靠性目标：不仅是不可能实现的，而且它通常比一项服务的用户期望的可靠性大得多。我们要将服务风险和意愿承担的业务风险相匹配。</li>
+<li>错误预算在 SRE 和产品研发团队之间调整激励，同时强调共同责任。错误预算试的讨论发布速率更容易，同时可有效地减少任何关于事故的讨论。这样，多个团队可以毫无怨言地对生产环境风险度达成一致。</li>
+</ul>
+</blockquote>
+<h2 id="第-4-章-服务质量目标"><a href="#第-4-章-服务质量目标" class="headerlink" title="第 4 章 服务质量目标"></a>第 4 章 服务质量目标</h2><p>本章节目录：</p>
+<ul>
+<li>服务质量术语<ul>
+<li>指标</li>
+<li>目标</li>
+<li>协议</li>
+</ul>
+</li>
+<li>指标在实践中的应用<ul>
+<li>运维人员和最终用户各关心什么</li>
+<li>指标的收集</li>
+<li>汇总</li>
+<li>指标的标准化</li>
+</ul>
+</li>
+<li>目标在实践中的应用<ul>
+<li>目标的定义</li>
+<li>目标的选择</li>
+<li>控制手段</li>
+<li>SLO 可以建立用户预期</li>
+</ul>
+</li>
+<li>协议在实践中的应用</li>
+</ul>
+<h3 id="服务质量术语"><a href="#服务质量术语" class="headerlink" title="服务质量术语"></a>服务质量术语</h3><ul>
+<li>SLI 是指服务质量指标（Indicator）—-该服务的某项服务质量的一个具体量化指标。</li>
+<li>SLO 是服务质量目标（Objective）：服务的某个 SLI 的目标值，或者目标范围。SLO 的定义是 SLI ≤ 目标值，或者范围下限 ≤ SLI ≤ 范围上限。</li>
+<li>SLA 是服务质量协议（Agreement）：指服务与用户之间的一个明确的，或者不明确的协议，描述了在达到或者没有达到 SLO 之后的后果。</li>
+</ul>
+<h4 id="指标"><a href="#指标" class="headerlink" title="指标"></a>指标</h4><p>文中提到的 SLI 有：</p>
+<ol>
+<li>请求延迟—-处理请求所消耗的时间。</li>
+<li>错误率—-请求处理失败的百分比。</li>
+<li>系统吞吐量—-每秒请求数量。</li>
+<li>可用性，代表服务可用时间的百分比，该指标通常利用“格式正确的请求处理成功的比例”来定义，有时也称为服务产出（yield）。</li>
+<li>对数据存储系统来说，持久性（durability）—-数据能够完整保存的时间。</li>
+</ol>
+<blockquote>
+<p>目前 Google 云计算服务公开的可用性指标是“3.5个9”—-99.95%可用。</p>
+</blockquote>
+<h4 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h4><p>本节提到的一个重要的结论：SLO 的选择和公布可以帮助设立用户对服务质量的预期。该举措可以：</p>
+<ul>
+<li>防止用户对某个服务的过度依赖；</li>
+<li>防止用户对某个服务信心不足；</li>
+</ul>
+<p>最后列举了一个例子《全球 Chubby 服务计划内停机》p36，告诉读者 Google 是如何处理用户对某个服务过度依赖的情况。</p>
+<h4 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h4><p>区别 SLO 和 SLA 的一个简单方法是问“如果 SLO 没有达到时，有什么后果？” 如果没有定义明确的后果，那么我们就肯定是在讨论一个 SLO，而不是 SLA。</p>
+<h3 id="指标在实践中的应用"><a href="#指标在实践中的应用" class="headerlink" title="指标在实践中的应用"></a>指标在实践中的应用</h3><h4 id="运维人员和最终用户各关心什么"><a href="#运维人员和最终用户各关心什么" class="headerlink" title="运维人员和最终用户各关心什么"></a>运维人员和最终用户各关心什么</h4><ul>
+<li>用户可见的服务系统，例如莎士比亚搜索服务的前端服务器通常关心可用性、延迟，以及吞吐量。</li>
+<li>存储系统通常强调：延迟、可用性和数据持久性。</li>
+<li>大数据系统，例如数据处理流水线系统，一般来说关心吞吐量和端到端延迟。</li>
+<li>所有的系统都应该关注：正确性。该指标通常不是 SRE 直接负责的，而应该由产品研发部门负责。</li>
+</ul>
+<h4 id="指标的收集"><a href="#指标的收集" class="headerlink" title="指标的收集"></a>指标的收集</h4><p>利用某种监控系统，大部分指标数据都在服务器端被收集，例如 Borgmon 或者 Prometheus。或者利用某种日志分析系统。</p>
+<h4 id="汇总"><a href="#汇总" class="headerlink" title="汇总"></a>汇总</h4><p>为了简化和使数据更可用，我们经常需要汇总原始度量数。汇总过程应该非常小心。</p>
+<blockquote>
+<p>大部分指标都应以”分布”，而不是平均值来定义。<br>利用百分位指标可以帮助我们关注该指标的分布性：高百分位，例如 99% 和 99.9% 体现了指标的最差情况，而 50% 则体现了普遍情况。响应时间的分布越分散，意味着普通用户受到长尾请求延迟的影响就越明显，这可能预示了负载过高情况下出现的排队问题。用户研究显示，用户通常更喜欢速度较慢的系统，而不是一个请求速度抖动很厉害的系统，所以，某些 SRE 团队只关注长尾部分。<br>本节末还提供了《关于统计性谬误》p39 一文，解析对于 SRE 为什么一组数据的百分比分布，比算数平均值更有价值。</p>
+</blockquote>
+<h4 id="指标的标准化"><a href="#指标的标准化" class="headerlink" title="指标的标准化"></a>指标的标准化</h4><p>作者建议标准化一些常见的 SLI，以避免每次都要重新评估它们。任何一个符合标准定义模板的服务可以不需要再次自己定义 SLI。</p>
+<ul>
+<li>汇总间隔：每 1 分钟汇总一次</li>
+<li>汇总范围：集群中的全部任务</li>
+<li>度量频率：每 10 秒一次</li>
+<li>包含哪些请求：从黑盒监控任务发来的 HTTP GET 请求</li>
+<li>数据如何获取：通过监控系统获取服务器端信息得到</li>
+<li>数据访问延迟：从收到请求到最后一个字节被发出</li>
+</ul>
+<h3 id="目标在实践中的应用"><a href="#目标在实践中的应用" class="headerlink" title="目标在实践中的应用"></a>目标在实践中的应用</h3><h4 id="目标的定义"><a href="#目标的定义" class="headerlink" title="目标的定义"></a>目标的定义</h4><p>本节主要介绍如何通过错误预算，定义目标。</p>
+<h4 id="目标的选择"><a href="#目标的选择" class="headerlink" title="目标的选择"></a>目标的选择</h4><p>本节提供了目标选择的建议：</p>
+<ul>
+<li>不要仅以目前的状态为基础选择目标</li>
+<li>保持简单</li>
+<li>避免绝对值</li>
+<li>SLO 越少越好</li>
+<li>不要追求完美</li>
+</ul>
+<p>SLO 代表了用户体验的程度，是划分工作优先级的重要参考。</p>
+<h4 id="控制手段"><a href="#控制手段" class="headerlink" title="控制手段"></a>控制手段</h4><p>SLI 和 SLO 在决策系统运维是也非常有用：</p>
+<ol>
+<li>监控并且度量系统的 SLI。</li>
+<li>比较 SLI 和 SLO，以决定是否需要执行操作。</li>
+<li>如果需要执行操作，则要决定究竟什么操作需要被执行，以便满足目标。</li>
+<li>执行这些操作。</li>
+</ol>
+<h4 id="SLO-可以建立用户预期"><a href="#SLO-可以建立用户预期" class="headerlink" title="SLO 可以建立用户预期"></a>SLO 可以建立用户预期</h4><p>通过公布 SLO 可以设置用户对系统行为的预期。为了让用户拥有正确的预期，我们可以考虑使用以下几种策略：</p>
+<ul>
+<li>留出一定的安全区</li>
+<li>实际 SLO 也不要过高</li>
+</ul>
+<h3 id="协议在实践中的应用"><a href="#协议在实践中的应用" class="headerlink" title="协议在实践中的应用"></a>协议在实践中的应用</h3><p>协议涉及到法律问题，应保持保守。</p>
+<h2 id="第-5-章-减少琐事"><a href="#第-5-章-减少琐事" class="headerlink" title="第 5 章 减少琐事"></a>第 5 章 减少琐事</h2><p>本章节目录：</p>
+<ul>
+<li>琐事的定义</li>
+<li>为什么所示越少越好</li>
+<li>什么算作工程工作</li>
+<li>琐事繁多是不是一定不好</li>
+<li>小结</li>
+</ul>
+<p>未完待续……</p>
+]]></content>
+      <tags>
+        <tag>google</tag>
+        <tag>SRE</tag>
+        <tag>运维</tag>
+        <tag>Ops</tag>
+        <tag>Dev</tag>
+        <tag>错误预算</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>博客的开端</title>
+    <url>/2020/06/06/hello-world/</url>
+    <content><![CDATA[<p>本人从事程序员这个职业已经 N 年了，在各种项目中解决了不少问题，一直没有把这些经验固化下来，现在回过头来看，确实是有遗憾。在之前我已经搭建起一个博客，但是又因为生活中的琐事，耽搁放弃了。成年人的世界，要做成一件需要花心思的事情，真实越来越难，躺着睡觉看视频多容易多舒服呀！今天终于有时间，鼓起勇气，把这个想法付诸实践。博客的内容，一方面是分享自己的经验、见闻，一方面也是整理自己的思路，提升自己的技术水平。写作水平有限，如有读者，谢谢你的光临，望多指教。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>PgSQL · 特性分析 · PG主备流复制机制</title>
+    <url>/2020/07/13/PG%E4%B8%BB%E5%A4%87%E6%B5%81%E5%A4%8D%E5%88%B6%E6%9C%BA%E5%88%B6/</url>
+    <content><![CDATA[<p>本文来自于阿里云RDS-数据库内核组，<a href="http://mysql.taobao.org/monthly/2015/10/04/" target="_blank" rel="noopener">文章地址</a>。笔者读完此文，感觉作者对 PostgreSQL 流复制 streaming replication 的机制解析的非常透彻，是一遍非常好的技术分享文档。文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用-相同方式共享 3.0 未本地化版本许可协议</a>,因此笔者将本文收录于自己的博客中，方便日后学习检索。</p>
+<a id="more"></a>
+
+<hr>
+<p>PostgreSQL在9.0之后引入了主备流复制机制，通过流复制，备库不断的从主库同步相应的数据，并在备库apply每个WAL record，这里的流复制每次传输单位是WAL日志的record。而PostgreSQL9.0之前提供的方法是主库写完一个WAL日志文件后，才把WAL日志文件传送到备库，这样的方式导致主备延迟特别大。同时PostgreSQL9.0之后提供了Hot Standby，备库在应用WAL record的同时也能够提供只读服务，大大提升了用户体验。</p>
+<h1 id="主备总体结构"><a href="#主备总体结构" class="headerlink" title="主备总体结构"></a>主备总体结构</h1><p>PG主备流复制的核心部分由walsender，walreceiver和startup三个进程组成。 walsender进程是用来发送WAL日志记录的，执行顺序如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostgresMain()-&gt;exec_replication_command()-&gt;StartReplication()-&gt;WalSndLoop()-&gt;XLogSendPhysical()</span><br></pre></td></tr></table></figure>
+
+<p>walreceiver进程是用来接收WAL日志记录的，执行顺序如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sigusr1_handler()-&gt;StartWalReceiver()-&gt;AuxiliaryProcessMain()-&gt;WalReceiverMain()-&gt;walrcv_receive()</span><br></pre></td></tr></table></figure>
+
+<p>startup进程是用来apply日志的，执行顺序如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostmasterMain()-&gt;StartupDataBase()-&gt;AuxiliaryProcessMain()-&gt;StartupProcessMain()-&gt;StartupXLOG()</span><br></pre></td></tr></table></figure>
+
+<p>下图是PG主备总体框架图：<br><img src="/images/20200713_PG%E4%B8%BB%E5%A4%87%E6%80%BB%E4%BD%93%E6%A1%86%E6%9E%B6%E5%9B%BE.png" alt="图1. PG主备总体框架图" title="PG主备总体框架图"></p>
+<h1 id="walsender和walreceiver进程流复制过程"><a href="#walsender和walreceiver进程流复制过程" class="headerlink" title="walsender和walreceiver进程流复制过程"></a>walsender和walreceiver进程流复制过程</h1><p>walsender和walreceiver交互主要分为以下几个步骤：</p>
+<ol>
+<li>walreceiver启动后通过recovery.conf文件中的primary_conninfo参数信息连向主库，主库通过连接参数replication=true启动walsender进程；</li>
+<li>walreceiver执行identify_system命令，获取主库systemid/timeline/xlogpos等信息，执行TIMELINE_HISTORY命令拉取history文件；</li>
+<li>执行wal_startstreaming开始启动流复制，通过walrcv_receive获取WAL日志，期间也会回应主库发过来的心跳信息(接收位点、flush位点、apply位点)，向主库发送feedback信息(最老的事务id)，避免vacuum删掉备库正在使用的记录；</li>
+<li>执行walrcv_endstreaming结束流复制，等待startup进程更新receiveStart和receiveStartTLI，一旦更新，进入步骤2。</li>
+</ol>
+<p><img src="/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png" alt="图2. PG流复制过程" title="PG流复制过程"></p>
+<h1 id="walreceiver和startup进程"><a href="#walreceiver和startup进程" class="headerlink" title="walreceiver和startup进程"></a>walreceiver和startup进程</h1><p>startup进程进入standby模式和apply日志主要过程：</p>
+<ol>
+<li>读取pg_control文件，找到redo位点;读取recovery.conf，如果配置standby_mode=on则进入standby模式。</li>
+<li>如果是Hot Standby需要初始化clog、subtrans、事务环境等。初始化redo资源管理器，比如Heap、Heap2、Database、XLOG等。</li>
+<li>读取WAL record，如果record不存在需要调用XLogPageRead-&gt;WaitForWALToBecomeAvailable-&gt;RequestXLogStreaming唤醒walreceiver从walsender获取WAL record。</li>
+<li>对读取的WAL record进行redo，通过record-&gt;xl_rmid信息，调用相应的redo资源管理器进行redo操作。比如heap_redo的XLOG_HEAP_INSERT操作，就是通过record的信息在buffer page中增加一个record： <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">MemSet((<span class="keyword">char</span> *) htup, <span class="number">0</span>, <span class="keyword">sizeof</span>(HeapTupleHeaderData));</span><br><span class="line"><span class="comment">/* PG73FORMAT: get bitmap [+ padding] [+ oid] + data */</span></span><br><span class="line"><span class="built_in">memcpy</span>((<span class="keyword">char</span> *) htup + offsetof(HeapTupleHeaderData, t_bits),</span><br><span class="line">    (<span class="keyword">char</span> *) xlrec + SizeOfHeapInsert + SizeOfHeapHeader,</span><br><span class="line">    newlen);</span><br><span class="line">newlen += offsetof(HeapTupleHeaderData, t_bits);</span><br><span class="line">htup-&gt;t_infomask2 = xlhdr.t_infomask2;</span><br><span class="line">htup-&gt;t_infomask = xlhdr.t_infomask;</span><br><span class="line">htup-&gt;t_hoff = xlhdr.t_hoff;</span><br><span class="line">HeapTupleHeaderSetXmin(htup, record-&gt;xl_xid);</span><br><span class="line">HeapTupleHeaderSetCmin(htup, FirstCommandId);</span><br><span class="line">htup-&gt;t_ctid = xlrec-&gt;target.tid;</span><br><span class="line"></span><br><span class="line">offnum = PageAddItem(page, (Item) htup, newlen, offnum, <span class="literal">true</span>, <span class="literal">true</span>);</span><br><span class="line"><span class="keyword">if</span> (offnum == InvalidOffsetNumber)</span><br><span class="line">    elog(PANIC, <span class="string">"heap_insert_redo: failed to add tuple"</span>);</span><br><span class="line"></span><br><span class="line">freespace = PageGetHeapFreeSpace(page);		<span class="comment">/* needed to update FSM below */</span></span><br><span class="line"></span><br><span class="line">PageSetLSN(page, lsn);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (xlrec-&gt;flags &amp; XLOG_HEAP_ALL_VISIBLE_CLEARED)</span><br><span class="line">    PageClearAllVisible(page);</span><br><span class="line"></span><br><span class="line">MarkBufferDirty(buffer);</span><br></pre></td></tr></table></figure>
+ 还有部分redo操作(vacuum产生的record)需要检查在Hot Standby模式下的查询冲突，比如某些tuples需要remove，而存在正在执行的query可能读到这些tuples，这样就会破坏事务隔离级别。通过函数ResolveRecoveryConflictWithSnapshot检测冲突，如果发生冲突，那么就把这个query所在的进程kill掉。</li>
+<li>检查一致性，如果一致了，Hot Standby模式可以接受用户只读查询；更新共享内存中XLogCtlData的apply位点和时间线；如果恢复到时间点，时间线或者事务id需要检查是否恢复到当前目标；</li>
+<li>回到步骤3，读取next WAL record。</li>
+</ol>
+<p><img src="/images/20200713_PG_standby%E6%A8%A1%E5%BC%8F%E5%92%8Capply%E6%97%A5%E5%BF%97%E8%BF%87%E7%A8%8B.png" alt="图3. PG standby模式和apply日志过程" title="PG standby模式和apply日志过程"></p>
+]]></content>
+      <tags>
+        <tag>postgres</tag>
+        <tag>PostgreSQL</tag>
+        <tag>streaming replication</tag>
+        <tag>wal</tag>
+        <tag>xlog</tag>
+        <tag>PgSQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>一个 Wine + Java + Dlls 的 Docker 镜像</title>
+    <url>/2020/06/06/%E4%B8%80%E4%B8%AA-wine-java-dlls-%E7%9A%84-docker-%E9%95%9C%E5%83%8F/</url>
+    <content><![CDATA[<p>我有一个 java 项目，需要在 windows 环境下调用第三方的动态链接库 dll 去解析数据，之前一直使用 windows server 2016 + docker + windows container 的方案运行。这个方案能解决第三方dll不能并行运行的问题，可以在一台机器上部署多个 instance。但是由于 windows server 2016 一直是使用虚拟机安装，导致该服务的性能不佳，而且也依赖 windows server 2016 及更高版本的系统。最近我制作了一个 wine + java + dlls 的 docker 镜像，让该 java 项目直接运行在 linux 的容器中，提高了性能，减少了服务器成本。本文介绍该镜像的制作细节。</p>
+<a id="more"></a>
+
+<h3 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h3><p>本镜像基于 <code>ubuntu:18.04</code> 构建, Dockfile 源码如下：</p>
+<figure class="highlight docker"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">18.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-http.list /etc/apt/sources.list</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get update &amp;&amp; apt-get install -y apt-transport-https ca-certificates</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-https.list /etc/apt/sources.list</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> dpkg --add-architecture i386 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get update &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get install -y wine32 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get clean -y</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> jdk-8u172-windows-i586.exe /app/jdk.exe</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> chmod +x /app/jdk.exe &amp;&amp; wine /app/jdk.exe /s &amp;&amp; rm /app/jdk.exe</span></span><br><span class="line"><span class="keyword">ARG</span> target=<span class="string">"/root/.wine/drive_c/Program Files/Java/jre1.8.0_172/bin/"</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./dlls/ <span class="variable">$&#123;target&#125;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /root</span></span><br></pre></td></tr></table></figure>
+
+<p>我们需要自行准备以下文件：</p>
+<ul>
+<li>sources-http.list, http 安装源链接,为了加快镜像编译速度:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></li>
+<li>sources-https.list, https 安装源链接,为了加快镜像编译速度:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></li>
+<li>jdk-8u172-windows-i586.exe, jdk安装包，其他版本的jdk需要自行验证是否能正确安装;</li>
+<li>依赖的动态链接库 .dll 文件，将这些文件复制到 Dockerfile 所在目录的 dlls 文件下;</li>
+</ul>
+<p>准备完成后，文件结构如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── jdk-8u172-windows-i586.exe</span><br><span class="line">├── dlls</span><br><span class="line">├── sources-http.list</span><br><span class="line">└── sources-https.list</span><br></pre></td></tr></table></figure>
+<p>在此目录下，执行以下命令，编译镜像：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker build -t wine-java-dlls:<span class="built_in">test</span> --network=host .</span><br></pre></td></tr></table></figure>
+<p>成功编译后，我们将得到镜像 <code>wine-java-dlls:test</code>。</p>
+<h3 id="使用镜像"><a href="#使用镜像" class="headerlink" title="使用镜像"></a>使用镜像</h3><p>通过 wine 执行 java,目前该镜像需要直接声明 java.exe 在 wine 中的路径,使用示例如下:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -d --net=host --name example --init -w /app -v /root/path/to/jar/location:/app wine-java-dlls:<span class="built_in">test</span> wine <span class="string">"C:\\Program Files\\Java\\jre1.8.0_172\\bin\\java.exe"</span> -jar test.jar</span><br></pre></td></tr></table></figure>
+
+<p><strong>参考阅读：</strong><br><a href="https://kupczynski.info/2018/11/11/wine-windows-jdk-on-linux.html" target="_blank" rel="noopener">《Use wine to run windows JDK on linux》</a></p>
+]]></content>
+      <tags>
+        <tag>wine</tag>
+        <tag>docker</tag>
+        <tag>container</tag>
+        <tag>java</tag>
+        <tag>jre</tag>
+        <tag>jdk</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>CentOS 7 安装 oh-my-zsh</title>
     <url>/2020/06/28/CentOS-7-%E5%AE%89%E8%A3%85-oh-my-zsh/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本人比较喜欢使用 <code>oh-my-zsh</code> 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。</p>
@@ -54,325 +405,6 @@
       <tags>
         <tag>centos7</tag>
         <tag>oh-my-zsh</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>PgSQL · 特性分析 · PG主备流复制机制</title>
-    <url>/2020/07/13/PG%E4%B8%BB%E5%A4%87%E6%B5%81%E5%A4%8D%E5%88%B6%E6%9C%BA%E5%88%B6/</url>
-    <content><![CDATA[<p>本文来自于阿里云RDS-数据库内核组，<a href="http://mysql.taobao.org/monthly/2015/10/04/" target="_blank" rel="noopener">文章地址</a>。笔者读完此文，感觉作者对 PostgreSQL 流复制 streaming replication 的机制解析的非常透彻，是一遍非常好的技术分享文档。文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用-相同方式共享 3.0 未本地化版本许可协议</a>,因此笔者将本文收录于自己的博客中，方便日后学习检索。</p>
-<a id="more"></a>
-
-<hr>
-<p>PostgreSQL在9.0之后引入了主备流复制机制，通过流复制，备库不断的从主库同步相应的数据，并在备库apply每个WAL record，这里的流复制每次传输单位是WAL日志的record。而PostgreSQL9.0之前提供的方法是主库写完一个WAL日志文件后，才把WAL日志文件传送到备库，这样的方式导致主备延迟特别大。同时PostgreSQL9.0之后提供了Hot Standby，备库在应用WAL record的同时也能够提供只读服务，大大提升了用户体验。</p>
-<h1 id="主备总体结构"><a href="#主备总体结构" class="headerlink" title="主备总体结构"></a>主备总体结构</h1><p>PG主备流复制的核心部分由walsender，walreceiver和startup三个进程组成。 walsender进程是用来发送WAL日志记录的，执行顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostgresMain()-&gt;exec_replication_command()-&gt;StartReplication()-&gt;WalSndLoop()-&gt;XLogSendPhysical()</span><br></pre></td></tr></table></figure>
-
-<p>walreceiver进程是用来接收WAL日志记录的，执行顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sigusr1_handler()-&gt;StartWalReceiver()-&gt;AuxiliaryProcessMain()-&gt;WalReceiverMain()-&gt;walrcv_receive()</span><br></pre></td></tr></table></figure>
-
-<p>startup进程是用来apply日志的，执行顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostmasterMain()-&gt;StartupDataBase()-&gt;AuxiliaryProcessMain()-&gt;StartupProcessMain()-&gt;StartupXLOG()</span><br></pre></td></tr></table></figure>
-
-<p>下图是PG主备总体框架图：<br><img src="/images/20200713_PG%E4%B8%BB%E5%A4%87%E6%80%BB%E4%BD%93%E6%A1%86%E6%9E%B6%E5%9B%BE.png" alt="图1. PG主备总体框架图" title="PG主备总体框架图"></p>
-<h1 id="walsender和walreceiver进程流复制过程"><a href="#walsender和walreceiver进程流复制过程" class="headerlink" title="walsender和walreceiver进程流复制过程"></a>walsender和walreceiver进程流复制过程</h1><p>walsender和walreceiver交互主要分为以下几个步骤：</p>
-<ol>
-<li>walreceiver启动后通过recovery.conf文件中的primary_conninfo参数信息连向主库，主库通过连接参数replication=true启动walsender进程；</li>
-<li>walreceiver执行identify_system命令，获取主库systemid/timeline/xlogpos等信息，执行TIMELINE_HISTORY命令拉取history文件；</li>
-<li>执行wal_startstreaming开始启动流复制，通过walrcv_receive获取WAL日志，期间也会回应主库发过来的心跳信息(接收位点、flush位点、apply位点)，向主库发送feedback信息(最老的事务id)，避免vacuum删掉备库正在使用的记录；</li>
-<li>执行walrcv_endstreaming结束流复制，等待startup进程更新receiveStart和receiveStartTLI，一旦更新，进入步骤2。</li>
-</ol>
-<p><img src="/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png" alt="图2. PG流复制过程" title="PG流复制过程"></p>
-<h1 id="walreceiver和startup进程"><a href="#walreceiver和startup进程" class="headerlink" title="walreceiver和startup进程"></a>walreceiver和startup进程</h1><p>startup进程进入standby模式和apply日志主要过程：</p>
-<ol>
-<li>读取pg_control文件，找到redo位点;读取recovery.conf，如果配置standby_mode=on则进入standby模式。</li>
-<li>如果是Hot Standby需要初始化clog、subtrans、事务环境等。初始化redo资源管理器，比如Heap、Heap2、Database、XLOG等。</li>
-<li>读取WAL record，如果record不存在需要调用XLogPageRead-&gt;WaitForWALToBecomeAvailable-&gt;RequestXLogStreaming唤醒walreceiver从walsender获取WAL record。</li>
-<li>对读取的WAL record进行redo，通过record-&gt;xl_rmid信息，调用相应的redo资源管理器进行redo操作。比如heap_redo的XLOG_HEAP_INSERT操作，就是通过record的信息在buffer page中增加一个record： <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">MemSet((<span class="keyword">char</span> *) htup, <span class="number">0</span>, <span class="keyword">sizeof</span>(HeapTupleHeaderData));</span><br><span class="line"><span class="comment">/* PG73FORMAT: get bitmap [+ padding] [+ oid] + data */</span></span><br><span class="line"><span class="built_in">memcpy</span>((<span class="keyword">char</span> *) htup + offsetof(HeapTupleHeaderData, t_bits),</span><br><span class="line">    (<span class="keyword">char</span> *) xlrec + SizeOfHeapInsert + SizeOfHeapHeader,</span><br><span class="line">    newlen);</span><br><span class="line">newlen += offsetof(HeapTupleHeaderData, t_bits);</span><br><span class="line">htup-&gt;t_infomask2 = xlhdr.t_infomask2;</span><br><span class="line">htup-&gt;t_infomask = xlhdr.t_infomask;</span><br><span class="line">htup-&gt;t_hoff = xlhdr.t_hoff;</span><br><span class="line">HeapTupleHeaderSetXmin(htup, record-&gt;xl_xid);</span><br><span class="line">HeapTupleHeaderSetCmin(htup, FirstCommandId);</span><br><span class="line">htup-&gt;t_ctid = xlrec-&gt;target.tid;</span><br><span class="line"></span><br><span class="line">offnum = PageAddItem(page, (Item) htup, newlen, offnum, <span class="literal">true</span>, <span class="literal">true</span>);</span><br><span class="line"><span class="keyword">if</span> (offnum == InvalidOffsetNumber)</span><br><span class="line">    elog(PANIC, <span class="string">"heap_insert_redo: failed to add tuple"</span>);</span><br><span class="line"></span><br><span class="line">freespace = PageGetHeapFreeSpace(page);		<span class="comment">/* needed to update FSM below */</span></span><br><span class="line"></span><br><span class="line">PageSetLSN(page, lsn);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (xlrec-&gt;flags &amp; XLOG_HEAP_ALL_VISIBLE_CLEARED)</span><br><span class="line">    PageClearAllVisible(page);</span><br><span class="line"></span><br><span class="line">MarkBufferDirty(buffer);</span><br></pre></td></tr></table></figure>
- 还有部分redo操作(vacuum产生的record)需要检查在Hot Standby模式下的查询冲突，比如某些tuples需要remove，而存在正在执行的query可能读到这些tuples，这样就会破坏事务隔离级别。通过函数ResolveRecoveryConflictWithSnapshot检测冲突，如果发生冲突，那么就把这个query所在的进程kill掉。</li>
-<li>检查一致性，如果一致了，Hot Standby模式可以接受用户只读查询；更新共享内存中XLogCtlData的apply位点和时间线；如果恢复到时间点，时间线或者事务id需要检查是否恢复到当前目标；</li>
-<li>回到步骤3，读取next WAL record。</li>
-</ol>
-<p><img src="/images/20200713_PG_standby%E6%A8%A1%E5%BC%8F%E5%92%8Capply%E6%97%A5%E5%BF%97%E8%BF%87%E7%A8%8B.png" alt="图3. PG standby模式和apply日志过程" title="PG standby模式和apply日志过程"></p>
-]]></content>
-      <tags>
-        <tag>postgres</tag>
-        <tag>PostgreSQL</tag>
-        <tag>streaming replication</tag>
-        <tag>wal</tag>
-        <tag>xlog</tag>
-        <tag>PgSQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>《SRE Google运维解密》读书笔记</title>
-    <url>/2020/07/18/SRE-Google%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86/</url>
-    <content><![CDATA[<p>笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享我的感悟。</p>
-<a id="more"></a>
-<h1 id="第-1-章-介绍"><a href="#第-1-章-介绍" class="headerlink" title="第 1 章 介绍"></a>第 1 章 介绍</h1><p>本章节目录：</p>
-<ul>
-<li>系统管理员模式</li>
-<li>Google 的解决之道：SRE</li>
-<li>SRE 方法论<ul>
-<li>确保长期关注研发工作</li>
-<li>在保障服务 SLO 的前提下最大化迭代速度</li>
-<li>监控系统</li>
-<li>应急事件处理</li>
-<li>变更管理</li>
-<li>需求预测和容量规划</li>
-<li>资源部署</li>
-<li>效率与性能</li>
-</ul>
-</li>
-<li>小结</li>
-</ul>
-<h2 id="系统管理员模式"><a href="#系统管理员模式" class="headerlink" title="系统管理员模式"></a>系统管理员模式</h2><p>行业内传统的做法是分别研发部门与运维部门，前者负责研发系统，开发业务逻辑，后者负责把新程序发布到生产环境，并维护系统的日常运行。作者从两方面分析这种做法的弊端：</p>
-<ol>
-<li>直接成本。运维团队的大小基本与系统负载成线性相关，共同成长。</li>
-<li>间接成本。线上问题大部分都与发版相关，研发部门期望“随时随地发布新功能，没有任何阻拦”，运维部门厌恶变化，为发版设置越来越多的门槛、限制，两者存在非常多的冲突。</li>
-</ol>
-<p>我认为，传统的“系统管理员模式”，只能解决低复杂度系统问题。随着系统复杂度的增长，系统模块、运行实例规模都高了几个数量级，对运维工作提出了更高的要。新功能必须在方案设计、指标设置、技术开发、监控系统、性能分析等方面提前规划。研发部门要提前考虑运维问题，运维部门也需要了解模块的实现机制，两者的工作逐渐融合。</p>
-<h2 id="SRE-方法论"><a href="#SRE-方法论" class="headerlink" title="SRE 方法论"></a>SRE 方法论</h2><p>本节作者介绍如何变革传统的模式，告诉读者，什么是 SRE。</p>
-<ol>
-<li>Google SRE 团队从2003年开始组建，由7名软件工程师组成。到2016年，约1000余人。</li>
-<li>SRE 团队由两种层次的工程师组成：<br>a. 50%-60% 是 Google 标准工程师；；<br>b. 40%-50% 是比标准工程师要求低一些的人，但具备其他能力的工程师，如 UNIX 内部细节和1-3层网络知识；</li>
-<li>SRE 团队成员有如下特点：<br>a. 对重复性、手工性的操作天然的排斥感。<br>b. 有足够的技术能力快速开发出软件系统以替代人工操作。</li>
-<li>避免团队的大小与所服务的产品负载呈线性同步增长：<br>a. 负责运维服务的团队必须有足够的时间编程，否则他们会被运维工作淹没；<br>b. 传统运维工作包括：工单处理，手工操作等，运维工程师最多只能花50%的时间放在传统运维工作；<br>c. SRE 管理层需要主动维护每一个 SRE 团队的工作平衡；<br>d. SRE 团队和研发队员之间的成员可以自由流动，可以获得更全面的体验及知识；</li>
-<li>由于 SRE 模型中为了提高可用性需要采取一些与常规做法违背的做法，所以需要强有力的管理层支持才能推行下去。</li>
-</ol>
-<h3 id="确保长期关注研发工作"><a href="#确保长期关注研发工作" class="headerlink" title="确保长期关注研发工作"></a>确保长期关注研发工作</h3><ul>
-<li>SRE 团队的运维工作限制在50%以内，他们应该将剩余时间花在研发项目上。</li>
-<li>可采取一些暂时性的措施将过多的运维压力移回给开发团队处理。</li>
-<li>SRE 处理运维工作的一项准则是：在每8~12小时的 on-call 轮值期间最多只处理两个紧急事件。</li>
-<li>所有的产品事故都应该有对应的事后总结，无论有没有触发警报。事后总结应该包括以下内容：事故发生、发现、解决的全过程，</li>
-</ul>
-<p>事故的根本原因，预防或者优化的解决方案。</p>
-<h3 id="在保障服务-SLO-的前提下最大化迭代速度"><a href="#在保障服务-SLO-的前提下最大化迭代速度" class="headerlink" title="在保障服务 SLO 的前提下最大化迭代速度"></a>在保障服务 SLO 的前提下最大化迭代速度</h3><blockquote>
-<p><strong>错误预算 p7</strong><br>“错误预算”起源于这样一个理念：任何产品都不是，也不应该做到 100% 可靠（显然这并不适用于心脏起搏器和防抱死刹车系统等）。一般来说，任何软件系统都不应该一味地追求 100% 可靠。因为对最终用户来说，99.999% 和 100% 的可用性是没有实质区别的。</p>
-</blockquote>
-<p>可靠性目标必须考虑以下几个方面：</p>
-<ul>
-<li>基于用户的使用习惯，服务可靠性要达到什么程度用户才会满意？</li>
-<li>如果这项服务的可靠程度不够，用户是否有其他的替代选择？</li>
-<li>服务的可靠程度是否会影响用户对这项服务的使用模式？<br>从这几个方面，我们就可以推导出“错误预算”。通过引进“错误预算”的概念，我们解决了研发团队和 SRE 团队之间的组织架构冲突。</li>
-</ul>
-<p><strong>点评：</strong> 错误预算这一概念是 SRE 得以持续发展的基石，它提供了一个可度量的标尺，让资源可以得到充分地、高效的使用。</p>
-<h3 id="监控系统"><a href="#监控系统" class="headerlink" title="监控系统"></a>监控系统</h3><p>监控系统不应该依赖人来分析警报信息，而是应该由系统自动分析，仅当需要用户执行某种操作时，才需要通知用户。一个监控系统应该只有三类输出。</p>
-<ul>
-<li>紧急警报(alert)</li>
-<li>工单(ticker)</li>
-<li>日志(logging)</li>
-</ul>
-<h3 id="需求预测和容量规划"><a href="#需求预测和容量规划" class="headerlink" title="需求预测和容量规划"></a>需求预测和容量规划</h3><p>容量规划有几个步骤是必需的：</p>
-<ul>
-<li>必须有一个准确的自然增长需求预测模型，需求预测的时间应该超过资源获取的时间。</li>
-<li>规划中必须有准确的非自然增长的需求来源的统计；</li>
-<li>必须有周期性压力测试，以便准确地将系统原始资源信息域业务容量信息对应起来。</li>
-</ul>
-<blockquote>
-<p>SRE 应该主导容量规划的过程，这也意味着 SRE 需要主导资源部署的过程。</p>
-</blockquote>
-<h3 id="资源部署"><a href="#资源部署" class="headerlink" title="资源部署"></a>资源部署</h3><p>新资源测部署与配置是一个相对比较危险的操作，必须要小心谨慎地执行。</p>
-<h3 id="效率与性能"><a href="#效率与性能" class="headerlink" title="效率与性能"></a>效率与性能</h3><p>保证服务可用性的前提下，提高资源的利用率，最终实现服务成本的降低。</p>
-<h1 id="第-2-章-Google-生产环境：SRE视角"><a href="#第-2-章-Google-生产环境：SRE视角" class="headerlink" title="第 2 章 Google 生产环境：SRE视角"></a>第 2 章 Google 生产环境：SRE视角</h1><p>本章节目录：</p>
-<ul>
-<li>硬件</li>
-<li>管理物理服务器的系统管理软件<ul>
-<li>管理物理服务器</li>
-<li>存储</li>
-<li>网络</li>
-</ul>
-</li>
-<li>其他系统软件<ul>
-<li>分布式锁服务</li>
-<li>监控与警报系统</li>
-</ul>
-</li>
-<li>软件基础设施</li>
-<li>研发环境</li>
-<li>莎士比亚搜索：一个示范服务<ul>
-<li>用户请求的处理过程</li>
-<li>任务和数据的组织方式</li>
-</ul>
-</li>
-</ul>
-<h2 id="硬件"><a href="#硬件" class="headerlink" title="硬件"></a>硬件</h2><p>本节介绍了 Google 的服务集群情况。</p>
-<h2 id="管理物理服务器的系统管理软件"><a href="#管理物理服务器的系统管理软件" class="headerlink" title="管理物理服务器的系统管理软件"></a>管理物理服务器的系统管理软件</h2><h3 id="管理物理服务器"><a href="#管理物理服务器" class="headerlink" title="管理物理服务器"></a>管理物理服务器</h3><p><strong>点评：</strong>Kubernetes，开源容器化集群编排系统，Google 创立于2014年。Kubernetes到今天已经成为业界事实上的行业标准，是管理物理服务器的最佳实践。</p>
-<h3 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h3><p>本节介绍了 Google 存储系统架构。存储系统有别与微服务容器，数据是需要落地的，因此管理难度更高。<br>下图是Google 存储系统：<br><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-3Google%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F.png" alt="图2-3. Google 存储系统" title="Google 存储系统"></p>
-<h3 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h3><p>Google 使用一个基于 OpenFlow 协议的软件定义网络（SDN），并构建了全球负载均衡系统（GSLB）。GSLB 在三个层面上负责负载均衡工作：</p>
-<ul>
-<li>利用地理位置信息进行负载均衡 DNS 请求。</li>
-<li>在用户服务层面进行负载均衡。</li>
-<li>在远程调用（RPC）层面进行负载均衡。</li>
-</ul>
-<h2 id="其他系统软件"><a href="#其他系统软件" class="headerlink" title="其他系统软件"></a>其他系统软件</h2><h3 id="分布式锁服务"><a href="#分布式锁服务" class="headerlink" title="分布式锁服务"></a>分布式锁服务</h3><p>Google 使用 Chubby 提供分布式锁服务。</p>
-<h3 id="监控与警报系统"><a href="#监控与警报系统" class="headerlink" title="监控与警报系统"></a>监控与警报系统</h3><p>Google 使用 Borgmon 提供监控与警报系统服务。</p>
-<h2 id="软件基础设施"><a href="#软件基础设施" class="headerlink" title="软件基础设施"></a>软件基础设施</h2><ul>
-<li>每一个软件服务器都有一个内置的 HTTP 服务，提供一些调式信息和统计信息，供在线调试、监控使用。</li>
-<li>使用 gRPC 进行远程调用通信。</li>
-</ul>
-<h2 id="研发环境"><a href="#研发环境" class="headerlink" title="研发环境"></a>研发环境</h2><ul>
-<li>除部分开源项目之外，Google 工程师全部使用同一个共享软件仓库开发。</li>
-<li>完善的代码评审，CI/CD 流程。</li>
-</ul>
-<h2 id="莎士比亚搜索：一个示范服务"><a href="#莎士比亚搜索：一个示范服务" class="headerlink" title="莎士比亚搜索：一个示范服务"></a>莎士比亚搜索：一个示范服务</h2><p>本节举例说明 Google 的系统是如何运转的。<br><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-4%E7%94%A8%E6%88%B7%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E8%BF%87%E7%A8%8B.png" alt="图2-4. 用户请求处理过程" title="用户请求处理过程"></p>
-<h1 id="第-3-章-拥抱风险"><a href="#第-3-章-拥抱风险" class="headerlink" title="第 3 章 拥抱风险"></a>第 3 章 拥抱风险</h1><p>本章节目录：</p>
-<ul>
-<li>管理风险</li>
-<li>度量服务的风险</li>
-<li>服务风险的容忍度<ul>
-<li>辨别消费者服务的风险容忍度</li>
-<li>基础设施服务的风险容忍度</li>
-</ul>
-</li>
-<li>使用错误预算的目的<ul>
-<li>错误预算的构建过程</li>
-<li>好处</li>
-</ul>
-</li>
-</ul>
-<h2 id="管理风险"><a href="#管理风险" class="headerlink" title="管理风险"></a>管理风险</h2><p>在 SRE 团队中，我们管理服务的可靠性很大程度上是通过管理风险来进行的。可靠性需要成本，主要存在于以下两个维度:</p>
-<ul>
-<li>冗余物理服务器 / 计算资源的成本。通过投入冗余设备，我们可以进行常规的系统离线或者其他预料之外的维护性操作。又或者可以利用一些空间来存储奇偶校验码块，以此来提供一定程度的数据持久性保证。</li>
-<li>机会成本。这类成本由某一个组织承担。当该组织分配工程资源来构建减少风险的系统或功能，而非那些用户直接可用的功能时需要承担这些成本。这些工程师不能再从事为终端用户设计新功能和新产品的工作。</li>
-</ul>
-<h2 id="度量服务的风险"><a href="#度量服务的风险" class="headerlink" title="度量服务的风险"></a>度量服务的风险</h2><p>可用性评估的两种方式：</p>
-<ol>
-<li>基于时间的可用性：可用性 = 系统正常运行时间 / （系统正常运行时间 + 停机时间）</li>
-<li>合计可用性：可用性 = 成功请求数 / 总的请求数<br>Google 内部是使用第二项，合计可用性。</li>
-</ol>
-<h2 id="服务风险的容忍度"><a href="#服务风险的容忍度" class="headerlink" title="服务风险的容忍度"></a>服务风险的容忍度</h2><p>本文以消费者服务、基础设施服务两个角度，从可用性目标、故障的类型、成本等维度分析风险情况。</p>
-<h2 id="使用错误预算的目的"><a href="#使用错误预算的目的" class="headerlink" title="使用错误预算的目的"></a>使用错误预算的目的</h2><p>错误预算就是一个双方同意的客观指标，平衡了可用性以及风险，让决策基于数据成为可能。</p>
-<h3 id="错误预算的构建过程"><a href="#错误预算的构建过程" class="headerlink" title="错误预算的构建过程"></a>错误预算的构建过程</h3><ul>
-<li>产品管理层定义一个 SLO，确定一项服务在每个季度预计的正常运行时间。</li>
-<li>实际在线时间是通过一个中立第三方来测算的：我们的监控系统。</li>
-<li>这两个数字的差值就是这个季度中剩余的不可靠性预算。</li>
-<li>只要测算出的正常在线时间高于 SLO，也就是说，只要仍然有剩余的错误预算，就可以发布新的版本。</li>
-</ul>
-<h3 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h3><p>错误预算的主要好处就是它能够激励产品研发和 SRE 一起找出创新和可靠性之间合理的平衡点。</p>
-<blockquote>
-<ul>
-<li>管理服务的可靠性主要在于管理风险，而且管理风险的成本可能很高。</li>
-<li>100% 可能永远都不是一个正确的可靠性目标：不仅是不可能实现的，而且它通常比一项服务的用户期望的可靠性大得多。我们要将服务风险和意愿承担的业务风险相匹配。</li>
-<li>错误预算在 SRE 和产品研发团队之间调整激励，同时强调共同责任。错误预算试的讨论发布速率更容易，同时可有效地减少任何关于事故的讨论。这样，多个团队可以毫无怨言地对生产环境风险度达成一致。</li>
-</ul>
-</blockquote>
-<h1 id="第-4-章-服务质量目标"><a href="#第-4-章-服务质量目标" class="headerlink" title="第 4 章 服务质量目标"></a>第 4 章 服务质量目标</h1><p>本章节目录：</p>
-<ul>
-<li>服务质量术语<ul>
-<li>指标</li>
-<li>目标</li>
-<li>协议</li>
-</ul>
-</li>
-<li>指标在实践中的应用<ul>
-<li>运维人员和最终用户各关心什么</li>
-<li>指标的收集</li>
-<li>汇总</li>
-<li>指标的标准化</li>
-</ul>
-</li>
-<li>目标在实践中的应用<ul>
-<li>目标的定义</li>
-<li>目标的选择</li>
-<li>控制手段</li>
-<li>SLO 可以建立用户预期</li>
-</ul>
-</li>
-<li>协议在实践中的应用</li>
-</ul>
-<h2 id="服务质量术语"><a href="#服务质量术语" class="headerlink" title="服务质量术语"></a>服务质量术语</h2><ul>
-<li>SLI 是指服务质量指标（Indicator）—-该服务的某项服务质量的一个具体量化指标。</li>
-<li>SLO 是服务质量目标（Objective）：服务的某个 SLI 的目标值，或者目标范围。SLO 的定义是 SLI ≤ 目标值，或者范围下限 ≤ SLI ≤ 范围上限。</li>
-<li>SLA 是服务质量协议（Agreement）：指服务与用户之间的一个明确的，或者不明确的协议，描述了在达到或者没有达到 SLO 之后的后果。</li>
-</ul>
-<h3 id="指标"><a href="#指标" class="headerlink" title="指标"></a>指标</h3><p>文中提到的 SLI 有：</p>
-<ol>
-<li>请求延迟—-处理请求所消耗的时间。</li>
-<li>错误率—-请求处理失败的百分比。</li>
-<li>系统吞吐量—-每秒请求数量。</li>
-<li>可用性，代表服务可用时间的百分比，该指标通常利用“格式正确的请求处理成功的比例”来定义，有时也称为服务产出（yield）。</li>
-<li>对数据存储系统来说，持久性（durability）—-数据能够完整保存的时间。</li>
-</ol>
-<blockquote>
-<p>目前 Google 云计算服务公开的可用性指标是“3.5个9”—-99.95%可用。</p>
-</blockquote>
-<h3 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h3><p>本节提到的一个重要的结论：SLO 的选择和公布可以帮助设立用户对服务质量的预期。该举措可以：</p>
-<ul>
-<li>防止用户对某个服务的过度依赖；</li>
-<li>防止用户对某个服务信心不足；</li>
-</ul>
-<p>最后列举了一个例子《全球 Chubby 服务计划内停机》p36，告诉读者 Google 是如何处理用户对某个服务过度依赖的情况。</p>
-<h3 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h3><p>区别 SLO 和 SLA 的一个简单方法是问“如果 SLO 没有达到时，有什么后果？” 如果没有定义明确的后果，那么我们就肯定是在讨论一个 SLO，而不是 SLA。</p>
-<h2 id="指标在实践中的应用"><a href="#指标在实践中的应用" class="headerlink" title="指标在实践中的应用"></a>指标在实践中的应用</h2><h3 id="运维人员和最终用户各关心什么"><a href="#运维人员和最终用户各关心什么" class="headerlink" title="运维人员和最终用户各关心什么"></a>运维人员和最终用户各关心什么</h3><ul>
-<li>用户可见的服务系统，例如莎士比亚搜索服务的前端服务器通常关心可用性、延迟，以及吞吐量。</li>
-<li>存储系统通常强调：延迟、可用性和数据持久性。</li>
-<li>大数据系统，例如数据处理流水线系统，一般来说关心吞吐量和端到端延迟。</li>
-<li>所有的系统都应该关注：正确性。该指标通常不是 SRE 直接负责的，而应该由产品研发部门负责。</li>
-</ul>
-<h3 id="指标的收集"><a href="#指标的收集" class="headerlink" title="指标的收集"></a>指标的收集</h3><p>利用某种监控系统，大部分指标数据都在服务器端被收集，例如 Borgmon 或者 Prometheus。或者利用某种日志分析系统。</p>
-<h3 id="汇总"><a href="#汇总" class="headerlink" title="汇总"></a>汇总</h3><p>为了简化和使数据更可用，我们经常需要汇总原始度量数。汇总过程应该非常小心。</p>
-<blockquote>
-<p>大部分指标都应以”分布”，而不是平均值来定义。<br>利用百分位指标可以帮助我们关注该指标的分布性：高百分位，例如 99% 和 99.9% 体现了指标的最差情况，而 50% 则体现了普遍情况。响应时间的分布越分散，意味着普通用户受到长尾请求延迟的影响就越明显，这可能预示了负载过高情况下出现的排队问题。用户研究显示，用户通常更喜欢速度较慢的系统，而不是一个请求速度抖动很厉害的系统，所以，某些 SRE 团队只关注长尾部分。<br>本节末还提供了《关于统计性谬误》p39 一文，解析对于 SRE 为什么一组数据的百分比分布，比算数平均值更有价值。</p>
-</blockquote>
-<h3 id="指标的标准化"><a href="#指标的标准化" class="headerlink" title="指标的标准化"></a>指标的标准化</h3><p>作者建议标准化一些常见的 SLI，以避免每次都要重新评估它们。任何一个符合标准定义模板的服务可以不需要再次自己定义 SLI。</p>
-<ul>
-<li>汇总间隔：每 1 分钟汇总一次</li>
-<li>汇总范围：集群中的全部任务</li>
-<li>度量频率：每 10 秒一次</li>
-<li>包含哪些请求：从黑盒监控任务发来的 HTTP GET 请求</li>
-<li>数据如何获取：通过监控系统获取服务器端信息得到</li>
-<li>数据访问延迟：从收到请求到最后一个字节被发出</li>
-</ul>
-<h2 id="目标在实践中的应用"><a href="#目标在实践中的应用" class="headerlink" title="目标在实践中的应用"></a>目标在实践中的应用</h2><h3 id="目标的定义"><a href="#目标的定义" class="headerlink" title="目标的定义"></a>目标的定义</h3><h3 id="目标的选择"><a href="#目标的选择" class="headerlink" title="目标的选择"></a>目标的选择</h3><p>未完待续……</p>
-]]></content>
-      <tags>
-        <tag>google</tag>
-        <tag>SRE</tag>
-        <tag>运维</tag>
-        <tag>Ops</tag>
-        <tag>Dev</tag>
-        <tag>错误预算</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>博客的开端</title>
-    <url>/2020/06/06/hello-world/</url>
-    <content><![CDATA[<p>本人从事程序员这个职业已经 N 年了，在各种项目中解决了不少问题，一直没有把这些经验固化下来，现在回过头来看，确实是有遗憾。在之前我已经搭建起一个博客，但是又因为生活中的琐事，耽搁放弃了。成年人的世界，要做成一件需要花心思的事情，真实越来越难，躺着睡觉看视频多容易多舒服呀！今天终于有时间，鼓起勇气，把这个想法付诸实践。博客的内容，一方面是分享自己的经验、见闻，一方面也是整理自己的思路，提升自己的技术水平。写作水平有限，如有读者，谢谢你的光临，望多指教。</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>一个 Wine + Java + Dlls 的 Docker 镜像</title>
-    <url>/2020/06/06/%E4%B8%80%E4%B8%AA-wine-java-dlls-%E7%9A%84-docker-%E9%95%9C%E5%83%8F/</url>
-    <content><![CDATA[<p>我有一个 java 项目，需要在 windows 环境下调用第三方的动态链接库 dll 去解析数据，之前一直使用 windows server 2016 + docker + windows container 的方案运行。这个方案能解决第三方dll不能并行运行的问题，可以在一台机器上部署多个 instance。但是由于 windows server 2016 一直是使用虚拟机安装，导致该服务的性能不佳，而且也依赖 windows server 2016 及更高版本的系统。最近我制作了一个 wine + java + dlls 的 docker 镜像，让该 java 项目直接运行在 linux 的容器中，提高了性能，减少了服务器成本。本文介绍该镜像的制作细节。</p>
-<a id="more"></a>
-
-<h3 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h3><p>本镜像基于 <code>ubuntu:18.04</code> 构建, Dockfile 源码如下：</p>
-<figure class="highlight docker"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">18.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-http.list /etc/apt/sources.list</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get update &amp;&amp; apt-get install -y apt-transport-https ca-certificates</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-https.list /etc/apt/sources.list</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> dpkg --add-architecture i386 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get update &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get install -y wine32 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get clean -y</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> jdk-8u172-windows-i586.exe /app/jdk.exe</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> chmod +x /app/jdk.exe &amp;&amp; wine /app/jdk.exe /s &amp;&amp; rm /app/jdk.exe</span></span><br><span class="line"><span class="keyword">ARG</span> target=<span class="string">"/root/.wine/drive_c/Program Files/Java/jre1.8.0_172/bin/"</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./dlls/ <span class="variable">$&#123;target&#125;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /root</span></span><br></pre></td></tr></table></figure>
-
-<p>我们需要自行准备以下文件：</p>
-<ul>
-<li>sources-http.list, http 安装源链接,为了加快镜像编译速度:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></li>
-<li>sources-https.list, https 安装源链接,为了加快镜像编译速度:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></li>
-<li>jdk-8u172-windows-i586.exe, jdk安装包，其他版本的jdk需要自行验证是否能正确安装;</li>
-<li>依赖的动态链接库 .dll 文件，将这些文件复制到 Dockerfile 所在目录的 dlls 文件下;</li>
-</ul>
-<p>准备完成后，文件结构如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── jdk-8u172-windows-i586.exe</span><br><span class="line">├── dlls</span><br><span class="line">├── sources-http.list</span><br><span class="line">└── sources-https.list</span><br></pre></td></tr></table></figure>
-<p>在此目录下，执行以下命令，编译镜像：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker build -t wine-java-dlls:<span class="built_in">test</span> --network=host .</span><br></pre></td></tr></table></figure>
-<p>成功编译后，我们将得到镜像 <code>wine-java-dlls:test</code>。</p>
-<h3 id="使用镜像"><a href="#使用镜像" class="headerlink" title="使用镜像"></a>使用镜像</h3><p>通过 wine 执行 java,目前该镜像需要直接声明 java.exe 在 wine 中的路径,使用示例如下:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -d --net=host --name example --init -w /app -v /root/path/to/jar/location:/app wine-java-dlls:<span class="built_in">test</span> wine <span class="string">"C:\\Program Files\\Java\\jre1.8.0_172\\bin\\java.exe"</span> -jar test.jar</span><br></pre></td></tr></table></figure>
-
-<p><strong>参考阅读：</strong><br><a href="https://kupczynski.info/2018/11/11/wine-windows-jdk-on-linux.html" target="_blank" rel="noopener">《Use wine to run windows JDK on linux》</a></p>
-]]></content>
-      <tags>
-        <tag>wine</tag>
-        <tag>docker</tag>
-        <tag>container</tag>
-        <tag>java</tag>
-        <tag>jre</tag>
-        <tag>jdk</tag>
       </tags>
   </entry>
 </search>

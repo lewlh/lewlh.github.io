@@ -22,17 +22,17 @@
     var CONFIG = {"hostname":"lewlh.github.io","root":"/","scheme":"Mist","version":"8.0.0-rc.4","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享我的感悟。">
+  <meta name="description" content="笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享感悟。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="《SRE Google运维解密》读书笔记">
 <meta property="og:url" content="http://lewlh.github.io/2020/07/18/SRE-Google%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86/index.html">
 <meta property="og:site_name" content="Lewlh&#39;s blog">
-<meta property="og:description" content="笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享我的感悟。">
+<meta property="og:description" content="笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享感悟。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-3Google%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F.png">
 <meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-4%E7%94%A8%E6%88%B7%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E8%BF%87%E7%A8%8B.png">
 <meta property="article:published_time" content="2020-07-18T13:07:52.000Z">
-<meta property="article:modified_time" content="2020-07-19T15:27:29.224Z">
+<meta property="article:modified_time" content="2020-07-20T09:22:13.127Z">
 <meta property="article:author" content="Lewlh">
 <meta property="article:tag" content="google">
 <meta property="article:tag" content="SRE">
@@ -217,7 +217,7 @@
 
       <!--noindex-->
       <section class="post-toc-wrap sidebar-panel">
-          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#第-1-章-介绍"><span class="nav-number">1.</span> <span class="nav-text">第 1 章 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#系统管理员模式"><span class="nav-number">1.1.</span> <span class="nav-text">系统管理员模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SRE-方法论"><span class="nav-number">1.2.</span> <span class="nav-text">SRE 方法论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#确保长期关注研发工作"><span class="nav-number">1.2.1.</span> <span class="nav-text">确保长期关注研发工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在保障服务-SLO-的前提下最大化迭代速度"><span class="nav-number">1.2.2.</span> <span class="nav-text">在保障服务 SLO 的前提下最大化迭代速度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#监控系统"><span class="nav-number">1.2.3.</span> <span class="nav-text">监控系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#需求预测和容量规划"><span class="nav-number">1.2.4.</span> <span class="nav-text">需求预测和容量规划</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#资源部署"><span class="nav-number">1.2.5.</span> <span class="nav-text">资源部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#效率与性能"><span class="nav-number">1.2.6.</span> <span class="nav-text">效率与性能</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第-2-章-Google-生产环境：SRE视角"><span class="nav-number">2.</span> <span class="nav-text">第 2 章 Google 生产环境：SRE视角</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#硬件"><span class="nav-number">2.1.</span> <span class="nav-text">硬件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#管理物理服务器的系统管理软件"><span class="nav-number">2.2.</span> <span class="nav-text">管理物理服务器的系统管理软件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#管理物理服务器"><span class="nav-number">2.2.1.</span> <span class="nav-text">管理物理服务器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#存储"><span class="nav-number">2.2.2.</span> <span class="nav-text">存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网络"><span class="nav-number">2.2.3.</span> <span class="nav-text">网络</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他系统软件"><span class="nav-number">2.3.</span> <span class="nav-text">其他系统软件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分布式锁服务"><span class="nav-number">2.3.1.</span> <span class="nav-text">分布式锁服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#监控与警报系统"><span class="nav-number">2.3.2.</span> <span class="nav-text">监控与警报系统</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#软件基础设施"><span class="nav-number">2.4.</span> <span class="nav-text">软件基础设施</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#研发环境"><span class="nav-number">2.5.</span> <span class="nav-text">研发环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#莎士比亚搜索：一个示范服务"><span class="nav-number">2.6.</span> <span class="nav-text">莎士比亚搜索：一个示范服务</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第-3-章-拥抱风险"><span class="nav-number">3.</span> <span class="nav-text">第 3 章 拥抱风险</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#管理风险"><span class="nav-number">3.1.</span> <span class="nav-text">管理风险</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#度量服务的风险"><span class="nav-number">3.2.</span> <span class="nav-text">度量服务的风险</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#服务风险的容忍度"><span class="nav-number">3.3.</span> <span class="nav-text">服务风险的容忍度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用错误预算的目的"><span class="nav-number">3.4.</span> <span class="nav-text">使用错误预算的目的</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#错误预算的构建过程"><span class="nav-number">3.4.1.</span> <span class="nav-text">错误预算的构建过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#好处"><span class="nav-number">3.4.2.</span> <span class="nav-text">好处</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#第-4-章-服务质量目标"><span class="nav-number">4.</span> <span class="nav-text">第 4 章 服务质量目标</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#服务质量术语"><span class="nav-number">4.1.</span> <span class="nav-text">服务质量术语</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#指标"><span class="nav-number">4.1.1.</span> <span class="nav-text">指标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#目标"><span class="nav-number">4.1.2.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#协议"><span class="nav-number">4.1.3.</span> <span class="nav-text">协议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#指标在实践中的应用"><span class="nav-number">4.2.</span> <span class="nav-text">指标在实践中的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#运维人员和最终用户各关心什么"><span class="nav-number">4.2.1.</span> <span class="nav-text">运维人员和最终用户各关心什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#指标的收集"><span class="nav-number">4.2.2.</span> <span class="nav-text">指标的收集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#汇总"><span class="nav-number">4.2.3.</span> <span class="nav-text">汇总</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#指标的标准化"><span class="nav-number">4.2.4.</span> <span class="nav-text">指标的标准化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目标在实践中的应用"><span class="nav-number">4.3.</span> <span class="nav-text">目标在实践中的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#目标的定义"><span class="nav-number">4.3.1.</span> <span class="nav-text">目标的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#目标的选择"><span class="nav-number">4.3.2.</span> <span class="nav-text">目标的选择</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#第-1-章-介绍"><span class="nav-number">1.</span> <span class="nav-text">第 1 章 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#系统管理员模式"><span class="nav-number">1.1.</span> <span class="nav-text">系统管理员模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SRE-方法论"><span class="nav-number">1.2.</span> <span class="nav-text">SRE 方法论</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#确保长期关注研发工作"><span class="nav-number">1.2.1.</span> <span class="nav-text">确保长期关注研发工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在保障服务-SLO-的前提下最大化迭代速度"><span class="nav-number">1.2.2.</span> <span class="nav-text">在保障服务 SLO 的前提下最大化迭代速度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#监控系统"><span class="nav-number">1.2.3.</span> <span class="nav-text">监控系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#需求预测和容量规划"><span class="nav-number">1.2.4.</span> <span class="nav-text">需求预测和容量规划</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#资源部署"><span class="nav-number">1.2.5.</span> <span class="nav-text">资源部署</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#效率与性能"><span class="nav-number">1.2.6.</span> <span class="nav-text">效率与性能</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第-2-章-Google-生产环境：SRE视角"><span class="nav-number">2.</span> <span class="nav-text">第 2 章 Google 生产环境：SRE视角</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#硬件"><span class="nav-number">2.1.</span> <span class="nav-text">硬件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#管理物理服务器的系统管理软件"><span class="nav-number">2.2.</span> <span class="nav-text">管理物理服务器的系统管理软件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#管理物理服务器"><span class="nav-number">2.2.1.</span> <span class="nav-text">管理物理服务器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#存储"><span class="nav-number">2.2.2.</span> <span class="nav-text">存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#网络"><span class="nav-number">2.2.3.</span> <span class="nav-text">网络</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他系统软件"><span class="nav-number">2.3.</span> <span class="nav-text">其他系统软件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#分布式锁服务"><span class="nav-number">2.3.1.</span> <span class="nav-text">分布式锁服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#监控与警报系统"><span class="nav-number">2.3.2.</span> <span class="nav-text">监控与警报系统</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#软件基础设施"><span class="nav-number">2.4.</span> <span class="nav-text">软件基础设施</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#研发环境"><span class="nav-number">2.5.</span> <span class="nav-text">研发环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#莎士比亚搜索：一个示范服务"><span class="nav-number">2.6.</span> <span class="nav-text">莎士比亚搜索：一个示范服务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第-3-章-拥抱风险"><span class="nav-number">3.</span> <span class="nav-text">第 3 章 拥抱风险</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#管理风险"><span class="nav-number">3.1.</span> <span class="nav-text">管理风险</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#度量服务的风险"><span class="nav-number">3.2.</span> <span class="nav-text">度量服务的风险</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务风险的容忍度"><span class="nav-number">3.3.</span> <span class="nav-text">服务风险的容忍度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用错误预算的目的"><span class="nav-number">3.4.</span> <span class="nav-text">使用错误预算的目的</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#错误预算的构建过程"><span class="nav-number">3.4.1.</span> <span class="nav-text">错误预算的构建过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#好处"><span class="nav-number">3.4.2.</span> <span class="nav-text">好处</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第-4-章-服务质量目标"><span class="nav-number">4.</span> <span class="nav-text">第 4 章 服务质量目标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#服务质量术语"><span class="nav-number">4.1.</span> <span class="nav-text">服务质量术语</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#指标"><span class="nav-number">4.1.1.</span> <span class="nav-text">指标</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#目标"><span class="nav-number">4.1.2.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#协议"><span class="nav-number">4.1.3.</span> <span class="nav-text">协议</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#指标在实践中的应用"><span class="nav-number">4.2.</span> <span class="nav-text">指标在实践中的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#运维人员和最终用户各关心什么"><span class="nav-number">4.2.1.</span> <span class="nav-text">运维人员和最终用户各关心什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#指标的收集"><span class="nav-number">4.2.2.</span> <span class="nav-text">指标的收集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#汇总"><span class="nav-number">4.2.3.</span> <span class="nav-text">汇总</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#指标的标准化"><span class="nav-number">4.2.4.</span> <span class="nav-text">指标的标准化</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#目标在实践中的应用"><span class="nav-number">4.3.</span> <span class="nav-text">目标在实践中的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#目标的定义"><span class="nav-number">4.3.1.</span> <span class="nav-text">目标的定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#目标的选择"><span class="nav-number">4.3.2.</span> <span class="nav-text">目标的选择</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#控制手段"><span class="nav-number">4.3.3.</span> <span class="nav-text">控制手段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SLO-可以建立用户预期"><span class="nav-number">4.3.4.</span> <span class="nav-text">SLO 可以建立用户预期</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#协议在实践中的应用"><span class="nav-number">4.4.</span> <span class="nav-text">协议在实践中的应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第-5-章-减少琐事"><span class="nav-number">5.</span> <span class="nav-text">第 5 章 减少琐事</span></a></li></ol></div>
       </section>
       <!--/noindex-->
 
@@ -308,7 +308,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-07-19 23:27:29" itemprop="dateModified" datetime="2020-07-19T23:27:29+08:00">2020-07-19</time>
+                <time title="修改时间：2020-07-20 17:22:13" itemprop="dateModified" datetime="2020-07-20T17:22:13+08:00">2020-07-20</time>
               </span>
 
           
@@ -324,7 +324,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>5k</span>
+              <span>5.3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -343,9 +343,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享我的感悟。</p>
+        <p>笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享感悟。</p>
 <a id="more"></a>
-<h1 id="第-1-章-介绍"><a href="#第-1-章-介绍" class="headerlink" title="第 1 章 介绍"></a>第 1 章 介绍</h1><p>本章节目录：</p>
+
+<h2 id="第-1-章-介绍"><a href="#第-1-章-介绍" class="headerlink" title="第 1 章 介绍"></a>第 1 章 介绍</h2><p>本章节目录：</p>
 <ul>
 <li>系统管理员模式</li>
 <li>Google 的解决之道：SRE</li>
@@ -362,13 +363,13 @@
 </li>
 <li>小结</li>
 </ul>
-<h2 id="系统管理员模式"><a href="#系统管理员模式" class="headerlink" title="系统管理员模式"></a>系统管理员模式</h2><p>行业内传统的做法是分别研发部门与运维部门，前者负责研发系统，开发业务逻辑，后者负责把新程序发布到生产环境，并维护系统的日常运行。作者从两方面分析这种做法的弊端：</p>
+<h3 id="系统管理员模式"><a href="#系统管理员模式" class="headerlink" title="系统管理员模式"></a>系统管理员模式</h3><p>行业内传统的做法是分别研发部门与运维部门，前者负责研发系统，开发业务逻辑，后者负责把新程序发布到生产环境，并维护系统的日常运行。作者从两方面分析这种做法的弊端：</p>
 <ol>
 <li>直接成本。运维团队的大小基本与系统负载成线性相关，共同成长。</li>
 <li>间接成本。线上问题大部分都与发版相关，研发部门期望“随时随地发布新功能，没有任何阻拦”，运维部门厌恶变化，为发版设置越来越多的门槛、限制，两者存在非常多的冲突。</li>
 </ol>
 <p>我认为，传统的“系统管理员模式”，只能解决低复杂度系统问题。随着系统复杂度的增长，系统模块、运行实例规模都高了几个数量级，对运维工作提出了更高的要。新功能必须在方案设计、指标设置、技术开发、监控系统、性能分析等方面提前规划。研发部门要提前考虑运维问题，运维部门也需要了解模块的实现机制，两者的工作逐渐融合。</p>
-<h2 id="SRE-方法论"><a href="#SRE-方法论" class="headerlink" title="SRE 方法论"></a>SRE 方法论</h2><p>本节作者介绍如何变革传统的模式，告诉读者，什么是 SRE。</p>
+<h3 id="SRE-方法论"><a href="#SRE-方法论" class="headerlink" title="SRE 方法论"></a>SRE 方法论</h3><p>本节作者介绍如何变革传统的模式，告诉读者，什么是 SRE。</p>
 <ol>
 <li>Google SRE 团队从2003年开始组建，由7名软件工程师组成。到2016年，约1000余人。</li>
 <li>SRE 团队由两种层次的工程师组成：<br>a. 50%-60% 是 Google 标准工程师；；<br>b. 40%-50% 是比标准工程师要求低一些的人，但具备其他能力的工程师，如 UNIX 内部细节和1-3层网络知识；</li>
@@ -376,14 +377,14 @@
 <li>避免团队的大小与所服务的产品负载呈线性同步增长：<br>a. 负责运维服务的团队必须有足够的时间编程，否则他们会被运维工作淹没；<br>b. 传统运维工作包括：工单处理，手工操作等，运维工程师最多只能花50%的时间放在传统运维工作；<br>c. SRE 管理层需要主动维护每一个 SRE 团队的工作平衡；<br>d. SRE 团队和研发队员之间的成员可以自由流动，可以获得更全面的体验及知识；</li>
 <li>由于 SRE 模型中为了提高可用性需要采取一些与常规做法违背的做法，所以需要强有力的管理层支持才能推行下去。</li>
 </ol>
-<h3 id="确保长期关注研发工作"><a href="#确保长期关注研发工作" class="headerlink" title="确保长期关注研发工作"></a>确保长期关注研发工作</h3><ul>
+<h4 id="确保长期关注研发工作"><a href="#确保长期关注研发工作" class="headerlink" title="确保长期关注研发工作"></a>确保长期关注研发工作</h4><ul>
 <li>SRE 团队的运维工作限制在50%以内，他们应该将剩余时间花在研发项目上。</li>
 <li>可采取一些暂时性的措施将过多的运维压力移回给开发团队处理。</li>
 <li>SRE 处理运维工作的一项准则是：在每8~12小时的 on-call 轮值期间最多只处理两个紧急事件。</li>
 <li>所有的产品事故都应该有对应的事后总结，无论有没有触发警报。事后总结应该包括以下内容：事故发生、发现、解决的全过程，</li>
 </ul>
 <p>事故的根本原因，预防或者优化的解决方案。</p>
-<h3 id="在保障服务-SLO-的前提下最大化迭代速度"><a href="#在保障服务-SLO-的前提下最大化迭代速度" class="headerlink" title="在保障服务 SLO 的前提下最大化迭代速度"></a>在保障服务 SLO 的前提下最大化迭代速度</h3><blockquote>
+<h4 id="在保障服务-SLO-的前提下最大化迭代速度"><a href="#在保障服务-SLO-的前提下最大化迭代速度" class="headerlink" title="在保障服务 SLO 的前提下最大化迭代速度"></a>在保障服务 SLO 的前提下最大化迭代速度</h4><blockquote>
 <p><strong>错误预算 p7</strong><br>“错误预算”起源于这样一个理念：任何产品都不是，也不应该做到 100% 可靠（显然这并不适用于心脏起搏器和防抱死刹车系统等）。一般来说，任何软件系统都不应该一味地追求 100% 可靠。因为对最终用户来说，99.999% 和 100% 的可用性是没有实质区别的。</p>
 </blockquote>
 <p>可靠性目标必须考虑以下几个方面：</p>
@@ -393,13 +394,13 @@
 <li>服务的可靠程度是否会影响用户对这项服务的使用模式？<br>从这几个方面，我们就可以推导出“错误预算”。通过引进“错误预算”的概念，我们解决了研发团队和 SRE 团队之间的组织架构冲突。</li>
 </ul>
 <p><strong>点评：</strong> 错误预算这一概念是 SRE 得以持续发展的基石，它提供了一个可度量的标尺，让资源可以得到充分地、高效的使用。</p>
-<h3 id="监控系统"><a href="#监控系统" class="headerlink" title="监控系统"></a>监控系统</h3><p>监控系统不应该依赖人来分析警报信息，而是应该由系统自动分析，仅当需要用户执行某种操作时，才需要通知用户。一个监控系统应该只有三类输出。</p>
+<h4 id="监控系统"><a href="#监控系统" class="headerlink" title="监控系统"></a>监控系统</h4><p>监控系统不应该依赖人来分析警报信息，而是应该由系统自动分析，仅当需要用户执行某种操作时，才需要通知用户。一个监控系统应该只有三类输出。</p>
 <ul>
 <li>紧急警报(alert)</li>
 <li>工单(ticker)</li>
 <li>日志(logging)</li>
 </ul>
-<h3 id="需求预测和容量规划"><a href="#需求预测和容量规划" class="headerlink" title="需求预测和容量规划"></a>需求预测和容量规划</h3><p>容量规划有几个步骤是必需的：</p>
+<h4 id="需求预测和容量规划"><a href="#需求预测和容量规划" class="headerlink" title="需求预测和容量规划"></a>需求预测和容量规划</h4><p>容量规划有几个步骤是必需的：</p>
 <ul>
 <li>必须有一个准确的自然增长需求预测模型，需求预测的时间应该超过资源获取的时间。</li>
 <li>规划中必须有准确的非自然增长的需求来源的统计；</li>
@@ -408,9 +409,9 @@
 <blockquote>
 <p>SRE 应该主导容量规划的过程，这也意味着 SRE 需要主导资源部署的过程。</p>
 </blockquote>
-<h3 id="资源部署"><a href="#资源部署" class="headerlink" title="资源部署"></a>资源部署</h3><p>新资源测部署与配置是一个相对比较危险的操作，必须要小心谨慎地执行。</p>
-<h3 id="效率与性能"><a href="#效率与性能" class="headerlink" title="效率与性能"></a>效率与性能</h3><p>保证服务可用性的前提下，提高资源的利用率，最终实现服务成本的降低。</p>
-<h1 id="第-2-章-Google-生产环境：SRE视角"><a href="#第-2-章-Google-生产环境：SRE视角" class="headerlink" title="第 2 章 Google 生产环境：SRE视角"></a>第 2 章 Google 生产环境：SRE视角</h1><p>本章节目录：</p>
+<h4 id="资源部署"><a href="#资源部署" class="headerlink" title="资源部署"></a>资源部署</h4><p>新资源测部署与配置是一个相对比较危险的操作，必须要小心谨慎地执行。</p>
+<h4 id="效率与性能"><a href="#效率与性能" class="headerlink" title="效率与性能"></a>效率与性能</h4><p>保证服务可用性的前提下，提高资源的利用率，最终实现服务成本的降低。</p>
+<h2 id="第-2-章-Google-生产环境：SRE视角"><a href="#第-2-章-Google-生产环境：SRE视角" class="headerlink" title="第 2 章 Google 生产环境：SRE视角"></a>第 2 章 Google 生产环境：SRE视角</h2><p>本章节目录：</p>
 <ul>
 <li>硬件</li>
 <li>管理物理服务器的系统管理软件<ul>
@@ -432,27 +433,27 @@
 </ul>
 </li>
 </ul>
-<h2 id="硬件"><a href="#硬件" class="headerlink" title="硬件"></a>硬件</h2><p>本节介绍了 Google 的服务集群情况。</p>
-<h2 id="管理物理服务器的系统管理软件"><a href="#管理物理服务器的系统管理软件" class="headerlink" title="管理物理服务器的系统管理软件"></a>管理物理服务器的系统管理软件</h2><h3 id="管理物理服务器"><a href="#管理物理服务器" class="headerlink" title="管理物理服务器"></a>管理物理服务器</h3><p><strong>点评：</strong>Kubernetes，开源容器化集群编排系统，Google 创立于2014年。Kubernetes到今天已经成为业界事实上的行业标准，是管理物理服务器的最佳实践。</p>
-<h3 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h3><p>本节介绍了 Google 存储系统架构。存储系统有别与微服务容器，数据是需要落地的，因此管理难度更高。<br>下图是Google 存储系统：<br><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-3Google%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F.png" alt="图2-3. Google 存储系统" title="Google 存储系统"></p>
-<h3 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h3><p>Google 使用一个基于 OpenFlow 协议的软件定义网络（SDN），并构建了全球负载均衡系统（GSLB）。GSLB 在三个层面上负责负载均衡工作：</p>
+<h3 id="硬件"><a href="#硬件" class="headerlink" title="硬件"></a>硬件</h3><p>本节介绍了 Google 的服务集群情况。</p>
+<h3 id="管理物理服务器的系统管理软件"><a href="#管理物理服务器的系统管理软件" class="headerlink" title="管理物理服务器的系统管理软件"></a>管理物理服务器的系统管理软件</h3><h4 id="管理物理服务器"><a href="#管理物理服务器" class="headerlink" title="管理物理服务器"></a>管理物理服务器</h4><p><strong>点评：</strong>Kubernetes，开源容器化集群编排系统，Google 创立于2014年。Kubernetes到今天已经成为业界事实上的行业标准，是管理物理服务器的最佳实践。</p>
+<h4 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h4><p>本节介绍了 Google 存储系统架构。存储系统有别与微服务容器，数据是需要落地的，因此管理难度更高。<br>下图是Google 存储系统：<br><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-3Google%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F.png" alt="图2-3. Google 存储系统" title="Google 存储系统"></p>
+<h4 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h4><p>Google 使用一个基于 OpenFlow 协议的软件定义网络（SDN），并构建了全球负载均衡系统（GSLB）。GSLB 在三个层面上负责负载均衡工作：</p>
 <ul>
 <li>利用地理位置信息进行负载均衡 DNS 请求。</li>
 <li>在用户服务层面进行负载均衡。</li>
 <li>在远程调用（RPC）层面进行负载均衡。</li>
 </ul>
-<h2 id="其他系统软件"><a href="#其他系统软件" class="headerlink" title="其他系统软件"></a>其他系统软件</h2><h3 id="分布式锁服务"><a href="#分布式锁服务" class="headerlink" title="分布式锁服务"></a>分布式锁服务</h3><p>Google 使用 Chubby 提供分布式锁服务。</p>
-<h3 id="监控与警报系统"><a href="#监控与警报系统" class="headerlink" title="监控与警报系统"></a>监控与警报系统</h3><p>Google 使用 Borgmon 提供监控与警报系统服务。</p>
-<h2 id="软件基础设施"><a href="#软件基础设施" class="headerlink" title="软件基础设施"></a>软件基础设施</h2><ul>
+<h3 id="其他系统软件"><a href="#其他系统软件" class="headerlink" title="其他系统软件"></a>其他系统软件</h3><h4 id="分布式锁服务"><a href="#分布式锁服务" class="headerlink" title="分布式锁服务"></a>分布式锁服务</h4><p>Google 使用 Chubby 提供分布式锁服务。</p>
+<h4 id="监控与警报系统"><a href="#监控与警报系统" class="headerlink" title="监控与警报系统"></a>监控与警报系统</h4><p>Google 使用 Borgmon 提供监控与警报系统服务。</p>
+<h3 id="软件基础设施"><a href="#软件基础设施" class="headerlink" title="软件基础设施"></a>软件基础设施</h3><ul>
 <li>每一个软件服务器都有一个内置的 HTTP 服务，提供一些调式信息和统计信息，供在线调试、监控使用。</li>
 <li>使用 gRPC 进行远程调用通信。</li>
 </ul>
-<h2 id="研发环境"><a href="#研发环境" class="headerlink" title="研发环境"></a>研发环境</h2><ul>
+<h3 id="研发环境"><a href="#研发环境" class="headerlink" title="研发环境"></a>研发环境</h3><ul>
 <li>除部分开源项目之外，Google 工程师全部使用同一个共享软件仓库开发。</li>
 <li>完善的代码评审，CI/CD 流程。</li>
 </ul>
-<h2 id="莎士比亚搜索：一个示范服务"><a href="#莎士比亚搜索：一个示范服务" class="headerlink" title="莎士比亚搜索：一个示范服务"></a>莎士比亚搜索：一个示范服务</h2><p>本节举例说明 Google 的系统是如何运转的。<br><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-4%E7%94%A8%E6%88%B7%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E8%BF%87%E7%A8%8B.png" alt="图2-4. 用户请求处理过程" title="用户请求处理过程"></p>
-<h1 id="第-3-章-拥抱风险"><a href="#第-3-章-拥抱风险" class="headerlink" title="第 3 章 拥抱风险"></a>第 3 章 拥抱风险</h1><p>本章节目录：</p>
+<h3 id="莎士比亚搜索：一个示范服务"><a href="#莎士比亚搜索：一个示范服务" class="headerlink" title="莎士比亚搜索：一个示范服务"></a>莎士比亚搜索：一个示范服务</h3><p>本节举例说明 Google 的系统是如何运转的。<br><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-4%E7%94%A8%E6%88%B7%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E8%BF%87%E7%A8%8B.png" alt="图2-4. 用户请求处理过程" title="用户请求处理过程"></p>
+<h2 id="第-3-章-拥抱风险"><a href="#第-3-章-拥抱风险" class="headerlink" title="第 3 章 拥抱风险"></a>第 3 章 拥抱风险</h2><p>本章节目录：</p>
 <ul>
 <li>管理风险</li>
 <li>度量服务的风险</li>
@@ -467,25 +468,25 @@
 </ul>
 </li>
 </ul>
-<h2 id="管理风险"><a href="#管理风险" class="headerlink" title="管理风险"></a>管理风险</h2><p>在 SRE 团队中，我们管理服务的可靠性很大程度上是通过管理风险来进行的。可靠性需要成本，主要存在于以下两个维度:</p>
+<h3 id="管理风险"><a href="#管理风险" class="headerlink" title="管理风险"></a>管理风险</h3><p>在 SRE 团队中，我们管理服务的可靠性很大程度上是通过管理风险来进行的。可靠性需要成本，主要存在于以下两个维度:</p>
 <ul>
 <li>冗余物理服务器 / 计算资源的成本。通过投入冗余设备，我们可以进行常规的系统离线或者其他预料之外的维护性操作。又或者可以利用一些空间来存储奇偶校验码块，以此来提供一定程度的数据持久性保证。</li>
 <li>机会成本。这类成本由某一个组织承担。当该组织分配工程资源来构建减少风险的系统或功能，而非那些用户直接可用的功能时需要承担这些成本。这些工程师不能再从事为终端用户设计新功能和新产品的工作。</li>
 </ul>
-<h2 id="度量服务的风险"><a href="#度量服务的风险" class="headerlink" title="度量服务的风险"></a>度量服务的风险</h2><p>可用性评估的两种方式：</p>
+<h3 id="度量服务的风险"><a href="#度量服务的风险" class="headerlink" title="度量服务的风险"></a>度量服务的风险</h3><p>可用性评估的两种方式：</p>
 <ol>
 <li>基于时间的可用性：可用性 = 系统正常运行时间 / （系统正常运行时间 + 停机时间）</li>
 <li>合计可用性：可用性 = 成功请求数 / 总的请求数<br>Google 内部是使用第二项，合计可用性。</li>
 </ol>
-<h2 id="服务风险的容忍度"><a href="#服务风险的容忍度" class="headerlink" title="服务风险的容忍度"></a>服务风险的容忍度</h2><p>本文以消费者服务、基础设施服务两个角度，从可用性目标、故障的类型、成本等维度分析风险情况。</p>
-<h2 id="使用错误预算的目的"><a href="#使用错误预算的目的" class="headerlink" title="使用错误预算的目的"></a>使用错误预算的目的</h2><p>错误预算就是一个双方同意的客观指标，平衡了可用性以及风险，让决策基于数据成为可能。</p>
-<h3 id="错误预算的构建过程"><a href="#错误预算的构建过程" class="headerlink" title="错误预算的构建过程"></a>错误预算的构建过程</h3><ul>
+<h3 id="服务风险的容忍度"><a href="#服务风险的容忍度" class="headerlink" title="服务风险的容忍度"></a>服务风险的容忍度</h3><p>本文以消费者服务、基础设施服务两个角度，从可用性目标、故障的类型、成本等维度分析风险情况。</p>
+<h3 id="使用错误预算的目的"><a href="#使用错误预算的目的" class="headerlink" title="使用错误预算的目的"></a>使用错误预算的目的</h3><p>错误预算就是一个双方同意的客观指标，平衡了可用性以及风险，让决策基于数据成为可能。</p>
+<h4 id="错误预算的构建过程"><a href="#错误预算的构建过程" class="headerlink" title="错误预算的构建过程"></a>错误预算的构建过程</h4><ul>
 <li>产品管理层定义一个 SLO，确定一项服务在每个季度预计的正常运行时间。</li>
 <li>实际在线时间是通过一个中立第三方来测算的：我们的监控系统。</li>
 <li>这两个数字的差值就是这个季度中剩余的不可靠性预算。</li>
 <li>只要测算出的正常在线时间高于 SLO，也就是说，只要仍然有剩余的错误预算，就可以发布新的版本。</li>
 </ul>
-<h3 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h3><p>错误预算的主要好处就是它能够激励产品研发和 SRE 一起找出创新和可靠性之间合理的平衡点。</p>
+<h4 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h4><p>错误预算的主要好处就是它能够激励产品研发和 SRE 一起找出创新和可靠性之间合理的平衡点。</p>
 <blockquote>
 <ul>
 <li>管理服务的可靠性主要在于管理风险，而且管理风险的成本可能很高。</li>
@@ -493,7 +494,7 @@
 <li>错误预算在 SRE 和产品研发团队之间调整激励，同时强调共同责任。错误预算试的讨论发布速率更容易，同时可有效地减少任何关于事故的讨论。这样，多个团队可以毫无怨言地对生产环境风险度达成一致。</li>
 </ul>
 </blockquote>
-<h1 id="第-4-章-服务质量目标"><a href="#第-4-章-服务质量目标" class="headerlink" title="第 4 章 服务质量目标"></a>第 4 章 服务质量目标</h1><p>本章节目录：</p>
+<h2 id="第-4-章-服务质量目标"><a href="#第-4-章-服务质量目标" class="headerlink" title="第 4 章 服务质量目标"></a>第 4 章 服务质量目标</h2><p>本章节目录：</p>
 <ul>
 <li>服务质量术语<ul>
 <li>指标</li>
@@ -517,12 +518,12 @@
 </li>
 <li>协议在实践中的应用</li>
 </ul>
-<h2 id="服务质量术语"><a href="#服务质量术语" class="headerlink" title="服务质量术语"></a>服务质量术语</h2><ul>
+<h3 id="服务质量术语"><a href="#服务质量术语" class="headerlink" title="服务质量术语"></a>服务质量术语</h3><ul>
 <li>SLI 是指服务质量指标（Indicator）—-该服务的某项服务质量的一个具体量化指标。</li>
 <li>SLO 是服务质量目标（Objective）：服务的某个 SLI 的目标值，或者目标范围。SLO 的定义是 SLI ≤ 目标值，或者范围下限 ≤ SLI ≤ 范围上限。</li>
 <li>SLA 是服务质量协议（Agreement）：指服务与用户之间的一个明确的，或者不明确的协议，描述了在达到或者没有达到 SLO 之后的后果。</li>
 </ul>
-<h3 id="指标"><a href="#指标" class="headerlink" title="指标"></a>指标</h3><p>文中提到的 SLI 有：</p>
+<h4 id="指标"><a href="#指标" class="headerlink" title="指标"></a>指标</h4><p>文中提到的 SLI 有：</p>
 <ol>
 <li>请求延迟—-处理请求所消耗的时间。</li>
 <li>错误率—-请求处理失败的百分比。</li>
@@ -533,25 +534,25 @@
 <blockquote>
 <p>目前 Google 云计算服务公开的可用性指标是“3.5个9”—-99.95%可用。</p>
 </blockquote>
-<h3 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h3><p>本节提到的一个重要的结论：SLO 的选择和公布可以帮助设立用户对服务质量的预期。该举措可以：</p>
+<h4 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h4><p>本节提到的一个重要的结论：SLO 的选择和公布可以帮助设立用户对服务质量的预期。该举措可以：</p>
 <ul>
 <li>防止用户对某个服务的过度依赖；</li>
 <li>防止用户对某个服务信心不足；</li>
 </ul>
 <p>最后列举了一个例子《全球 Chubby 服务计划内停机》p36，告诉读者 Google 是如何处理用户对某个服务过度依赖的情况。</p>
-<h3 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h3><p>区别 SLO 和 SLA 的一个简单方法是问“如果 SLO 没有达到时，有什么后果？” 如果没有定义明确的后果，那么我们就肯定是在讨论一个 SLO，而不是 SLA。</p>
-<h2 id="指标在实践中的应用"><a href="#指标在实践中的应用" class="headerlink" title="指标在实践中的应用"></a>指标在实践中的应用</h2><h3 id="运维人员和最终用户各关心什么"><a href="#运维人员和最终用户各关心什么" class="headerlink" title="运维人员和最终用户各关心什么"></a>运维人员和最终用户各关心什么</h3><ul>
+<h4 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h4><p>区别 SLO 和 SLA 的一个简单方法是问“如果 SLO 没有达到时，有什么后果？” 如果没有定义明确的后果，那么我们就肯定是在讨论一个 SLO，而不是 SLA。</p>
+<h3 id="指标在实践中的应用"><a href="#指标在实践中的应用" class="headerlink" title="指标在实践中的应用"></a>指标在实践中的应用</h3><h4 id="运维人员和最终用户各关心什么"><a href="#运维人员和最终用户各关心什么" class="headerlink" title="运维人员和最终用户各关心什么"></a>运维人员和最终用户各关心什么</h4><ul>
 <li>用户可见的服务系统，例如莎士比亚搜索服务的前端服务器通常关心可用性、延迟，以及吞吐量。</li>
 <li>存储系统通常强调：延迟、可用性和数据持久性。</li>
 <li>大数据系统，例如数据处理流水线系统，一般来说关心吞吐量和端到端延迟。</li>
 <li>所有的系统都应该关注：正确性。该指标通常不是 SRE 直接负责的，而应该由产品研发部门负责。</li>
 </ul>
-<h3 id="指标的收集"><a href="#指标的收集" class="headerlink" title="指标的收集"></a>指标的收集</h3><p>利用某种监控系统，大部分指标数据都在服务器端被收集，例如 Borgmon 或者 Prometheus。或者利用某种日志分析系统。</p>
-<h3 id="汇总"><a href="#汇总" class="headerlink" title="汇总"></a>汇总</h3><p>为了简化和使数据更可用，我们经常需要汇总原始度量数。汇总过程应该非常小心。</p>
+<h4 id="指标的收集"><a href="#指标的收集" class="headerlink" title="指标的收集"></a>指标的收集</h4><p>利用某种监控系统，大部分指标数据都在服务器端被收集，例如 Borgmon 或者 Prometheus。或者利用某种日志分析系统。</p>
+<h4 id="汇总"><a href="#汇总" class="headerlink" title="汇总"></a>汇总</h4><p>为了简化和使数据更可用，我们经常需要汇总原始度量数。汇总过程应该非常小心。</p>
 <blockquote>
 <p>大部分指标都应以”分布”，而不是平均值来定义。<br>利用百分位指标可以帮助我们关注该指标的分布性：高百分位，例如 99% 和 99.9% 体现了指标的最差情况，而 50% 则体现了普遍情况。响应时间的分布越分散，意味着普通用户受到长尾请求延迟的影响就越明显，这可能预示了负载过高情况下出现的排队问题。用户研究显示，用户通常更喜欢速度较慢的系统，而不是一个请求速度抖动很厉害的系统，所以，某些 SRE 团队只关注长尾部分。<br>本节末还提供了《关于统计性谬误》p39 一文，解析对于 SRE 为什么一组数据的百分比分布，比算数平均值更有价值。</p>
 </blockquote>
-<h3 id="指标的标准化"><a href="#指标的标准化" class="headerlink" title="指标的标准化"></a>指标的标准化</h3><p>作者建议标准化一些常见的 SLI，以避免每次都要重新评估它们。任何一个符合标准定义模板的服务可以不需要再次自己定义 SLI。</p>
+<h4 id="指标的标准化"><a href="#指标的标准化" class="headerlink" title="指标的标准化"></a>指标的标准化</h4><p>作者建议标准化一些常见的 SLI，以避免每次都要重新评估它们。任何一个符合标准定义模板的服务可以不需要再次自己定义 SLI。</p>
 <ul>
 <li>汇总间隔：每 1 分钟汇总一次</li>
 <li>汇总范围：集群中的全部任务</li>
@@ -560,7 +561,38 @@
 <li>数据如何获取：通过监控系统获取服务器端信息得到</li>
 <li>数据访问延迟：从收到请求到最后一个字节被发出</li>
 </ul>
-<h2 id="目标在实践中的应用"><a href="#目标在实践中的应用" class="headerlink" title="目标在实践中的应用"></a>目标在实践中的应用</h2><h3 id="目标的定义"><a href="#目标的定义" class="headerlink" title="目标的定义"></a>目标的定义</h3><h3 id="目标的选择"><a href="#目标的选择" class="headerlink" title="目标的选择"></a>目标的选择</h3><p>未完待续……</p>
+<h3 id="目标在实践中的应用"><a href="#目标在实践中的应用" class="headerlink" title="目标在实践中的应用"></a>目标在实践中的应用</h3><h4 id="目标的定义"><a href="#目标的定义" class="headerlink" title="目标的定义"></a>目标的定义</h4><p>本节主要介绍如何通过错误预算，定义目标。</p>
+<h4 id="目标的选择"><a href="#目标的选择" class="headerlink" title="目标的选择"></a>目标的选择</h4><p>本节提供了目标选择的建议：</p>
+<ul>
+<li>不要仅以目前的状态为基础选择目标</li>
+<li>保持简单</li>
+<li>避免绝对值</li>
+<li>SLO 越少越好</li>
+<li>不要追求完美</li>
+</ul>
+<p>SLO 代表了用户体验的程度，是划分工作优先级的重要参考。</p>
+<h4 id="控制手段"><a href="#控制手段" class="headerlink" title="控制手段"></a>控制手段</h4><p>SLI 和 SLO 在决策系统运维是也非常有用：</p>
+<ol>
+<li>监控并且度量系统的 SLI。</li>
+<li>比较 SLI 和 SLO，以决定是否需要执行操作。</li>
+<li>如果需要执行操作，则要决定究竟什么操作需要被执行，以便满足目标。</li>
+<li>执行这些操作。</li>
+</ol>
+<h4 id="SLO-可以建立用户预期"><a href="#SLO-可以建立用户预期" class="headerlink" title="SLO 可以建立用户预期"></a>SLO 可以建立用户预期</h4><p>通过公布 SLO 可以设置用户对系统行为的预期。为了让用户拥有正确的预期，我们可以考虑使用以下几种策略：</p>
+<ul>
+<li>留出一定的安全区</li>
+<li>实际 SLO 也不要过高</li>
+</ul>
+<h3 id="协议在实践中的应用"><a href="#协议在实践中的应用" class="headerlink" title="协议在实践中的应用"></a>协议在实践中的应用</h3><p>协议涉及到法律问题，应保持保守。</p>
+<h2 id="第-5-章-减少琐事"><a href="#第-5-章-减少琐事" class="headerlink" title="第 5 章 减少琐事"></a>第 5 章 减少琐事</h2><p>本章节目录：</p>
+<ul>
+<li>琐事的定义</li>
+<li>为什么所示越少越好</li>
+<li>什么算作工程工作</li>
+<li>琐事繁多是不是一定不好</li>
+<li>小结</li>
+</ul>
+<p>未完待续……</p>
 
     </div>
 
@@ -652,7 +684,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">13 分钟</span>
+    <span title="站点阅读时长">14 分钟</span>
 </div>
 
         
