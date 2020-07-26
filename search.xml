@@ -352,7 +352,102 @@
 <li>每个紧急警报都应该是关于某个新问题的，不应该彼此重叠。</li>
 </ol>
 <p>如果某个紧急警报满足上述四点，那么不论是从白盒监控系统还是黑盒监控系统发出都一样。最好多花一些时间监控现象，而不是原因。</p>
-<h3 id="监控系统的长期维护"><a href="#监控系统的长期维护" class="headerlink" title="监控系统的长期维护"></a>监控系统的长期维护</h3><p>未完待续……</p>
+<h3 id="监控系统的长期维护"><a href="#监控系统的长期维护" class="headerlink" title="监控系统的长期维护"></a>监控系统的长期维护</h3><p>本节举了两个例子，Gmail 和 Bigtable，反映了一个问题：短期与长期的可用性的冲突。监控系统发现的问题，问题真正解决，在资源、技术能力有限的情况下，解决方案各不相同。决策的过程是一个艺术，实际情况实际处理。</p>
+<h3 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h3><p>长远来看，要建立一个成功的 on-call 轮值体系，以及构建一个稳定的产品需要选择那些正在发生和即将发生的问题进行报警，设置一个可以实际达到的合理目标，保证监控系统可以支持快速的问题定位与检测。</p>
+<h2 id="第-7-章-Google-的自动化系统的演进"><a href="#第-7-章-Google-的自动化系统的演进" class="headerlink" title="第 7 章 Google 的自动化系统的演进"></a>第 7 章 Google 的自动化系统的演进</h2><p>本章节目录：</p>
+<ul>
+<li>自动化的价值<ul>
+<li>一致性</li>
+<li>平台性</li>
+<li>修复速度更快</li>
+<li>行动速度更快</li>
+<li>节省时间</li>
+</ul>
+</li>
+<li>自动化对 Google SRE 的价值</li>
+<li>自动化的应用案例<ul>
+<li>Google SRE 的自动化使用案例</li>
+<li>自动化分类的层次结构</li>
+</ul>
+</li>
+<li>让自己脱离工作：自动化所有东西</li>
+<li>舒缓疼痛：将自动化应用到集群上线中<ul>
+<li>使用 Prodtest 检测不一致情况</li>
+<li>幂等地解决不一致情况</li>
+<li>专业化倾向</li>
+<li>以服务为导向的集群上线流程</li>
+</ul>
+</li>
+<li>Borg：仓库规模计算机的诞生</li>
+<li>可靠性是最基本的功能</li>
+<li>建议</li>
+</ul>
+<h3 id="自动化的价值"><a href="#自动化的价值" class="headerlink" title="自动化的价值"></a>自动化的价值</h3><h4 id="一致性"><a href="#一致性" class="headerlink" title="一致性"></a>一致性</h4><p>一致性地执行范围明确，步骤已知的程序—-是自动化的首要价值。</p>
+<h4 id="平台性"><a href="#平台性" class="headerlink" title="平台性"></a>平台性</h4><p>自动化不仅仅提供一致性。通过正确地设计和实现，自动化的系统可以提供一个可以扩展的，广泛使用的，甚至可能带来额外收益的平台。平台可以将错误集中化，可以将工作流程化、标准化。</p>
+<h4 id="修复速度更快"><a href="#修复速度更快" class="headerlink" title="修复速度更快"></a>修复速度更快</h4><p>采用自动化系统解决系统中的常见故障，可以带来额外的好处。</p>
+<p><strong>点评：</strong>自动化程序代码里，可以固化系统的一些信息、历史，方便问题的解决。</p>
+<h4 id="行动速度更快"><a href="#行动速度更快" class="headerlink" title="行动速度更快"></a>行动速度更快</h4><p>随着系统的复杂度的提升，自动化脚本可以极大地提高运维效率。</p>
+<h4 id="节省时间"><a href="#节省时间" class="headerlink" title="节省时间"></a>节省时间</h4><p>时间有两个维度：</p>
+<ul>
+<li>执行某个特定任务执行使用自动化；</li>
+<li>编写自动化需要的开发维护成本；</li>
+</ul>
+<p>这里需要实际情况实际处理了。</p>
+<h3 id="自动化对-Google-SRE-的价值"><a href="#自动化对-Google-SRE-的价值" class="headerlink" title="自动化对 Google SRE 的价值"></a>自动化对 Google SRE 的价值</h3><p><strong>点评：</strong>本节作者并没有实际归纳出具体是什么价值。我从文章里面体会到两点：</p>
+<ul>
+<li>选择自主开发平台，控制全部技术栈；</li>
+<li>利用这个平台，使用机器管理机器；</li>
+</ul>
+<h3 id="自动化的应用案例"><a href="#自动化的应用案例" class="headerlink" title="自动化的应用案例"></a>自动化的应用案例</h3><h4 id="Google-SRE-的自动化使用案例"><a href="#Google-SRE-的自动化使用案例" class="headerlink" title="Google SRE 的自动化使用案例"></a>Google SRE 的自动化使用案例</h4><p>本节并没有提供具体的使用案例。</p>
+<h4 id="自动化分类的层次结构"><a href="#自动化分类的层次结构" class="headerlink" title="自动化分类的层次结构"></a>自动化分类的层次结构</h4><p>集群故障转移自动化是一个经典例子：故障转移可能每隔几个月甚至更长时间才发生一次，导致每次执行都不一致。自动化的演进遵循以下路径：</p>
+<ol>
+<li>没有自动化。手动将数据库主进程在多个位置之间转移。</li>
+<li>外部维护的系统特定的自动化系统。SRE 在他或她的主目录中保存了一份故障转移脚本。</li>
+<li>外部维护的通用的自动化系统。SRE 将数据库支持添加到每个人都在使用的“通用故障转移”脚本中。</li>
+<li>内部维护的系统特定的自动化。数据库自己发布故障转移脚本。</li>
+<li>不需要任何自动化系统。数据库注意到问题发生，在无须人工干预的情况下进行故障转移。</li>
+</ol>
+<p><strong>点评：</strong>以上路径的划分已经非常清晰。推动该事项的发展，资源问题总是解决问题首要考虑的因素。系统需要推动到哪一步，非常考研决策者。</p>
+<h3 id="让自己脱离工作：自动化所有的东西"><a href="#让自己脱离工作：自动化所有的东西" class="headerlink" title="让自己脱离工作：自动化所有的东西"></a>让自己脱离工作：自动化所有的东西</h3><p>本节作者介绍了 Google 在推动 MySQL 实例高可用能力的历史，最终通过完成 MySQL On Borg 这个产品，完成了预定的目标：MySQL 自动进行故障转移。这项事情的完成给 Google 带来了丰厚的回报：</p>
+<ul>
+<li>SRE 在此项中花费的时间下降 95%；</li>
+<li>总运维成本下降近 95%；</li>
+<li>解放了近 60% 的硬件资源；</li>
+<li>SRE 的人力资源可以更多的其他事项中；</li>
+</ul>
+<p><strong>点评：</strong>对于 Google 如此体量的企业，有非常强的技术实力，有非常强的业务需求，完成这种难度的任务并不让人意外。但是对于普通的企业，获得如此的投入产出比，是比较难的。</p>
+<h3 id="舒缓疼痛：将自动化应用到集群上线中"><a href="#舒缓疼痛：将自动化应用到集群上线中" class="headerlink" title="舒缓疼痛：将自动化应用到集群上线中"></a>舒缓疼痛：将自动化应用到集群上线中</h3><p>本节比较偏向服务器硬件层面，等机器上架、安装、配置等。对于这些工作，早期的自动化关注域加速集群交付。这种方法往往依靠“有创意”地使用 SSH 来应对繁琐的包分发和服务初始化问题。采用这种战略一开始很成功，但是这些格式自由的脚本逐渐堆积形成了技术债务。</p>
+<h4 id="使用-Prodtest-检测不一致情况"><a href="#使用-Prodtest-检测不一致情况" class="headerlink" title="使用 Prodtest 检测不一致情况"></a>使用 Prodtest 检测不一致情况</h4><p>配置新集群，需要解决但不限于以下问题：</p>
+<ul>
+<li>是否所有服务的依赖关系都可用，并且正确地配置了？</li>
+<li>所有的配置和包都与其他部署一致吗？</li>
+<li>团队是否能够确认配置中的每个例外都是合理的？</li>
+</ul>
+<p>作者给出了解决方案：Prodtest（生产测试）。他们对 Python 单元测试框架进行了扩展，使其可以用来对实际服务进行单元测试。这些单元测试有依赖关系，允许进行链条式测试，一个测试中出现的故障可以很快中止整个测试。</p>
+<p><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_7-1DNS%E6%9C%8D%E5%8A%A1%E7%9A%84ProdTest.png" alt="图7-1. DNS服务的ProdTest" title="DNS服务的ProdTest"></p>
+<h4 id="幂等地解决不一致情况"><a href="#幂等地解决不一致情况" class="headerlink" title="幂等地解决不一致情况"></a>幂等地解决不一致情况</h4><p>上一节介绍的 ProdTest，当发现机器有问题的时候，该如何修复？作者提出了方案：程序自动化执行操作幂等的修复程序。</p>
+<p><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_7-2DNS%E6%9C%8D%E5%8A%A1%E7%9A%84ProdTest%E5%BC%82%E5%B8%B8%E4%BF%AE%E5%A4%8D%E6%B5%81%E7%A8%8B.png" alt="图7-2. DNS服务的ProdTest异常修复流程" title="DNS服务的ProdTest异常修复流程"></p>
+<p>这种方式本身是存在严重缺陷的；在测试、修复、再测试之间的延迟引入了“不稳定”的测试，时好时坏。并不是所有的修复程序都具有幂等性，所以一个“不稳定”的测试引起的一次修复可能造成系统处于不一致的状态。</p>
+<h4 id="专业化倾向"><a href="#专业化倾向" class="headerlink" title="专业化倾向"></a>专业化倾向</h4><ul>
+<li>自动化代码必须持续维护，保证它与它所覆盖的代码仓库同步；</li>
+<li>自动化脚本权限需要细化，避免直接使用 root；</li>
+</ul>
+<h4 id="以服务为导向的集群上线流程"><a href="#以服务为导向的集群上线流程" class="headerlink" title="以服务为导向的集群上线流程"></a>以服务为导向的集群上线流程</h4><p>服务拥有者负责控制集群上线、下线。集群上线自动化进化遵循这样一个路径：</p>
+<ol>
+<li>操作人员触发手动操作（无自动化）。</li>
+<li>操作人员编写，系统特定的自动化。</li>
+<li>外部维护的通用自动化。</li>
+<li>内部维护，系统特定的自动化。</li>
+<li>不需要人为干预的自治系统。</li>
+</ol>
+<h3 id="Borg：仓库规模计算机的诞生"><a href="#Borg：仓库规模计算机的诞生" class="headerlink" title="Borg：仓库规模计算机的诞生"></a>Borg：仓库规模计算机的诞生</h3><p>这里讲述了 Google 发展 Borg 原因、理念、阶段历史。Borg 发展到现在，就是著名的 Kubernetes。</p>
+<h3 id="可靠性是最基本的功能"><a href="#可靠性是最基本的功能" class="headerlink" title="可靠性是最基本的功能"></a>可靠性是最基本的功能</h3><p>自动化将会导致技术人员与系统产生距离，这是不得不面对，但又无法避免的现实。所以，确保自动化的可靠性，是最重要的事项。</p>
+<h3 id="建议"><a href="#建议" class="headerlink" title="建议"></a>建议</h3><ul>
+<li>不论组织、业务规模的大小如何，对自动化的投资都是值得的。</li>
+<li>实践软件工程的良好标准做法。</li>
+</ul>
+<p>文末提供了 Google 一次大规模故障发生的事项，提示读者在系统设计中要考虑允许大规模故障发发生。</p>
+<p>未完待续……</p>
 ]]></content>
       <tags>
         <tag>google</tag>
@@ -411,47 +506,6 @@
       </tags>
   </entry>
   <entry>
-    <title>博客的开端</title>
-    <url>/2020/06/06/hello-world/</url>
-    <content><![CDATA[<p>本人从事程序员这个职业已经 N 年了，在各种项目中解决了不少问题，一直没有把这些经验固化下来，现在回过头来看，确实是有遗憾。在之前我已经搭建起一个博客，但是又因为生活中的琐事，耽搁放弃了。成年人的世界，要做成一件需要花心思的事情，真实越来越难，躺着睡觉看视频多容易多舒服呀！今天终于有时间，鼓起勇气，把这个想法付诸实践。博客的内容，一方面是分享自己的经验、见闻，一方面也是整理自己的思路，提升自己的技术水平。写作水平有限，如有读者，谢谢你的光临，望多指教。</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>一个 Wine + Java + Dlls 的 Docker 镜像</title>
-    <url>/2020/06/06/%E4%B8%80%E4%B8%AA-wine-java-dlls-%E7%9A%84-docker-%E9%95%9C%E5%83%8F/</url>
-    <content><![CDATA[<p>我有一个 java 项目，需要在 windows 环境下调用第三方的动态链接库 dll 去解析数据，之前一直使用 windows server 2016 + docker + windows container 的方案运行。这个方案能解决第三方dll不能并行运行的问题，可以在一台机器上部署多个 instance。但是由于 windows server 2016 一直是使用虚拟机安装，导致该服务的性能不佳，而且也依赖 windows server 2016 及更高版本的系统。最近我制作了一个 wine + java + dlls 的 docker 镜像，让该 java 项目直接运行在 linux 的容器中，提高了性能，减少了服务器成本。本文介绍该镜像的制作细节。</p>
-<a id="more"></a>
-
-<h3 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h3><p>本镜像基于 <code>ubuntu:18.04</code> 构建, Dockfile 源码如下：</p>
-<figure class="highlight docker"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">18.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-http.list /etc/apt/sources.list</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get update &amp;&amp; apt-get install -y apt-transport-https ca-certificates</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-https.list /etc/apt/sources.list</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> dpkg --add-architecture i386 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get update &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get install -y wine32 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get clean -y</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> jdk-8u172-windows-i586.exe /app/jdk.exe</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> chmod +x /app/jdk.exe &amp;&amp; wine /app/jdk.exe /s &amp;&amp; rm /app/jdk.exe</span></span><br><span class="line"><span class="keyword">ARG</span> target=<span class="string">"/root/.wine/drive_c/Program Files/Java/jre1.8.0_172/bin/"</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./dlls/ <span class="variable">$&#123;target&#125;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /root</span></span><br></pre></td></tr></table></figure>
-
-<p>我们需要自行准备以下文件：</p>
-<ul>
-<li>sources-http.list, http 安装源链接,为了加快镜像编译速度:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></li>
-<li>sources-https.list, https 安装源链接,为了加快镜像编译速度:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></li>
-<li>jdk-8u172-windows-i586.exe, jdk安装包，其他版本的jdk需要自行验证是否能正确安装;</li>
-<li>依赖的动态链接库 .dll 文件，将这些文件复制到 Dockerfile 所在目录的 dlls 文件下;</li>
-</ul>
-<p>准备完成后，文件结构如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── jdk-8u172-windows-i586.exe</span><br><span class="line">├── dlls</span><br><span class="line">├── sources-http.list</span><br><span class="line">└── sources-https.list</span><br></pre></td></tr></table></figure>
-<p>在此目录下，执行以下命令，编译镜像：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker build -t wine-java-dlls:<span class="built_in">test</span> --network=host .</span><br></pre></td></tr></table></figure>
-<p>成功编译后，我们将得到镜像 <code>wine-java-dlls:test</code>。</p>
-<h3 id="使用镜像"><a href="#使用镜像" class="headerlink" title="使用镜像"></a>使用镜像</h3><p>通过 wine 执行 java,目前该镜像需要直接声明 java.exe 在 wine 中的路径,使用示例如下:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -d --net=host --name example --init -w /app -v /root/path/to/jar/location:/app wine-java-dlls:<span class="built_in">test</span> wine <span class="string">"C:\\Program Files\\Java\\jre1.8.0_172\\bin\\java.exe"</span> -jar test.jar</span><br></pre></td></tr></table></figure>
-
-<p><strong>参考阅读：</strong><br><a href="https://kupczynski.info/2018/11/11/wine-windows-jdk-on-linux.html" target="_blank" rel="noopener">《Use wine to run windows JDK on linux》</a></p>
-]]></content>
-      <tags>
-        <tag>wine</tag>
-        <tag>docker</tag>
-        <tag>container</tag>
-        <tag>java</tag>
-        <tag>jre</tag>
-        <tag>jdk</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CentOS 7 安装 oh-my-zsh</title>
     <url>/2020/06/28/CentOS-7-%E5%AE%89%E8%A3%85-oh-my-zsh/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本人比较喜欢使用 <code>oh-my-zsh</code> 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。</p>
@@ -505,6 +559,47 @@
       <tags>
         <tag>centos7</tag>
         <tag>oh-my-zsh</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>博客的开端</title>
+    <url>/2020/06/06/hello-world/</url>
+    <content><![CDATA[<p>本人从事程序员这个职业已经 N 年了，在各种项目中解决了不少问题，一直没有把这些经验固化下来，现在回过头来看，确实是有遗憾。在之前我已经搭建起一个博客，但是又因为生活中的琐事，耽搁放弃了。成年人的世界，要做成一件需要花心思的事情，真实越来越难，躺着睡觉看视频多容易多舒服呀！今天终于有时间，鼓起勇气，把这个想法付诸实践。博客的内容，一方面是分享自己的经验、见闻，一方面也是整理自己的思路，提升自己的技术水平。写作水平有限，如有读者，谢谢你的光临，望多指教。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>一个 Wine + Java + Dlls 的 Docker 镜像</title>
+    <url>/2020/06/06/%E4%B8%80%E4%B8%AA-wine-java-dlls-%E7%9A%84-docker-%E9%95%9C%E5%83%8F/</url>
+    <content><![CDATA[<p>我有一个 java 项目，需要在 windows 环境下调用第三方的动态链接库 dll 去解析数据，之前一直使用 windows server 2016 + docker + windows container 的方案运行。这个方案能解决第三方dll不能并行运行的问题，可以在一台机器上部署多个 instance。但是由于 windows server 2016 一直是使用虚拟机安装，导致该服务的性能不佳，而且也依赖 windows server 2016 及更高版本的系统。最近我制作了一个 wine + java + dlls 的 docker 镜像，让该 java 项目直接运行在 linux 的容器中，提高了性能，减少了服务器成本。本文介绍该镜像的制作细节。</p>
+<a id="more"></a>
+
+<h3 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h3><p>本镜像基于 <code>ubuntu:18.04</code> 构建, Dockfile 源码如下：</p>
+<figure class="highlight docker"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">18.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-http.list /etc/apt/sources.list</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get update &amp;&amp; apt-get install -y apt-transport-https ca-certificates</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-https.list /etc/apt/sources.list</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> dpkg --add-architecture i386 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get update &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get install -y wine32 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get clean -y</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> jdk-8u172-windows-i586.exe /app/jdk.exe</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> chmod +x /app/jdk.exe &amp;&amp; wine /app/jdk.exe /s &amp;&amp; rm /app/jdk.exe</span></span><br><span class="line"><span class="keyword">ARG</span> target=<span class="string">"/root/.wine/drive_c/Program Files/Java/jre1.8.0_172/bin/"</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./dlls/ <span class="variable">$&#123;target&#125;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /root</span></span><br></pre></td></tr></table></figure>
+
+<p>我们需要自行准备以下文件：</p>
+<ul>
+<li>sources-http.list, http 安装源链接,为了加快镜像编译速度:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></li>
+<li>sources-https.list, https 安装源链接,为了加快镜像编译速度:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></li>
+<li>jdk-8u172-windows-i586.exe, jdk安装包，其他版本的jdk需要自行验证是否能正确安装;</li>
+<li>依赖的动态链接库 .dll 文件，将这些文件复制到 Dockerfile 所在目录的 dlls 文件下;</li>
+</ul>
+<p>准备完成后，文件结构如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── jdk-8u172-windows-i586.exe</span><br><span class="line">├── dlls</span><br><span class="line">├── sources-http.list</span><br><span class="line">└── sources-https.list</span><br></pre></td></tr></table></figure>
+<p>在此目录下，执行以下命令，编译镜像：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker build -t wine-java-dlls:<span class="built_in">test</span> --network=host .</span><br></pre></td></tr></table></figure>
+<p>成功编译后，我们将得到镜像 <code>wine-java-dlls:test</code>。</p>
+<h3 id="使用镜像"><a href="#使用镜像" class="headerlink" title="使用镜像"></a>使用镜像</h3><p>通过 wine 执行 java,目前该镜像需要直接声明 java.exe 在 wine 中的路径,使用示例如下:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -d --net=host --name example --init -w /app -v /root/path/to/jar/location:/app wine-java-dlls:<span class="built_in">test</span> wine <span class="string">"C:\\Program Files\\Java\\jre1.8.0_172\\bin\\java.exe"</span> -jar test.jar</span><br></pre></td></tr></table></figure>
+
+<p><strong>参考阅读：</strong><br><a href="https://kupczynski.info/2018/11/11/wine-windows-jdk-on-linux.html" target="_blank" rel="noopener">《Use wine to run windows JDK on linux》</a></p>
+]]></content>
+      <tags>
+        <tag>wine</tag>
+        <tag>docker</tag>
+        <tag>container</tag>
+        <tag>java</tag>
+        <tag>jre</tag>
+        <tag>jdk</tag>
       </tags>
   </entry>
 </search>
