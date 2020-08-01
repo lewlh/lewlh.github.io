@@ -37,8 +37,9 @@
 <meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_8-1%E7%AE%80%E5%8C%96%E7%89%88Rapid%E6%9E%B6%E6%9E%84.png">
 <meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-1%E4%BB%8E%E4%B8%8D%E5%90%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E6%94%B6%E9%9B%86%E5%88%B0%E7%9A%84%E9%94%99%E8%AF%AF%E7%9B%91%E6%8E%A7%E5%8F%98%E9%87%8F%E7%9A%84%E5%AD%98%E5%82%A8%E5%BD%A2%E5%BC%8F.png">
 <meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-2time-series%E7%A4%BA%E8%8C%83%E6%95%B0%E6%8D%AE.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-3%E4%B8%80%E4%B8%AA%E5%9C%A8%E4%B8%89%E4%B8%AA%E9%9B%86%E7%BE%A4%E4%B8%AD%E5%B1%82%E7%BA%A7%E9%83%A8%E7%BD%B2%E7%9A%84Borgmon%E6%95%B0%E6%8D%AE%E6%B5%81%E5%90%91%E5%9B%BE.png">
 <meta property="article:published_time" content="2020-07-18T13:07:52.000Z">
-<meta property="article:modified_time" content="2020-08-01T09:31:35.833Z">
+<meta property="article:modified_time" content="2020-08-01T14:49:36.696Z">
 <meta property="article:author" content="Lewlh">
 <meta property="article:tag" content="google">
 <meta property="article:tag" content="SRE">
@@ -316,7 +317,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-08-01 17:31:35" itemprop="dateModified" datetime="2020-08-01T17:31:35+08:00">2020-08-01</time>
+                <time title="修改时间：2020-08-01 22:49:36" itemprop="dateModified" datetime="2020-08-01T22:49:36+08:00">2020-08-01</time>
               </span>
 
           
@@ -332,14 +333,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>12k</span>
+              <span>13k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>11 分钟</span>
+              <span>12 分钟</span>
             </span>
 
         </div>
@@ -918,8 +919,34 @@
 <blockquote>
 <p>12小时这个神奇的数字既能保障在线排错时有足够的历史数据，也能避免内存占用量过大。</p>
 </blockquote>
-<h4 id="标签域向量"><a href="#标签域向量" class="headerlink" title="标签域向量"></a>标签域向量</h4><p><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-2time-series%E7%A4%BA%E8%8C%83%E6%95%B0%E6%8D%AE.png" alt="图10-2. time-series示范数据" title="time-series示范数据"></p>
-<h3 id="Borg-规则计算"><a href="#Borg-规则计算" class="headerlink" title="Borg 规则计算"></a>Borg 规则计算</h3><h3 id="报警"><a href="#报警" class="headerlink" title="报警"></a>报警</h3><h3 id="监控系统的分片机制"><a href="#监控系统的分片机制" class="headerlink" title="监控系统的分片机制"></a>监控系统的分片机制</h3><h3 id="黑盒监控"><a href="#黑盒监控" class="headerlink" title="黑盒监控"></a>黑盒监控</h3><h3 id="配置文件的维护"><a href="#配置文件的维护" class="headerlink" title="配置文件的维护"></a>配置文件的维护</h3><h3 id="十年之后"><a href="#十年之后" class="headerlink" title="十年之后"></a>十年之后</h3><p>未完待续……</p>
+<h4 id="标签域向量"><a href="#标签域向量" class="headerlink" title="标签域向量"></a>标签域向量</h4><p>正如图10-2的示范数据所示，time-series 是按照时间戳和值的序列存放的，我们称之为向量（vector）。</p>
+<p><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-2time-series%E7%A4%BA%E8%8C%83%E6%95%B0%E6%8D%AE.png" alt="图10-2. time-series示范数据" title="time-series示范数据"></p>
+<p>time-series 的名字成为标签集合（labelset），因为它的实现方式就是一个标签（key=value）的集合。标识一个 time-series 的标签必须同时有以下几个标签：</p>
+<ul>
+<li>var 代表变量名称。</li>
+<li>job 被监控的软件服务器类型名。</li>
+<li>service 一个松散定义的软件服务器类型组名，可以按对外名称分类，也可以按对内名称分类。</li>
+<li>zone Google 定义的一个惯例名称，代表收集该条信息的 Borgmon 做在的位置（一般以数据中心名称赋值）。</li>
+</ul>
+<p>这 4 条综合起来形成了一个完整的<em>变量表达式</em>：<br>{var=http_requests,job=webserver,instance=host0:80,service=web,zone=us-west}</p>
+<h3 id="Borg-规则计算"><a href="#Borg-规则计算" class="headerlink" title="Borg 规则计算"></a>Borg 规则计算</h3><p>本节介绍了 Borgmon 的一些 query 规则。前文提到，Prometheus 与 Botgmon 非常类似，因此相关规则我们可以参考 <a href="https://prometheus.io/docs/prometheus/latest/querying/basics/" target="_blank" rel="noopener">Prometheus</a> 的技术文档。</p>
+<h3 id="报警"><a href="#报警" class="headerlink" title="报警"></a>报警</h3><p>报警管理服务负责将受到的报警转发到合适的通知渠道。报警管理服务的配置包括：</p>
+<ul>
+<li>当有其他报警触发的时候，抑制某些报警。</li>
+<li>将多个 Borgmon 发来的报警信息合并排重。</li>
+<li>根据标签信息将受到的报警信息展开或者将多个报警信息合并成一个。</li>
+</ul>
+<p>参考阅读：</p>
+<ol>
+<li><a href="https://prometheus.io/docs/practices/alerting/" target="_blank" rel="noopener">Prometheus Alert</a></li>
+<li><a href="https://grafana.com/docs/grafana/latest/alerting/alerts-overview/" target="_blank" rel="noopener">Grafana Alert</a></li>
+</ol>
+<h3 id="监控系统的分片机制"><a href="#监控系统的分片机制" class="headerlink" title="监控系统的分片机制"></a>监控系统的分片机制</h3><p>本节介绍了 Google Borgmon 集群数据分片机制。</p>
+<p><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-3%E4%B8%80%E4%B8%AA%E5%9C%A8%E4%B8%89%E4%B8%AA%E9%9B%86%E7%BE%A4%E4%B8%AD%E5%B1%82%E7%BA%A7%E9%83%A8%E7%BD%B2%E7%9A%84Borgmon%E6%95%B0%E6%8D%AE%E6%B5%81%E5%90%91%E5%9B%BE.png" alt="图10-3:一个在三个集群中层级部署的Borgmon数据流向图" title="一个在三个集群中层级部署的Borgmon数据流向图"></p>
+<h3 id="黑盒监控"><a href="#黑盒监控" class="headerlink" title="黑盒监控"></a>黑盒监控</h3><p>Google SRE 团队通常利用探针程序（prober）解决黑和监控的问题。探针程序使用应用级别的自动请求探测目标是否成功返回，并通过 Borgmon 收集结果。</p>
+<h3 id="配置文件的维护"><a href="#配置文件的维护" class="headerlink" title="配置文件的维护"></a>配置文件的维护</h3><p>本节介绍了 Google 如果管理 Borgmon 的配置。</p>
+<h3 id="十年之后"><a href="#十年之后" class="headerlink" title="十年之后"></a>十年之后</h3><p>今天 Google 内部的监控系统已经相当完善。虽然 Borgmon 仍是 Google 内部工具，但是我们可以使用开源的 Prometheus、Riemann 等开源软件，实现与 Borgmon 类似的系统。</p>
+<p>未完待续……</p>
 
     </div>
 
@@ -1005,13 +1032,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">22k</span>
+    <span title="站点总字数">23k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">20 分钟</span>
+    <span title="站点阅读时长">21 分钟</span>
 </div>
 
         
