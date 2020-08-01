@@ -548,7 +548,32 @@
 <li>配置文件的维护</li>
 <li>十年之后</li>
 </ul>
-<p>未完待续……</p>
+<p>监控一个大型系统本身是一项非常具有挑战性的工作：</p>
+<ul>
+<li>大型系统中组件数量特别多，分析工作繁杂繁重。</li>
+<li>监控系统本身的维护要求必须非常低。</li>
+</ul>
+<h3 id="Borgmon-的起源"><a href="#Borgmon-的起源" class="headerlink" title="Borgmon 的起源"></a>Borgmon 的起源</h3><p>Borgmon 是 Google 内部使用的监控系统。文中提到，在 Google 外部，与 Borgmon 最为类似的的监控系统是 Prometheus。我们可以参考 Prometheus 系统，感受 Google 的监控系统构建的细节。</p>
+<h3 id="应用软件的监控埋点"><a href="#应用软件的监控埋点" class="headerlink" title="应用软件的监控埋点"></a>应用软件的监控埋点</h3><p>监控接口只是用文本方式每行一个地列出应用中所暴露的全部监控变量值，格式是空格分隔的键值对。随后，又增加了一种 Map 格式，允许应用程序在键值对上增加标签（label）。</p>
+<h3 id="监控指标的收集"><a href="#监控指标的收集" class="headerlink" title="监控指标的收集"></a>监控指标的收集</h3><p>本文提到的几项实践非常值得借鉴：</p>
+<ul>
+<li>Borgmon 能够自动将每个目标的收集工作均匀地分散在整个周期中。这点在建立监控系统的时候很容易被忽略。</li>
+<li>使用服务发现体系可以降低监控系统的配置维护难度，允许监控系统自动扩展。</li>
+<li>应该为每一个服务自动生成“合成指标”，以便区分以下几种情况：<ul>
+<li>目标地址是否成功解析为 IP 和端口。</li>
+<li>目标是否响应了一次收集请求。</li>
+<li>目标是否响应了一次监控检查请求。</li>
+<li>数据收集成功结束的时间点。</li>
+</ul>
+</li>
+</ul>
+<h3 id="时间序列数据的存储"><a href="#时间序列数据的存储" class="headerlink" title="时间序列数据的存储"></a>时间序列数据的存储</h3><p>本节介绍了时间序列数据的存储原理以及实现方式，以及 Google 使用 Borgmon 的一些细节。</p>
+<p><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-1%E4%BB%8E%E4%B8%8D%E5%90%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E6%94%B6%E9%9B%86%E5%88%B0%E7%9A%84%E9%94%99%E8%AF%AF%E7%9B%91%E6%8E%A7%E5%8F%98%E9%87%8F%E7%9A%84%E5%AD%98%E5%82%A8%E5%BD%A2%E5%BC%8F.png" alt="图10-1. 从不同服务器上收集到的错误监控变量的存储形式" title="从不同服务器上收集到的错误监控变量的存储形式"></p>
+<blockquote>
+<p>12小时这个神奇的数字既能保障在线排错时有足够的历史数据，也能避免内存占用量过大。</p>
+</blockquote>
+<h4 id="标签域向量"><a href="#标签域向量" class="headerlink" title="标签域向量"></a>标签域向量</h4><p><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-2time-series%E7%A4%BA%E8%8C%83%E6%95%B0%E6%8D%AE.png" alt="图10-2. time-series示范数据" title="time-series示范数据"></p>
+<h3 id="Borg-规则计算"><a href="#Borg-规则计算" class="headerlink" title="Borg 规则计算"></a>Borg 规则计算</h3><h3 id="报警"><a href="#报警" class="headerlink" title="报警"></a>报警</h3><h3 id="监控系统的分片机制"><a href="#监控系统的分片机制" class="headerlink" title="监控系统的分片机制"></a>监控系统的分片机制</h3><h3 id="黑盒监控"><a href="#黑盒监控" class="headerlink" title="黑盒监控"></a>黑盒监控</h3><h3 id="配置文件的维护"><a href="#配置文件的维护" class="headerlink" title="配置文件的维护"></a>配置文件的维护</h3><h3 id="十年之后"><a href="#十年之后" class="headerlink" title="十年之后"></a>十年之后</h3><p>未完待续……</p>
 ]]></content>
       <tags>
         <tag>google</tag>
@@ -558,6 +583,59 @@
         <tag>Dev</tag>
         <tag>错误预算</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>PgSQL · 特性分析 · PG主备流复制机制</title>
+    <url>/2020/07/13/PG%E4%B8%BB%E5%A4%87%E6%B5%81%E5%A4%8D%E5%88%B6%E6%9C%BA%E5%88%B6/</url>
+    <content><![CDATA[<p>本文来自于阿里云RDS-数据库内核组，<a href="http://mysql.taobao.org/monthly/2015/10/04/" target="_blank" rel="noopener">文章地址</a>。笔者读完此文，感觉作者对 PostgreSQL 流复制 streaming replication 的机制解析的非常透彻，是一遍非常好的技术分享文档。文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用-相同方式共享 3.0 未本地化版本许可协议</a>,因此笔者将本文收录于自己的博客中，方便日后学习检索。</p>
+<a id="more"></a>
+
+<hr>
+<p>PostgreSQL在9.0之后引入了主备流复制机制，通过流复制，备库不断的从主库同步相应的数据，并在备库apply每个WAL record，这里的流复制每次传输单位是WAL日志的record。而PostgreSQL9.0之前提供的方法是主库写完一个WAL日志文件后，才把WAL日志文件传送到备库，这样的方式导致主备延迟特别大。同时PostgreSQL9.0之后提供了Hot Standby，备库在应用WAL record的同时也能够提供只读服务，大大提升了用户体验。</p>
+<h1 id="主备总体结构"><a href="#主备总体结构" class="headerlink" title="主备总体结构"></a>主备总体结构</h1><p>PG主备流复制的核心部分由walsender，walreceiver和startup三个进程组成。 walsender进程是用来发送WAL日志记录的，执行顺序如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostgresMain()-&gt;exec_replication_command()-&gt;StartReplication()-&gt;WalSndLoop()-&gt;XLogSendPhysical()</span><br></pre></td></tr></table></figure>
+
+<p>walreceiver进程是用来接收WAL日志记录的，执行顺序如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sigusr1_handler()-&gt;StartWalReceiver()-&gt;AuxiliaryProcessMain()-&gt;WalReceiverMain()-&gt;walrcv_receive()</span><br></pre></td></tr></table></figure>
+
+<p>startup进程是用来apply日志的，执行顺序如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostmasterMain()-&gt;StartupDataBase()-&gt;AuxiliaryProcessMain()-&gt;StartupProcessMain()-&gt;StartupXLOG()</span><br></pre></td></tr></table></figure>
+
+<p>下图是PG主备总体框架图：<br><img src="/images/20200713_PG%E4%B8%BB%E5%A4%87%E6%80%BB%E4%BD%93%E6%A1%86%E6%9E%B6%E5%9B%BE.png" alt="图1. PG主备总体框架图" title="PG主备总体框架图"></p>
+<h1 id="walsender和walreceiver进程流复制过程"><a href="#walsender和walreceiver进程流复制过程" class="headerlink" title="walsender和walreceiver进程流复制过程"></a>walsender和walreceiver进程流复制过程</h1><p>walsender和walreceiver交互主要分为以下几个步骤：</p>
+<ol>
+<li>walreceiver启动后通过recovery.conf文件中的primary_conninfo参数信息连向主库，主库通过连接参数replication=true启动walsender进程；</li>
+<li>walreceiver执行identify_system命令，获取主库systemid/timeline/xlogpos等信息，执行TIMELINE_HISTORY命令拉取history文件；</li>
+<li>执行wal_startstreaming开始启动流复制，通过walrcv_receive获取WAL日志，期间也会回应主库发过来的心跳信息(接收位点、flush位点、apply位点)，向主库发送feedback信息(最老的事务id)，避免vacuum删掉备库正在使用的记录；</li>
+<li>执行walrcv_endstreaming结束流复制，等待startup进程更新receiveStart和receiveStartTLI，一旦更新，进入步骤2。</li>
+</ol>
+<p><img src="/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png" alt="图2. PG流复制过程" title="PG流复制过程"></p>
+<h1 id="walreceiver和startup进程"><a href="#walreceiver和startup进程" class="headerlink" title="walreceiver和startup进程"></a>walreceiver和startup进程</h1><p>startup进程进入standby模式和apply日志主要过程：</p>
+<ol>
+<li>读取pg_control文件，找到redo位点;读取recovery.conf，如果配置standby_mode=on则进入standby模式。</li>
+<li>如果是Hot Standby需要初始化clog、subtrans、事务环境等。初始化redo资源管理器，比如Heap、Heap2、Database、XLOG等。</li>
+<li>读取WAL record，如果record不存在需要调用XLogPageRead-&gt;WaitForWALToBecomeAvailable-&gt;RequestXLogStreaming唤醒walreceiver从walsender获取WAL record。</li>
+<li>对读取的WAL record进行redo，通过record-&gt;xl_rmid信息，调用相应的redo资源管理器进行redo操作。比如heap_redo的XLOG_HEAP_INSERT操作，就是通过record的信息在buffer page中增加一个record： <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">MemSet((<span class="keyword">char</span> *) htup, <span class="number">0</span>, <span class="keyword">sizeof</span>(HeapTupleHeaderData));</span><br><span class="line"><span class="comment">/* PG73FORMAT: get bitmap [+ padding] [+ oid] + data */</span></span><br><span class="line"><span class="built_in">memcpy</span>((<span class="keyword">char</span> *) htup + offsetof(HeapTupleHeaderData, t_bits),</span><br><span class="line">    (<span class="keyword">char</span> *) xlrec + SizeOfHeapInsert + SizeOfHeapHeader,</span><br><span class="line">    newlen);</span><br><span class="line">newlen += offsetof(HeapTupleHeaderData, t_bits);</span><br><span class="line">htup-&gt;t_infomask2 = xlhdr.t_infomask2;</span><br><span class="line">htup-&gt;t_infomask = xlhdr.t_infomask;</span><br><span class="line">htup-&gt;t_hoff = xlhdr.t_hoff;</span><br><span class="line">HeapTupleHeaderSetXmin(htup, record-&gt;xl_xid);</span><br><span class="line">HeapTupleHeaderSetCmin(htup, FirstCommandId);</span><br><span class="line">htup-&gt;t_ctid = xlrec-&gt;target.tid;</span><br><span class="line"></span><br><span class="line">offnum = PageAddItem(page, (Item) htup, newlen, offnum, <span class="literal">true</span>, <span class="literal">true</span>);</span><br><span class="line"><span class="keyword">if</span> (offnum == InvalidOffsetNumber)</span><br><span class="line">    elog(PANIC, <span class="string">"heap_insert_redo: failed to add tuple"</span>);</span><br><span class="line"></span><br><span class="line">freespace = PageGetHeapFreeSpace(page);		<span class="comment">/* needed to update FSM below */</span></span><br><span class="line"></span><br><span class="line">PageSetLSN(page, lsn);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (xlrec-&gt;flags &amp; XLOG_HEAP_ALL_VISIBLE_CLEARED)</span><br><span class="line">    PageClearAllVisible(page);</span><br><span class="line"></span><br><span class="line">MarkBufferDirty(buffer);</span><br></pre></td></tr></table></figure>
+ 还有部分redo操作(vacuum产生的record)需要检查在Hot Standby模式下的查询冲突，比如某些tuples需要remove，而存在正在执行的query可能读到这些tuples，这样就会破坏事务隔离级别。通过函数ResolveRecoveryConflictWithSnapshot检测冲突，如果发生冲突，那么就把这个query所在的进程kill掉。</li>
+<li>检查一致性，如果一致了，Hot Standby模式可以接受用户只读查询；更新共享内存中XLogCtlData的apply位点和时间线；如果恢复到时间点，时间线或者事务id需要检查是否恢复到当前目标；</li>
+<li>回到步骤3，读取next WAL record。</li>
+</ol>
+<p><img src="/images/20200713_PG_standby%E6%A8%A1%E5%BC%8F%E5%92%8Capply%E6%97%A5%E5%BF%97%E8%BF%87%E7%A8%8B.png" alt="图3. PG standby模式和apply日志过程" title="PG standby模式和apply日志过程"></p>
+]]></content>
+      <tags>
+        <tag>postgres</tag>
+        <tag>PostgreSQL</tag>
+        <tag>streaming replication</tag>
+        <tag>wal</tag>
+        <tag>xlog</tag>
+        <tag>PgSQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>博客的开端</title>
+    <url>/2020/06/06/hello-world/</url>
+    <content><![CDATA[<p>本人从事程序员这个职业已经 N 年了，在各种项目中解决了不少问题，一直没有把这些经验固化下来，现在回过头来看，确实是有遗憾。在之前我已经搭建起一个博客，但是又因为生活中的琐事，耽搁放弃了。成年人的世界，要做成一件需要花心思的事情，真实越来越难，躺着睡觉看视频多容易多舒服呀！今天终于有时间，鼓起勇气，把这个想法付诸实践。博客的内容，一方面是分享自己的经验、见闻，一方面也是整理自己的思路，提升自己的技术水平。写作水平有限，如有读者，谢谢你的光临，望多指教。</p>
+]]></content>
   </entry>
   <entry>
     <title>CentOS 7 安装 oh-my-zsh</title>
@@ -616,12 +694,6 @@
       </tags>
   </entry>
   <entry>
-    <title>博客的开端</title>
-    <url>/2020/06/06/hello-world/</url>
-    <content><![CDATA[<p>本人从事程序员这个职业已经 N 年了，在各种项目中解决了不少问题，一直没有把这些经验固化下来，现在回过头来看，确实是有遗憾。在之前我已经搭建起一个博客，但是又因为生活中的琐事，耽搁放弃了。成年人的世界，要做成一件需要花心思的事情，真实越来越难，躺着睡觉看视频多容易多舒服呀！今天终于有时间，鼓起勇气，把这个想法付诸实践。博客的内容，一方面是分享自己的经验、见闻，一方面也是整理自己的思路，提升自己的技术水平。写作水平有限，如有读者，谢谢你的光临，望多指教。</p>
-]]></content>
-  </entry>
-  <entry>
     <title>一个 Wine + Java + Dlls 的 Docker 镜像</title>
     <url>/2020/06/06/%E4%B8%80%E4%B8%AA-wine-java-dlls-%E7%9A%84-docker-%E9%95%9C%E5%83%8F/</url>
     <content><![CDATA[<p>我有一个 java 项目，需要在 windows 环境下调用第三方的动态链接库 dll 去解析数据，之前一直使用 windows server 2016 + docker + windows container 的方案运行。这个方案能解决第三方dll不能并行运行的问题，可以在一台机器上部署多个 instance。但是由于 windows server 2016 一直是使用虚拟机安装，导致该服务的性能不佳，而且也依赖 windows server 2016 及更高版本的系统。最近我制作了一个 wine + java + dlls 的 docker 镜像，让该 java 项目直接运行在 linux 的容器中，提高了性能，减少了服务器成本。本文介绍该镜像的制作细节。</p>
@@ -654,53 +726,6 @@
         <tag>java</tag>
         <tag>jre</tag>
         <tag>jdk</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>PgSQL · 特性分析 · PG主备流复制机制</title>
-    <url>/2020/07/13/PG%E4%B8%BB%E5%A4%87%E6%B5%81%E5%A4%8D%E5%88%B6%E6%9C%BA%E5%88%B6/</url>
-    <content><![CDATA[<p>本文来自于阿里云RDS-数据库内核组，<a href="http://mysql.taobao.org/monthly/2015/10/04/" target="_blank" rel="noopener">文章地址</a>。笔者读完此文，感觉作者对 PostgreSQL 流复制 streaming replication 的机制解析的非常透彻，是一遍非常好的技术分享文档。文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用-相同方式共享 3.0 未本地化版本许可协议</a>,因此笔者将本文收录于自己的博客中，方便日后学习检索。</p>
-<a id="more"></a>
-
-<hr>
-<p>PostgreSQL在9.0之后引入了主备流复制机制，通过流复制，备库不断的从主库同步相应的数据，并在备库apply每个WAL record，这里的流复制每次传输单位是WAL日志的record。而PostgreSQL9.0之前提供的方法是主库写完一个WAL日志文件后，才把WAL日志文件传送到备库，这样的方式导致主备延迟特别大。同时PostgreSQL9.0之后提供了Hot Standby，备库在应用WAL record的同时也能够提供只读服务，大大提升了用户体验。</p>
-<h1 id="主备总体结构"><a href="#主备总体结构" class="headerlink" title="主备总体结构"></a>主备总体结构</h1><p>PG主备流复制的核心部分由walsender，walreceiver和startup三个进程组成。 walsender进程是用来发送WAL日志记录的，执行顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostgresMain()-&gt;exec_replication_command()-&gt;StartReplication()-&gt;WalSndLoop()-&gt;XLogSendPhysical()</span><br></pre></td></tr></table></figure>
-
-<p>walreceiver进程是用来接收WAL日志记录的，执行顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sigusr1_handler()-&gt;StartWalReceiver()-&gt;AuxiliaryProcessMain()-&gt;WalReceiverMain()-&gt;walrcv_receive()</span><br></pre></td></tr></table></figure>
-
-<p>startup进程是用来apply日志的，执行顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostmasterMain()-&gt;StartupDataBase()-&gt;AuxiliaryProcessMain()-&gt;StartupProcessMain()-&gt;StartupXLOG()</span><br></pre></td></tr></table></figure>
-
-<p>下图是PG主备总体框架图：<br><img src="/images/20200713_PG%E4%B8%BB%E5%A4%87%E6%80%BB%E4%BD%93%E6%A1%86%E6%9E%B6%E5%9B%BE.png" alt="图1. PG主备总体框架图" title="PG主备总体框架图"></p>
-<h1 id="walsender和walreceiver进程流复制过程"><a href="#walsender和walreceiver进程流复制过程" class="headerlink" title="walsender和walreceiver进程流复制过程"></a>walsender和walreceiver进程流复制过程</h1><p>walsender和walreceiver交互主要分为以下几个步骤：</p>
-<ol>
-<li>walreceiver启动后通过recovery.conf文件中的primary_conninfo参数信息连向主库，主库通过连接参数replication=true启动walsender进程；</li>
-<li>walreceiver执行identify_system命令，获取主库systemid/timeline/xlogpos等信息，执行TIMELINE_HISTORY命令拉取history文件；</li>
-<li>执行wal_startstreaming开始启动流复制，通过walrcv_receive获取WAL日志，期间也会回应主库发过来的心跳信息(接收位点、flush位点、apply位点)，向主库发送feedback信息(最老的事务id)，避免vacuum删掉备库正在使用的记录；</li>
-<li>执行walrcv_endstreaming结束流复制，等待startup进程更新receiveStart和receiveStartTLI，一旦更新，进入步骤2。</li>
-</ol>
-<p><img src="/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png" alt="图2. PG流复制过程" title="PG流复制过程"></p>
-<h1 id="walreceiver和startup进程"><a href="#walreceiver和startup进程" class="headerlink" title="walreceiver和startup进程"></a>walreceiver和startup进程</h1><p>startup进程进入standby模式和apply日志主要过程：</p>
-<ol>
-<li>读取pg_control文件，找到redo位点;读取recovery.conf，如果配置standby_mode=on则进入standby模式。</li>
-<li>如果是Hot Standby需要初始化clog、subtrans、事务环境等。初始化redo资源管理器，比如Heap、Heap2、Database、XLOG等。</li>
-<li>读取WAL record，如果record不存在需要调用XLogPageRead-&gt;WaitForWALToBecomeAvailable-&gt;RequestXLogStreaming唤醒walreceiver从walsender获取WAL record。</li>
-<li>对读取的WAL record进行redo，通过record-&gt;xl_rmid信息，调用相应的redo资源管理器进行redo操作。比如heap_redo的XLOG_HEAP_INSERT操作，就是通过record的信息在buffer page中增加一个record： <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">MemSet((<span class="keyword">char</span> *) htup, <span class="number">0</span>, <span class="keyword">sizeof</span>(HeapTupleHeaderData));</span><br><span class="line"><span class="comment">/* PG73FORMAT: get bitmap [+ padding] [+ oid] + data */</span></span><br><span class="line"><span class="built_in">memcpy</span>((<span class="keyword">char</span> *) htup + offsetof(HeapTupleHeaderData, t_bits),</span><br><span class="line">    (<span class="keyword">char</span> *) xlrec + SizeOfHeapInsert + SizeOfHeapHeader,</span><br><span class="line">    newlen);</span><br><span class="line">newlen += offsetof(HeapTupleHeaderData, t_bits);</span><br><span class="line">htup-&gt;t_infomask2 = xlhdr.t_infomask2;</span><br><span class="line">htup-&gt;t_infomask = xlhdr.t_infomask;</span><br><span class="line">htup-&gt;t_hoff = xlhdr.t_hoff;</span><br><span class="line">HeapTupleHeaderSetXmin(htup, record-&gt;xl_xid);</span><br><span class="line">HeapTupleHeaderSetCmin(htup, FirstCommandId);</span><br><span class="line">htup-&gt;t_ctid = xlrec-&gt;target.tid;</span><br><span class="line"></span><br><span class="line">offnum = PageAddItem(page, (Item) htup, newlen, offnum, <span class="literal">true</span>, <span class="literal">true</span>);</span><br><span class="line"><span class="keyword">if</span> (offnum == InvalidOffsetNumber)</span><br><span class="line">    elog(PANIC, <span class="string">"heap_insert_redo: failed to add tuple"</span>);</span><br><span class="line"></span><br><span class="line">freespace = PageGetHeapFreeSpace(page);		<span class="comment">/* needed to update FSM below */</span></span><br><span class="line"></span><br><span class="line">PageSetLSN(page, lsn);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (xlrec-&gt;flags &amp; XLOG_HEAP_ALL_VISIBLE_CLEARED)</span><br><span class="line">    PageClearAllVisible(page);</span><br><span class="line"></span><br><span class="line">MarkBufferDirty(buffer);</span><br></pre></td></tr></table></figure>
- 还有部分redo操作(vacuum产生的record)需要检查在Hot Standby模式下的查询冲突，比如某些tuples需要remove，而存在正在执行的query可能读到这些tuples，这样就会破坏事务隔离级别。通过函数ResolveRecoveryConflictWithSnapshot检测冲突，如果发生冲突，那么就把这个query所在的进程kill掉。</li>
-<li>检查一致性，如果一致了，Hot Standby模式可以接受用户只读查询；更新共享内存中XLogCtlData的apply位点和时间线；如果恢复到时间点，时间线或者事务id需要检查是否恢复到当前目标；</li>
-<li>回到步骤3，读取next WAL record。</li>
-</ol>
-<p><img src="/images/20200713_PG_standby%E6%A8%A1%E5%BC%8F%E5%92%8Capply%E6%97%A5%E5%BF%97%E8%BF%87%E7%A8%8B.png" alt="图3. PG standby模式和apply日志过程" title="PG standby模式和apply日志过程"></p>
-]]></content>
-      <tags>
-        <tag>postgres</tag>
-        <tag>PostgreSQL</tag>
-        <tag>streaming replication</tag>
-        <tag>wal</tag>
-        <tag>xlog</tag>
-        <tag>PgSQL</tag>
       </tags>
   </entry>
 </search>
