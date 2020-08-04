@@ -338,33 +338,24 @@ td {
 .toggle .toggle-line:not(:first-child) {
   margin-top: 3px;
 }
-.toggle.toggle-arrow .toggle-line:first-child,
-body:not(.sidebar-active) .sidebar-toggle:hover .toggle-line:first-child {
+.toggle.toggle-arrow .toggle-line:first-child {
   top: 2px;
   transform: rotate(-45deg);
   width: 50%;
 }
-.toggle.toggle-arrow .toggle-line:nth-child(2),
-body:not(.sidebar-active) .sidebar-toggle:hover .toggle-line:nth-child(2) {
-  width: 90%;
-}
-.toggle.toggle-arrow .toggle-line:last-child,
-body:not(.sidebar-active) .sidebar-toggle:hover .toggle-line:last-child {
+.toggle.toggle-arrow .toggle-line:last-child {
   top: -2px;
   transform: rotate(45deg);
   width: 50%;
 }
-.toggle.toggle-close .toggle-line:first-child,
-.sidebar-active .sidebar-toggle .toggle-line:first-child {
+.toggle.toggle-close .toggle-line:nth-child(2) {
+  opacity: 0;
+}
+.toggle.toggle-close .toggle-line:first-child {
   top: 5px;
   transform: rotate(-45deg);
 }
-.toggle.toggle-close .toggle-line:nth-child(2),
-.sidebar-active .sidebar-toggle .toggle-line:nth-child(2) {
-  opacity: 0;
-}
-.toggle.toggle-close .toggle-line:last-child,
-.sidebar-active .sidebar-toggle .toggle-line:last-child {
+.toggle.toggle-close .toggle-line:last-child {
   top: -5px;
   transform: rotate(45deg);
 }
@@ -1556,6 +1547,29 @@ pre code {
 .sidebar-toggle:hover .toggle-line {
   background: #87daff;
 }
+@media (any-hover: hover) {
+  body:not(.sidebar-active) .sidebar-toggle:hover .toggle-line:first-child {
+    top: 2px;
+    transform: rotate(-45deg);
+    width: 50%;
+  }
+  body:not(.sidebar-active) .sidebar-toggle:hover .toggle-line:last-child {
+    top: -2px;
+    transform: rotate(45deg);
+    width: 50%;
+  }
+}
+.sidebar-active .sidebar-toggle .toggle-line:nth-child(2) {
+  opacity: 0;
+}
+.sidebar-active .sidebar-toggle .toggle-line:first-child {
+  top: 5px;
+  transform: rotate(-45deg);
+}
+.sidebar-active .sidebar-toggle .toggle-line:last-child {
+  top: -5px;
+  transform: rotate(45deg);
+}
 .post-toc {
   font-size: 0.875em;
 }
@@ -1834,6 +1848,7 @@ pre code {
   visibility: hidden;
 }
 .posts-collapse {
+  margin-bottom: 35px;
   margin-left: 35px;
   position: relative;
 }
@@ -1878,7 +1893,7 @@ pre code {
 }
 .posts-collapse .collection-header {
   display: block;
-  margin: 0 0 0 20px;
+  margin-left: 20px;
 }
 .posts-collapse .collection-header small {
   color: #bbb;
@@ -2092,6 +2107,7 @@ pre code {
   bottom: 0;
   content: '';
   height: 2px;
+  left: 0;
   position: absolute;
   transform: scaleX(0);
   transition: transform 0.2s ease-in-out;
@@ -2863,7 +2879,7 @@ hr {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #4bffc3;
+  background: #8e6033;
   display: inline-block;
   margin-right: 3px;
   transform: translateY(-2px);

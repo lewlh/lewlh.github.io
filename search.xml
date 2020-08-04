@@ -1,6 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>PgSQL · 特性分析 · PG主备流复制机制</title>
+    <url>/2020/07/13/PG%E4%B8%BB%E5%A4%87%E6%B5%81%E5%A4%8D%E5%88%B6%E6%9C%BA%E5%88%B6/</url>
+    <content><![CDATA[<p>本文来自于阿里云RDS-数据库内核组，<a href="http://mysql.taobao.org/monthly/2015/10/04/" target="_blank" rel="noopener">文章地址</a>。笔者读完此文，感觉作者对 PostgreSQL 流复制 streaming replication 的机制解析的非常透彻，是一遍非常好的技术分享文档。文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用-相同方式共享 3.0 未本地化版本许可协议</a>,因此笔者将本文收录于自己的博客中，方便日后学习检索。</p>
+<a id="more"></a>
+
+<hr>
+<p>PostgreSQL在9.0之后引入了主备流复制机制，通过流复制，备库不断的从主库同步相应的数据，并在备库apply每个WAL record，这里的流复制每次传输单位是WAL日志的record。而PostgreSQL9.0之前提供的方法是主库写完一个WAL日志文件后，才把WAL日志文件传送到备库，这样的方式导致主备延迟特别大。同时PostgreSQL9.0之后提供了Hot Standby，备库在应用WAL record的同时也能够提供只读服务，大大提升了用户体验。</p>
+<h1 id="主备总体结构"><a href="#主备总体结构" class="headerlink" title="主备总体结构"></a>主备总体结构</h1><p>PG主备流复制的核心部分由walsender，walreceiver和startup三个进程组成。 walsender进程是用来发送WAL日志记录的，执行顺序如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostgresMain()-&gt;exec_replication_command()-&gt;StartReplication()-&gt;WalSndLoop()-&gt;XLogSendPhysical()</span><br></pre></td></tr></table></figure>
+
+<p>walreceiver进程是用来接收WAL日志记录的，执行顺序如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sigusr1_handler()-&gt;StartWalReceiver()-&gt;AuxiliaryProcessMain()-&gt;WalReceiverMain()-&gt;walrcv_receive()</span><br></pre></td></tr></table></figure>
+
+<p>startup进程是用来apply日志的，执行顺序如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostmasterMain()-&gt;StartupDataBase()-&gt;AuxiliaryProcessMain()-&gt;StartupProcessMain()-&gt;StartupXLOG()</span><br></pre></td></tr></table></figure>
+
+<p>下图是PG主备总体框架图：<br><img src="/images/20200713_PG%E4%B8%BB%E5%A4%87%E6%80%BB%E4%BD%93%E6%A1%86%E6%9E%B6%E5%9B%BE.png" alt="图1. PG主备总体框架图" title="PG主备总体框架图"></p>
+<h1 id="walsender和walreceiver进程流复制过程"><a href="#walsender和walreceiver进程流复制过程" class="headerlink" title="walsender和walreceiver进程流复制过程"></a>walsender和walreceiver进程流复制过程</h1><p>walsender和walreceiver交互主要分为以下几个步骤：</p>
+<ol>
+<li>walreceiver启动后通过recovery.conf文件中的primary_conninfo参数信息连向主库，主库通过连接参数replication=true启动walsender进程；</li>
+<li>walreceiver执行identify_system命令，获取主库systemid/timeline/xlogpos等信息，执行TIMELINE_HISTORY命令拉取history文件；</li>
+<li>执行wal_startstreaming开始启动流复制，通过walrcv_receive获取WAL日志，期间也会回应主库发过来的心跳信息(接收位点、flush位点、apply位点)，向主库发送feedback信息(最老的事务id)，避免vacuum删掉备库正在使用的记录；</li>
+<li>执行walrcv_endstreaming结束流复制，等待startup进程更新receiveStart和receiveStartTLI，一旦更新，进入步骤2。</li>
+</ol>
+<p><img src="/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png" alt="图2. PG流复制过程" title="PG流复制过程"></p>
+<h1 id="walreceiver和startup进程"><a href="#walreceiver和startup进程" class="headerlink" title="walreceiver和startup进程"></a>walreceiver和startup进程</h1><p>startup进程进入standby模式和apply日志主要过程：</p>
+<ol>
+<li>读取pg_control文件，找到redo位点;读取recovery.conf，如果配置standby_mode=on则进入standby模式。</li>
+<li>如果是Hot Standby需要初始化clog、subtrans、事务环境等。初始化redo资源管理器，比如Heap、Heap2、Database、XLOG等。</li>
+<li>读取WAL record，如果record不存在需要调用XLogPageRead-&gt;WaitForWALToBecomeAvailable-&gt;RequestXLogStreaming唤醒walreceiver从walsender获取WAL record。</li>
+<li>对读取的WAL record进行redo，通过record-&gt;xl_rmid信息，调用相应的redo资源管理器进行redo操作。比如heap_redo的XLOG_HEAP_INSERT操作，就是通过record的信息在buffer page中增加一个record： <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">MemSet((<span class="keyword">char</span> *) htup, <span class="number">0</span>, <span class="keyword">sizeof</span>(HeapTupleHeaderData));</span><br><span class="line"><span class="comment">/* PG73FORMAT: get bitmap [+ padding] [+ oid] + data */</span></span><br><span class="line"><span class="built_in">memcpy</span>((<span class="keyword">char</span> *) htup + offsetof(HeapTupleHeaderData, t_bits),</span><br><span class="line">    (<span class="keyword">char</span> *) xlrec + SizeOfHeapInsert + SizeOfHeapHeader,</span><br><span class="line">    newlen);</span><br><span class="line">newlen += offsetof(HeapTupleHeaderData, t_bits);</span><br><span class="line">htup-&gt;t_infomask2 = xlhdr.t_infomask2;</span><br><span class="line">htup-&gt;t_infomask = xlhdr.t_infomask;</span><br><span class="line">htup-&gt;t_hoff = xlhdr.t_hoff;</span><br><span class="line">HeapTupleHeaderSetXmin(htup, record-&gt;xl_xid);</span><br><span class="line">HeapTupleHeaderSetCmin(htup, FirstCommandId);</span><br><span class="line">htup-&gt;t_ctid = xlrec-&gt;target.tid;</span><br><span class="line"></span><br><span class="line">offnum = PageAddItem(page, (Item) htup, newlen, offnum, <span class="literal">true</span>, <span class="literal">true</span>);</span><br><span class="line"><span class="keyword">if</span> (offnum == InvalidOffsetNumber)</span><br><span class="line">    elog(PANIC, <span class="string">"heap_insert_redo: failed to add tuple"</span>);</span><br><span class="line"></span><br><span class="line">freespace = PageGetHeapFreeSpace(page);		<span class="comment">/* needed to update FSM below */</span></span><br><span class="line"></span><br><span class="line">PageSetLSN(page, lsn);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (xlrec-&gt;flags &amp; XLOG_HEAP_ALL_VISIBLE_CLEARED)</span><br><span class="line">    PageClearAllVisible(page);</span><br><span class="line"></span><br><span class="line">MarkBufferDirty(buffer);</span><br></pre></td></tr></table></figure>
+ 还有部分redo操作(vacuum产生的record)需要检查在Hot Standby模式下的查询冲突，比如某些tuples需要remove，而存在正在执行的query可能读到这些tuples，这样就会破坏事务隔离级别。通过函数ResolveRecoveryConflictWithSnapshot检测冲突，如果发生冲突，那么就把这个query所在的进程kill掉。</li>
+<li>检查一致性，如果一致了，Hot Standby模式可以接受用户只读查询；更新共享内存中XLogCtlData的apply位点和时间线；如果恢复到时间点，时间线或者事务id需要检查是否恢复到当前目标；</li>
+<li>回到步骤3，读取next WAL record。</li>
+</ol>
+<p><img src="/images/20200713_PG_standby%E6%A8%A1%E5%BC%8F%E5%92%8Capply%E6%97%A5%E5%BF%97%E8%BF%87%E7%A8%8B.png" alt="图3. PG standby模式和apply日志过程" title="PG standby模式和apply日志过程"></p>
+]]></content>
+      <tags>
+        <tag>postgres</tag>
+        <tag>PostgreSQL</tag>
+        <tag>streaming replication</tag>
+        <tag>wal</tag>
+        <tag>xlog</tag>
+        <tag>PgSQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CentOS 7 安装 oh-my-zsh</title>
+    <url>/2020/06/28/CentOS-7-%E5%AE%89%E8%A3%85-oh-my-zsh/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本人比较喜欢使用 <code>oh-my-zsh</code> 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。</p>
+<a id="more"></a>
+
+<h1 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h1><ol>
+<li>通过 yum 安装 zsh、git、wget： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install -y zsh git wget</span><br></pre></td></tr></table></figure>
+<ul>
+<li>oh-my-zsh 依赖于 zsh;</li>
+<li>git 用来拉取 oh-my-zsh 代码;</li>
+<li>wget 用来下载 oh-my-zsh 的安装脚本</li>
+</ul>
+</li>
+<li>安装 <code>oh-my-zsh</code>: <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh</span><br></pre></td></tr></table></figure></li>
+<li>使用 <code>which zsh</code> 查看 zsh 的安装目录，一般都存储在 /usr/bin/zsh 目录下。 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">which zsh</span><br></pre></td></tr></table></figure></li>
+<li>使用 chsh 命令切换使用的 shell 程序: <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">chsh -s /usr/bin/zsh</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h1 id="进行可选配置"><a href="#进行可选配置" class="headerlink" title="进行可选配置"></a>进行可选配置</h1><h2 id="修改主题"><a href="#修改主题" class="headerlink" title="修改主题"></a>修改主题</h2><ul>
+<li>编辑 .zshrc 文件<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi ~/.zshrc</span><br></pre></td></tr></table></figure></li>
+<li>修改主题类型<br>找到 <code>ZSH_THEME</code> ,修改主题名称，本人喜欢 <em>agnoster</em> 主题，只需要将 <code>ZSH_THEME</code> 改为 agnoster 保存：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Set name of the theme to load --- <span class="keyword">if</span> <span class="built_in">set</span> to <span class="string">"random"</span>, it will</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> load a random theme each time oh-my-zsh is loaded, <span class="keyword">in</span> <span class="built_in">which</span> <span class="keyword">case</span>,</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> to know <span class="built_in">which</span> specific one was loaded, run: <span class="built_in">echo</span> <span class="variable">$RANDOM_THEME</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes</span></span><br><span class="line">ZSH_THEME="robbyrussell"</span><br></pre></td></tr></table></figure></li>
+<li>应用配置文件<br>重启shell或者执行一下命令生效：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="安装插件"><a href="#安装插件" class="headerlink" title="安装插件"></a>安装插件</h2><p>使用 ZSH 替换原有的 SHELL 最主要的原因就是要使用其功能强大的插件，下面介绍常用插件。</p>
+<h3 id="zsh-syntax-highlighting"><a href="#zsh-syntax-highlighting" class="headerlink" title="zsh-syntax-highlighting"></a>zsh-syntax-highlighting</h3><p>一款语法高亮插件，详情请看<a href="https://github.com/zsh-users/zsh-syntax-highlighting" target="_blank" rel="noopener">官网</a>.</p>
+<ul>
+<li>请执行以下命令：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-syntax-highlighting.git</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 zsh-syntax-highlighting 添加到环境变量中</span></span><br><span class="line">echo "source $&#123;(q-)PWD&#125;/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" &gt;&gt; $&#123;ZDOTDIR:-$HOME&#125;/.zshrc</span><br></pre></td></tr></table></figure></li>
+<li>修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-syntax-highlighting</em>：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-syntax-highlighting</span><br><span class="line">)</span><br></pre></td></tr></table></figure></li>
+<li>应用配置文件<br>重启shell或者执行一下命令生效：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="zsh-autosuggestions"><a href="#zsh-autosuggestions" class="headerlink" title="zsh-autosuggestions"></a>zsh-autosuggestions</h3><p>一款命令自动补全插件，详情请看<a href="https://github.com/zsh-users/zsh-autosuggestions" target="_blank" rel="noopener">官网</a></p>
+<ul>
+<li>请执行以下命令：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-autosuggestions.git</span><br></pre></td></tr></table></figure></li>
+<li>修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-autosuggestions</em>：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-autosuggestions</span><br><span class="line">)</span><br></pre></td></tr></table></figure></li>
+<li>应用配置文件<br>重启shell或者执行一下命令生效：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="zsh-history-substring-search"><a href="#zsh-history-substring-search" class="headerlink" title="zsh-history-substring-search"></a>zsh-history-substring-search</h3><p>一款查找匹配前缀的历史输入插件，详情请看<a href="https://github.com/zsh-users/zsh-history-substring-search" target="_blank" rel="noopener">官网</a></p>
+<ul>
+<li>请执行以下命令：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-history-substring-search.git</span><br></pre></td></tr></table></figure></li>
+<li>修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-history-substring-search</em>：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  history-substring-search</span><br><span class="line">)</span><br></pre></td></tr></table></figure></li>
+<li>应用配置文件<br>重启shell或者执行一下命令生效：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <tags>
+        <tag>centos7</tag>
+        <tag>oh-my-zsh</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>博客的开端</title>
     <url>/2020/06/06/hello-world/</url>
     <content><![CDATA[<p>本人从事程序员这个职业已经 N 年了，在各种项目中解决了不少问题，一直没有把这些经验固化下来，现在回过头来看，确实是有遗憾。在之前我已经搭建起一个博客，但是又因为生活中的琐事，耽搁放弃了。成年人的世界，要做成一件需要花心思的事情，真实越来越难，躺着睡觉看视频多容易多舒服呀！今天终于有时间，鼓起勇气，把这个想法付诸实践。博客的内容，一方面是分享自己的经验、见闻，一方面也是整理自己的思路，提升自己的技术水平。写作水平有限，如有读者，谢谢你的光临，望多指教。</p>
@@ -9,7 +112,8 @@
   <entry>
     <title>《SRE Google运维解密》读书笔记</title>
     <url>/2020/07/18/SRE-Google%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86/</url>
-    <content><![CDATA[<p>笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享感悟。</p>
+    <content><![CDATA[<p><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86.png" alt="《SRE Google运维解密》" title="《SRE Google运维解密》"></p>
+<p>笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享感悟。</p>
 <a id="more"></a>
 
 <h2 id="第-1-章-介绍"><a href="#第-1-章-介绍" class="headerlink" title="第 1 章 介绍"></a>第 1 章 介绍</h2><p>本章节目录：</p>
@@ -806,7 +910,7 @@
 <h4 id="控制中心"><a href="#控制中心" class="headerlink" title="控制中心"></a>控制中心</h4><p>受到事故影响的部门或者人需要与事故总控负责人取得联系，文中提到的方式有：</p>
 <ul>
 <li>“作战室”（war room），大家都在以办公室。</li>
-<li>通过通讯软件，如 <a href="https://zh.wikipedia.org/wiki/IRC" target="_blank" rel="noopener">IRC</a>或者 E-mail。</li>
+<li>通过通讯软件，如 <a href="https://zh.wikipedia.org/wiki/IRC" target="_blank" rel="noopener">IRC</a> 或者 E-mail。</li>
 </ul>
 <p>Google 发现 IRC 对紧急事故处理非常有帮助。</p>
 <h4 id="实时事故状态文档"><a href="#实时事故状态文档" class="headerlink" title="实时事故状态文档"></a>实时事故状态文档</h4><blockquote>
@@ -858,109 +962,6 @@
         <tag>Ops</tag>
         <tag>Dev</tag>
         <tag>错误预算</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>PgSQL · 特性分析 · PG主备流复制机制</title>
-    <url>/2020/07/13/PG%E4%B8%BB%E5%A4%87%E6%B5%81%E5%A4%8D%E5%88%B6%E6%9C%BA%E5%88%B6/</url>
-    <content><![CDATA[<p>本文来自于阿里云RDS-数据库内核组，<a href="http://mysql.taobao.org/monthly/2015/10/04/" target="_blank" rel="noopener">文章地址</a>。笔者读完此文，感觉作者对 PostgreSQL 流复制 streaming replication 的机制解析的非常透彻，是一遍非常好的技术分享文档。文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用-相同方式共享 3.0 未本地化版本许可协议</a>,因此笔者将本文收录于自己的博客中，方便日后学习检索。</p>
-<a id="more"></a>
-
-<hr>
-<p>PostgreSQL在9.0之后引入了主备流复制机制，通过流复制，备库不断的从主库同步相应的数据，并在备库apply每个WAL record，这里的流复制每次传输单位是WAL日志的record。而PostgreSQL9.0之前提供的方法是主库写完一个WAL日志文件后，才把WAL日志文件传送到备库，这样的方式导致主备延迟特别大。同时PostgreSQL9.0之后提供了Hot Standby，备库在应用WAL record的同时也能够提供只读服务，大大提升了用户体验。</p>
-<h1 id="主备总体结构"><a href="#主备总体结构" class="headerlink" title="主备总体结构"></a>主备总体结构</h1><p>PG主备流复制的核心部分由walsender，walreceiver和startup三个进程组成。 walsender进程是用来发送WAL日志记录的，执行顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostgresMain()-&gt;exec_replication_command()-&gt;StartReplication()-&gt;WalSndLoop()-&gt;XLogSendPhysical()</span><br></pre></td></tr></table></figure>
-
-<p>walreceiver进程是用来接收WAL日志记录的，执行顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sigusr1_handler()-&gt;StartWalReceiver()-&gt;AuxiliaryProcessMain()-&gt;WalReceiverMain()-&gt;walrcv_receive()</span><br></pre></td></tr></table></figure>
-
-<p>startup进程是用来apply日志的，执行顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostmasterMain()-&gt;StartupDataBase()-&gt;AuxiliaryProcessMain()-&gt;StartupProcessMain()-&gt;StartupXLOG()</span><br></pre></td></tr></table></figure>
-
-<p>下图是PG主备总体框架图：<br><img src="/images/20200713_PG%E4%B8%BB%E5%A4%87%E6%80%BB%E4%BD%93%E6%A1%86%E6%9E%B6%E5%9B%BE.png" alt="图1. PG主备总体框架图" title="PG主备总体框架图"></p>
-<h1 id="walsender和walreceiver进程流复制过程"><a href="#walsender和walreceiver进程流复制过程" class="headerlink" title="walsender和walreceiver进程流复制过程"></a>walsender和walreceiver进程流复制过程</h1><p>walsender和walreceiver交互主要分为以下几个步骤：</p>
-<ol>
-<li>walreceiver启动后通过recovery.conf文件中的primary_conninfo参数信息连向主库，主库通过连接参数replication=true启动walsender进程；</li>
-<li>walreceiver执行identify_system命令，获取主库systemid/timeline/xlogpos等信息，执行TIMELINE_HISTORY命令拉取history文件；</li>
-<li>执行wal_startstreaming开始启动流复制，通过walrcv_receive获取WAL日志，期间也会回应主库发过来的心跳信息(接收位点、flush位点、apply位点)，向主库发送feedback信息(最老的事务id)，避免vacuum删掉备库正在使用的记录；</li>
-<li>执行walrcv_endstreaming结束流复制，等待startup进程更新receiveStart和receiveStartTLI，一旦更新，进入步骤2。</li>
-</ol>
-<p><img src="/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png" alt="图2. PG流复制过程" title="PG流复制过程"></p>
-<h1 id="walreceiver和startup进程"><a href="#walreceiver和startup进程" class="headerlink" title="walreceiver和startup进程"></a>walreceiver和startup进程</h1><p>startup进程进入standby模式和apply日志主要过程：</p>
-<ol>
-<li>读取pg_control文件，找到redo位点;读取recovery.conf，如果配置standby_mode=on则进入standby模式。</li>
-<li>如果是Hot Standby需要初始化clog、subtrans、事务环境等。初始化redo资源管理器，比如Heap、Heap2、Database、XLOG等。</li>
-<li>读取WAL record，如果record不存在需要调用XLogPageRead-&gt;WaitForWALToBecomeAvailable-&gt;RequestXLogStreaming唤醒walreceiver从walsender获取WAL record。</li>
-<li>对读取的WAL record进行redo，通过record-&gt;xl_rmid信息，调用相应的redo资源管理器进行redo操作。比如heap_redo的XLOG_HEAP_INSERT操作，就是通过record的信息在buffer page中增加一个record： <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line">MemSet((<span class="keyword">char</span> *) htup, <span class="number">0</span>, <span class="keyword">sizeof</span>(HeapTupleHeaderData));</span><br><span class="line"><span class="comment">/* PG73FORMAT: get bitmap [+ padding] [+ oid] + data */</span></span><br><span class="line"><span class="built_in">memcpy</span>((<span class="keyword">char</span> *) htup + offsetof(HeapTupleHeaderData, t_bits),</span><br><span class="line">    (<span class="keyword">char</span> *) xlrec + SizeOfHeapInsert + SizeOfHeapHeader,</span><br><span class="line">    newlen);</span><br><span class="line">newlen += offsetof(HeapTupleHeaderData, t_bits);</span><br><span class="line">htup-&gt;t_infomask2 = xlhdr.t_infomask2;</span><br><span class="line">htup-&gt;t_infomask = xlhdr.t_infomask;</span><br><span class="line">htup-&gt;t_hoff = xlhdr.t_hoff;</span><br><span class="line">HeapTupleHeaderSetXmin(htup, record-&gt;xl_xid);</span><br><span class="line">HeapTupleHeaderSetCmin(htup, FirstCommandId);</span><br><span class="line">htup-&gt;t_ctid = xlrec-&gt;target.tid;</span><br><span class="line"></span><br><span class="line">offnum = PageAddItem(page, (Item) htup, newlen, offnum, <span class="literal">true</span>, <span class="literal">true</span>);</span><br><span class="line"><span class="keyword">if</span> (offnum == InvalidOffsetNumber)</span><br><span class="line">    elog(PANIC, <span class="string">"heap_insert_redo: failed to add tuple"</span>);</span><br><span class="line"></span><br><span class="line">freespace = PageGetHeapFreeSpace(page);		<span class="comment">/* needed to update FSM below */</span></span><br><span class="line"></span><br><span class="line">PageSetLSN(page, lsn);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (xlrec-&gt;flags &amp; XLOG_HEAP_ALL_VISIBLE_CLEARED)</span><br><span class="line">    PageClearAllVisible(page);</span><br><span class="line"></span><br><span class="line">MarkBufferDirty(buffer);</span><br></pre></td></tr></table></figure>
- 还有部分redo操作(vacuum产生的record)需要检查在Hot Standby模式下的查询冲突，比如某些tuples需要remove，而存在正在执行的query可能读到这些tuples，这样就会破坏事务隔离级别。通过函数ResolveRecoveryConflictWithSnapshot检测冲突，如果发生冲突，那么就把这个query所在的进程kill掉。</li>
-<li>检查一致性，如果一致了，Hot Standby模式可以接受用户只读查询；更新共享内存中XLogCtlData的apply位点和时间线；如果恢复到时间点，时间线或者事务id需要检查是否恢复到当前目标；</li>
-<li>回到步骤3，读取next WAL record。</li>
-</ol>
-<p><img src="/images/20200713_PG_standby%E6%A8%A1%E5%BC%8F%E5%92%8Capply%E6%97%A5%E5%BF%97%E8%BF%87%E7%A8%8B.png" alt="图3. PG standby模式和apply日志过程" title="PG standby模式和apply日志过程"></p>
-]]></content>
-      <tags>
-        <tag>postgres</tag>
-        <tag>PostgreSQL</tag>
-        <tag>streaming replication</tag>
-        <tag>wal</tag>
-        <tag>xlog</tag>
-        <tag>PgSQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CentOS 7 安装 oh-my-zsh</title>
-    <url>/2020/06/28/CentOS-7-%E5%AE%89%E8%A3%85-oh-my-zsh/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本人比较喜欢使用 <code>oh-my-zsh</code> 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。</p>
-<a id="more"></a>
-
-<h1 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h1><ol>
-<li>通过 yum 安装 zsh、git、wget： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install -y zsh git wget</span><br></pre></td></tr></table></figure>
-<ul>
-<li>oh-my-zsh 依赖于 zsh;</li>
-<li>git 用来拉取 oh-my-zsh 代码;</li>
-<li>wget 用来下载 oh-my-zsh 的安装脚本</li>
-</ul>
-</li>
-<li>安装 <code>oh-my-zsh</code>: <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh</span><br></pre></td></tr></table></figure></li>
-<li>使用 <code>which zsh</code> 查看 zsh 的安装目录，一般都存储在 /usr/bin/zsh 目录下。 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">which zsh</span><br></pre></td></tr></table></figure></li>
-<li>使用 chsh 命令切换使用的 shell 程序: <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">chsh -s /usr/bin/zsh</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-<h1 id="进行可选配置"><a href="#进行可选配置" class="headerlink" title="进行可选配置"></a>进行可选配置</h1><h2 id="修改主题"><a href="#修改主题" class="headerlink" title="修改主题"></a>修改主题</h2><ul>
-<li>编辑 .zshrc 文件<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi ~/.zshrc</span><br></pre></td></tr></table></figure></li>
-<li>修改主题类型<br>找到 <code>ZSH_THEME</code> ,修改主题名称，本人喜欢 <em>agnoster</em> 主题，只需要将 <code>ZSH_THEME</code> 改为 agnoster 保存：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Set name of the theme to load --- <span class="keyword">if</span> <span class="built_in">set</span> to <span class="string">"random"</span>, it will</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> load a random theme each time oh-my-zsh is loaded, <span class="keyword">in</span> <span class="built_in">which</span> <span class="keyword">case</span>,</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> to know <span class="built_in">which</span> specific one was loaded, run: <span class="built_in">echo</span> <span class="variable">$RANDOM_THEME</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes</span></span><br><span class="line">ZSH_THEME="robbyrussell"</span><br></pre></td></tr></table></figure></li>
-<li>应用配置文件<br>重启shell或者执行一下命令生效：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h2 id="安装插件"><a href="#安装插件" class="headerlink" title="安装插件"></a>安装插件</h2><p>使用 ZSH 替换原有的 SHELL 最主要的原因就是要使用其功能强大的插件，下面介绍常用插件。</p>
-<h3 id="zsh-syntax-highlighting"><a href="#zsh-syntax-highlighting" class="headerlink" title="zsh-syntax-highlighting"></a>zsh-syntax-highlighting</h3><p>一款语法高亮插件，详情请看<a href="https://github.com/zsh-users/zsh-syntax-highlighting" target="_blank" rel="noopener">官网</a>.</p>
-<ul>
-<li>请执行以下命令：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-syntax-highlighting.git</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 zsh-syntax-highlighting 添加到环境变量中</span></span><br><span class="line">echo "source $&#123;(q-)PWD&#125;/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" &gt;&gt; $&#123;ZDOTDIR:-$HOME&#125;/.zshrc</span><br></pre></td></tr></table></figure></li>
-<li>修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-syntax-highlighting</em>：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-syntax-highlighting</span><br><span class="line">)</span><br></pre></td></tr></table></figure></li>
-<li>应用配置文件<br>重启shell或者执行一下命令生效：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h3 id="zsh-autosuggestions"><a href="#zsh-autosuggestions" class="headerlink" title="zsh-autosuggestions"></a>zsh-autosuggestions</h3><p>一款命令自动补全插件，详情请看<a href="https://github.com/zsh-users/zsh-autosuggestions" target="_blank" rel="noopener">官网</a></p>
-<ul>
-<li>请执行以下命令：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-autosuggestions.git</span><br></pre></td></tr></table></figure></li>
-<li>修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-autosuggestions</em>：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-autosuggestions</span><br><span class="line">)</span><br></pre></td></tr></table></figure></li>
-<li>应用配置文件<br>重启shell或者执行一下命令生效：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h3 id="zsh-history-substring-search"><a href="#zsh-history-substring-search" class="headerlink" title="zsh-history-substring-search"></a>zsh-history-substring-search</h3><p>一款查找匹配前缀的历史输入插件，详情请看<a href="https://github.com/zsh-users/zsh-history-substring-search" target="_blank" rel="noopener">官网</a></p>
-<ul>
-<li>请执行以下命令：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-history-substring-search.git</span><br></pre></td></tr></table></figure></li>
-<li>修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-history-substring-search</em>：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  history-substring-search</span><br><span class="line">)</span><br></pre></td></tr></table></figure></li>
-<li>应用配置文件<br>重启shell或者执行一下命令生效：<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></li>
-</ul>
-]]></content>
-      <tags>
-        <tag>centos7</tag>
-        <tag>oh-my-zsh</tag>
       </tags>
   </entry>
   <entry>
