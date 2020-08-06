@@ -7,6 +7,41 @@
 ]]></content>
   </entry>
   <entry>
+    <title>一个 Wine + Java + Dlls 的 Docker 镜像</title>
+    <url>/2020/06/06/%E4%B8%80%E4%B8%AA-wine-java-dlls-%E7%9A%84-docker-%E9%95%9C%E5%83%8F/</url>
+    <content><![CDATA[<p>我有一个 java 项目，需要在 windows 环境下调用第三方的动态链接库 dll 去解析数据，之前一直使用 windows server 2016 + docker + windows container 的方案运行。这个方案能解决第三方dll不能并行运行的问题，可以在一台机器上部署多个 instance。但是由于 windows server 2016 一直是使用虚拟机安装，导致该服务的性能不佳，而且也依赖 windows server 2016 及更高版本的系统。最近我制作了一个 wine + java + dlls 的 docker 镜像，让该 java 项目直接运行在 linux 的容器中，提高了性能，减少了服务器成本。本文介绍该镜像的制作细节。</p>
+<a id="more"></a>
+
+<h3 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h3><p>本镜像基于 <code>ubuntu:18.04</code> 构建, Dockfile 源码如下：</p>
+<figure class="highlight docker"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">18.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-http.list /etc/apt/sources.list</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get update &amp;&amp; apt-get install -y apt-transport-https ca-certificates</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-https.list /etc/apt/sources.list</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> dpkg --add-architecture i386 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get update &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get install -y wine32 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get clean -y</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> jdk-8u172-windows-i586.exe /app/jdk.exe</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> chmod +x /app/jdk.exe &amp;&amp; wine /app/jdk.exe /s &amp;&amp; rm /app/jdk.exe</span></span><br><span class="line"><span class="keyword">ARG</span> target=<span class="string">"/root/.wine/drive_c/Program Files/Java/jre1.8.0_172/bin/"</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./dlls/ <span class="variable">$&#123;target&#125;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /root</span></span><br></pre></td></tr></table></figure>
+
+<p>我们需要自行准备以下文件：</p>
+<ul>
+<li>sources-http.list, http 安装源链接,为了加快镜像编译速度:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></li>
+<li>sources-https.list, https 安装源链接,为了加快镜像编译速度:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></li>
+<li>jdk-8u172-windows-i586.exe, jdk安装包，其他版本的jdk需要自行验证是否能正确安装;</li>
+<li>依赖的动态链接库 .dll 文件，将这些文件复制到 Dockerfile 所在目录的 dlls 文件下;</li>
+</ul>
+<p>准备完成后，文件结构如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── jdk-8u172-windows-i586.exe</span><br><span class="line">├── dlls</span><br><span class="line">├── sources-http.list</span><br><span class="line">└── sources-https.list</span><br></pre></td></tr></table></figure>
+<p>在此目录下，执行以下命令，编译镜像：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker build -t wine-java-dlls:<span class="built_in">test</span> --network=host .</span><br></pre></td></tr></table></figure>
+<p>成功编译后，我们将得到镜像 <code>wine-java-dlls:test</code>。</p>
+<h3 id="使用镜像"><a href="#使用镜像" class="headerlink" title="使用镜像"></a>使用镜像</h3><p>通过 wine 执行 java,目前该镜像需要直接声明 java.exe 在 wine 中的路径,使用示例如下:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -d --net=host --name example --init -w /app -v /root/path/to/jar/location:/app wine-java-dlls:<span class="built_in">test</span> wine <span class="string">"C:\\Program Files\\Java\\jre1.8.0_172\\bin\\java.exe"</span> -jar test.jar</span><br></pre></td></tr></table></figure>
+
+<p><strong>参考阅读：</strong><br><a href="https://kupczynski.info/2018/11/11/wine-windows-jdk-on-linux.html" target="_blank" rel="noopener">《Use wine to run windows JDK on linux》</a></p>
+]]></content>
+      <tags>
+        <tag>wine</tag>
+        <tag>docker</tag>
+        <tag>container</tag>
+        <tag>java</tag>
+        <tag>jre</tag>
+        <tag>jdk</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>PgSQL · 特性分析 · PG主备流复制机制</title>
     <url>/2020/07/13/PG%E4%B8%BB%E5%A4%87%E6%B5%81%E5%A4%8D%E5%88%B6%E6%9C%BA%E5%88%B6/</url>
     <content><![CDATA[<p>本文来自于阿里云RDS-数据库内核组，<a href="http://mysql.taobao.org/monthly/2015/10/04/" target="_blank" rel="noopener">文章地址</a>。笔者读完此文，感觉作者对 PostgreSQL 流复制 streaming replication 的机制解析的非常透彻，是一遍非常好的技术分享文档。文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用-相同方式共享 3.0 未本地化版本许可协议</a>,因此笔者将本文收录于自己的博客中，方便日后学习检索。</p>
@@ -110,47 +145,13 @@
       </tags>
   </entry>
   <entry>
-    <title>一个 Wine + Java + Dlls 的 Docker 镜像</title>
-    <url>/2020/06/06/%E4%B8%80%E4%B8%AA-wine-java-dlls-%E7%9A%84-docker-%E9%95%9C%E5%83%8F/</url>
-    <content><![CDATA[<p>我有一个 java 项目，需要在 windows 环境下调用第三方的动态链接库 dll 去解析数据，之前一直使用 windows server 2016 + docker + windows container 的方案运行。这个方案能解决第三方dll不能并行运行的问题，可以在一台机器上部署多个 instance。但是由于 windows server 2016 一直是使用虚拟机安装，导致该服务的性能不佳，而且也依赖 windows server 2016 及更高版本的系统。最近我制作了一个 wine + java + dlls 的 docker 镜像，让该 java 项目直接运行在 linux 的容器中，提高了性能，减少了服务器成本。本文介绍该镜像的制作细节。</p>
-<a id="more"></a>
-
-<h3 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h3><p>本镜像基于 <code>ubuntu:18.04</code> 构建, Dockfile 源码如下：</p>
-<figure class="highlight docker"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">18.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-http.list /etc/apt/sources.list</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get update &amp;&amp; apt-get install -y apt-transport-https ca-certificates</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-https.list /etc/apt/sources.list</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> dpkg --add-architecture i386 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get update &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get install -y wine32 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get clean -y</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> jdk-8u172-windows-i586.exe /app/jdk.exe</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> chmod +x /app/jdk.exe &amp;&amp; wine /app/jdk.exe /s &amp;&amp; rm /app/jdk.exe</span></span><br><span class="line"><span class="keyword">ARG</span> target=<span class="string">"/root/.wine/drive_c/Program Files/Java/jre1.8.0_172/bin/"</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./dlls/ <span class="variable">$&#123;target&#125;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /root</span></span><br></pre></td></tr></table></figure>
-
-<p>我们需要自行准备以下文件：</p>
-<ul>
-<li>sources-http.list, http 安装源链接,为了加快镜像编译速度:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></li>
-<li>sources-https.list, https 安装源链接,为了加快镜像编译速度:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure></li>
-<li>jdk-8u172-windows-i586.exe, jdk安装包，其他版本的jdk需要自行验证是否能正确安装;</li>
-<li>依赖的动态链接库 .dll 文件，将这些文件复制到 Dockerfile 所在目录的 dlls 文件下;</li>
-</ul>
-<p>准备完成后，文件结构如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── jdk-8u172-windows-i586.exe</span><br><span class="line">├── dlls</span><br><span class="line">├── sources-http.list</span><br><span class="line">└── sources-https.list</span><br></pre></td></tr></table></figure>
-<p>在此目录下，执行以下命令，编译镜像：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker build -t wine-java-dlls:<span class="built_in">test</span> --network=host .</span><br></pre></td></tr></table></figure>
-<p>成功编译后，我们将得到镜像 <code>wine-java-dlls:test</code>。</p>
-<h3 id="使用镜像"><a href="#使用镜像" class="headerlink" title="使用镜像"></a>使用镜像</h3><p>通过 wine 执行 java,目前该镜像需要直接声明 java.exe 在 wine 中的路径,使用示例如下:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -d --net=host --name example --init -w /app -v /root/path/to/jar/location:/app wine-java-dlls:<span class="built_in">test</span> wine <span class="string">"C:\\Program Files\\Java\\jre1.8.0_172\\bin\\java.exe"</span> -jar test.jar</span><br></pre></td></tr></table></figure>
-
-<p><strong>参考阅读：</strong><br><a href="https://kupczynski.info/2018/11/11/wine-windows-jdk-on-linux.html" target="_blank" rel="noopener">《Use wine to run windows JDK on linux》</a></p>
-]]></content>
-      <tags>
-        <tag>wine</tag>
-        <tag>docker</tag>
-        <tag>container</tag>
-        <tag>java</tag>
-        <tag>jre</tag>
-        <tag>jdk</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>《SRE Google运维解密》读书笔记</title>
     <url>/2020/07/18/SRE-Google%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86/</url>
     <content><![CDATA[<p><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86.png" alt="《SRE Google运维解密》" title="《SRE Google运维解密》"></p>
 <p>笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享感悟。</p>
 <a id="more"></a>
 
+<hr>
 <h2 id="第-1-章-介绍"><a href="#第-1-章-介绍" class="headerlink" title="第 1 章 介绍"></a>第 1 章 介绍</h2><p>本章节目录：</p>
 <ul>
 <li>系统管理员模式</li>
@@ -216,6 +217,7 @@
 </blockquote>
 <h4 id="资源部署"><a href="#资源部署" class="headerlink" title="资源部署"></a>资源部署</h4><p>新资源测部署与配置是一个相对比较危险的操作，必须要小心谨慎地执行。</p>
 <h4 id="效率与性能"><a href="#效率与性能" class="headerlink" title="效率与性能"></a>效率与性能</h4><p>保证服务可用性的前提下，提高资源的利用率，最终实现服务成本的降低。</p>
+<hr>
 <h2 id="第-2-章-Google-生产环境：SRE视角"><a href="#第-2-章-Google-生产环境：SRE视角" class="headerlink" title="第 2 章 Google 生产环境：SRE视角"></a>第 2 章 Google 生产环境：SRE视角</h2><p>本章节目录：</p>
 <ul>
 <li>硬件</li>
@@ -258,6 +260,7 @@
 <li>完善的代码评审，CI/CD 流程。</li>
 </ul>
 <h3 id="莎士比亚搜索：一个示范服务"><a href="#莎士比亚搜索：一个示范服务" class="headerlink" title="莎士比亚搜索：一个示范服务"></a>莎士比亚搜索：一个示范服务</h3><p>本节举例说明 Google 的系统是如何运转的。<br><img src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-4%E7%94%A8%E6%88%B7%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E8%BF%87%E7%A8%8B.png" alt="图2-4. 用户请求处理过程" title="用户请求处理过程"></p>
+<hr>
 <h2 id="第-3-章-拥抱风险"><a href="#第-3-章-拥抱风险" class="headerlink" title="第 3 章 拥抱风险"></a>第 3 章 拥抱风险</h2><p>本章节目录：</p>
 <ul>
 <li>管理风险</li>
@@ -299,6 +302,7 @@
 <li>错误预算在 SRE 和产品研发团队之间调整激励，同时强调共同责任。错误预算试的讨论发布速率更容易，同时可有效地减少任何关于事故的讨论。这样，多个团队可以毫无怨言地对生产环境风险度达成一致。</li>
 </ul>
 </blockquote>
+<hr>
 <h2 id="第-4-章-服务质量目标"><a href="#第-4-章-服务质量目标" class="headerlink" title="第 4 章 服务质量目标"></a>第 4 章 服务质量目标</h2><p>本章节目录：</p>
 <ul>
 <li>服务质量术语<ul>
@@ -389,6 +393,7 @@
 <li>实际 SLO 也不要过高</li>
 </ul>
 <h3 id="协议在实践中的应用"><a href="#协议在实践中的应用" class="headerlink" title="协议在实践中的应用"></a>协议在实践中的应用</h3><p>协议涉及到法律问题，应保持保守。</p>
+<hr>
 <h2 id="第-5-章-减少琐事"><a href="#第-5-章-减少琐事" class="headerlink" title="第 5 章 减少琐事"></a>第 5 章 减少琐事</h2><p>本章节目录：</p>
 <ul>
 <li>琐事的定义</li>
@@ -427,6 +432,7 @@
 <li>违反承诺</li>
 </ul>
 <h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>显然，消灭琐事，用工程化、自动化解决问题，是 SRE 存在的价值。</p>
+<hr>
 <h2 id="第-6-章-分布式系统的监控"><a href="#第-6-章-分布式系统的监控" class="headerlink" title="第 6 章 分布式系统的监控"></a>第 6 章 分布式系统的监控</h2><p>本章节目录：</p>
 <ul>
 <li>术语定义</li>
@@ -499,6 +505,7 @@
 <p>如果某个紧急警报满足上述四点，那么不论是从白盒监控系统还是黑盒监控系统发出都一样。最好多花一些时间监控现象，而不是原因。</p>
 <h3 id="监控系统的长期维护"><a href="#监控系统的长期维护" class="headerlink" title="监控系统的长期维护"></a>监控系统的长期维护</h3><p>本节举了两个例子，Gmail 和 Bigtable，反映了一个问题：短期与长期的可用性的冲突。监控系统发现的问题，问题真正解决，在资源、技术能力有限的情况下，解决方案各不相同。决策的过程是一个艺术，实际情况实际处理。</p>
 <h3 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h3><p>长远来看，要建立一个成功的 on-call 轮值体系，以及构建一个稳定的产品需要选择那些正在发生和即将发生的问题进行报警，设置一个可以实际达到的合理目标，保证监控系统可以支持快速的问题定位与检测。</p>
+<hr>
 <h2 id="第-7-章-Google-的自动化系统的演进"><a href="#第-7-章-Google-的自动化系统的演进" class="headerlink" title="第 7 章 Google 的自动化系统的演进"></a>第 7 章 Google 的自动化系统的演进</h2><p>本章节目录：</p>
 <ul>
 <li>自动化的价值<ul>
@@ -592,6 +599,7 @@
 <li>实践软件工程的良好标准做法。</li>
 </ul>
 <p>文末提供了 Google 一次大规模故障发生的事项，提示读者在系统设计中要考虑允许大规模故障发发生。</p>
+<hr>
 <h2 id="第-8-章-发布工程"><a href="#第-8-章-发布工程" class="headerlink" title="第 8 章 发布工程"></a>第 8 章 发布工程</h2><p>本章节目录：</p>
 <ul>
 <li>发布工程师角色</li>
@@ -644,6 +652,7 @@
 <h3 id="配置管理"><a href="#配置管理" class="headerlink" title="配置管理"></a>配置管理</h3><p>配置管理是发布工程师与 SRE 紧密合作的一个区域。配置管理可能很简单，但是这其实是不稳定性的一个重要来源。本节介绍了 Google 的管理实践。</p>
 <h3 id="小结-2"><a href="#小结-2" class="headerlink" title="小结"></a>小结</h3><h4 id="不仅仅只对-Google-有用"><a href="#不仅仅只对-Google-有用" class="headerlink" title="不仅仅只对 Google 有用"></a>不仅仅只对 Google 有用</h4><p>发布工程可以提升软件、系统的质量，与团队大小无关。发布工程除了提升工作效率，也能提高稳定性，比如增加代码检测和单元测试。</p>
 <h4 id="一开始就进行发布工程"><a href="#一开始就进行发布工程" class="headerlink" title="一开始就进行发布工程"></a>一开始就进行发布工程</h4><p>这是一个值得投资的领域，越早开始越早受益。</p>
+<hr>
 <h2 id="第-9-章-简单化"><a href="#第-9-章-简单化" class="headerlink" title="第 9 章 简单化"></a>第 9 章 简单化</h2><p>本章节目录：</p>
 <ul>
 <li>系统的稳定性与灵活性</li>
@@ -677,6 +686,7 @@
 <h3 id="小结-3"><a href="#小结-3" class="headerlink" title="小结"></a>小结</h3><blockquote>
 <p>软件的简单性是可靠性的前提条件。</p>
 </blockquote>
+<hr>
 <h2 id="第-10-章-基于时间序列数据进行有效报警"><a href="#第-10-章-基于时间序列数据进行有效报警" class="headerlink" title="第 10 章 基于时间序列数据进行有效报警"></a>第 10 章 基于时间序列数据进行有效报警</h2><p>本章节目录：</p>
 <ul>
 <li>Borgmon 的起源</li>
@@ -744,6 +754,7 @@
 <h3 id="黑盒监控"><a href="#黑盒监控" class="headerlink" title="黑盒监控"></a>黑盒监控</h3><p>Google SRE 团队通常利用探针程序（prober）解决黑和监控的问题。探针程序使用应用级别的自动请求探测目标是否成功返回，并通过 Borgmon 收集结果。</p>
 <h3 id="配置文件的维护"><a href="#配置文件的维护" class="headerlink" title="配置文件的维护"></a>配置文件的维护</h3><p>本节介绍了 Google 如果管理 Borgmon 的配置。</p>
 <h3 id="十年之后"><a href="#十年之后" class="headerlink" title="十年之后"></a>十年之后</h3><p>今天 Google 内部的监控系统已经相当完善。虽然 Borgmon 仍是 Google 内部工具，但是我们可以使用开源的 Prometheus、Riemann 等开源软件，实现与 Borgmon 类似的系统。</p>
+<hr>
 <h2 id="第-11-章-on-call轮值"><a href="#第-11-章-on-call轮值" class="headerlink" title="第 11 章 on-call轮值"></a>第 11 章 on-call轮值</h2><p>本章节目录：</p>
 <ul>
 <li>介绍</li>
@@ -795,6 +806,7 @@
 <li>举办灾难恢复演习（DiRT）；</li>
 </ul>
 <h3 id="小结-4"><a href="#小结-4" class="headerlink" title="小结"></a>小结</h3><p>Google 的实践证明这一套指导思想是可行、有效的。</p>
+<hr>
 <h2 id="第-12-章-有效的故障排查手段"><a href="#第-12-章-有效的故障排查手段" class="headerlink" title="第 12 章 有效的故障排查手段"></a>第 12 章 有效的故障排查手段</h2><p>本章节目录：</p>
 <ul>
 <li>理论</li>
@@ -859,6 +871,7 @@
 <li>利用成熟的，观察性好的组件接口设计系统。</li>
 </ul>
 <h3 id="小结-5"><a href="#小结-5" class="headerlink" title="小结"></a>小结</h3><p><strong>点评：</strong>本节介绍了有效的故障排查手段，提供了方法论和时间经验，让新手有迹可循，让老手重新梳理自己以前的做法，获得新的思路。</p>
+<hr>
 <h2 id="第-13-章-紧急事件响应"><a href="#第-13-章-紧急事件响应" class="headerlink" title="第 13 章 紧急事件响应"></a>第 13 章 紧急事件响应</h2><p>本章节目录：</p>
 <ul>
 <li>当系统出现问题时怎么办</li>
@@ -906,6 +919,7 @@
 <li>自动化脚本都应该使用白名单机制，尽可能确保操作是设计范围内的；</li>
 <li>主动进行灾难测试，可以有效地暴露问题，有条件的情况下应该勇于尝试；</li>
 </ul>
+<hr>
 <h2 id="第-14-章-紧急事故管理"><a href="#第-14-章-紧急事故管理" class="headerlink" title="第 14 章 紧急事故管理"></a>第 14 章 紧急事故管理</h2><p>本章节目录：</p>
 <ul>
 <li>无流程管理的紧急事故</li>
@@ -970,6 +984,7 @@
 <li>练习</li>
 <li>换位思考</li>
 </ul>
+<hr>
 <h2 id="第-15-章-时候总结：从失败中学习"><a href="#第-15-章-时候总结：从失败中学习" class="headerlink" title="第 15 章 时候总结：从失败中学习"></a>第 15 章 时候总结：从失败中学习</h2><p>本章节目录：</p>
 <ul>
 <li>Google 的事后总结哲学</li>
@@ -1022,6 +1037,7 @@
 </blockquote>
 <h3 id="小结以及不断优化"><a href="#小结以及不断优化" class="headerlink" title="小结以及不断优化"></a>小结以及不断优化</h3><p>文中作者说道：“我们可以自信地说，由于我们不断地培育公司事后总结文化，Google 的事故越来越少，用户体验也越来越好。”</p>
 <p><strong>点评：</strong> 很早以前我听到一位著名作家吴晓波说的一句话：“成功难以复制，失败或可避免。”机会稍纵即逝，成功真的是一件偶然事件，但是失败的事情都有规律，有迹可循，失败的事情太容易重现了。谷歌的这一套“事后总结”的机制，正是把失败的规律摸清摸透，通过制度和流程逐步克服，保证了 Google 的服务质量，构筑了 Google 的服务安全护城河。</p>
+<hr>
 <h2 id="第-16-章-跟踪故障"><a href="#第-16-章-跟踪故障" class="headerlink" title="第 16 章 跟踪故障"></a>第 16 章 跟踪故障</h2><p>本章节目录：</p>
 <ul>
 <li>Escalator</li>
@@ -1038,6 +1054,7 @@
 </blockquote>
 <p>Google 使用 Outalator —— 一个故障跟踪工具来做这件事。</p>
 <p>本节内容主要想表达一个观点，就是一些小型的系列的故障，并不足以引起足够的重视进而输出一份事后总结，但是这些故障是有规律的，反映系统不良状态的故障。这些小故障需要建立一套系统和管理规则，通过分析才能从量变到质变，产生有意义的结论和指导意见，为系统的改进提供事实、数据依据。</p>
+<hr>
 <h2 id="第-17-章-测试可靠性"><a href="#第-17-章-测试可靠性" class="headerlink" title="第 17 章 测试可靠性"></a>第 17 章 测试可靠性</h2><p>本章节目录：</p>
 <ul>
 <li>软件测试的类型<ul>
@@ -1072,7 +1089,77 @@
 </ul>
 </li>
 </ul>
-<h4 id="生产测试"><a href="#生产测试" class="headerlink" title="生产测试"></a>生产测试</h4><h2 id="第-18-章-SRE-部门中的软件工程实践"><a href="#第-18-章-SRE-部门中的软件工程实践" class="headerlink" title="第 18 章 SRE 部门中的软件工程实践"></a>第 18 章 SRE 部门中的软件工程实践</h2><p>本章节目录：</p>
+<p>很重要的是，每个测试都有成本，时间成本和计算资源成本。时刻关注测试的成本，是软件开发效率提升的重要因素。</p>
+<h4 id="生产测试"><a href="#生产测试" class="headerlink" title="生产测试"></a>生产测试</h4><p>生产测试和一个已经部署在生产环境中的业务系统直接交互，而不是运行在密闭的测试环境中，有时候也被称为黑盒测试。</p>
+<h5 id="配置测试"><a href="#配置测试" class="headerlink" title="配置测试"></a>配置测试</h5><p>在 Google 内部，Web 服务的配置信息保存在代码仓库中的文件中。本节主要介绍如何测试这些配置文件。</p>
+<h5 id="压力测试"><a href="#压力测试" class="headerlink" title="压力测试"></a>压力测试</h5><p>为了安全地操作某个系统，SRE 需要理解系统和组件的性能边界。工程师使用<em>压力测试</em>来找到 Web 服务的性能边界。压力测试能够回答以下问题：</p>
+<ul>
+<li>数据库容量满到什么程度，才会导致写请求失败。</li>
+<li>向某应用每秒发送多少个请求，将导致应用过载并导致请求处理失败。</li>
+</ul>
+<p><strong>点评：</strong> 压力测试在初创团队、用户量小的系统一般比较容易忽视，都是遇到瓶颈、出现服务异常时，才想到这个事情。按照我的理解，在模块已经比较稳定之后，需要尽快摸清该模块的性能边界、资源消耗，为 SLO、SLI 的制定提供依据。</p>
+<h5 id="金丝雀测试"><a href="#金丝雀测试" class="headerlink" title="金丝雀测试"></a>金丝雀测试</h5><p><em>金丝雀测试（Canary test）</em> 没有包含在上面的生产测试列表中。“金丝雀”一词来源于“煤矿中的金丝雀”这样一个说法，指代利用一只鸟来检测有毒气体以避免人类中毒的做法。</p>
+<p>要进行一次金丝雀测试，一小部分服务器被升级到一个新版本或者新配置，随后保持一定的孵化器。如果没有任何为预料的问题发生，发布流程会继续，其他的软件服务器也会被逐渐升级到新版本。如果发生了问题，这个发版流程会中止，被修改的服务器会被还原。</p>
+<blockquote>
+<p>金丝雀测试并不真的是一个测试，而是一种结构化的最终用户验收测试。</p>
+</blockquote>
+<p>文中提到了 Google 评估金丝雀测试错误报告数生成公式：</p>
+<blockquote>
+<p>CU = RK</p>
+<blockquote>
+<p>C 是错误报告累计值。<br>U 是错误等级。<br>K是用户流量增长 172%（呈自然对数 e 倍率增长）所需时间，文中假设使用指数型升级部署流程。<br>R 是错误发生的速率。</p>
+</blockquote>
+</blockquote>
+<p>该公式用于指导金丝雀测试。</p>
+<h3 id="创造一个构建和测试环境"><a href="#创造一个构建和测试环境" class="headerlink" title="创造一个构建和测试环境"></a>创造一个构建和测试环境</h3><ul>
+<li>一种建立强测试文化的方式是将所有遇到的问题都进行测试案例化，随着案例的增多，将会有一套晚上的回归测试体系。</li>
+<li>建立良好测试的软件的另外一项关键任务是建立起一套良好的测试基础设施。测试设施的基础是一套版本化源代码控制体系，可以追溯源代码的每一个改变。</li>
+<li>文中推荐了构建系统，<a href="https://www.bazel.build/" target="_blank" rel="noopener">Bazel</a>，该系统为精确地控制测试执行提供了非常有价值的功能，例如它可以为软件项目生成依赖图。</li>
+</ul>
+<blockquote>
+<p>Bazel 目前官方支持 Java、C++、Android、iOS、GO，其他语言框架可能支持得不大好。</p>
+</blockquote>
+<h3 id="大规模测试"><a href="#大规模测试" class="headerlink" title="大规模测试"></a>大规模测试</h3><h4 id="测试大规模使用的工具"><a href="#测试大规模使用的工具" class="headerlink" title="测试大规模使用的工具"></a>测试大规模使用的工具</h4><p>SRE 的工具也是软件项目，也需要测试。SRE 开发的工具可能负责以下操作：</p>
+<ul>
+<li>从数据库中获取并且传递的性能度量指标。</li>
+<li>从度量指标预测未来用量，进行容量规划。</li>
+<li>重构某个用户不可见的备份副本中的数据。</li>
+<li>修改某些文件。</li>
+</ul>
+<p>SRE 工具具有两个特点：</p>
+<ul>
+<li>这些工具的副作用基本处于被良好测试过的主流 API 范围内。</li>
+<li>由于现存的验证和发布流程，这些工具基本不会对用户造成直接影响。</li>
+</ul>
+<p>自动化工具也是软件项目。例如：</p>
+<ul>
+<li>数据库索引的选择。</li>
+<li>数据中心之间的负载均衡器。</li>
+<li>快速重排中继日志，以尽快重建主记录的工具。</li>
+</ul>
+<p>自动化工具具有两个共同点：</p>
+<ul>
+<li>他们的实际操作都是通过调用一个可靠的、经过良好测试的 API。</li>
+<li>对另外一个 API 用户来说，他们的调用结果是不可预知或不可见的。</li>
+</ul>
+<p><strong>点评：</strong> 这些工具专门为系统运维服务，直接对生产环境产生影响，测试这些工具需要非常必要。</p>
+<h4 id="针对灾难的测试"><a href="#针对灾难的测试" class="headerlink" title="针对灾难的测试"></a>针对灾难的测试</h4><p><strong>点评：</strong> 本章节描述的场景我比较陌生，不大能体会作者想表达的内容，暂且搁置。</p>
+<h4 id="对速度的渴求"><a href="#对速度的渴求" class="headerlink" title="对速度的渴求"></a>对速度的渴求</h4><p><strong>点评：</strong> 本章节介绍了面对一个复杂系统，测试难度、时间成本都比较高，如何更高效地进行测试。按照我的理解，作者面对的测试系统，不是那种要不就是对，要不就是错的测试结果，而是一种成功率的结果，我没有这方面的经验，暂时没有感悟到有价值的东西。</p>
+<h4 id="发布到生产环境"><a href="#发布到生产环境" class="headerlink" title="发布到生产环境"></a>发布到生产环境</h4><p>本节作者揭示了一个问题，生产环境的配置信息最终只能在生产环境中验证。因此，在发布到生产环境前，有必要先评估生产环境配置信息的最坏情况，提前做好预案。</p>
+<h4 id="允许测试失败"><a href="#允许测试失败" class="headerlink" title="允许测试失败"></a>允许测试失败</h4><p>测试失败意味着带有 bug 的程序会发布到生产环境，进而实际影响到用户。为了保障平均修复时间（MTTR）保持在较低的水平，Googe 使用配置文件的方式回滚生产环境的程序。</p>
+<p>为了让服务更可靠，避免 SRE 团队人数线性增长，生产环境必须做到基本无人值守运行。为了达到无人值守目标，生产环境必须能够应对小型的失败问题。当一项重大问题需要 SRE 手工参与时，SRE 所使用的工具必须是经过合理测试的。</p>
+<p><strong>点评：</strong> 本章节主要介绍当测试失败，有问题的程序发布到生产环境，SRE 该如何处理。处理时要围绕这几个方向展开：</p>
+<ul>
+<li>使用配置文件方式回滚更高效。</li>
+<li>保障平均修复时间（MTTR）保持在较低的水平。</li>
+<li>修复需要依赖自动化，尽可能避免 SRE 手工操作。</li>
+<li>自动化脚本、修复工具需要充分测试，尽可能地保证可信赖度。</li>
+</ul>
+<h4 id="集成"><a href="#集成" class="headerlink" title="集成"></a>集成</h4><p>这一章节的题目与内容感觉不是那么的融合，内容了讲了两方面的事情，一个是配置文件的解析过程测试，一个是对系统工程工具的测试。</p>
+<h4 id="生产环境探针"><a href="#生产环境探针" class="headerlink" title="生产环境探针"></a>生产环境探针</h4><p>测试的过程涉及的模块，有可能使用到别的团队的测试模块、伪后端（fake backend），与实际生产环境部署可能有比较大的区别。使用探针周期性的测试生产环境，可以监控系统的运行情况。文章主要介绍了探针的作用以及设计探针时的注意事项，如灰度发版时探针需要做到前后版本的兼容，避免误报等问题。</p>
+<h3 id="小结-8"><a href="#小结-8" class="headerlink" title="小结"></a>小结</h3><p>测试是工程师提高可靠性投入回报比最高的一种手段。测试并不是一种只执行一次或两次的活动，而是持久不断的。</p>
+<hr>
+<h2 id="第-18-章-SRE-部门中的软件工程实践"><a href="#第-18-章-SRE-部门中的软件工程实践" class="headerlink" title="第 18 章 SRE 部门中的软件工程实践"></a>第 18 章 SRE 部门中的软件工程实践</h2><p>本章节目录：</p>
 <ul>
 <li>为什么软件工程项目对 SRE 很重要</li>
 <li>Auxon 案例分析：项目背景和要解决的问题<ul>
@@ -1095,12 +1182,14 @@
 </li>
 <li>小结</li>
 </ul>
+<hr>
 <h2 id="第-19-章-前对服务器的负载均衡"><a href="#第-19-章-前对服务器的负载均衡" class="headerlink" title="第 19 章 前对服务器的负载均衡"></a>第 19 章 前对服务器的负载均衡</h2><p>本章节目录：</p>
 <ul>
 <li>有时候硬件并不能解决问题</li>
 <li>使用 DNS 进行负载均衡</li>
 <li>负载均衡：虚拟IP</li>
 </ul>
+<hr>
 <h2 id="第-20-章-数据中心内部的负载均衡系统"><a href="#第-20-章-数据中心内部的负载均衡系统" class="headerlink" title="第 20 章 数据中心内部的负载均衡系统"></a>第 20 章 数据中心内部的负载均衡系统</h2><p>本章节目录：</p>
 <ul>
 <li>理想情况</li>
@@ -1122,6 +1211,7 @@
 </ul>
 </li>
 </ul>
+<hr>
 <h2 id="第-21-章-应对过载"><a href="#第-21-章-应对过载" class="headerlink" title="第 21 章 应对过载"></a>第 21 章 应对过载</h2><p>本章节目录：</p>
 <ul>
 <li>QPS 陷阱</li>
@@ -1136,6 +1226,7 @@
 <li>连接造成的负载</li>
 <li>小结</li>
 </ul>
+<hr>
 <h2 id="第-22-章-处理连锁故障"><a href="#第-22-章-处理连锁故障" class="headerlink" title="第 22 章 处理连锁故障"></a>第 22 章 处理连锁故障</h2><p>本章节目录：</p>
 <ul>
 <li>连锁故障产生的原因和如何从设计上避免<ul>
