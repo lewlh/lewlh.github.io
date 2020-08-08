@@ -184,6 +184,8 @@ body {
   font-family: Lato, "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 1em;
   line-height: 2;
+  min-height: 100%;
+  position: relative;
   transition: all 0.2s ease-in-out;
 }
 h1,
@@ -1131,10 +1133,6 @@ pre code {
   margin-top: 0;
   padding-top: 0;
 }
-.container {
-  min-height: 100%;
-  position: relative;
-}
 .headband {
   background: #222;
   height: 3px;
@@ -2066,7 +2064,6 @@ pre code {
 }
 .post-gallery {
   display: flex;
-  margin-bottom: 60px;
   min-height: 200px;
 }
 .post-gallery .post-gallery-image {
@@ -2083,6 +2080,12 @@ pre code {
   height: 100%;
   object-fit: cover;
   width: 100%;
+}
+.posts-expand .post-gallery {
+  margin-bottom: 60px;
+}
+.posts-collapse .post-gallery {
+  margin: 15px 0;
 }
 .posts-expand .post-header {
   font-size: 1.125em;
@@ -2650,11 +2653,11 @@ hr {
 .main-inner {
   padding-bottom: 80px;
 }
-.content {
+.post-block:first-of-type {
   padding-top: 80px;
 }
 @media (max-width: 767px) {
-  .content {
+  .post-block:first-of-type {
     padding-top: 60px;
   }
 }
@@ -2844,7 +2847,7 @@ hr {
 }
 @media (min-width: 992px) {
   .sidebar-active {
-    padding-right: 320px;
+    margin-right: 320px;
   }
 }
 .sidebar {
@@ -2886,7 +2889,7 @@ hr {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #b149a7;
+  background: #0f426b;
   display: inline-block;
   margin-right: 3px;
   transform: translateY(-2px);
