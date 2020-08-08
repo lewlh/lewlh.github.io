@@ -101,7 +101,124 @@
   </style>
 </noscript>
 
-</head>
+<style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
   <div class="container use-motion">
@@ -150,12 +267,12 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">20</span></a>
+    <a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">25</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">5</span></a>
+    <a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">6</span></a>
 
   </li>
         <li class="menu-item menu-item-sitemap">
@@ -233,14 +350,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -347,38 +464,37 @@
     <div class="post-body" itemprop="articleBody">
         <p>本文来自于阿里云RDS-数据库内核组，<a href="http://mysql.taobao.org/monthly/2015/10/04/" target="_blank" rel="noopener">文章地址</a>。笔者读完此文，感觉作者对 PostgreSQL 流复制 streaming replication 的机制解析的非常透彻，是一遍非常好的技术分享文档。文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用-相同方式共享 3.0 未本地化版本许可协议</a>,因此笔者将本文收录于自己的博客中，方便日后学习检索。</p>
 <a id="more"></a>
-
-<hr>
+<hr />
 <p>PostgreSQL在9.0之后引入了主备流复制机制，通过流复制，备库不断的从主库同步相应的数据，并在备库apply每个WAL record，这里的流复制每次传输单位是WAL日志的record。而PostgreSQL9.0之前提供的方法是主库写完一个WAL日志文件后，才把WAL日志文件传送到备库，这样的方式导致主备延迟特别大。同时PostgreSQL9.0之后提供了Hot Standby，备库在应用WAL record的同时也能够提供只读服务，大大提升了用户体验。</p>
-<h1 id="主备总体结构"><a href="#主备总体结构" class="headerlink" title="主备总体结构"></a>主备总体结构</h1><p>PG主备流复制的核心部分由walsender，walreceiver和startup三个进程组成。 walsender进程是用来发送WAL日志记录的，执行顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PostgresMain()-&gt;exec_replication_command()-&gt;StartReplication()-&gt;WalSndLoop()-&gt;XLogSendPhysical()</span><br></pre></td></tr></table></figure>
-
-<p>walreceiver进程是用来接收WAL日志记录的，执行顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sigusr1_handler()-&gt;StartWalReceiver()-&gt;AuxiliaryProcessMain()-&gt;WalReceiverMain()-&gt;walrcv_receive()</span><br></pre></td></tr></table></figure>
-
-<p>startup进程是用来apply日志的，执行顺序如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PostmasterMain()-&gt;StartupDataBase()-&gt;AuxiliaryProcessMain()-&gt;StartupProcessMain()-&gt;StartupXLOG()</span><br></pre></td></tr></table></figure>
-
-<p>下图是PG主备总体框架图：<br><img src="/images/20200713_PG%E4%B8%BB%E5%A4%87%E6%80%BB%E4%BD%93%E6%A1%86%E6%9E%B6%E5%9B%BE.png" alt="图1. PG主备总体框架图" title="PG主备总体框架图"></p>
-<h1 id="walsender和walreceiver进程流复制过程"><a href="#walsender和walreceiver进程流复制过程" class="headerlink" title="walsender和walreceiver进程流复制过程"></a>walsender和walreceiver进程流复制过程</h1><p>walsender和walreceiver交互主要分为以下几个步骤：</p>
-<ol>
+<h1 id="主备总体结构">主备总体结构</h1>
+<p>PG主备流复制的核心部分由walsender，walreceiver和startup三个进程组成。 walsender进程是用来发送WAL日志记录的，执行顺序如下： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PostgresMain()-&gt;exec_replication_command()-&gt;StartReplication()-&gt;WalSndLoop()-&gt;XLogSendPhysical()</span><br></pre></td></tr></table></figure></p>
+<p>walreceiver进程是用来接收WAL日志记录的，执行顺序如下： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sigusr1_handler()-&gt;StartWalReceiver()-&gt;AuxiliaryProcessMain()-&gt;WalReceiverMain()-&gt;walrcv_receive()</span><br></pre></td></tr></table></figure></p>
+<p>startup进程是用来apply日志的，执行顺序如下： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PostmasterMain()-&gt;StartupDataBase()-&gt;AuxiliaryProcessMain()-&gt;StartupProcessMain()-&gt;StartupXLOG()</span><br></pre></td></tr></table></figure></p>
+<p>下图是PG主备总体框架图： <img src="/images/20200713_PG主备总体框架图.png" title="PG主备总体框架图" alt="图1. PG主备总体框架图" /></p>
+<h1 id="walsender和walreceiver进程流复制过程">walsender和walreceiver进程流复制过程</h1>
+<p>walsender和walreceiver交互主要分为以下几个步骤：</p>
+<ol type="1">
 <li>walreceiver启动后通过recovery.conf文件中的primary_conninfo参数信息连向主库，主库通过连接参数replication=true启动walsender进程；</li>
 <li>walreceiver执行identify_system命令，获取主库systemid/timeline/xlogpos等信息，执行TIMELINE_HISTORY命令拉取history文件；</li>
 <li>执行wal_startstreaming开始启动流复制，通过walrcv_receive获取WAL日志，期间也会回应主库发过来的心跳信息(接收位点、flush位点、apply位点)，向主库发送feedback信息(最老的事务id)，避免vacuum删掉备库正在使用的记录；</li>
 <li>执行walrcv_endstreaming结束流复制，等待startup进程更新receiveStart和receiveStartTLI，一旦更新，进入步骤2。</li>
 </ol>
-<p><img src="/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png" alt="图2. PG流复制过程" title="PG流复制过程"></p>
-<h1 id="walreceiver和startup进程"><a href="#walreceiver和startup进程" class="headerlink" title="walreceiver和startup进程"></a>walreceiver和startup进程</h1><p>startup进程进入standby模式和apply日志主要过程：</p>
-<ol>
+<figure>
+<img src="/images/20200713_PG流复制过程.png" title="PG流复制过程" alt="图2. PG流复制过程" /><figcaption aria-hidden="true">图2. PG流复制过程</figcaption>
+</figure>
+<h1 id="walreceiver和startup进程">walreceiver和startup进程</h1>
+<p>startup进程进入standby模式和apply日志主要过程：</p>
+<ol type="1">
 <li>读取pg_control文件，找到redo位点;读取recovery.conf，如果配置standby_mode=on则进入standby模式。</li>
 <li>如果是Hot Standby需要初始化clog、subtrans、事务环境等。初始化redo资源管理器，比如Heap、Heap2、Database、XLOG等。</li>
 <li>读取WAL record，如果record不存在需要调用XLogPageRead-&gt;WaitForWALToBecomeAvailable-&gt;RequestXLogStreaming唤醒walreceiver从walsender获取WAL record。</li>
-<li>对读取的WAL record进行redo，通过record-&gt;xl_rmid信息，调用相应的redo资源管理器进行redo操作。比如heap_redo的XLOG_HEAP_INSERT操作，就是通过record的信息在buffer page中增加一个record： <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">MemSet((<span class="keyword">char</span> *) htup, <span class="number">0</span>, <span class="keyword">sizeof</span>(HeapTupleHeaderData));</span><br><span class="line"><span class="comment">/* PG73FORMAT: get bitmap [+ padding] [+ oid] + data */</span></span><br><span class="line"><span class="built_in">memcpy</span>((<span class="keyword">char</span> *) htup + offsetof(HeapTupleHeaderData, t_bits),</span><br><span class="line">    (<span class="keyword">char</span> *) xlrec + SizeOfHeapInsert + SizeOfHeapHeader,</span><br><span class="line">    newlen);</span><br><span class="line">newlen += offsetof(HeapTupleHeaderData, t_bits);</span><br><span class="line">htup-&gt;t_infomask2 = xlhdr.t_infomask2;</span><br><span class="line">htup-&gt;t_infomask = xlhdr.t_infomask;</span><br><span class="line">htup-&gt;t_hoff = xlhdr.t_hoff;</span><br><span class="line">HeapTupleHeaderSetXmin(htup, record-&gt;xl_xid);</span><br><span class="line">HeapTupleHeaderSetCmin(htup, FirstCommandId);</span><br><span class="line">htup-&gt;t_ctid = xlrec-&gt;target.tid;</span><br><span class="line"></span><br><span class="line">offnum = PageAddItem(page, (Item) htup, newlen, offnum, <span class="literal">true</span>, <span class="literal">true</span>);</span><br><span class="line"><span class="keyword">if</span> (offnum == InvalidOffsetNumber)</span><br><span class="line">    elog(PANIC, <span class="string">"heap_insert_redo: failed to add tuple"</span>);</span><br><span class="line"></span><br><span class="line">freespace = PageGetHeapFreeSpace(page);		<span class="comment">/* needed to update FSM below */</span></span><br><span class="line"></span><br><span class="line">PageSetLSN(page, lsn);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (xlrec-&gt;flags &amp; XLOG_HEAP_ALL_VISIBLE_CLEARED)</span><br><span class="line">    PageClearAllVisible(page);</span><br><span class="line"></span><br><span class="line">MarkBufferDirty(buffer);</span><br></pre></td></tr></table></figure>
- 还有部分redo操作(vacuum产生的record)需要检查在Hot Standby模式下的查询冲突，比如某些tuples需要remove，而存在正在执行的query可能读到这些tuples，这样就会破坏事务隔离级别。通过函数ResolveRecoveryConflictWithSnapshot检测冲突，如果发生冲突，那么就把这个query所在的进程kill掉。</li>
+<li>对读取的WAL record进行redo，通过record-&gt;xl_rmid信息，调用相应的redo资源管理器进行redo操作。比如heap_redo的XLOG_HEAP_INSERT操作，就是通过record的信息在buffer page中增加一个record： <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">MemSet((<span class="keyword">char</span> *) htup, <span class="number">0</span>, <span class="keyword">sizeof</span>(HeapTupleHeaderData));</span><br><span class="line"><span class="comment">/* PG73FORMAT: get bitmap [+ padding] [+ oid] + data */</span></span><br><span class="line"><span class="built_in">memcpy</span>((<span class="keyword">char</span> *) htup + offsetof(HeapTupleHeaderData, t_bits),</span><br><span class="line">    (<span class="keyword">char</span> *) xlrec + SizeOfHeapInsert + SizeOfHeapHeader,</span><br><span class="line">    newlen);</span><br><span class="line">newlen += offsetof(HeapTupleHeaderData, t_bits);</span><br><span class="line">htup-&gt;t_infomask2 = xlhdr.t_infomask2;</span><br><span class="line">htup-&gt;t_infomask = xlhdr.t_infomask;</span><br><span class="line">htup-&gt;t_hoff = xlhdr.t_hoff;</span><br><span class="line">HeapTupleHeaderSetXmin(htup, record-&gt;xl_xid);</span><br><span class="line">HeapTupleHeaderSetCmin(htup, FirstCommandId);</span><br><span class="line">htup-&gt;t_ctid = xlrec-&gt;target.tid;</span><br><span class="line"></span><br><span class="line">offnum = PageAddItem(page, (Item) htup, newlen, offnum, <span class="literal">true</span>, <span class="literal">true</span>);</span><br><span class="line"><span class="keyword">if</span> (offnum == InvalidOffsetNumber)</span><br><span class="line">    elog(PANIC, <span class="string">"heap_insert_redo: failed to add tuple"</span>);</span><br><span class="line"></span><br><span class="line">freespace = PageGetHeapFreeSpace(page);		<span class="comment">/* needed to update FSM below */</span></span><br><span class="line"></span><br><span class="line">PageSetLSN(page, lsn);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (xlrec-&gt;flags &amp; XLOG_HEAP_ALL_VISIBLE_CLEARED)</span><br><span class="line">    PageClearAllVisible(page);</span><br><span class="line"></span><br><span class="line">MarkBufferDirty(buffer);</span><br></pre></td></tr></table></figure> 还有部分redo操作(vacuum产生的record)需要检查在Hot Standby模式下的查询冲突，比如某些tuples需要remove，而存在正在执行的query可能读到这些tuples，这样就会破坏事务隔离级别。通过函数ResolveRecoveryConflictWithSnapshot检测冲突，如果发生冲突，那么就把这个query所在的进程kill掉。</li>
 <li>检查一致性，如果一致了，Hot Standby模式可以接受用户只读查询；更新共享内存中XLogCtlData的apply位点和时间线；如果恢复到时间点，时间线或者事务id需要检查是否恢复到当前目标；</li>
 <li>回到步骤3，读取next WAL record。</li>
 </ol>
-<p><img src="/images/20200713_PG_standby%E6%A8%A1%E5%BC%8F%E5%92%8Capply%E6%97%A5%E5%BF%97%E8%BF%87%E7%A8%8B.png" alt="图3. PG standby模式和apply日志过程" title="PG standby模式和apply日志过程"></p>
+<figure>
+<img src="/images/20200713_PG_standby模式和apply日志过程.png" title="PG standby模式和apply日志过程" alt="图3. PG standby模式和apply日志过程" /><figcaption aria-hidden="true">图3. PG standby模式和apply日志过程</figcaption>
+</figure>
 
     </div>
 
@@ -467,13 +583,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">32k</span>
+    <span title="站点总字数">34k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">29 分钟</span>
+    <span title="站点阅读时长">31 分钟</span>
 </div>
 
         
@@ -532,6 +648,8 @@
 
 
 
+
+  
 
   
 

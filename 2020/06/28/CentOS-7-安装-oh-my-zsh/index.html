@@ -23,12 +23,12 @@
     var CONFIG = {"hostname":"lewlh.github.io","root":"/","scheme":"Mist","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
 
-  <meta name="description" content="前言本人比较喜欢使用 oh-my-zsh 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。">
+  <meta name="description" content="前言 本人比较喜欢使用 oh-my-zsh 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CentOS 7 安装 oh-my-zsh">
 <meta property="og:url" content="http://lewlh.github.io/2020/06/28/CentOS-7-%E5%AE%89%E8%A3%85-oh-my-zsh/index.html">
 <meta property="og:site_name" content="Lewlh&#39;s blog">
-<meta property="og:description" content="前言本人比较喜欢使用 oh-my-zsh 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。">
+<meta property="og:description" content="前言 本人比较喜欢使用 oh-my-zsh 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-06-28T09:48:34.000Z">
 <meta property="article:modified_time" content="2020-07-18T13:42:22.651Z">
@@ -93,7 +93,124 @@
   </style>
 </noscript>
 
-</head>
+<style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
+
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"] > svg a {
+  fill: blue;
+  stroke: blue;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style></head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
   <div class="container use-motion">
@@ -142,12 +259,12 @@
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">20</span></a>
+    <a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">25</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">5</span></a>
+    <a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">6</span></a>
 
   </li>
         <li class="menu-item menu-item-sitemap">
@@ -225,14 +342,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -320,7 +437,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>2.5k</span>
+              <span>2.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -337,53 +454,36 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本人比较喜欢使用 <code>oh-my-zsh</code> 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。</p>
+        <h1 id="前言">前言</h1>
+<p>本人比较喜欢使用 <code>oh-my-zsh</code> 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。</p>
 <a id="more"></a>
-
-<h1 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h1><ol>
+<h1 id="安装步骤">安装步骤</h1>
+<ol type="1">
 <li>通过 yum 安装 zsh、git、wget： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y zsh git wget</span><br></pre></td></tr></table></figure>
 <ul>
 <li>oh-my-zsh 依赖于 zsh;</li>
 <li>git 用来拉取 oh-my-zsh 代码;</li>
 <li>wget 用来下载 oh-my-zsh 的安装脚本</li>
-</ul>
-</li>
+</ul></li>
 <li>安装 <code>oh-my-zsh</code>: <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh</span><br></pre></td></tr></table></figure></li>
 <li>使用 <code>which zsh</code> 查看 zsh 的安装目录，一般都存储在 /usr/bin/zsh 目录下。 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">which zsh</span><br></pre></td></tr></table></figure></li>
-<li>使用 chsh 命令切换使用的 shell 程序: <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chsh -s /usr/bin/zsh</span><br></pre></td></tr></table></figure>
-
-</li>
+<li>使用 chsh 命令切换使用的 shell 程序: <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chsh -s /usr/bin/zsh</span><br></pre></td></tr></table></figure></li>
 </ol>
-<h1 id="进行可选配置"><a href="#进行可选配置" class="headerlink" title="进行可选配置"></a>进行可选配置</h1><h2 id="修改主题"><a href="#修改主题" class="headerlink" title="修改主题"></a>修改主题</h2><ul>
-<li>编辑 .zshrc 文件<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi ~/.zshrc</span><br></pre></td></tr></table></figure></li>
-<li>修改主题类型<br>找到 <code>ZSH_THEME</code> ,修改主题名称，本人喜欢 <em>agnoster</em> 主题，只需要将 <code>ZSH_THEME</code> 改为 agnoster 保存：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Set name of the theme to load --- <span class="keyword">if</span> <span class="built_in">set</span> to <span class="string">"random"</span>, it will</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> load a random theme each time oh-my-zsh is loaded, <span class="keyword">in</span> <span class="built_in">which</span> <span class="keyword">case</span>,</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> to know <span class="built_in">which</span> specific one was loaded, run: <span class="built_in">echo</span> <span class="variable">$RANDOM_THEME</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes</span></span><br><span class="line">ZSH_THEME="robbyrussell"</span><br></pre></td></tr></table></figure></li>
-<li>应用配置文件<br>重启shell或者执行一下命令生效：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h2 id="安装插件"><a href="#安装插件" class="headerlink" title="安装插件"></a>安装插件</h2><p>使用 ZSH 替换原有的 SHELL 最主要的原因就是要使用其功能强大的插件，下面介绍常用插件。</p>
-<h3 id="zsh-syntax-highlighting"><a href="#zsh-syntax-highlighting" class="headerlink" title="zsh-syntax-highlighting"></a>zsh-syntax-highlighting</h3><p>一款语法高亮插件，详情请看<a href="https://github.com/zsh-users/zsh-syntax-highlighting" target="_blank" rel="noopener">官网</a>.</p>
+<h1 id="进行可选配置">进行可选配置</h1>
+<h2 id="修改主题">修改主题</h2>
 <ul>
-<li>请执行以下命令：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-syntax-highlighting.git</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 zsh-syntax-highlighting 添加到环境变量中</span></span><br><span class="line">echo "source $&#123;(q-)PWD&#125;/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" &gt;&gt; $&#123;ZDOTDIR:-$HOME&#125;/.zshrc</span><br></pre></td></tr></table></figure></li>
-<li>修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-syntax-highlighting</em>：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-syntax-highlighting</span><br><span class="line">)</span><br></pre></td></tr></table></figure></li>
-<li>应用配置文件<br>重启shell或者执行一下命令生效：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
-
-</li>
+<li>编辑 .zshrc 文件 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi ~/.zshrc</span><br></pre></td></tr></table></figure></li>
+<li>修改主题类型 找到 <code>ZSH_THEME</code> ,修改主题名称，本人喜欢 <em>agnoster</em> 主题，只需要将 <code>ZSH_THEME</code> 改为 agnoster 保存： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Set name of the theme to load --- <span class="keyword">if</span> <span class="built_in">set</span> to <span class="string">"random"</span>, it will</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> load a random theme each time oh-my-zsh is loaded, <span class="keyword">in</span> <span class="built_in">which</span> <span class="keyword">case</span>,</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> to know <span class="built_in">which</span> specific one was loaded, run: <span class="built_in">echo</span> <span class="variable">$RANDOM_THEME</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes</span></span><br><span class="line">ZSH_THEME="robbyrussell"</span><br></pre></td></tr></table></figure></li>
+<li>应用配置文件 重启shell或者执行一下命令生效： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h3 id="zsh-autosuggestions"><a href="#zsh-autosuggestions" class="headerlink" title="zsh-autosuggestions"></a>zsh-autosuggestions</h3><p>一款命令自动补全插件，详情请看<a href="https://github.com/zsh-users/zsh-autosuggestions" target="_blank" rel="noopener">官网</a></p>
-<ul>
-<li>请执行以下命令：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-autosuggestions.git</span><br></pre></td></tr></table></figure></li>
-<li>修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-autosuggestions</em>：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-autosuggestions</span><br><span class="line">)</span><br></pre></td></tr></table></figure></li>
-<li>应用配置文件<br>重启shell或者执行一下命令生效：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h3 id="zsh-history-substring-search"><a href="#zsh-history-substring-search" class="headerlink" title="zsh-history-substring-search"></a>zsh-history-substring-search</h3><p>一款查找匹配前缀的历史输入插件，详情请看<a href="https://github.com/zsh-users/zsh-history-substring-search" target="_blank" rel="noopener">官网</a></p>
-<ul>
-<li>请执行以下命令：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-history-substring-search.git</span><br></pre></td></tr></table></figure></li>
-<li>修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-history-substring-search</em>：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  history-substring-search</span><br><span class="line">)</span><br></pre></td></tr></table></figure></li>
-<li>应用配置文件<br>重启shell或者执行一下命令生效：<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></li>
-</ul>
+<h2 id="安装插件">安装插件</h2>
+<p>使用 ZSH 替换原有的 SHELL 最主要的原因就是要使用其功能强大的插件，下面介绍常用插件。</p>
+<h3 id="zsh-syntax-highlighting">zsh-syntax-highlighting</h3>
+<p>一款语法高亮插件，详情请看<a href="https://github.com/zsh-users/zsh-syntax-highlighting" target="_blank" rel="noopener">官网</a>. + 请执行以下命令： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-syntax-highlighting.git</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 zsh-syntax-highlighting 添加到环境变量中</span></span><br><span class="line">echo "source $&#123;(q-)PWD&#125;/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" &gt;&gt; $&#123;ZDOTDIR:-$HOME&#125;/.zshrc</span><br></pre></td></tr></table></figure> + 修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-syntax-highlighting</em>： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-syntax-highlighting</span><br><span class="line">)</span><br></pre></td></tr></table></figure> + 应用配置文件 重启shell或者执行一下命令生效： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></p>
+<h3 id="zsh-autosuggestions">zsh-autosuggestions</h3>
+<p>一款命令自动补全插件，详情请看<a href="https://github.com/zsh-users/zsh-autosuggestions" target="_blank" rel="noopener">官网</a> + 请执行以下命令： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-autosuggestions.git</span><br></pre></td></tr></table></figure> + 修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-autosuggestions</em>： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-autosuggestions</span><br><span class="line">)</span><br></pre></td></tr></table></figure> + 应用配置文件 重启shell或者执行一下命令生效： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></p>
+<h3 id="zsh-history-substring-search">zsh-history-substring-search</h3>
+<p>一款查找匹配前缀的历史输入插件，详情请看<a href="https://github.com/zsh-users/zsh-history-substring-search" target="_blank" rel="noopener">官网</a> + 请执行以下命令： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-history-substring-search.git</span><br></pre></td></tr></table></figure> + 修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-history-substring-search</em>： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  history-substring-search</span><br><span class="line">)</span><br></pre></td></tr></table></figure> + 应用配置文件 重启shell或者执行一下命令生效： <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></p>
 
     </div>
 
@@ -468,13 +568,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">32k</span>
+    <span title="站点总字数">34k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">29 分钟</span>
+    <span title="站点阅读时长">31 分钟</span>
 </div>
 
         
@@ -533,6 +633,8 @@
 
 
 
+
+  
 
   
 
