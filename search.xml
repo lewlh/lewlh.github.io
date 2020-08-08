@@ -42,8 +42,8 @@
   <entry>
     <title>Hexo+Next支持LaTeX</title>
     <url>/2020/08/08/Hexo-Next%E6%94%AF%E6%8C%81LaTeX/</url>
-    <content><![CDATA[<p>有朋友咨询问 Hexo 是否支持 <a href="https://www.latex-project.org/" target="_blank" rel="noopener">LaTeX</a> 数学表达式，开始我以为是支持的，后来发现竟然默认是不支持，由于 hexo 默认支持 markdown 语法，该语法与 LaTeX 语法有一些冲突，大部分用户其实不大需要 LaTeX，所以一直没有默认支持。网络上一搜这个主题，发现有很多解决方案。我想不如趁热打铁，让自己的博客也支持一下，顺便把自己的经验分享给大家。</p>
-<p><img src="/images/LaTeX_project_logo_bird.svg" title="LaTeX"></p>
+    <content><![CDATA[<p><img src="/images/LaTeX_project_logo_bird.svg" title="LaTeX"></p>
+<p>有朋友咨询问 Hexo 是否支持 <a href="https://www.latex-project.org/" target="_blank" rel="noopener">LaTeX</a> 数学表达式，开始我以为是支持的，后来发现竟然默认是不支持，由于 hexo 默认支持 markdown 语法，该语法与 LaTeX 语法有一些冲突，大部分用户其实不大需要 LaTeX，所以一直没有默认支持。网络上一搜这个主题，发现有很多解决方案。我想不如趁热打铁，让自己的博客也支持一下，顺便把自己的经验分享给大家。</p>
 <a id="more"></a>
 <h2 id="现状">现状</h2>
 <p>我查看了一下自己 hexo 的配置，发现 hexo 默认使用的页面渲染器是<code>hexo-renderer-marked</code>,这个渲染器是无法解析 LaTeX 的表达式的。</p>
@@ -1434,6 +1434,11 @@
 </ul></li>
 <li>小结</li>
 </ul>
+<p>本章节主要围绕 Google Auxon 软件，一个基于意图进行容量规划的工具展开。</p>
+<figure>
+<img src="/images/SRE_Goolge运维解密_18-1：Auxon的主要组件.png" title="Auxon的主要组件" alt="Auxon的主要组件" /><figcaption aria-hidden="true">Auxon的主要组件</figcaption>
+</figure>
+<p>这个软件解决了 Google 系统部署与硬件资源管理的问题，提高了部署效率以及减少了人力成本。文章还介绍了开发 Auxon 软件的历史、开发者的背景以及未来的规划。对于大部分软件企业，其系统的复杂程度远远低于 Google 的规模，专门开发一套软件去管理系统部署和硬件资源，成本反而更高。本文更多地是让读者有个窗口，窥探 Google 的管理技术，知道高水平的运维管理是如何做的。</p>
 <hr />
 <h2 id="第-19-章-前端服务器的负载均衡">第 19 章 前端服务器的负载均衡</h2>
 <p>本章节目录：</p>
@@ -1441,6 +1446,31 @@
 <li>有时候硬件并不能解决问题</li>
 <li>使用 DNS 进行负载均衡</li>
 <li>负载均衡：虚拟IP</li>
+</ul>
+<p>本章节关注于高层次的负载均衡——Google 是如何在数据中心之间调节用户流量的。</p>
+<h3 id="有时候硬件并不能解决问题">有时候硬件并不能解决问题</h3>
+<p>用户流量负载均衡（traffic load balancing）系统是用来决定数据中心中的这些机器中哪一个用来处理某个请求。理想情况下，用户流量应该最优地分布于多条网络链路上、多个数据中心中，以及多台服务器上。“最优”依赖于下列三个因素：</p>
+<ul>
+<li>逻辑层级（是在全局还是在局部）。</li>
+<li>技术层面（硬件层面与软件层面）。</li>
+<li>用户流量的天然属性。</li>
+</ul>
+<h3 id="使用-dns-进行负载均衡">使用 DNS 进行负载均衡</h3>
+<p>在某个客户端发送 HTTP 请求之前，经常需要先通过 DNS 查询 IP 地址。这就为我们第一层的负载均衡机制提供了一个良好基础：DNS 负载均衡。</p>
+<p>本章节介绍了使用 DNS 进行负载均衡面临的一些问题：</p>
+<ol type="1">
+<li>这种机制对客户端行为的约束力很弱：记录是随机选择的，也就是每条记录都会引来有基本相同数量的请求流量。</li>
+<li>客户端无法识别“最近”的地址。</li>
+<li>DNS 中间人带来的第三个问题是跟缓存有关的。因为权威服务器不能主动清除某个解析器的缓存，DNS记录需要保持一个相对较低的时效值（TTL）。</li>
+</ol>
+<h3 id="负载均衡虚拟ip">负载均衡：虚拟IP</h3>
+<p>虚拟IP地址（VIP）不是绑定在某一个特定的网络接口上的，它是由很多设备共享的。但是，从用户视角来看，VIP 仍然是一个独立的、普通的 IP 地址。</p>
+<p>对虚拟IP的负载均衡器，文中介绍了以下几个方案：</p>
+<ul>
+<li>永远优先目前负载最小的后端服务器。</li>
+<li>一致性哈希（consistent hashing）算法。</li>
+<li>修改数据链路层（OSI 模型的 2 层）的信息，直接服务器响应（DSR）。</li>
+<li>包封装（encapsulation）模式，Google 目前使用的方案。</li>
 </ul>
 <hr />
 <h2 id="第-20-章-数据中心内部的负载均衡系统">第 20 章 数据中心内部的负载均衡系统</h2>
