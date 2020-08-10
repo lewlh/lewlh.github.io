@@ -318,7 +318,7 @@ mjx-container[display="true"] + br {
     <i class="fa fa-times-circle"></i>
   </span>
 </div>
-<div id="search-result">
+<div class="search-result-container">
   <div id="no-result">
     <i class="fa fa-spinner fa-pulse fa-5x"></i>
   </div>
@@ -1980,7 +1980,7 @@ mjx-container[display="true"] + br {
       activeClass = localStorage.getItem('comments_active') || activeClass;
     }
     if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
       if (activeTab) {
         activeTab.click();
       }
@@ -1989,7 +1989,7 @@ mjx-container[display="true"] + br {
   if (CONFIG.comments.storage) {
     window.addEventListener('tabs:click', event => {
       if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
+      const commentClass = event.target.classList[1];
       localStorage.setItem('comments_active', commentClass);
     });
   }
