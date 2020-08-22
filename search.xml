@@ -1,45 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>CentOS 7 安装 oh-my-zsh</title>
-    <url>/2020/06/28/CentOS-7-%E5%AE%89%E8%A3%85-oh-my-zsh/</url>
-    <content><![CDATA[<h1 id="前言">前言</h1>
-<p>本人比较喜欢使用 <code>oh-my-zsh</code> 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。</p>
-<a id="more"></a>
-<h1 id="安装步骤">安装步骤</h1>
-<ol type="1">
-<li>通过 yum 安装 zsh、git、wget： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install -y zsh git wget</span><br></pre></td></tr></table></figure>
-<ul>
-<li>oh-my-zsh 依赖于 zsh;</li>
-<li>git 用来拉取 oh-my-zsh 代码;</li>
-<li>wget 用来下载 oh-my-zsh 的安装脚本</li>
-</ul></li>
-<li>安装 <code>oh-my-zsh</code>: <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh</span><br></pre></td></tr></table></figure></li>
-<li>使用 <code>which zsh</code> 查看 zsh 的安装目录，一般都存储在 /usr/bin/zsh 目录下。 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">which zsh</span><br></pre></td></tr></table></figure></li>
-<li>使用 chsh 命令切换使用的 shell 程序: <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">chsh -s /usr/bin/zsh</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h1 id="进行可选配置">进行可选配置</h1>
-<h2 id="修改主题">修改主题</h2>
-<ul>
-<li>编辑 .zshrc 文件 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi ~/.zshrc</span><br></pre></td></tr></table></figure></li>
-<li>修改主题类型 找到 <code>ZSH_THEME</code> ,修改主题名称，本人喜欢 <em>agnoster</em> 主题，只需要将 <code>ZSH_THEME</code> 改为 agnoster 保存： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Set name of the theme to load --- <span class="keyword">if</span> <span class="built_in">set</span> to <span class="string">"random"</span>, it will</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> load a random theme each time oh-my-zsh is loaded, <span class="keyword">in</span> <span class="built_in">which</span> <span class="keyword">case</span>,</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> to know <span class="built_in">which</span> specific one was loaded, run: <span class="built_in">echo</span> <span class="variable">$RANDOM_THEME</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes</span></span><br><span class="line">ZSH_THEME="robbyrussell"</span><br></pre></td></tr></table></figure></li>
-<li>应用配置文件 重启shell或者执行一下命令生效： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="安装插件">安装插件</h2>
-<p>使用 ZSH 替换原有的 SHELL 最主要的原因就是要使用其功能强大的插件，下面介绍常用插件。</p>
-<h3 id="zsh-syntax-highlighting">zsh-syntax-highlighting</h3>
-<p>一款语法高亮插件，详情请看<a href="https://github.com/zsh-users/zsh-syntax-highlighting" target="_blank" rel="noopener">官网</a>. + 请执行以下命令： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-syntax-highlighting.git</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 zsh-syntax-highlighting 添加到环境变量中</span></span><br><span class="line">echo "source $&#123;(q-)PWD&#125;/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" &gt;&gt; $&#123;ZDOTDIR:-$HOME&#125;/.zshrc</span><br></pre></td></tr></table></figure> + 修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-syntax-highlighting</em>： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-syntax-highlighting</span><br><span class="line">)</span><br></pre></td></tr></table></figure> + 应用配置文件 重启shell或者执行一下命令生效： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></p>
-<h3 id="zsh-autosuggestions">zsh-autosuggestions</h3>
-<p>一款命令自动补全插件，详情请看<a href="https://github.com/zsh-users/zsh-autosuggestions" target="_blank" rel="noopener">官网</a> + 请执行以下命令： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-autosuggestions.git</span><br></pre></td></tr></table></figure> + 修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-autosuggestions</em>： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-autosuggestions</span><br><span class="line">)</span><br></pre></td></tr></table></figure> + 应用配置文件 重启shell或者执行一下命令生效： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></p>
-<h3 id="zsh-history-substring-search">zsh-history-substring-search</h3>
-<p>一款查找匹配前缀的历史输入插件，详情请看<a href="https://github.com/zsh-users/zsh-history-substring-search" target="_blank" rel="noopener">官网</a> + 请执行以下命令： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-history-substring-search.git</span><br></pre></td></tr></table></figure> + 修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-history-substring-search</em>： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  history-substring-search</span><br><span class="line">)</span><br></pre></td></tr></table></figure> + 应用配置文件 重启shell或者执行一下命令生效： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></p>
-]]></content>
-      <tags>
-        <tag>centos7</tag>
-        <tag>oh-my-zsh</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Hexo+Next支持LaTeX</title>
     <url>/2020/08/08/Hexo-Next%E6%94%AF%E6%8C%81LaTeX/</url>
     <content><![CDATA[<p><img src="/images/LaTeX_project_logo_bird.svg" title="LaTeX"></p>
@@ -118,6 +79,28 @@
 ]]></content>
   </entry>
   <entry>
+    <title>一个 Wine + Java + Dlls 的 Docker 镜像</title>
+    <url>/2020/06/06/%E4%B8%80%E4%B8%AA-wine-java-dlls-%E7%9A%84-docker-%E9%95%9C%E5%83%8F/</url>
+    <content><![CDATA[<p>我有一个 java 项目，需要在 windows 环境下调用第三方的动态链接库 dll 去解析数据，之前一直使用 windows server 2016 + docker + windows container 的方案运行。这个方案能解决第三方dll不能并行运行的问题，可以在一台机器上部署多个 instance。但是由于 windows server 2016 一直是使用虚拟机安装，导致该服务的性能不佳，而且也依赖 windows server 2016 及更高版本的系统。最近我制作了一个 wine + java + dlls 的 docker 镜像，让该 java 项目直接运行在 linux 的容器中，提高了性能，减少了服务器成本。本文介绍该镜像的制作细节。</p>
+<a id="more"></a>
+<h3 id="构建镜像">构建镜像</h3>
+<p>本镜像基于 <code>ubuntu:18.04</code> 构建, Dockfile 源码如下： <figure class="highlight docker"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">18.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-http.list /etc/apt/sources.list</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get update &amp;&amp; apt-get install -y apt-transport-https ca-certificates</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-https.list /etc/apt/sources.list</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> dpkg --add-architecture i386 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get update &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get install -y wine32 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get clean -y</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> jdk-8u172-windows-i586.exe /app/jdk.exe</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> chmod +x /app/jdk.exe &amp;&amp; wine /app/jdk.exe /s &amp;&amp; rm /app/jdk.exe</span></span><br><span class="line"><span class="keyword">ARG</span> target=<span class="string">"/root/.wine/drive_c/Program Files/Java/jre1.8.0_172/bin/"</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./dlls/ <span class="variable">$&#123;target&#125;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /root</span></span><br></pre></td></tr></table></figure></p>
+<p>我们需要自行准备以下文件： + sources-http.list, http 安装源链接,为了加快镜像编译速度: <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure> + sources-https.list, https 安装源链接,为了加快镜像编译速度: <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure> + jdk-8u172-windows-i586.exe, jdk安装包，其他版本的jdk需要自行验证是否能正确安装; + 依赖的动态链接库 .dll 文件，将这些文件复制到 Dockerfile 所在目录的 dlls 文件下;</p>
+<p>准备完成后，文件结构如下： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── jdk-8u172-windows-i586.exe</span><br><span class="line">├── dlls</span><br><span class="line">├── sources-http.list</span><br><span class="line">└── sources-https.list</span><br></pre></td></tr></table></figure> 在此目录下，执行以下命令，编译镜像： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker build -t wine-java-dlls:<span class="built_in">test</span> --network=host .</span><br></pre></td></tr></table></figure> 成功编译后，我们将得到镜像 <code>wine-java-dlls:test</code>。</p>
+<h3 id="使用镜像">使用镜像</h3>
+<p>通过 wine 执行 java,目前该镜像需要直接声明 java.exe 在 wine 中的路径,使用示例如下: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -d --net=host --name example --init -w /app -v /root/path/to/jar/location:/app wine-java-dlls:<span class="built_in">test</span> wine <span class="string">"C:\\Program Files\\Java\\jre1.8.0_172\\bin\\java.exe"</span> -jar test.jar</span><br></pre></td></tr></table></figure></p>
+<p><strong>参考阅读：</strong> <a href="https://kupczynski.info/2018/11/11/wine-windows-jdk-on-linux.html" target="_blank" rel="noopener">《Use wine to run windows JDK on linux》</a></p>
+]]></content>
+      <tags>
+        <tag>wine</tag>
+        <tag>docker</tag>
+        <tag>container</tag>
+        <tag>java</tag>
+        <tag>jre</tag>
+        <tag>jdk</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>PgSQL · 特性分析 · PG主备流复制机制</title>
     <url>/2020/07/13/PG%E4%B8%BB%E5%A4%87%E6%B5%81%E5%A4%8D%E5%88%B6%E6%9C%BA%E5%88%B6/</url>
     <content><![CDATA[<p>本文来自于阿里云RDS-数据库内核组，<a href="http://mysql.taobao.org/monthly/2015/10/04/" target="_blank" rel="noopener">文章地址</a>。笔者读完此文，感觉作者对 PostgreSQL 流复制 streaming replication 的机制解析的非常透彻，是一遍非常好的技术分享文档。文章采用<a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" target="_blank" rel="noopener">知识共享署名-非商业性使用-相同方式共享 3.0 未本地化版本许可协议</a>,因此笔者将本文收录于自己的博客中，方便日后学习检索。</p>
@@ -164,25 +147,42 @@
       </tags>
   </entry>
   <entry>
-    <title>一个 Wine + Java + Dlls 的 Docker 镜像</title>
-    <url>/2020/06/06/%E4%B8%80%E4%B8%AA-wine-java-dlls-%E7%9A%84-docker-%E9%95%9C%E5%83%8F/</url>
-    <content><![CDATA[<p>我有一个 java 项目，需要在 windows 环境下调用第三方的动态链接库 dll 去解析数据，之前一直使用 windows server 2016 + docker + windows container 的方案运行。这个方案能解决第三方dll不能并行运行的问题，可以在一台机器上部署多个 instance。但是由于 windows server 2016 一直是使用虚拟机安装，导致该服务的性能不佳，而且也依赖 windows server 2016 及更高版本的系统。最近我制作了一个 wine + java + dlls 的 docker 镜像，让该 java 项目直接运行在 linux 的容器中，提高了性能，减少了服务器成本。本文介绍该镜像的制作细节。</p>
+    <title>CentOS 7 安装 oh-my-zsh</title>
+    <url>/2020/06/28/CentOS-7-%E5%AE%89%E8%A3%85-oh-my-zsh/</url>
+    <content><![CDATA[<h1 id="前言">前言</h1>
+<p>本人比较喜欢使用 <code>oh-my-zsh</code> 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。</p>
 <a id="more"></a>
-<h3 id="构建镜像">构建镜像</h3>
-<p>本镜像基于 <code>ubuntu:18.04</code> 构建, Dockfile 源码如下： <figure class="highlight docker"><table><tr><td class="code"><pre><span class="line"><span class="keyword">FROM</span> ubuntu:<span class="number">18.04</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-http.list /etc/apt/sources.list</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get update &amp;&amp; apt-get install -y apt-transport-https ca-certificates</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> sources-https.list /etc/apt/sources.list</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> dpkg --add-architecture i386 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get update &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get install -y wine32 &amp;&amp; \</span></span><br><span class="line"><span class="bash">  apt-get clean -y</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> jdk-8u172-windows-i586.exe /app/jdk.exe</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> chmod +x /app/jdk.exe &amp;&amp; wine /app/jdk.exe /s &amp;&amp; rm /app/jdk.exe</span></span><br><span class="line"><span class="keyword">ARG</span> target=<span class="string">"/root/.wine/drive_c/Program Files/Java/jre1.8.0_172/bin/"</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./dlls/ <span class="variable">$&#123;target&#125;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /root</span></span><br></pre></td></tr></table></figure></p>
-<p>我们需要自行准备以下文件： + sources-http.list, http 安装源链接,为了加快镜像编译速度: <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src http:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure> + sources-https.list, https 安装源链接,为了加快镜像编译速度: <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-updates main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-backports main restricted universe multiverse</span><br><span class="line">deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-security main restricted universe multiverse</span><br><span class="line"></span><br><span class="line"># 预发布软件源，不建议启用</span><br><span class="line"># deb https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br><span class="line"># deb-src https:&#x2F;&#x2F;mirrors.tuna.tsinghua.edu.cn&#x2F;ubuntu&#x2F; bionic-proposed main restricted universe multiverse</span><br></pre></td></tr></table></figure> + jdk-8u172-windows-i586.exe, jdk安装包，其他版本的jdk需要自行验证是否能正确安装; + 依赖的动态链接库 .dll 文件，将这些文件复制到 Dockerfile 所在目录的 dlls 文件下;</p>
-<p>准备完成后，文件结构如下： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">.</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── jdk-8u172-windows-i586.exe</span><br><span class="line">├── dlls</span><br><span class="line">├── sources-http.list</span><br><span class="line">└── sources-https.list</span><br></pre></td></tr></table></figure> 在此目录下，执行以下命令，编译镜像： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker build -t wine-java-dlls:<span class="built_in">test</span> --network=host .</span><br></pre></td></tr></table></figure> 成功编译后，我们将得到镜像 <code>wine-java-dlls:test</code>。</p>
-<h3 id="使用镜像">使用镜像</h3>
-<p>通过 wine 执行 java,目前该镜像需要直接声明 java.exe 在 wine 中的路径,使用示例如下: <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -d --net=host --name example --init -w /app -v /root/path/to/jar/location:/app wine-java-dlls:<span class="built_in">test</span> wine <span class="string">"C:\\Program Files\\Java\\jre1.8.0_172\\bin\\java.exe"</span> -jar test.jar</span><br></pre></td></tr></table></figure></p>
-<p><strong>参考阅读：</strong> <a href="https://kupczynski.info/2018/11/11/wine-windows-jdk-on-linux.html" target="_blank" rel="noopener">《Use wine to run windows JDK on linux》</a></p>
+<h1 id="安装步骤">安装步骤</h1>
+<ol type="1">
+<li>通过 yum 安装 zsh、git、wget： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install -y zsh git wget</span><br></pre></td></tr></table></figure>
+<ul>
+<li>oh-my-zsh 依赖于 zsh;</li>
+<li>git 用来拉取 oh-my-zsh 代码;</li>
+<li>wget 用来下载 oh-my-zsh 的安装脚本</li>
+</ul></li>
+<li>安装 <code>oh-my-zsh</code>: <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh</span><br></pre></td></tr></table></figure></li>
+<li>使用 <code>which zsh</code> 查看 zsh 的安装目录，一般都存储在 /usr/bin/zsh 目录下。 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">which zsh</span><br></pre></td></tr></table></figure></li>
+<li>使用 chsh 命令切换使用的 shell 程序: <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">chsh -s /usr/bin/zsh</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="进行可选配置">进行可选配置</h1>
+<h2 id="修改主题">修改主题</h2>
+<ul>
+<li>编辑 .zshrc 文件 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi ~/.zshrc</span><br></pre></td></tr></table></figure></li>
+<li>修改主题类型 找到 <code>ZSH_THEME</code> ,修改主题名称，本人喜欢 <em>agnoster</em> 主题，只需要将 <code>ZSH_THEME</code> 改为 agnoster 保存： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Set name of the theme to load --- <span class="keyword">if</span> <span class="built_in">set</span> to <span class="string">"random"</span>, it will</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> load a random theme each time oh-my-zsh is loaded, <span class="keyword">in</span> <span class="built_in">which</span> <span class="keyword">case</span>,</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> to know <span class="built_in">which</span> specific one was loaded, run: <span class="built_in">echo</span> <span class="variable">$RANDOM_THEME</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes</span></span><br><span class="line">ZSH_THEME="robbyrussell"</span><br></pre></td></tr></table></figure></li>
+<li>应用配置文件 重启shell或者执行一下命令生效： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="安装插件">安装插件</h2>
+<p>使用 ZSH 替换原有的 SHELL 最主要的原因就是要使用其功能强大的插件，下面介绍常用插件。</p>
+<h3 id="zsh-syntax-highlighting">zsh-syntax-highlighting</h3>
+<p>一款语法高亮插件，详情请看<a href="https://github.com/zsh-users/zsh-syntax-highlighting" target="_blank" rel="noopener">官网</a>. + 请执行以下命令： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-syntax-highlighting.git</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将 zsh-syntax-highlighting 添加到环境变量中</span></span><br><span class="line">echo "source $&#123;(q-)PWD&#125;/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" &gt;&gt; $&#123;ZDOTDIR:-$HOME&#125;/.zshrc</span><br></pre></td></tr></table></figure> + 修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-syntax-highlighting</em>： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-syntax-highlighting</span><br><span class="line">)</span><br></pre></td></tr></table></figure> + 应用配置文件 重启shell或者执行一下命令生效： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></p>
+<h3 id="zsh-autosuggestions">zsh-autosuggestions</h3>
+<p>一款命令自动补全插件，详情请看<a href="https://github.com/zsh-users/zsh-autosuggestions" target="_blank" rel="noopener">官网</a> + 请执行以下命令： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-autosuggestions.git</span><br></pre></td></tr></table></figure> + 修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-autosuggestions</em>： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-autosuggestions</span><br><span class="line">)</span><br></pre></td></tr></table></figure> + 应用配置文件 重启shell或者执行一下命令生效： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></p>
+<h3 id="zsh-history-substring-search">zsh-history-substring-search</h3>
+<p>一款查找匹配前缀的历史输入插件，详情请看<a href="https://github.com/zsh-users/zsh-history-substring-search" target="_blank" rel="noopener">官网</a> + 请执行以下命令： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oh-my-zsh 插件目录</span></span><br><span class="line">cd ~/.oh-my-zsh/custom/plugins </span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 拉取源码</span></span><br><span class="line">git clone https://github.com/zsh-users/zsh-history-substring-search.git</span><br></pre></td></tr></table></figure> + 修改 ~/.zshrc 文件,在 <code>plugins</code> 中添加 <em>zsh-history-substring-search</em>： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> Which plugins would you like to load? (plugins can be found <span class="keyword">in</span> ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  history-substring-search</span><br><span class="line">)</span><br></pre></td></tr></table></figure> + 应用配置文件 重启shell或者执行一下命令生效： <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></p>
 ]]></content>
       <tags>
-        <tag>wine</tag>
-        <tag>docker</tag>
-        <tag>container</tag>
-        <tag>java</tag>
-        <tag>jre</tag>
-        <tag>jdk</tag>
+        <tag>centos7</tag>
+        <tag>oh-my-zsh</tag>
       </tags>
   </entry>
   <entry>
@@ -1593,6 +1593,62 @@
 </ul></li>
 <li>连接造成的负载</li>
 <li>小结</li>
+</ul>
+<p>避免过载，是负载均衡策略的一个重要目标。运维一个可靠系统的一个根本要求，就是能够优雅地处理过载情况。</p>
+<h3 id="qps-陷阱">QPS 陷阱</h3>
+<blockquote>
+<p>Google 在多年的经验积累中得出：按照 QPS 来规划服务容量，或者是按照某种静态属性（认为其能指代处理所消耗的资源：例如某个请求所需要读取的键值数量）一般是错误的选择。</p>
+</blockquote>
+<p>更好的解决方案是直接以可用资源来衡量可用容量。</p>
+<p>在绝大部分情况下（当然总会有例外情况），我们发现简单地使用 CPU 数量作为资源配给的主要信号就可以工作得很好，原因如下：</p>
+<ul>
+<li>在有垃圾回收（GC）机制的编程程序里，内存的压力通常自然而然地变成 CPU 的压力（在内存受限的情况下，GC 会增加）。</li>
+<li>在其他编程环境里，其他资源一般可以通过某种比例进行配置，以便使这些资源的短缺情况非常罕见。</li>
+</ul>
+<h3 id="给每个用户设置限制">给每个用户设置限制</h3>
+<p>当全局过载情况真的发生时，使服务只针对某些“异常”客户返回错误是非常关键的，这样其他用户则不会受影响。为了达到这个目的，该服务的运维团队和客户团队协商一个合理的使用约定，同时使用这个约定来配置用户的配额，并且配置相应的资源。</p>
+<h3 id="客户端侧的节流机制">客户端侧的节流机制</h3>
+<p>本节介绍了一种称为<em>自适应节流</em>的技术，用于实现客户端节流。具体地说，每个客户端记录过去两分钟内的以下信息：</p>
+<ul>
+<li>请求数量（requests）：应用层代码发出的所有请求的数量总计（指运行于自适应节流系统之上的应用代码）。</li>
+<li>请求接受数量（accepts）：后端任务接受的请求数量。</li>
+</ul>
+<p>在常规情况下，这两个值是相等的。随着后端任务开始拒绝请求，请求接受数量开始比请求数量小。客户端可以继续发送请求直到 requests = K * accepts，一旦超过这个限制，客户端开始自行节流，新的请求会在本地直接以一定概率被拒绝（在客户端内部），概率使用公式 21-1 进行计算：</p>
+<p><span class="math display">\[
+max\Biggl(0,\frac{requests-K*accepts}{requests+1}\Biggr)
+\]</span></p>
+<p>通过修改 K 值，我们可以调整拒绝概率：</p>
+<ul>
+<li>降低该倍值会使自适应节流算法更加激进。</li>
+<li>增加该倍值会使算法变得不再那么激进。</li>
+</ul>
+<p>一般来说推荐采用 K=2，通过允许后端接收到比预期值更多的请求，浪费了一定数量后端资源，但是却加快了后端状态到客户端的传递速度。</p>
+<h3 id="重要性">重要性</h3>
+<p>重要性（criticality）是另外一个在全局配额和限制机制中比较有用的信息。文章归纳了四种类型，并发现这四种分类可以描述大部分服务：</p>
+<ol type="1">
+<li>最重要 CRITICAL_PLUS: 为最重要的请求预留的类型，拒绝这些请求会造成非常严重的用户可见的问题。</li>
+<li>重要 CRITICAL: 生产任务发出的默认请求类型。拒绝这些请求也会造成用户可见的问题，但是可能没有 CRITICAL_PLUS 那么严重。我们要求服务必须为所有的 CRITICAL 和 CRITICAL_PLUS 流量配置相应的资源。</li>
+<li>可丢弃的 SHEDDABLE_PLUS:这些流量可以容忍某种程度的不可用性。这是批量任务发出的请求的默认值。这些请求通常可以过几分钟，或者几个小时之后重试。</li>
+<li>可丢弃的 SHEDDABLE: 这些流量可能会经常遇到部分不可用的情况，偶尔会完全不可能用。</li>
+</ol>
+<p>通过重要性分类，在处理过载情况下可以使用该信息：</p>
+<ul>
+<li>当某个客户全局配额不够时，后端任务将会按请求优先级顺序分级拒绝请求（实际上，全局配额系统是可以按重要性分别设置的）。</li>
+<li>当某个任务开始进入过载状态时，低优先级的请求会先被拒绝。</li>
+<li>自适应节流系统也会根据每个优先级分别计数。</li>
+</ul>
+<h3 id="资源利用率信号">资源利用率信号</h3>
+<p>Google 的任务过载保护是基于资源利用率（utilization）实现的。在多数情况下，资源利用率仅仅是指目前 CPU 的消耗程度（目前 CPU 使用量除以全部预留 CPU 数量）。某些情况下，同时也会考虑内存的使用率。</p>
+<p>文中介绍了一种基于任务活跃线程数与该任务分配的CPU数量比值的负载计算方式，依据这个计算值，决定系统是否开始拒绝请求。</p>
+<h3 id="处理过载错误">处理过载错误</h3>
+<p>本节主要讨论当出现过载的情况下，需要如何处理重试的问题。</p>
+<h4 id="决定何时重试">决定何时重试</h4>
+<p>第一，我们增加了每次请求重试次数限制，限制重试3次。 第二，我们实现了一个每客户端重试限制。每个客户端都跟踪重试域请求的比例，如<a href="###%20客户端侧的节流机制">客户端侧的节流机制</a>小节介绍的字节流算法。 第三，客户端在请求元数据中加入一个重试计数，提供给后端评估本模块是否处于过载的状态，从而告诉客户端“过载；无须重试”。</p>
+<h3 id="连接造成的负载">连接造成的负载</h3>
+<p>维护一个大型连接池的 CPU 和内存成本，或者是连接快速变动的成本，也会造成负载问题。以下策略可以帮助消除这些问题：</p>
+<ul>
+<li>将负载传递给跨数据中心负载均衡算法（如，使用资源利用率进行负载均衡，而不仅仅是请求数量）。在这种情况下，过载请求会被转移到其他数据中心。</li>
+<li>强制要求批处理任务使用某些特定的批处理代理后端任务，这些代理仅仅转发请求，同时将回复转发给客户端。于是，请求路线从“批处理客户端-&gt;后端”变为“批处理客户端-&gt;批处理代理-&gt;后端”。</li>
 </ul>
 <hr />
 <h2 id="第-22-章-处理连锁故障">第 22 章 处理连锁故障</h2>
