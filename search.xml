@@ -2052,10 +2052,15 @@
 <li>连接池频繁切换的开销。</li>
 </ul>
 <p>文中介绍了一个解决方案是使用地域性的代理池。该代理池的进程与共识组建立持久的 TCP/IP 进程，以降低客户端的开销。</p>
-<p><img src="/images/SRE_Goolge运维解密_23-9：使用代理池来降低客户端跨地理区域打开TCP/IP连接的开销.png" title="使用代理池来降低客户端跨地理区域打开TCP/IP连接的开销"></p>
+<p><img src="/images/SRE_Goolge运维解密_23-9：使用代理池来降低客户端跨地理区域打开TCPIP连接的开销.png" title="使用代理池来降低客户端跨地理区域打开TCP/IP连接的开销"></p>
 <h4 id="快速-paxos-协议性能优化">快速 Paxos 协议：性能优化</h4>
 <p>文中提到使用 Fast Paxos 提高性能，</p>
-<p>Reference： + <a href="https://zh.wikipedia.org/wiki/Paxos%E7%AE%97%E6%B3%95#Fast-Paxos" target="_blank" rel="noopener">Fast-Paxos</a> + <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-2005-112.pdf" target="_blank" rel="noopener">《Fast Paxos》</a> + <a href="http://www.sysnet.ucsd.edu/sysnet/miscpapers/hotdep07.pdf" target="_blank" rel="noopener">Classic Paxos vs. Fast Paxos: Caveat Emptor</a></p>
+<p>Reference：</p>
+<ul>
+<li><a href="https://zh.wikipedia.org/wiki/Paxos%E7%AE%97%E6%B3%95#Fast-Paxos" target="_blank" rel="noopener">Fast-Paxos</a></li>
+<li><a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-2005-112.pdf" target="_blank" rel="noopener">《Fast Paxos》</a></li>
+<li><a href="http://www.sysnet.ucsd.edu/sysnet/miscpapers/hotdep07.pdf" target="_blank" rel="noopener">Classic Paxos vs. Fast Paxos: Caveat Emptor</a></li>
+</ul>
 <h4 id="稳定的领头人机制">稳定的领头人机制</h4>
 <p>通过选举稳定的领头人进程来提高性能。这种方案可以进一步进行读操作优化，因为领头人始终拥有最新倍息，但是也存在以下几个问题：</p>
 <ul>
