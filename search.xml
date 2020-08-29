@@ -1979,7 +1979,11 @@
 <p>在协议的第一阶段，提案者（proposer）发送一个序列号给数个接收者（aceeptor)。每个接收者仅仅在没有接受过带有更高序列号的提案情况下接受这个提案。提案者必要时可以用更高的序列号重试提案。提案者必须使用一个唯一的序列号（每个提案者从不相交的集合中提取序列号，或者将自身的主机名加入到序列号中等）。</p>
 <p>如果提案者从“大多数”接收者那里接收到了三同意“回复，它便可以通过发送一个带有值的提交信息（commit message）来尝试提交这个提案。提案的严格顺序性解决了系统中的消息排序问题。需要“大多数”签与者同意才能提交提案的要求保证了一个相同的提案无法提交两个不同的值，因为两个“大多数”肯定会至少重合一个节点。当接收者接收某个提案的时候，必须在持久存储上记录一个日志(journal),因为接收者必须在重启之后仍然保持这个状态。</p>
 <p>Paxos 本身来说不那么好用。它仅仅能够做到让节点共同接收一次某个值和提案号码。因为共同接收该值的节点数可以仅仅是“法定人数”（quorum)(也就是总数的一半再加1)，任何一个节点可能都没有一个完整的视图，不知道目前已经被接收的所有的值。这个限制在大部分分布式共识算法中都存在。</p>
-<p>Reference： + <a href="https://zh.wikipedia.org/wiki/Paxos%E7%AE%97%E6%B3%95" target="_blank" rel="noopener">Paxos算法</a> + <a href="http://paxos.systems/why.html" target="_blank" rel="noopener">Why use Paxos?</a></p>
+<p>Reference：</p>
+<ul>
+<li><a href="https://zh.wikipedia.org/wiki/Paxos%E7%AE%97%E6%B3%95" target="_blank" rel="noopener">Paxos算法</a></li>
+<li><a href="http://paxos.systems/why.html" target="_blank" rel="noopener">Why use Paxos?</a></li>
+</ul>
 <p><img src="http://paxos.systems/static/rsm.gif" title="可复制状态机"></p>
 <p><img src="http://paxos.systems/static/consensus.gif" title="共识"></p>
 <h3 id="分布式共识的系统架构模式">分布式共识的系统架构模式</h3>
