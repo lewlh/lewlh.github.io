@@ -893,9 +893,7 @@
 </ul>
 <h3 id="时间序列数据的存储">时间序列数据的存储</h3>
 <p>本节介绍了时间序列数据的存储原理以及实现方式，以及 Google 使用 Borgmon 的一些细节。</p>
-<figure>
-<img src="/images/SRE_Goolge运维解密_10-1从不同服务器上收集到的错误监控变量的存储形式.png" title="从不同服务器上收集到的错误监控变量的存储形式" alt="图10-1. 从不同服务器上收集到的错误监控变量的存储形式"><figcaption aria-hidden="true">图10-1. 从不同服务器上收集到的错误监控变量的存储形式</figcaption>
-</figure>
+<p><img src="/images/SRE_Goolge运维解密_10-1从不同服务器上收集到的错误监控变量的存储形式.png" title="从不同服务器上收集到的错误监控变量的存储形式"></p>
 <blockquote>
 <p>12小时这个神奇的数字既能保障在线排错时有足够的历史数据，也能避免内存占用量过大。</p>
 </blockquote>
@@ -911,7 +909,7 @@
 <li>service 一个松散定义的软件服务器类型组名，可以按对外名称分类，也可以按对内名称分类。</li>
 <li>zone Google 定义的一个惯例名称，代表收集该条信息的 Borgmon 做在的位置（一般以数据中心名称赋值）。</li>
 </ul>
-<p>这 4 条综合起来形成了一个完整的<em>变量表达式</em>： {var=http_requests,job=webserver,instance=host0:80,service=web,zone=us-west}</p>
+<p>这 4 条综合起来形成了一个完整的<strong>变量表达式</strong>： {var=http_requests,job=webserver,instance=host0:80,service=web,zone=us-west}</p>
 <h3 id="borg-规则计算">Borg 规则计算</h3>
 <p>本节介绍了 Borgmon 的一些 query 规则。前文提到，Prometheus 与 Botgmon 非常类似，因此相关规则我们可以参考 <a href="https://prometheus.io/docs/prometheus/latest/querying/basics/" target="_blank" rel="noopener">Prometheus</a> 的技术文档。</p>
 <h3 id="报警">报警</h3>
@@ -924,9 +922,7 @@
 <p>参考阅读： 1. <a href="https://prometheus.io/docs/practices/alerting/" target="_blank" rel="noopener">Prometheus Alert</a> 2. <a href="https://grafana.com/docs/grafana/latest/alerting/alerts-overview/" target="_blank" rel="noopener">Grafana Alert</a></p>
 <h3 id="监控系统的分片机制">监控系统的分片机制</h3>
 <p>本节介绍了 Google Borgmon 集群数据分片机制。</p>
-<figure>
-<img src="/images/SRE_Goolge运维解密_10-3一个在三个集群中层级部署的Borgmon数据流向图.png" title="一个在三个集群中层级部署的Borgmon数据流向图" alt="图10-3:一个在三个集群中层级部署的Borgmon数据流向图"><figcaption aria-hidden="true">图10-3:一个在三个集群中层级部署的Borgmon数据流向图</figcaption>
-</figure>
+<p><img src="/images/SRE_Goolge运维解密_10-3一个在三个集群中层级部署的Borgmon数据流向图.png" title="一个在三个集群中层级部署的Borgmon数据流向图"></p>
 <h3 id="黑盒监控">黑盒监控</h3>
 <p>Google SRE 团队通常利用探针程序（prober）解决黑和监控的问题。探针程序使用应用级别的自动请求探测目标是否成功返回，并通过 Borgmon 收集结果。</p>
 <h3 id="配置文件的维护">配置文件的维护</h3>
@@ -1884,6 +1880,7 @@
 <h3 id="小结-9">小结</h3>
 <p>当一个系统过载时，某些东西总是要被牺牲掉。一旦一个服务越过了临界点，服务一些用户可见错误，或者低质量结果要比尝试继续服务所有请求要好。理解这些临界点所在，以及超过临界点系统的行为模式，是所有想避免连锁故障的运维人员所必需的。</p>
 <p>如果不加小心，某些原本为了降低服务背景错误率或者优化稳定状态的改变反而会让服务更容器出现事故。在请求失败的时候重试、负载自动转移、自动杀掉不健康的服务器、增加缓存以提高性能或者降低延迟：这些手段原本都是为了优化正常情况下的服务性能，但是也可能会提高大规模的服务故障的几率。一定要小心评估这些改变，否则灾难就会接踵而至。</p>
+<hr>
 <h2 id="第-23-章-管理关键状态利用分布式共识来提高可靠性">第 23 章 管理关键状态：利用分布式共识来提高可靠性</h2>
 <p>本章节目录：</p>
 <ul>
@@ -2141,6 +2138,97 @@
 <li>系统不同部分之间观察到的网络延迟</li>
 <li>接收者在持久化日志上花费的时间。</li>
 <li>系统每秒处理的字节数。</li>
+</ul>
+<hr>
+<h2 id="第-24-章-分布式周期性任务系统">第 24 章 分布式周期性任务系统</h2>
+<p>本章节目录：</p>
+<ul>
+<li>Cron
+<ul>
+<li>介绍</li>
+<li>可靠性</li>
+</ul></li>
+<li>Cron 任务和幂等性</li>
+<li>大规模 Cron 系统
+<ul>
+<li>对基础设施的扩展</li>
+<li>对需求的扩展</li>
+</ul></li>
+<li>Google Cron 系统的构建过程
+<ul>
+<li>跟踪 Cron 任务的状态</li>
+<li>Paxos 协议的使用</li>
+<li>领头人角色和追随者角色</li>
+<li>保存状态</li>
+<li>运维大型 Cron 系统</li>
+</ul></li>
+<li>小结</li>
+</ul>
+<hr>
+<h2 id="第-25-章-数据处理流水线">第 25 章 数据处理流水线</h2>
+<p>本章节目录：</p>
+<ul>
+<li>流水线设计模式的起源</li>
+<li>简单流水线设计模式域大数据</li>
+<li>周期性流水线模式的挑战</li>
+<li>工作分布不均造成的问题</li>
+<li>分布式环境中周期性数据流水线的缺点
+<ul>
+<li>监控周期性流水线的问题</li>
+<li>惊群效应</li>
+<li>摩尔负载模式</li>
+</ul></li>
+<li>Google Workflow 简介
+<ul>
+<li>Workflow 是模型——视图——控制器（MVC）模式</li>
+</ul></li>
+<li>Workflow 中执行阶段
+<ul>
+<li>Workflow 正确性保障</li>
+</ul></li>
+<li>保障业务的持续性</li>
+<li>小结</li>
+</ul>
+<hr>
+<h2 id="第-26-章-数据完整性读写一致">第 26 章 数据完整性：读写一致</h2>
+<p>本章节目录：</p>
+<ul>
+<li>数据完整性的强需求
+<ul>
+<li>提供超高的数据完整性的策略</li>
+<li>备份和存档</li>
+<li>云计算环境下的需求</li>
+</ul></li>
+<li>保障数据完整性和可用性：Google SRE 的目标
+<ul>
+<li>数据完整性是手段，数据可用性是目标</li>
+<li>交付一个恢复系统，而非备份系统</li>
+<li>造成数据丢失的事故类型</li>
+<li>维护数据完整性的深度和广度的困难之处</li>
+</ul></li>
+<li>Google SRE 保障数据完整性的手段
+<ul>
+<li>24 种数据完整性的事故组合</li>
+<li>第一层：软删除</li>
+<li>第二层：备份和相关的恢复方法</li>
+<li>额外一层：复制机制</li>
+<li>1T vs 1E：存储更多数据没那么简单</li>
+<li>第三层：早期预警</li>
+<li>确保数据恢复策略可以正常工作</li>
+</ul></li>
+<li>案例分析
+<ul>
+<li>Gmail————2011年2月：从 GTape 上恢复数据（磁带）</li>
+<li>Google Music————2012年3月：一次意外删除事故的检测过程</li>
+</ul></li>
+<li>SRE 的基本理念在数据完整性上的应用
+<ul>
+<li>保持初学者的心态</li>
+<li>信任但要验证</li>
+<li>不要一厢情愿</li>
+<li>纵深防御</li>
+</ul></li>
+<li>小结</li>
 </ul>
 <p>未完待续......</p>
 ]]></content>
