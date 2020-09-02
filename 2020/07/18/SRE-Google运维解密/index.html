@@ -58,7 +58,7 @@
 <meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-8%EF%BC%9A%E5%A4%8D%E5%90%88Paxos%E5%8D%8F%E8%AE%AE%E4%B8%AD%E7%9A%84%E2%80%9C%E6%8F%90%E8%AE%AE%E8%80%85%E5%86%B3%E6%96%97%E2%80%9D%E5%9C%BA%E6%99%AF.png">
 <meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-9%EF%BC%9A%E4%BD%BF%E7%94%A8%E4%BB%A3%E7%90%86%E6%B1%A0%E6%9D%A5%E9%99%8D%E4%BD%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B7%A8%E5%9C%B0%E7%90%86%E5%8C%BA%E5%9F%9F%E6%89%93%E5%BC%80TCPIP%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%BC%80%E9%94%80.png">
 <meta property="article:published_time" content="2020-07-18T13:07:52.000Z">
-<meta property="article:modified_time" content="2020-09-02T12:13:00.135Z">
+<meta property="article:modified_time" content="2020-09-02T12:17:31.443Z">
 <meta property="article:author" content="Lewlh">
 <meta property="article:tag" content="google">
 <meta property="article:tag" content="SRE">
@@ -454,7 +454,7 @@ mjx-container[display="true"] + br {
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-09-02 20:13:00" itemprop="dateModified" datetime="2020-09-02T20:13:00+08:00">2020-09-02</time>
+        <time title="修改时间：2020-09-02 20:17:31" itemprop="dateModified" datetime="2020-09-02T20:17:31+08:00">2020-09-02</time>
       </span>
 
   
@@ -1201,9 +1201,7 @@ mjx-container[display="true"] + br {
 </blockquote>
 <h4 id="标签域向量">标签域向量</h4>
 <p>正如图10-2的示范数据所示，time-series 是按照时间戳和值的序列存放的，我们称之为向量（vector）。</p>
-<figure>
-<img src="/images/SRE_Goolge运维解密_10-2time-series示范数据.png" title="time-series示范数据" alt="图10-2. time-series示范数据"><figcaption aria-hidden="true">图10-2. time-series示范数据</figcaption>
-</figure>
+<p><img src="/images/SRE_Goolge运维解密_10-2time-series示范数据.png" title="time-series示范数据"></p>
 <p>time-series 的名字成为标签集合（labelset），因为它的实现方式就是一个标签（key=value）的集合。标识一个 time-series 的标签必须同时有以下几个标签：</p>
 <ul>
 <li>var 代表变量名称。</li>
@@ -1211,7 +1209,8 @@ mjx-container[display="true"] + br {
 <li>service 一个松散定义的软件服务器类型组名，可以按对外名称分类，也可以按对内名称分类。</li>
 <li>zone Google 定义的一个惯例名称，代表收集该条信息的 Borgmon 做在的位置（一般以数据中心名称赋值）。</li>
 </ul>
-<p>这 4 条综合起来形成了一个完整的<strong>变量表达式</strong>： {var=http_requests,job=webserver,instance=host0:80,service=web,zone=us-west}</p>
+<p>这 4 条综合起来形成了一个完整的<strong>变量表达式</strong>：</p>
+<p>{var=http_requests,job=webserver,instance=host0:80,service=web,zone=us-west}</p>
 <h3 id="borg-规则计算">Borg 规则计算</h3>
 <p>本节介绍了 Borgmon 的一些 query 规则。前文提到，Prometheus 与 Botgmon 非常类似，因此相关规则我们可以参考 <a href="https://prometheus.io/docs/prometheus/latest/querying/basics/" target="_blank" rel="noopener">Prometheus</a> 的技术文档。</p>
 <h3 id="报警">报警</h3>

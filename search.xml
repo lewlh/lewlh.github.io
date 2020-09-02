@@ -899,9 +899,7 @@
 </blockquote>
 <h4 id="标签域向量">标签域向量</h4>
 <p>正如图10-2的示范数据所示，time-series 是按照时间戳和值的序列存放的，我们称之为向量（vector）。</p>
-<figure>
-<img src="/images/SRE_Goolge运维解密_10-2time-series示范数据.png" title="time-series示范数据" alt="图10-2. time-series示范数据"><figcaption aria-hidden="true">图10-2. time-series示范数据</figcaption>
-</figure>
+<p><img src="/images/SRE_Goolge运维解密_10-2time-series示范数据.png" title="time-series示范数据"></p>
 <p>time-series 的名字成为标签集合（labelset），因为它的实现方式就是一个标签（key=value）的集合。标识一个 time-series 的标签必须同时有以下几个标签：</p>
 <ul>
 <li>var 代表变量名称。</li>
@@ -909,7 +907,8 @@
 <li>service 一个松散定义的软件服务器类型组名，可以按对外名称分类，也可以按对内名称分类。</li>
 <li>zone Google 定义的一个惯例名称，代表收集该条信息的 Borgmon 做在的位置（一般以数据中心名称赋值）。</li>
 </ul>
-<p>这 4 条综合起来形成了一个完整的<strong>变量表达式</strong>： {var=http_requests,job=webserver,instance=host0:80,service=web,zone=us-west}</p>
+<p>这 4 条综合起来形成了一个完整的<strong>变量表达式</strong>：</p>
+<p>{var=http_requests,job=webserver,instance=host0:80,service=web,zone=us-west}</p>
 <h3 id="borg-规则计算">Borg 规则计算</h3>
 <p>本节介绍了 Borgmon 的一些 query 规则。前文提到，Prometheus 与 Botgmon 非常类似，因此相关规则我们可以参考 <a href="https://prometheus.io/docs/prometheus/latest/querying/basics/" target="_blank" rel="noopener">Prometheus</a> 的技术文档。</p>
 <h3 id="报警">报警</h3>
