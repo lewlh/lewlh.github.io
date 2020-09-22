@@ -84,7 +84,7 @@
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sigusr1_handler()-&gt;StartWalReceiver()-&gt;AuxiliaryProcessMain()-&gt;WalReceiverMain()-&gt;walrcv_receive()</span><br></pre></td></tr></table></figure>
 <p>startup进程是用来apply日志的，执行顺序如下：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PostmasterMain()-&gt;StartupDataBase()-&gt;AuxiliaryProcessMain()-&gt;StartupProcessMain()-&gt;StartupXLOG()</span><br></pre></td></tr></table></figure>
-<p>下图是PG主备总体框架图： <img src="/images/20200713_PG主备总体框架图.png" title="PG主备总体框架图" alt="图1. PG主备总体框架图" /></p>
+<p>下图是PG主备总体框架图： <img src="/images/20200713_PG主备总体框架图.png" title="PG主备总体框架图" /></p>
 <h2 id="walsender和walreceiver进程流复制过程">walsender和walreceiver进程流复制过程</h2>
 <p>walsender和walreceiver交互主要分为以下几个步骤：</p>
 <ol type="1">
@@ -93,9 +93,7 @@
 <li>执行wal_startstreaming开始启动流复制，通过walrcv_receive获取WAL日志，期间也会回应主库发过来的心跳信息(接收位点、flush位点、apply位点)，向主库发送feedback信息(最老的事务id)，避免vacuum删掉备库正在使用的记录；</li>
 <li>执行walrcv_endstreaming结束流复制，等待startup进程更新receiveStart和receiveStartTLI，一旦更新，进入步骤2。</li>
 </ol>
-<figure>
-<img src="/images/20200713_PG流复制过程.png" title="PG流复制过程" alt="图2. PG流复制过程" /><figcaption aria-hidden="true">图2. PG流复制过程</figcaption>
-</figure>
+<p><img src="/images/20200713_PG流复制过程.png" title="PG流复制过程" /></p>
 <h2 id="walreceiver和startup进程">walreceiver和startup进程</h2>
 <p>startup进程进入standby模式和apply日志主要过程：</p>
 <ol type="1">
@@ -2351,6 +2349,75 @@
         <tag>helm</tag>
         <tag>k8s</tag>
         <tag>Kubernetes</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Stolon流复制原理走读</title>
+    <url>/2020/09/22/Stolon%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86%E8%B5%B0%E8%AF%BB/</url>
+    <content><![CDATA[<p><img src="https://www.postgresql.org/media/img/about/press/elephant.png" title="PostgreSQL" /></p>
+<p>笔者使用 <a href="https://github.com/sorintlab/stolon" target="_blank" rel="noopener">Stolon Cluster</a> 实现 PostgreSQL10 数据库的高可用。本文将按照笔者的理解，梳理 Stolon 以及 Postgres 高可用实现逻辑。</p>
+<a id="more"></a>
+<hr />
+<h2 id="postgres-流复制协议">Postgres 流复制协议</h2>
+<p>Stolon 利用 Postgres 9.0+ 以上版本提供名的流复制特性，实现了高可用的功能。在 Postgres10 中，Stolon 通过管理 <strong>postgresql.conf</strong>、 <strong>recovery.conf</strong>、<strong>postmaster.opts</strong>以及<strong>postmaster.pid</strong>这些文件，影响 postgres 角色、行为。</p>
+<h2 id="结合-postgres-源码剖析流复制的流程">结合 postgres 源码剖析流复制的流程</h2>
+<p>流复制同步机制，我们有必要结合下图的流程以及源码，看一下这个过程中程序都做了哪些事情。</p>
+<p><img src="/images/20200713_PG流复制过程.png" title="PG流复制过程" /></p>
+<h3 id="standby-节点">Standby 节点</h3>
+<ol type="1">
+<li><p>由 <a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/postmaster/postmaster.c#L588" target="_blank" rel="noopener">PostmasterMain</a> 触发 <a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/postmaster/postmaster.c#L5568" target="_blank" rel="noopener">walreceiver</a> 任务：</p>
+<p><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* MaybeStartWalReceiver</span></span><br><span class="line"><span class="comment">*        Start the WAL receiver process, if not running and our state allows.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* Note: if WalReceiverPID is already nonzero, it might seem that we should</span></span><br><span class="line"><span class="comment">* clear WalReceiverRequested.  However, there's a race condition if the</span></span><br><span class="line"><span class="comment">* walreceiver terminates and the startup process immediately requests a new</span></span><br><span class="line"><span class="comment">* one: it's quite possible to get the signal for the request before reaping</span></span><br><span class="line"><span class="comment">* the dead walreceiver process.  Better to risk launching an extra</span></span><br><span class="line"><span class="comment">* walreceiver than to miss launching one we need.  (The walreceiver code</span></span><br><span class="line"><span class="comment">* has logic to recognize that it should go away if not needed.)</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span></span><br><span class="line">MaybeStartWalReceiver(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (WalReceiverPID == <span class="number">0</span> &amp;&amp;</span><br><span class="line">        (pmState == PM_STARTUP || pmState == PM_RECOVERY ||</span><br><span class="line">        pmState == PM_HOT_STANDBY) &amp;&amp;</span><br><span class="line">        Shutdown &lt;= SmartShutdown)</span><br><span class="line">    &#123;</span><br><span class="line">        WalReceiverPID = StartWalReceiver();</span><br><span class="line">        <span class="keyword">if</span> (WalReceiverPID != <span class="number">0</span>)</span><br><span class="line">            WalReceiverRequested = <span class="literal">false</span>;</span><br><span class="line">        <span class="comment">/* else leave the flag set, so we'll try again later */</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p></li>
+<li><p>通过 AuxiliaryProcessMain 创建 walreciver 子进程：</p>
+<ul>
+<li><a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/bootstrap/bootstrap.c#L445" target="_blank" rel="noopener">AuxiliaryProcessMain</a></li>
+<li><a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L166" target="_blank" rel="noopener">WalReceiverMain</a></li>
+</ul></li>
+<li><p>从 recovery.conf 读取参数，与 master 节点<a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L279" target="_blank" rel="noopener">建立连接</a>:</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* Establish the connection to the primary for XLOG streaming */</span></span><br><span class="line">wrconn = walrcv_connect(conninfo, <span class="literal">false</span>, <span class="string">"walreceiver"</span>, &amp;err);</span><br><span class="line"><span class="keyword">if</span> (!wrconn)</span><br><span class="line">    ereport(ERROR,</span><br><span class="line">            (errmsg(<span class="string">"could not connect to the primary server: %s"</span>, err)));</span><br></pre></td></tr></table></figure></li>
+<li><p><a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L300" target="_blank" rel="noopener">进入循坏，直到 postgres 被重启、关闭</a>；</p></li>
+<li><p><a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L312" target="_blank" rel="noopener">检查当前 master 节点是否合法</a></p>
+<p><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Check that we're connected to a valid server using the</span></span><br><span class="line"><span class="comment"> * IDENTIFY_SYSTEM replication command.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">primary_sysid = walrcv_identify_system(wrconn, &amp;primaryTLI,</span><br><span class="line">                                       &amp;server_version);</span><br></pre></td></tr></table></figure></p></li>
+<li><p><a href="(https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L329)">检查当前 standby 节点的时间线是否与 master 的节点一致</a></p>
+<p><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* Confirm that the current timeline of the primary is the same or</span></span><br><span class="line"><span class="comment">* ahead of ours.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">if</span> (primaryTLI &lt; startpointTLI)</span><br><span class="line">    ereport(ERROR,</span><br><span class="line">            (errmsg(<span class="string">"highest timeline %u of the primary is behind recovery timeline %u"</span>,</span><br><span class="line">                    primaryTLI, startpointTLI)));</span><br></pre></td></tr></table></figure></p></li>
+<li><p><a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L344" target="_blank" rel="noopener">从 master 节点拉取历史 wal 日志文件</a></p>
+<p><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* Get any missing history files. We do this always, even when we're</span></span><br><span class="line"><span class="comment">* not interested in that timeline, so that if we're promoted to</span></span><br><span class="line"><span class="comment">* become the master later on, we don't select the same timeline that</span></span><br><span class="line"><span class="comment">* was already used in the current master. This isn't bullet-proof -</span></span><br><span class="line"><span class="comment">* you'll need some external software to manage your cluster if you</span></span><br><span class="line"><span class="comment">* need to ensure that a unique timeline id is chosen in every case,</span></span><br><span class="line"><span class="comment">* but let's avoid the confusion of timeline id collisions where we</span></span><br><span class="line"><span class="comment">* can.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">WalRcvFetchTimeLineHistoryFiles(startpointTLI, primaryTLI);</span><br></pre></td></tr></table></figure></p></li>
+<li><p><a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L363" target="_blank" rel="noopener">开始接收流复制数据</a></p>
+<p><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* Start streaming.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* We'll try to start at the requested starting point and timeline,</span></span><br><span class="line"><span class="comment">* even if it's different from the server's latest timeline. In case</span></span><br><span class="line"><span class="comment">* we've already reached the end of the old timeline, the server will</span></span><br><span class="line"><span class="comment">* finish the streaming immediately, and we will go back to await</span></span><br><span class="line"><span class="comment">* orders from the startup process. If recovery_target_timeline is</span></span><br><span class="line"><span class="comment">* 'latest', the startup process will scan pg_wal and find the new</span></span><br><span class="line"><span class="comment">* history file, bump recovery target timeline, and ask us to restart</span></span><br><span class="line"><span class="comment">* on the new timeline.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">options.logical = <span class="literal">false</span>;</span><br><span class="line">options.startpoint = startpoint;</span><br><span class="line">options.slotname = slotname[<span class="number">0</span>] != <span class="string">'\0'</span> ? slotname : <span class="literal">NULL</span>;</span><br><span class="line">options.proto.physical.startpointTLI = startpointTLI;</span><br><span class="line">ThisTimeLineID = startpointTLI;</span><br><span class="line"><span class="keyword">if</span> (walrcv_startstreaming(wrconn, &amp;options))</span><br><span class="line">......</span><br></pre></td></tr></table></figure></p></li>
+<li><p><a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L386" target="_blank" rel="noopener">流复制将一直持续，直到出现异常或接收到退出指令</a></p></li>
+</ol>
+<h3 id="master-节点">master 节点</h3>
+<ol type="1">
+<li><p>postmaster 随时监控当前 postgresql 状态，<a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/postmaster/postmaster.c#L2108" target="_blank" rel="noopener">当符合 postgres 的设置规则时，WalSender 将会被初始化</a>；</p></li>
+<li><p><a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/tcop/postgres.c#L3796" target="_blank" rel="noopener">初始化 WalSender</a></p></li>
+</ol>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* Initialize walsender process before entering the main command loop */</span></span><br><span class="line"><span class="keyword">void</span></span><br><span class="line">InitWalSender(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    am_cascading_walsender = RecoveryInProgress();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Create a per-walsender data structure in shared memory */</span></span><br><span class="line">    InitWalSenderSlot();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Set up resource owner */</span></span><br><span class="line">    CurrentResourceOwner = ResourceOwnerCreate(<span class="literal">NULL</span>, <span class="string">"walsender top-level resource owner"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Let postmaster know that we're a WAL sender. Once we've declared us as</span></span><br><span class="line"><span class="comment">     * a WAL sender process, postmaster will let us outlive the bgwriter and</span></span><br><span class="line"><span class="comment">     * kill us last in the shutdown sequence, so we get a chance to stream all</span></span><br><span class="line"><span class="comment">     * remaining WAL at shutdown, including the shutdown checkpoint. Note that</span></span><br><span class="line"><span class="comment">     * there's no going back, and we mustn't write any WAL records after this.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    MarkPostmasterChildWalSender();</span><br><span class="line">    SendPostmasterSignal(PMSIGNAL_ADVANCE_STATE_MACHINE);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Initialize empty timestamp buffer for lag tracking. */</span></span><br><span class="line">    <span class="built_in">memset</span>(&amp;LagTracker, <span class="number">0</span>, <span class="keyword">sizeof</span>(LagTracker));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="3" type="1">
+<li>根据《流复制协议》处理相关请求：
+<ul>
+<li><a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walsender.c#L2198" target="_blank" rel="noopener">当无增删改操作时，WalSender 通过心跳保持对 standby 节点的通讯；</a></li>
+<li><a href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walsender.c#L2503" target="_blank" rel="noopener">当有增删改操作时，WalSender 会及时把 Wal 数据传送到 standby 节点；</a> <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* Send out the WAL in its normal physical/stored form.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* Read up to MAX_SEND_SIZE bytes of WAL that's been flushed to disk,</span></span><br><span class="line"><span class="comment">* but not yet sent to the client, and buffer it in the libpq output</span></span><br><span class="line"><span class="comment">* buffer.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* If there is no unsent WAL remaining, WalSndCaughtUp is set to true,</span></span><br><span class="line"><span class="comment">* otherwise WalSndCaughtUp is set to false.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">void</span></span><br><span class="line">XLogSendPhysical(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    XLogRecPtr    SendRqstPtr;</span><br><span class="line">    XLogRecPtr    startptr;</span><br><span class="line">    XLogRecPtr    endptr;</span><br><span class="line">    Size        nbytes;</span><br></pre></td></tr></table></figure></li>
+</ul></li>
+</ol>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="http://www.postgres.cn/docs/10/protocol-replication.html" target="_blank" rel="noopener">流复制协议</a></li>
+<li><a href="http://www.postgres.cn/docs/10/runtime-config-replication.html" target="_blank" rel="noopener">复制相关服务器设置</a></li>
+<li><a href="http://www.postgres.cn/docs/10/warm-standby.html#STREAMING-REPLICATION-SLOTS" target="_blank" rel="noopener">复制槽</a></li>
+<li><a href="http://www.postgres.cn/docs/10/view-pg-replication-slots.html" target="_blank" rel="noopener">pg_replication_slots 视图</a></li>
+<li><a href="http://www.postgres.cn/docs/10/monitoring-stats.html#PG-STAT-ACTIVITY-VIEW" target="_blank" rel="noopener">pg_stat_activity 视图</a></li>
+<li><a href="http://www.postgres.cn/docs/10/monitoring-stats.html#PG-STAT-REPLICATION-VIEW" target="_blank" rel="noopener">pg_stat_replication 视图</a></li>
+<li><a href="http://www.postgres.cn/docs/10/monitoring-stats.html#PG-STAT-WAL-RECEIVER-VIEW" target="_blank" rel="noopener">pg_stat_wal_receiver 视图</a></li>
+<li><a href="http://mysql.taobao.org/monthly/2015/10/04/" target="_blank" rel="noopener">PgSQL · 特性分析 · PG主备流复制机制</a></li>
+<li><a href="http://mysql.taobao.org/monthly/2015/07/03/" target="_blank" rel="noopener">PgSQL · 特性分析 · 时间线解析</a></li>
+<li><a href="https://cloud.tencent.com/developer/article/1459771" target="_blank" rel="noopener">《PostgreSQL 指南：内幕探索》之基础备份与时间点恢复（下）</a></li>
+<li><a href="https://www.postgresql.org/docs/10/protocol-replication.html" target="_blank" rel="noopener">Streaming Replication Protocol</a></li>
+</ul>
+]]></content>
+      <tags>
+        <tag>wal</tag>
+        <tag>postgresql</tag>
+        <tag>pg10</tag>
+        <tag>stolon</tag>
       </tags>
   </entry>
 </search>

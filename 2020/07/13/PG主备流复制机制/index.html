@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://lewlh.github.io/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png">
 <meta property="og:image" content="http://lewlh.github.io/images/20200713_PG_standby%E6%A8%A1%E5%BC%8F%E5%92%8Capply%E6%97%A5%E5%BF%97%E8%BF%87%E7%A8%8B.png">
 <meta property="article:published_time" content="2020-07-13T09:28:28.000Z">
-<meta property="article:modified_time" content="2020-09-09T11:43:47.311Z">
+<meta property="article:modified_time" content="2020-09-22T11:26:40.114Z">
 <meta property="article:author" content="Lewlh">
 <meta property="article:tag" content="postgres">
 <meta property="article:tag" content="PostgreSQL">
@@ -267,12 +267,12 @@ mjx-container[display="true"] + br {
   </li>
         <li class="menu-item menu-item-tags">
 
-    <a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">28</span></a>
+    <a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">31</span></a>
 
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">7</span></a>
+    <a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">8</span></a>
 
   </li>
         <li class="menu-item menu-item-sitemap">
@@ -350,14 +350,14 @@ mjx-container[display="true"] + br {
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">31</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -430,7 +430,7 @@ mjx-container[display="true"] + br {
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-09-09 19:43:47" itemprop="dateModified" datetime="2020-09-09T19:43:47+08:00">2020-09-09</time>
+        <time title="修改时间：2020-09-22 19:26:40" itemprop="dateModified" datetime="2020-09-22T19:26:40+08:00">2020-09-22</time>
       </span>
 
   
@@ -477,7 +477,7 @@ mjx-container[display="true"] + br {
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sigusr1_handler()-&gt;StartWalReceiver()-&gt;AuxiliaryProcessMain()-&gt;WalReceiverMain()-&gt;walrcv_receive()</span><br></pre></td></tr></table></figure>
 <p>startup进程是用来apply日志的，执行顺序如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PostmasterMain()-&gt;StartupDataBase()-&gt;AuxiliaryProcessMain()-&gt;StartupProcessMain()-&gt;StartupXLOG()</span><br></pre></td></tr></table></figure>
-<p>下图是PG主备总体框架图： <img src="/images/20200713_PG主备总体框架图.png" title="PG主备总体框架图" alt="图1. PG主备总体框架图" /></p>
+<p>下图是PG主备总体框架图： <img src="/images/20200713_PG主备总体框架图.png" title="PG主备总体框架图" /></p>
 <h2 id="walsender和walreceiver进程流复制过程">walsender和walreceiver进程流复制过程</h2>
 <p>walsender和walreceiver交互主要分为以下几个步骤：</p>
 <ol type="1">
@@ -486,9 +486,7 @@ mjx-container[display="true"] + br {
 <li>执行wal_startstreaming开始启动流复制，通过walrcv_receive获取WAL日志，期间也会回应主库发过来的心跳信息(接收位点、flush位点、apply位点)，向主库发送feedback信息(最老的事务id)，避免vacuum删掉备库正在使用的记录；</li>
 <li>执行walrcv_endstreaming结束流复制，等待startup进程更新receiveStart和receiveStartTLI，一旦更新，进入步骤2。</li>
 </ol>
-<figure>
-<img src="/images/20200713_PG流复制过程.png" title="PG流复制过程" alt="图2. PG流复制过程" /><figcaption aria-hidden="true">图2. PG流复制过程</figcaption>
-</figure>
+<p><img src="/images/20200713_PG流复制过程.png" title="PG流复制过程" /></p>
 <h2 id="walreceiver和startup进程">walreceiver和startup进程</h2>
 <p>startup进程进入standby模式和apply日志主要过程：</p>
 <ol type="1">
@@ -592,14 +590,14 @@ mjx-container[display="true"] + br {
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">67k</span>
+    <span title="站点总字数">72k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">1:01</span>
+    <span title="站点阅读时长">1:05</span>
   </span>
 </div>
 <div class="busuanzi-count">
