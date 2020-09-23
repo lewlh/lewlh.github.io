@@ -25,15 +25,15 @@
 
   <meta name="description" content="笔者使用 Stolon Cluster 实现 PostgreSQL10 数据库的高可用。本文将按照笔者的理解，梳理 Stolon 以及 Postgres 高可用实现逻辑。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Stolon流复制原理走读">
-<meta property="og:url" content="http://lewlh.github.io/2020/09/22/Stolon%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86%E8%B5%B0%E8%AF%BB/index.html">
+<meta property="og:title" content="流复制协议走读">
+<meta property="og:url" content="http://lewlh.github.io/2020/09/22/%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8D%8F%E8%AE%AE%E8%B5%B0%E8%AF%BB/index.html">
 <meta property="og:site_name" content="Lewlh&#39;s blog">
 <meta property="og:description" content="笔者使用 Stolon Cluster 实现 PostgreSQL10 数据库的高可用。本文将按照笔者的理解，梳理 Stolon 以及 Postgres 高可用实现逻辑。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://www.postgresql.org/media/img/about/press/elephant.png">
 <meta property="og:image" content="http://lewlh.github.io/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png">
 <meta property="article:published_time" content="2020-09-22T05:14:23.000Z">
-<meta property="article:modified_time" content="2020-09-23T12:57:33.154Z">
+<meta property="article:modified_time" content="2020-09-23T13:15:04.088Z">
 <meta property="article:author" content="Lewlh">
 <meta property="article:tag" content="wal">
 <meta property="article:tag" content="postgresql">
@@ -43,7 +43,7 @@
 <meta name="twitter:image" content="https://www.postgresql.org/media/img/about/press/elephant.png">
 
 
-<link rel="canonical" href="http://lewlh.github.io/2020/09/22/Stolon%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86%E8%B5%B0%E8%AF%BB/">
+<link rel="canonical" href="http://lewlh.github.io/2020/09/22/%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8D%8F%E8%AE%AE%E8%B5%B0%E8%AF%BB/">
 
 
 <script class="page-configurations">
@@ -56,7 +56,7 @@
   };
 </script>
 
-  <title>Stolon流复制原理走读 | Lewlh's blog</title>
+  <title>流复制协议走读 | Lewlh's blog</title>
   
 
 
@@ -393,7 +393,7 @@ mjx-container[display="true"] + br {
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2020/09/22/Stolon%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86%E8%B5%B0%E8%AF%BB/">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2020/09/22/%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8D%8F%E8%AE%AE%E8%B5%B0%E8%AF%BB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -409,7 +409,7 @@ mjx-container[display="true"] + br {
     
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Stolon流复制原理走读
+          流复制协议走读
         </h1>
 
         <div class="post-meta-container">
@@ -427,7 +427,7 @@ mjx-container[display="true"] + br {
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-09-23 20:57:33" itemprop="dateModified" datetime="2020-09-23T20:57:33+08:00">2020-09-23</time>
+        <time title="修改时间：2020-09-23 21:15:04" itemprop="dateModified" datetime="2020-09-23T21:15:04+08:00">2020-09-23</time>
       </span>
 
   
@@ -572,8 +572,16 @@ mjx-container[display="true"] + br {
 <td style="text-align: left;">指定这个物理复制槽立即保留WAL。否则，只有来自流复制客户端的连接上才会保留WAL。</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">EXPORT_SNAPSHOT NOEXPORT_SNAPSHOT USE_SNAPSHOT</td>
+<td style="text-align: center;">EXPORT_SNAPSHOT</td>
 <td style="text-align: left;">决定如何处理逻辑插槽初始化期间创建的快照。默认情况下， EXPORT_SNAPSHOT将导出快照以用于其他会话。该选项不能在事务中使用。 USE_SNAPSHOT将使用执行命令的当前事务的快照。 该选项必须在事务中使用，并且CREATE_REPLICATION_SLOT 必须是在该事务中运行的第一个命令。最后，NOEXPORT_SNAPSHOT 将正常使用快照进行逻辑解码，但不会对其执行任何操作。</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">NOEXPORT_SNAPSHOT</td>
+<td style="text-align: left;">同上</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">USE_SNAPSHOT</td>
+<td style="text-align: left;">同上</td>
 </tr>
 </tbody>
 </table>
@@ -613,13 +621,13 @@ mjx-container[display="true"] + br {
 <blockquote>
 <p>START_REPLICATION [ SLOT slot_name ] [ PHYSICAL ] XXX/XXX [ TIMELINE tli ]</p>
 </blockquote>
-<p>指示服务器开始启动流WAL，从 WAL 位置XXX/XXX开始。如果TIMELINE选项被指定，流传送会在时间线tli上开始，否则会选择服务器的当前时间线。服务器可以回复一个错误，例如如果被请求的WAL节已经被回收了。如果成功，服务器将会响应一个CopyBothResponse消息，并且然后开始以流的方式把WAL传送给前端。</p>
-<p>如果通过slot_name提供了一个槽的名称，它将被更新复制进度，这样该服务器知道哪些 WAL 段以及哪些事务（如果hot_standby_feedback为打开）仍然被后备机所需要。</p>
-<p>如果客户端请求一个并非最新的时间线，但是属于服务器历史的一部分，服务器将会把该时间线上从请求点开始的所有WAL以流式传送，一直到服务器切换到另外一个时间线的点。如果客户端请求在一个老的时间线末尾进行流传送，服务器将在不进入COPY模式的情况下立即响应CommandComplete。</p>
-<p>在流传送完一个非最新时间线上所有的WAL之后，服务器将会通过退出COPY模式来结束流。当客户端认识到这一点并也退出COPY模式时，服务器会发送一个包含一行两列的结果集，以指示在该服务器历史中的下一个时间线。第一列是下一个时间线的 ID（类型int8），而第二列是发生切换的 WAL 位置（类型text）。通常，切换位置是被流传送的WAL的末尾，但是在很少的情况下服务器会从旧的时间线中发送一些WAL，而该时间线是服务器本身在提示之前还没有重放的。最后，服务器发送CommandComplete消息，并且做好准备接受一个新的命令。</p>
-<p>WAL数据以一系列CopyData消息的形式被发送（这允许其他信息穿插其中，特别是服务器可以在开始流传送后遇到失败时发送一个ErrorResponse消息）。</p>
+<p>指示服务器开始启动流 WAL，从 WAL 位置 XXX/XXX 开始。如果TIMELINE选项被指定，流传送会在时间线 tli 上开始，否则会选择服务器的当前时间线。服务器可以回复一个错误，例如如果被请求的WAL节已经被回收了。如果成功，服务器将会响应一个 CopyBothResponse 消息，并且然后开始以流的方式把 WAL 传送给前端。</p>
+<p>如果通过 slot_name 提供了一个槽的名称，它将被更新复制进度，这样该服务器知道哪些 WAL 段以及哪些事务（如果 hot_standby_feedback 为打开）仍然被后备机所需要。</p>
+<p>如果客户端请求一个并非最新的时间线，但是属于服务器历史的一部分，服务器将会把该时间线上从请求点开始的所有 WAL 以流式传送，一直到服务器切换到另外一个时间线的点。如果客户端请求在一个老的时间线末尾进行流传送，服务器将在不进入 COPY 模式的情况下立即响应 CommandComplete。</p>
+<p>在流传送完一个非最新时间线上所有的 WAL 之后，服务器将会通过退出 COPY 模式来结束流。当客户端认识到这一点并也退出 COPY 模式时，服务器会发送一个包含一行两列的结果集，以指示在该服务器历史中的下一个时间线。第一列是下一个时间线的 ID（类型 int8 ），而第二列是发生切换的 WAL 位置（类型 text ）。通常，切换位置是被流传送的 WAL 的末尾，但是在很少的情况下服务器会从旧的时间线中发送一些 WAL，而该时间线是服务器本身在提示之前还没有重放的。最后，服务器发送 CommandComplete 消息，并且做好准备接受一个新的命令。</p>
+<p>WAL 数据以一系列 CopyData 消息的形式被发送（这允许其他信息穿插其中，特别是服务器可以在开始流传送后遇到失败时发送一个 ErrorResponse 消息）。</p>
 <h4 id="从服务器到客户端">从服务器到客户端</h4>
-<p>每个从服务器到客户端的CopyData消息承载了一个下列格式之一的消息：</p>
+<p>每个从服务器到客户端的 CopyData 消息承载了一个下列格式之一的消息：</p>
 <h5 id="xlogdata-b">XLogData (B)</h5>
 <table>
 <thead>
@@ -635,23 +643,23 @@ mjx-container[display="true"] + br {
 </tr>
 <tr class="even">
 <td style="text-align: center;">Int64</td>
-<td style="text-align: left;">在消息中WAL数据的起始点。</td>
+<td style="text-align: left;">在消息中 WAL 数据的起始点。</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">Int64</td>
-<td style="text-align: left;">服务器上WAL的当前终点。</td>
+<td style="text-align: left;">服务器上 WAL 的当前终点。</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">Int64</td>
-<td style="text-align: left;">在传送时服务器的系统时钟，以从2000-01-01午夜开始的微秒计。</td>
+<td style="text-align: left;">在传送时服务器的系统时钟，以从 2000-01-01 午夜开始的微秒计。</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">Byte n</td>
-<td style="text-align: left;">WAL数据流的一节。</td>
+<td style="text-align: left;">WAL 数据流的一节。</td>
 </tr>
 </tbody>
 </table>
-<p>一个WAL记录绝不会被分割到两个XLogData消息。如果一个WAL记录跨越了一个WAL页面的边界，并且因此已经被使用连续的记录分割，它可以在页面边界被分割。换句话说，第一个主要WAL记录和它的后续记录可以在不同的XLogData消息中被发送。</p>
+<p>一个 WAL 记录绝不会被分割到两个 XLogData 消息。如果一个 WAL 记录跨越了一个 WAL 页面的边界，并且因此已经被使用连续的记录分割，它可以在页面边界被分割。换句话说，第一个主要WAL记录和它的后续记录可以在不同的 XLogData 消息中被发送。</p>
 <h5 id="主要存活消息-b">主要存活消息 (B)</h5>
 <table>
 <thead>
@@ -667,11 +675,11 @@ mjx-container[display="true"] + br {
 </tr>
 <tr class="even">
 <td style="text-align: center;">Int64</td>
-<td style="text-align: left;">服务器上WAL的当前终点。</td>
+<td style="text-align: left;">服务器上 WAL 的当前终点。</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">Int64</td>
-<td style="text-align: left;">在传送时服务器的系统时钟，以从2000-01-01午夜开始的微秒计。</td>
+<td style="text-align: left;">在传送时服务器的系统时钟，以从 2000-01-01 午夜开始的微秒计。</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">Byte1</td>
@@ -680,7 +688,7 @@ mjx-container[display="true"] + br {
 </tbody>
 </table>
 <h4 id="从客户端到服务器">从客户端到服务器</h4>
-<p>接收进程可以在任何时候给发送者发送回复，回复可以使用下列消息格式之一（也在CopData消息中使用）：</p>
+<p>接收进程可以在任何时候给发送者发送回复，回复可以使用下列消息格式之一（也在 CopData 消息中使用）：</p>
 <h5 id="后备机状态更新-f">后备机状态更新 (F)</h5>
 <table>
 <thead>
@@ -696,23 +704,23 @@ mjx-container[display="true"] + br {
 </tr>
 <tr class="even">
 <td style="text-align: center;">Int64</td>
-<td style="text-align: left;">接收到并且写入到后备机磁盘的最后一个WAL比特的位置+1。</td>
+<td style="text-align: left;">接收到并且写入到后备机磁盘的最后一个 WAL 比特的位置+1。</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">Int64</td>
-<td style="text-align: left;">被刷入到后备机磁盘的最后一个WAL比特的位置+1。</td>
+<td style="text-align: left;">被刷入到后备机磁盘的最后一个 WAL 比特的位置+1。</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">Int64</td>
-<td style="text-align: left;">被应用在后备机上的最后一个WAL比特的位置+1。</td>
+<td style="text-align: left;">被应用在后备机上的最后一个 WAL 比特的位置+1。</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">Int64</td>
-<td style="text-align: left;">在传送时客户端的系统时钟，以从2000-01-01午夜开始的微秒计。</td>
+<td style="text-align: left;">在传送时客户端的系统时钟，以从 2000-01-01 午夜开始的微秒计。</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">Byte1</td>
-<td style="text-align: left;">如果为1，客户端要求服务器马上回复这个消息。这可以被用来ping服务器以测试连接是否仍然完好。</td>
+<td style="text-align: left;">如果为1，客户端要求服务器马上回复这个消息。这可以被用来 ping 服务器以测试连接是否仍然完好。</td>
 </tr>
 </tbody>
 </table>
@@ -735,23 +743,23 @@ mjx-container[display="true"] + br {
 </tr>
 <tr class="even">
 <td style="text-align: center;">Int64</td>
-<td style="text-align: left;">在传送时客户端的系统时钟，以从2000-01-01午夜开始的微秒计。</td>
+<td style="text-align: left;">在传送时客户端的系统时钟，以从 2000-01-01 午夜开始的微秒计。</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">Int32</td>
-<td style="text-align: left;">备用数据库的当前全局xmin，不包括来自任何复制插槽的catalog_xmin。 如果此值和以下catalog_xmin均为0，则将此视为热备机反馈将不再在此连接上发送的通知。 稍后的非零消息可以重新启动反馈机制。</td>
+<td style="text-align: left;">备用数据库的当前全局 xmin，不包括来自任何复制插槽的 catalog_xmin。 如果此值和以下 catalog_xmin 均为0，则将此视为热备机反馈将不再在此连接上发送的通知。 稍后的非零消息可以重新启动反馈机制。</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">Int32</td>
-<td style="text-align: left;">备用服务器上全局xmin xid的时代。</td>
+<td style="text-align: left;">备用服务器上全局 xmin xid 的时代。</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">Int32</td>
-<td style="text-align: left;">备用数据库中任何复制插槽的最低catalog_xmin。 如果备用数据库上不存在catalog_xmin或者热备份反馈被禁用，则设置为0。</td>
+<td style="text-align: left;">备用数据库中任何复制插槽的最低 catalog_xmin。 如果备用数据库上不存在 catalog_xmin 或者热备份反馈被禁用，则设置为0。</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">Int32</td>
-<td style="text-align: left;">备用服务器上catalog_xmin xid的时代。</td>
+<td style="text-align: left;">备用服务器上 catalog_xmin xid 的时代。</td>
 </tr>
 </tbody>
 </table>
@@ -760,7 +768,7 @@ mjx-container[display="true"] + br {
 <p>START_REPLICATION SLOT slot_name LOGICAL XXX/XXX [ ( option_name [ option_value ] [, ...] ) ]</p>
 </blockquote>
 <p>指示服务器为逻辑复制开始流式传送 WAL，从 WAL 位置XXX/XXX开始。服务器可以回复一个错误，例如如果请求的 WAL 小节已经回环。如果成功，服务器会响应一个 CopyBothResponse 消息，并且接着开始流失传送 WAL 给前端。</p>
-<p>消息内部的消息与START_REPLICATION ... PHYSICAL中记录的格式相同。</p>
+<p>消息内部的消息与 START_REPLICATION ... PHYSICAL 中记录的格式相同。</p>
 <p>与选中槽关联的输出插件被用来处理流的输出。</p>
 <table>
 <colgroup>
@@ -776,7 +784,7 @@ mjx-container[display="true"] + br {
 <tbody>
 <tr class="odd">
 <td style="text-align: center;">SLOT slot_name</td>
-<td style="text-align: left;">要从哪个槽流式传送改变。这个参数是必须的，并且必须对应于一个现有的用LOGICAL模式的CREATE_REPLICATION_SLOT创建的逻辑复制槽。</td>
+<td style="text-align: left;">要从哪个槽流式传送改变。这个参数是必须的，并且必须对应于一个现有的用 LOGICAL 模式的CREATE_REPLICATION_SLOT 创建的逻辑复制槽。</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">XXX/XXX</td>
@@ -796,7 +804,7 @@ mjx-container[display="true"] + br {
 <blockquote>
 <p>DROP_REPLICATION_SLOT slot_name [ WAIT ]</p>
 </blockquote>
-<p>删除一个复制槽，释放任何保留的服务器端资源。 如果插槽是在walsender连接到的数据库以外的数据库中创建的逻辑插槽，则此命令将失败。</p>
+<p>删除一个复制槽，释放任何保留的服务器端资源。 如果插槽是在 walsender 连接到的数据库以外的数据库中创建的逻辑插槽，则此命令将失败。</p>
 <table>
 <thead>
 <tr class="header">
@@ -834,7 +842,7 @@ mjx-container[display="true"] + br {
 <tbody>
 <tr class="odd">
 <td style="text-align: center;">LABEL 'label'</td>
-<td style="text-align: left;">设置备份的标签。如果没有指定，将会使用base backup作为标签。标签的引号规则和standard_conforming_strings开启时标准SQL字符串的一样。</td>
+<td style="text-align: left;">设置备份的标签。如果没有指定，将会使用 base backup 作为标签。标签的引号规则和 standard_conforming_strings 开启时标准SQL字符串的一样。</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">PROGRESS</td>
@@ -846,11 +854,11 @@ mjx-container[display="true"] + br {
 </tr>
 <tr class="even">
 <td style="text-align: center;">WAL</td>
-<td style="text-align: left;">在备份中包含必需的WAL段。这将把开始和停止备份之间的所有文件包括在base目录tar文件中的pg_wal目录中。</td>
+<td style="text-align: left;">在备份中包含必需的 WAL 段。这将把开始和停止备份之间的所有文件包括在 base 目录 tar 文件中的 pg_wal 目录中。</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">NOWAIT</td>
-<td style="text-align: left;">默认情况下，备份会等待直到最后一个要求的 WAL 段被归档，或者当日至归档被禁用时发出一个警告。指定NOWAIT会禁用等待和警告，而让客户端负责确保所要求的日志是可用的。</td>
+<td style="text-align: left;">默认情况下，备份会等待直到最后一个要求的 WAL 段被归档，或者当日至归档被禁用时发出一个警告。指定 NOWAIT 会禁用等待和警告，而让客户端负责确保所要求的日志是可用的。</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">MAX_RATE rate</td>
@@ -858,7 +866,7 @@ mjx-container[display="true"] + br {
 </tr>
 <tr class="odd">
 <td style="text-align: center;">TABLESPACE_MAP</td>
-<td style="text-align: left;">在名为tablespace_map的文件中包括有关pg_tblspc目录中存在的符号链接的信息。这个表空间映射文件包括了在目录pg_tblspc中存在的每一个符号链接的名字以及它的完整路径。</td>
+<td style="text-align: left;">在名为 tablespace_map 的文件中包括有关 pg_tblspc 目录中存在的符号链接的信息。这个表空间映射文件包括了在目录 pg_tblspc 中存在的每一个符号链接的名字以及它的完整路径。</td>
 </tr>
 </tbody>
 </table>
@@ -877,12 +885,12 @@ mjx-container[display="true"] + br {
 <tr class="odd">
 <td style="text-align: center;">spcoid</td>
 <td style="text-align: center;">oid</td>
-<td style="text-align: left;">表空间的 OID，如果是base目录则为空。</td>
+<td style="text-align: left;">表空间的 OID，如果是 base 目录则为空。</td>
 </tr>
 <tr class="even">
 <td style="text-align: center;">spclocation</td>
 <td style="text-align: center;">text</td>
-<td style="text-align: left;">表空间目录的完整路径，如果是base目录则为空。</td>
+<td style="text-align: left;">表空间目录的完整路径，如果是 base 目录则为空。</td>
 </tr>
 <tr class="odd">
 <td style="text-align: center;">size</td>
@@ -1125,7 +1133,7 @@ NexT.utils.loadComments('#gitalk-container', () => {
       repo        : 'lewlh.github.io',
       owner       : 'lewlh',
       admin       : ['lewlh'],
-      id          : '8dec686bc8654ffc4f5817e725f638e3',
+      id          : '6c1cd9e19c80ffe1420564ffee784c6a',
         language: 'zh-CN',
       distractionFreeMode: true
     });
