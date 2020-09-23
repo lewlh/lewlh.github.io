@@ -2436,42 +2436,42 @@
 <p>请求参数说明：</p>
 <table>
 <colgroup>
-<col style="width: 54%" />
-<col style="width: 45%" />
+<col style="width: 50%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: center;">参数</th>
+<th style="text-align: left;">参数</th>
 <th style="text-align: left;">说明</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: center;">slot_name</td>
+<td style="text-align: left;">slot_name</td>
 <td style="text-align: left;">要创建的槽的名称。必须是一个合法的复制槽名称（见 <a href="http://www.postgres.cn/docs/10/warm-standby.html#STREAMING-REPLICATION-SLOTS-MANIPULATION" target="_blank" rel="noopener">第 26.2.6.1 节</a>）。</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">output_plugin</td>
+<td style="text-align: left;">output_plugin</td>
 <td style="text-align: left;">被用于逻辑解码的输出插件的名称（见 <a href="http://www.postgres.cn/docs/10/logicaldecoding-output-plugin.html" target="_blank" rel="noopener">第 48.6 节</a>）。</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">TEMPORARY</td>
+<td style="text-align: left;">TEMPORARY</td>
 <td style="text-align: left;">声明该复制槽是临时的。出错或会话结束时，不保存临时槽并自动将其删除。</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">RESERVE_WAL</td>
+<td style="text-align: left;">RESERVE_WAL</td>
 <td style="text-align: left;">指定这个物理复制槽立即保留WAL。否则，只有来自流复制客户端的连接上才会保留WAL。</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">EXPORT_SNAPSHOT</td>
+<td style="text-align: left;">EXPORT_SNAPSHOT</td>
 <td style="text-align: left;">决定如何处理逻辑插槽初始化期间创建的快照。默认情况下， EXPORT_SNAPSHOT将导出快照以用于其他会话。该选项不能在事务中使用。 USE_SNAPSHOT将使用执行命令的当前事务的快照。 该选项必须在事务中使用，并且CREATE_REPLICATION_SLOT 必须是在该事务中运行的第一个命令。最后，NOEXPORT_SNAPSHOT 将正常使用快照进行逻辑解码，但不会对其执行任何操作。</td>
 </tr>
 <tr class="even">
-<td style="text-align: center;">NOEXPORT_SNAPSHOT</td>
+<td style="text-align: left;">NOEXPORT_SNAPSHOT</td>
 <td style="text-align: left;">同上</td>
 </tr>
 <tr class="odd">
-<td style="text-align: center;">USE_SNAPSHOT</td>
+<td style="text-align: left;">USE_SNAPSHOT</td>
 <td style="text-align: left;">同上</td>
 </tr>
 </tbody>
