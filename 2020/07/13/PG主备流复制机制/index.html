@@ -10,6 +10,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
   <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
 
 <link rel="stylesheet" href="/css/main.css">
 
@@ -33,7 +34,7 @@
 <meta property="og:image" content="http://lewlh.github.io/images/20200713_PG_standby%E6%A8%A1%E5%BC%8F%E5%92%8Capply%E6%97%A5%E5%BF%97%E8%BF%87%E7%A8%8B.png">
 <meta property="article:published_time" content="2020-07-13T09:28:28.000Z">
 <meta property="article:modified_time" content="2022-12-13T05:43:15.148Z">
-<meta property="article:author" content="Lewlh">
+<meta property="article:author" content="豪豪">
 <meta property="article:tag" content="postgres">
 <meta property="article:tag" content="PostgreSQL">
 <meta property="article:tag" content="streaming replication">
@@ -53,6 +54,9 @@
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>PgSQL · 特性分析 · PG主备流复制机制 | Lewlh's blog</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
 
 
 
@@ -98,7 +102,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">40</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">12</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">43</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">13</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -123,26 +127,26 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">主备总体结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">walsender和walreceiver进程流复制过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">walreceiver和startup进程</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E5%A4%87%E6%80%BB%E4%BD%93%E7%BB%93%E6%9E%84"><span class="nav-text">主备总体结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#walsender%E5%92%8Cwalreceiver%E8%BF%9B%E7%A8%8B%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B"><span class="nav-text">walsender和walreceiver进程流复制过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#walreceiver%E5%92%8Cstartup%E8%BF%9B%E7%A8%8B"><span class="nav-text">walreceiver和startup进程</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
         <div class="site-overview-wrap sidebar-panel">
           <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">Lewlh</p>
-  <div class="site-description" itemprop="description"></div>
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
 </div>
 <div class="site-state-wrap animated">
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-count">43</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -173,12 +177,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lewlh">
+      <meta itemprop="name" content="豪豪">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="豪豪的博客">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
@@ -239,11 +243,11 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>本文来自于阿里云RDS-数据库内核组，<a target="_blank" rel="noopener" href="http://mysql.taobao.org/monthly/2015/10/04/">文章地址</a>。笔者读完此文，感觉作者对 PostgreSQL 流复制 streaming replication 的机制解析的非常透彻，是一遍非常好的技术分享文档。文章采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/3.0/">知识共享署名-非商业性使用-相同方式共享 3.0 未本地化版本许可协议</a>,因此笔者将本文收录于自己的博客中，方便日后学习检索。</p>
+    <div class="post-body" itemprop="articleBody"><p>本文来自于阿里云RDS-数据库内核组，<a target="_blank" href="http://mysql.taobao.org/monthly/2015/10/04/" rel="external nofollow noreferrer noopener">文章地址</a>。笔者读完此文，感觉作者对 PostgreSQL 流复制 streaming replication 的机制解析的非常透彻，是一遍非常好的技术分享文档。文章采用<a target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow noreferrer noopener">知识共享署名-非商业性使用-相同方式共享 3.0 未本地化版本许可协议</a>,因此笔者将本文收录于自己的博客中，方便日后学习检索。</p>
 <span id="more"></span>
 <hr>
 <p>PostgreSQL在9.0之后引入了主备流复制机制，通过流复制，备库不断的从主库同步相应的数据，并在备库apply每个WAL record，这里的流复制每次传输单位是WAL日志的record。而PostgreSQL9.0之前提供的方法是主库写完一个WAL日志文件后，才把WAL日志文件传送到备库，这样的方式导致主备延迟特别大。同时PostgreSQL9.0之后提供了Hot Standby，备库在应用WAL record的同时也能够提供只读服务，大大提升了用户体验。</p>
-<h2><span id="主备总体结构">主备总体结构</span></h2>
+<h2 id="主备总体结构">主备总体结构</h2>
 <p>PG主备流复制的核心部分由walsender，walreceiver和startup三个进程组成。 walsender进程是用来发送WAL日志记录的，执行顺序如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PostgresMain()-&gt;exec_replication_command()-&gt;StartReplication()-&gt;WalSndLoop()-&gt;XLogSendPhysical()</span><br></pre></td></tr></table></figure>
 <p>walreceiver进程是用来接收WAL日志记录的，执行顺序如下：</p>
@@ -251,8 +255,8 @@
 <p>startup进程是用来apply日志的，执行顺序如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PostmasterMain()-&gt;StartupDataBase()-&gt;AuxiliaryProcessMain()-&gt;StartupProcessMain()-&gt;StartupXLOG()</span><br></pre></td></tr></table></figure>
 <p>下图是PG主备总体框架图：<br>
-<img data-src="/images/20200713_PG%E4%B8%BB%E5%A4%87%E6%80%BB%E4%BD%93%E6%A1%86%E6%9E%B6%E5%9B%BE.png" alt title="PG主备总体框架图"></p>
-<h2><span id="walsender和walreceiver进程流复制过程">walsender和walreceiver进程流复制过程</span></h2>
+<img data-src="/images/20200713_PG%E4%B8%BB%E5%A4%87%E6%80%BB%E4%BD%93%E6%A1%86%E6%9E%B6%E5%9B%BE.png" alt="" title="PG主备总体框架图"></p>
+<h2 id="walsender和walreceiver进程流复制过程">walsender和walreceiver进程流复制过程</h2>
 <p>walsender和walreceiver交互主要分为以下几个步骤：</p>
 <ol>
 <li>walreceiver启动后通过recovery.conf文件中的primary_conninfo参数信息连向主库，主库通过连接参数replication=true启动walsender进程；</li>
@@ -260,8 +264,8 @@
 <li>执行wal_startstreaming开始启动流复制，通过walrcv_receive获取WAL日志，期间也会回应主库发过来的心跳信息(接收位点、flush位点、apply位点)，向主库发送feedback信息(最老的事务id)，避免vacuum删掉备库正在使用的记录；</li>
 <li>执行walrcv_endstreaming结束流复制，等待startup进程更新receiveStart和receiveStartTLI，一旦更新，进入步骤2。</li>
 </ol>
-<p><img data-src="/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png" alt title="PG流复制过程"></p>
-<h2><span id="walreceiver和startup进程">walreceiver和startup进程</span></h2>
+<p><img data-src="/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png" alt="" title="PG流复制过程"></p>
+<h2 id="walreceiver和startup进程">walreceiver和startup进程</h2>
 <p>startup进程进入standby模式和apply日志主要过程：</p>
 <ol>
 <li>
@@ -312,8 +316,8 @@
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2020/06/28/CentOS-7-%E5%AE%89%E8%A3%85-oh-my-zsh/" rel="next" title="CentOS 7 安装 oh-my-zsh">
-                  CentOS 7 安装 oh-my-zsh <i class="fa fa-angle-right"></i>
+                <a href="/2020/06/28/CentOS-7-%E5%AE%89%E8%A3%85-oh-my-zsh/" rel="next" title="CentOS 7 安装 Oh-My-Zsh">
+                  CentOS 7 安装 Oh-My-Zsh <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>
@@ -339,7 +343,7 @@
     <span class="with-love">
       <i class="fa fa-heart"></i>
     </span>
-    <span class="author" itemprop="copyrightHolder">Lewlh</span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
   </div>
 <div class="wordcount">
   <span class="post-meta-item">
@@ -347,14 +351,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">65k</span>
+    <span title="站点总字数">66k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">3:57</span>
+    <span title="站点阅读时长">4:01</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -429,7 +433,7 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
 
-<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":["lewlh"],"distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"63c9cabd7eb2cdca6855fd2264346515"}</script>
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"63c9cabd7eb2cdca6855fd2264346515"}</script>
 <script src="/js/third-party/comments/gitalk.js"></script>
 
 </body>

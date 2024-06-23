@@ -10,6 +10,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
   <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
 
 <link rel="stylesheet" href="/css/main.css">
 
@@ -23,14 +24,14 @@
 
     <meta name="description" content="前言 本人比较喜欢使用 oh-my-zsh 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CentOS 7 安装 oh-my-zsh">
+<meta property="og:title" content="CentOS 7 安装 Oh-My-Zsh">
 <meta property="og:url" content="http://lewlh.github.io/2020/06/28/CentOS-7-%E5%AE%89%E8%A3%85-oh-my-zsh/index.html">
 <meta property="og:site_name" content="Lewlh&#39;s blog">
 <meta property="og:description" content="前言 本人比较喜欢使用 oh-my-zsh 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-06-28T09:48:34.000Z">
 <meta property="article:modified_time" content="2022-12-13T05:43:15.147Z">
-<meta property="article:author" content="Lewlh">
+<meta property="article:author" content="豪豪">
 <meta property="article:tag" content="centos7">
 <meta property="article:tag" content="oh-my-zsh">
 <meta name="twitter:card" content="summary">
@@ -40,11 +41,14 @@
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2020/06/28/CentOS-7-%E5%AE%89%E8%A3%85-oh-my-zsh/","path":"2020/06/28/CentOS-7-安装-oh-my-zsh/","title":"CentOS 7 安装 oh-my-zsh"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2020/06/28/CentOS-7-%E5%AE%89%E8%A3%85-oh-my-zsh/","path":"2020/06/28/CentOS-7-安装-oh-my-zsh/","title":"CentOS 7 安装 Oh-My-Zsh"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>CentOS 7 安装 oh-my-zsh | Lewlh's blog</title>
+<title>CentOS 7 安装 Oh-My-Zsh | Lewlh's blog</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
 
 
 
@@ -90,7 +94,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">40</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">12</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">43</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">13</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -115,26 +119,26 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">安装步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">进行可选配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">3.1.</span> <span class="nav-text">修改主题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">3.2.</span> <span class="nav-text">安装插件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link"><span class="nav-number">3.2.1.</span> <span class="nav-text">zsh-syntax-highlighting</span></a></li><li class="nav-item nav-level-4"><a class="nav-link"><span class="nav-number">3.2.2.</span> <span class="nav-text">zsh-autosuggestions</span></a></li><li class="nav-item nav-level-4"><a class="nav-link"><span class="nav-number">3.2.3.</span> <span class="nav-text">zsh-history-substring-search</span></a></li></ol></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4"><span class="nav-text">安装步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E8%A1%8C%E5%8F%AF%E9%80%89%E9%85%8D%E7%BD%AE"><span class="nav-text">进行可选配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E4%B8%BB%E9%A2%98"><span class="nav-text">修改主题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E6%8F%92%E4%BB%B6"><span class="nav-text">安装插件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#zsh-syntax-highlighting"><span class="nav-text">zsh-syntax-highlighting</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#zsh-autosuggestions"><span class="nav-text">zsh-autosuggestions</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#zsh-history-substring-search"><span class="nav-text">zsh-history-substring-search</span></a></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
         <div class="site-overview-wrap sidebar-panel">
           <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">Lewlh</p>
-  <div class="site-description" itemprop="description"></div>
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
 </div>
 <div class="site-state-wrap animated">
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-count">43</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -165,21 +169,21 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Lewlh">
+      <meta itemprop="name" content="豪豪">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="豪豪的博客">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="CentOS 7 安装 oh-my-zsh | Lewlh's blog">
+      <meta itemprop="name" content="CentOS 7 安装 Oh-My-Zsh | Lewlh's blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          CentOS 7 安装 oh-my-zsh
+          CentOS 7 安装 Oh-My-Zsh
         </h1>
 
         <div class="post-meta-container">
@@ -231,10 +235,10 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><h2><span id="前言">前言</span></h2>
+    <div class="post-body" itemprop="articleBody"><h2 id="前言">前言</h2>
 <p>本人比较喜欢使用 <code>oh-my-zsh</code> 的 shell 终端，每一次使用新的机器，都要在互联网上搜索一遍安装步骤。趁着这次使用新的 CentOS 7 机器，记录一下安装过程。</p>
 <span id="more"></span>
-<h2><span id="安装步骤">安装步骤</span></h2>
+<h2 id="安装步骤">安装步骤</h2>
 <ol>
 <li>
 <p>通过 yum 安装 zsh、git、wget：</p>
@@ -258,8 +262,8 @@
  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chsh -s /usr/bin/zsh</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
-<h2><span id="进行可选配置">进行可选配置</span></h2>
-<h3><span id="修改主题">修改主题</span></h3>
+<h2 id="进行可选配置">进行可选配置</h2>
+<h3 id="修改主题">修改主题</h3>
 <ul>
 <li>
 <p>编辑 .zshrc 文件</p>
@@ -274,10 +278,10 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<h3><span id="安装插件">安装插件</span></h3>
+<h3 id="安装插件">安装插件</h3>
 <p>使用 ZSH 替换原有的 SHELL 最主要的原因就是要使用其功能强大的插件，下面介绍常用插件。</p>
-<h4><span id="zsh-syntax-highlighting">zsh-syntax-highlighting</span></h4>
-<p>一款语法高亮插件，详情请看<a target="_blank" rel="noopener" href="https://github.com/zsh-users/zsh-syntax-highlighting">官网</a>.</p>
+<h4 id="zsh-syntax-highlighting">zsh-syntax-highlighting</h4>
+<p>一款语法高亮插件，详情请看<a target="_blank" href="https://github.com/zsh-users/zsh-syntax-highlighting" rel="external nofollow noreferrer noopener">官网</a>.</p>
 <ul>
 <li>
 <p>请执行以下命令：</p>
@@ -292,8 +296,8 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<h4><span id="zsh-autosuggestions">zsh-autosuggestions</span></h4>
-<p>一款命令自动补全插件，详情请看<a target="_blank" rel="noopener" href="https://github.com/zsh-users/zsh-autosuggestions">官网</a></p>
+<h4 id="zsh-autosuggestions">zsh-autosuggestions</h4>
+<p>一款命令自动补全插件，详情请看<a target="_blank" href="https://github.com/zsh-users/zsh-autosuggestions" rel="external nofollow noreferrer noopener">官网</a></p>
 <ul>
 <li>
 <p>请执行以下命令：</p>
@@ -308,8 +312,8 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<h4><span id="zsh-history-substring-search">zsh-history-substring-search</span></h4>
-<p>一款查找匹配前缀的历史输入插件，详情请看<a target="_blank" rel="noopener" href="https://github.com/zsh-users/zsh-history-substring-search">官网</a></p>
+<h4 id="zsh-history-substring-search">zsh-history-substring-search</h4>
+<p>一款查找匹配前缀的历史输入插件，详情请看<a target="_blank" href="https://github.com/zsh-users/zsh-history-substring-search" rel="external nofollow noreferrer noopener">官网</a></p>
 <ul>
 <li>
 <p>请执行以下命令：</p>
@@ -321,7 +325,8 @@
 </li>
 <li>
 <p>应用配置文件重启shell或者执行一下命令生效：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></li>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
+</li>
 </ul>
 
     </div>
@@ -372,7 +377,7 @@
     <span class="with-love">
       <i class="fa fa-heart"></i>
     </span>
-    <span class="author" itemprop="copyrightHolder">Lewlh</span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
   </div>
 <div class="wordcount">
   <span class="post-meta-item">
@@ -380,14 +385,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">65k</span>
+    <span title="站点总字数">66k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">3:57</span>
+    <span title="站点阅读时长">4:01</span>
   </span>
 </div>
 <div class="busuanzi-count">
@@ -462,7 +467,7 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
 
-<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":["lewlh"],"distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"3440ce3355320ea2ddc35cae1dad2218"}</script>
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"3440ce3355320ea2ddc35cae1dad2218"}</script>
 <script src="/js/third-party/comments/gitalk.js"></script>
 
 </body>
