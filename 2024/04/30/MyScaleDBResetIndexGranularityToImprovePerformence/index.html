@@ -24,14 +24,14 @@
 
     <meta name="description" content="MyScaleDB 是基于 ClickHouse 开发的的分布式向量数据库，支持结构化数据以及非结构化数据的存储,查询，其支持 SQL 语句查询的特点，极大地简化了开发人员的开发工程量，提升了工作效率。笔者使用 MyScaleDB 进行非结构化数据（向量数据）的高精度搜索服务，在使用过程中，发现特定业务下因索引粒度设置不合理，导致查询效率低下的问题，本文将介绍如何调整索引粒度，提升查询效率。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MyScaleDBResetIndexGranularityToImprovePerformence">
+<meta property="og:title" content="通过修改 IndexGranularity 提升 MyScaleDB 的搜索性能">
 <meta property="og:url" content="http://lewlh.github.io/2024/04/30/MyScaleDBResetIndexGranularityToImprovePerformence/index.html">
 <meta property="og:site_name" content="Lewlh&#39;s blog">
 <meta property="og:description" content="MyScaleDB 是基于 ClickHouse 开发的的分布式向量数据库，支持结构化数据以及非结构化数据的存储,查询，其支持 SQL 语句查询的特点，极大地简化了开发人员的开发工程量，提升了工作效率。笔者使用 MyScaleDB 进行非结构化数据（向量数据）的高精度搜索服务，在使用过程中，发现特定业务下因索引粒度设置不合理，导致查询效率低下的问题，本文将介绍如何调整索引粒度，提升查询效率。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://lewlh.github.io/images/myscaledb-logo-with-text.png">
 <meta property="article:published_time" content="2024-04-30T11:10:25.000Z">
-<meta property="article:modified_time" content="2024-06-23T14:12:59.630Z">
+<meta property="article:modified_time" content="2024-06-23T14:16:33.086Z">
 <meta property="article:author" content="豪豪">
 <meta property="article:tag" content="clickhouse">
 <meta property="article:tag" content="MyScaleDB">
@@ -46,10 +46,10 @@
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2024/04/30/MyScaleDBResetIndexGranularityToImprovePerformence/","path":"2024/04/30/MyScaleDBResetIndexGranularityToImprovePerformence/","title":"MyScaleDBResetIndexGranularityToImprovePerformence"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2024/04/30/MyScaleDBResetIndexGranularityToImprovePerformence/","path":"2024/04/30/MyScaleDBResetIndexGranularityToImprovePerformence/","title":"通过修改 IndexGranularity 提升 MyScaleDB 的搜索性能"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>MyScaleDBResetIndexGranularityToImprovePerformence | Lewlh's blog</title>
+<title>通过修改 IndexGranularity 提升 MyScaleDB 的搜索性能 | Lewlh's blog</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
   <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
@@ -183,12 +183,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="MyScaleDBResetIndexGranularityToImprovePerformence | Lewlh's blog">
+      <meta itemprop="name" content="通过修改 IndexGranularity 提升 MyScaleDB 的搜索性能 | Lewlh's blog">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          MyScaleDBResetIndexGranularityToImprovePerformence
+          通过修改 IndexGranularity 提升 MyScaleDB 的搜索性能
         </h1>
 
         <div class="post-meta-container">
@@ -206,7 +206,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-06-23 22:12:59" itemprop="dateModified" datetime="2024-06-23T22:12:59+08:00">2024-06-23</time>
+      <time title="修改时间：2024-06-23 22:16:33" itemprop="dateModified" datetime="2024-06-23T22:16:33+08:00">2024-06-23</time>
     </span>
 
   
