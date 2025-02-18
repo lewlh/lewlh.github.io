@@ -311,3 +311,21 @@ pdfjs-ink-canvas =
 
 ## Image alt-text settings
 
+
+## "Annotations removed" bar
+
+
+## Add a signature dialog
+
+
+## Tab names
+
+
+## Tab panels
+
+
+## Controls
+
+
+## Dialog buttons
+
