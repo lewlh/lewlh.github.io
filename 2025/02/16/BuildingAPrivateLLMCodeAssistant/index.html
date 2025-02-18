@@ -22,18 +22,18 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.22.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="作为程序员，使用LLM之后，确实大幅提升了解决问题的效率。各种免费的LLM服务某种程度上已经替代了搜索引擎，我通常使用问答的方式，很快就能找到问题的答案。但是，互联网上提供的免费LLM服务，我们提供问题上下文的时候，难免会提供具体的功能&#x2F;业务信息，这里就设计到隐私&#x2F;保密的问题。无论是国内的还是国外的LLM服务，在我看来都是不可信的，那么有些时候，一些敏感的代码，业务数据以及个人信息，我都会有意识的">
+    <meta name="description" content="本门描述一个简单且闭环的构建私有LLM代码助手的方案。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="构建私有LLM代码助手">
 <meta property="og:url" content="http://lewlh.github.io/2025/02/16/BuildingAPrivateLLMCodeAssistant/index.html">
 <meta property="og:site_name" content="Lewlh&#39;s blog">
-<meta property="og:description" content="作为程序员，使用LLM之后，确实大幅提升了解决问题的效率。各种免费的LLM服务某种程度上已经替代了搜索引擎，我通常使用问答的方式，很快就能找到问题的答案。但是，互联网上提供的免费LLM服务，我们提供问题上下文的时候，难免会提供具体的功能&#x2F;业务信息，这里就设计到隐私&#x2F;保密的问题。无论是国内的还是国外的LLM服务，在我看来都是不可信的，那么有些时候，一些敏感的代码，业务数据以及个人信息，我都会有意识的">
+<meta property="og:description" content="本门描述一个简单且闭环的构建私有LLM代码助手的方案。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://lewlh.github.io/images/202502/CodellmSettingPage.jpg">
 <meta property="og:image" content="http://lewlh.github.io/images/202502/CodellmSetPrompt.jpg">
 <meta property="og:image" content="http://lewlh.github.io/images/202502/howToUseCodellm.jpg">
 <meta property="article:published_time" content="2025-02-16T04:00:53.000Z">
-<meta property="article:modified_time" content="2025-02-18T03:19:47.594Z">
+<meta property="article:modified_time" content="2025-02-18T04:00:30.228Z">
 <meta property="article:author" content="豪豪">
 <meta property="article:tag" content="Ollama">
 <meta property="article:tag" content="PageAssist">
@@ -206,7 +206,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-02-18 11:19:47" itemprop="dateModified" datetime="2025-02-18T11:19:47+08:00">2025-02-18</time>
+      <time title="修改时间：2025-02-18 12:00:30" itemprop="dateModified" datetime="2025-02-18T12:00:30+08:00">2025-02-18</time>
     </span>
 
   
@@ -223,7 +223,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>2k</span>
+      <span>2.1k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -240,9 +240,10 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>作为程序员，使用LLM之后，确实大幅提升了解决问题的效率。各种免费的LLM服务某种程度上已经替代了搜索引擎，我通常使用问答的方式，很快就能找到问题的答案。但是，互联网上提供的免费LLM服务，我们提供问题上下文的时候，难免会提供具体的功能/业务信息，这里就设计到隐私/保密的问题。无论是国内的还是国外的LLM服务，在我看来都是不可信的，那么有些时候，一些敏感的代码，业务数据以及个人信息，我都会有意识的避免提交到问题的描述/上下文中。随着 Ollama 这些 LLM 基础设施的不断完善，使用个人/企业的服务器资源搭建私有的 LLM 已经非常便利，所以我也尝试构建私有LLM代码助手，本文作为此次构建的记录。</p>
+    <div class="post-body" itemprop="articleBody"><p>本门描述一个简单且闭环的构建私有LLM代码助手的方案。</p>
 <span id="more"></span>
 <hr>
+<p>作为程序员，使用LLM之后，确实大幅提升了解决问题的效率。各种免费的LLM服务某种程度上已经替代了搜索引擎，我通常使用问答的方式，很快就能找到问题的答案。但是，互联网上提供的免费LLM服务，我们提供问题上下文的时候，难免会提供具体的功能/业务信息，这里就设计到隐私/保密的问题。无论是国内的还是国外的LLM服务，在我看来都是不可信的，那么有些时候，一些敏感的代码，业务数据以及个人信息，我都会有意识的避免提交到问题的描述/上下文中。随着 Ollama 这些 LLM 基础设施的不断完善，使用个人/企业的服务器资源搭建私有的 LLM 已经非常便利，所以我也尝试构建私有LLM代码助手，本文作为此次构建的记录。</p>
 <h2 id="总体思路">总体思路</h2>
 <p>需求其实很明确，部署一个私有的无审查的 LLM 模型，同时使用开源的大预言模型 UI 工具用于日常的问题对话，在编码工具中安装可调用私有部署的LLM的插件，用于编码过程中的问题解答。另外，对于一些项目级的代码问题，我们需要将项目中的代码整理成一个文件，提交给大语言模型进行分析对话。根据我的调研，本次部署的程序分别有：</p>
 <ul>
