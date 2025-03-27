@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.22.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="MyScaleDB 基于开源的 Clickhouse 项目二次开发，使用方式基本上与其相同，在向量索引、搜索上有功能拓展，使用的时候需要提醒注意(截止到20240524)：  Vector Search 现在只测过 MergeTree 和 ReplicatedMergeTree，其他的（Replacing&#x2F;Summing&#x2F;…）可能会有问题； 其他的引擎，存储非向量的数据仍然可以用，就跟普通 Cl">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MyScaleDB 集群使用模式入门">
+<meta property="og:url" content="http://lewlh.github.io/2024/05/30/MyScaleDBDockerCompose/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="MyScaleDB 基于开源的 Clickhouse 项目二次开发，使用方式基本上与其相同，在向量索引、搜索上有功能拓展，使用的时候需要提醒注意(截止到20240524)：  Vector Search 现在只测过 MergeTree 和 ReplicatedMergeTree，其他的（Replacing&#x2F;Summing&#x2F;…）可能会有问题； 其他的引擎，存储非向量的数据仍然可以用，就跟普通 Cl">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://lewlh.github.io/images/myscaledb-logo-with-text.png">
+<meta property="article:published_time" content="2024-05-30T13:32:16.000Z">
+<meta property="article:modified_time" content="2025-02-18T03:19:47.594Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="clickhouse">
+<meta property="article:tag" content="MyScaleDB">
+<meta property="article:tag" content="Cluster">
+<meta property="article:tag" content="MergeTree">
+<meta property="article:tag" content="ReplicatedMergeTree">
+<meta property="article:tag" content="Distributed">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lewlh.github.io/images/myscaledb-logo-with-text.png">
+
+
+<link rel="canonical" href="http://lewlh.github.io/2024/05/30/MyScaleDBDockerCompose/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2024/05/30/MyScaleDBDockerCompose/","path":"2024/05/30/MyScaleDBDockerCompose/","title":"MyScaleDB 集群使用模式入门"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>MyScaleDB 集群使用模式入门 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">91</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">29</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E6%AD%A4docker-compose"><span class="nav-text">如何使用此docker-compose</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MyScaleDB-%E5%88%86%E5%8C%BA%E4%B8%8E%E5%89%AF%E6%9C%AC%E7%9A%84%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E"><span class="nav-text">MyScaleDB 分区与副本的使用说明</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MyScaleDB-%E7%9A%84%E5%BC%95%E6%93%8E"><span class="nav-text">MyScaleDB 的引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8-cluster-2s-2r-%E9%9B%86%E7%BE%A4%E4%BD%BF%E7%94%A8-ReplicatedMergeTree-%E5%BC%95%E6%93%8E%E7%A4%BA%E4%BE%8B"><span class="nav-text">在 cluster_2s_2r 集群使用 ReplicatedMergeTree 引擎示例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8-docker-compose"><span class="nav-text">启动 docker-compose</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA-database-table"><span class="nav-text">创建 database + table</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA-Distributed-%E5%88%86%E5%B8%83%E5%BC%8F%E8%A1%A8%E5%BC%95%E6%93%8E%E8%A1%A8"><span class="nav-text">创建 Distributed 分布式表引擎表</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-text">Reference</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">91</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2024/05/30/MyScaleDBDockerCompose/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="MyScaleDB 集群使用模式入门 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MyScaleDB 集群使用模式入门
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-05-30 21:32:16" itemprop="dateCreated datePublished" datetime="2024-05-30T21:32:16+08:00">2024-05-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-18 11:19:47" itemprop="dateModified" datetime="2025-02-18T11:19:47+08:00">2025-02-18</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img data-src="/images/myscaledb-logo-with-text.png" alt="MyScaleDB"></p>
+<p>MyScaleDB 基于开源的 Clickhouse 项目二次开发，使用方式基本上与其相同，在向量索引、搜索上有功能拓展，使用的时候需要提醒注意(截止到20240524)：</p>
+<ul>
+<li><strong>Vector Search 现在只测过 MergeTree 和 ReplicatedMergeTree，其他的（Replacing/Summing/…）可能会有问题；</strong></li>
+<li><strong>其他的引擎，存储非向量的数据仍然可以用，就跟普通 Clickhouse 是一样的；</strong></li>
+</ul>
+<span id="more"></span>
+<hr>
+<p>本文基于此<a target="_blank" href="https://github.com/lewlh/share/tree/main/docker-compose/myscaledb" rel="external nofollow noreferrer noopener">docker-compose</a>进行演示。</p>
+<h2 id="如何使用此docker-compose">如何使用此docker-compose</h2>
+<p>启动 docker-compose，要求本机已经安装 docker 以及 docker-compose,然后执行以下步骤：</p>
+<ul>
+<li>
+<p>复制 <a href="./.env.example">.env.example</a>到同级目录</p>
+<ul>
+<li><code>cp .env.example .env</code></li>
+</ul>
+</li>
+<li>
+<p>修改 .env</p>
+<ul>
+<li>根据实际情况，修改 COMPOSE_PROJECT_NAME 的值，避免重复；</li>
+</ul>
+</li>
+<li>
+<p>选择启动的集群模式，设置 COMPOSE_FILE 的值，其中 docker-compose-base.yaml 是不允许移除的：</p>
+<ul>
+<li>单分区一备份模式 <code>COMPOSE_FILE=docker-compose-base.yaml:docker-compose-1share-2replica.yaml</code>
+<ul>
+<li>提供一个 <em><strong>cluster_1s_2r</strong></em> 的集群，详情请查看配置文件 <a href="./configs/1share2replica_config.xml">1share2replica_config.xml</a> 中的<code>remote_servers</code>配置项；</li>
+</ul>
+</li>
+<li>双分区无备份模式 <code>COMPOSE_FILE=docker-compose-base.yaml:docker-compose-2share-1replica.yaml</code>
+<ul>
+<li>提供一个 <em><strong>cluster_2s_1r</strong></em> 的集群，详情请查看配置文件 <a href="./configs/2share1replica_config.xml">2share1replica_config.xml</a> 中的<code>remote_servers</code>配置项</li>
+</ul>
+</li>
+<li>双分区一备份模式 <code>COMPOSE_FILE=docker-compose-base.yaml:docker-compose-2share-2replica.yaml</code>
+<ul>
+<li>提供一个 <em><strong>cluster_2s_2r</strong></em> 的集群，详情请查看配置文件 <a href="./configs/2share2replica_config.xml">2share2replica_config.xml</a> 中的<code>remote_servers</code>配置项</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>检查本机的端口与配置中的端口是否有冲突，根据实际情况修改端口;</p>
+</li>
+<li>
+<p>启动本程序前，可提前在本机 pull 运行镜像：</p>
+<ul>
+<li tag="">myscale/myscaledb:$</li>
+<li tag="">dbeaver/cloudbeaver:$
+<ul>
+<li>提供 B/S 架构的数据库客户端服务，可在浏览器中使用，并访问此 docker-compose 中的 MyScaleDB 实例；</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>启动此 docker-compose: <code>docker-compose up -d</code></p>
+</li>
+<li>
+<p>成功启动后，本目录下默认会生成 volumes 文件夹,此文件夹保存这些容器的持久化数据，可以很方便地查看各个实例保存的文件，学习探索 MyScaleDB:</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── README.md</span><br><span class="line">├── configs  [12 entries exceeds filelimit, not opening <span class="built_in">dir</span>]</span><br><span class="line">├── docker-compose-1share-2replica.yaml</span><br><span class="line">├── docker-compose-2share-1replica.yaml</span><br><span class="line">├── docker-compose-2share-2replica.yaml</span><br><span class="line">├── docker-compose-base.yaml</span><br><span class="line">└── volumes</span><br><span class="line">    ├── cloudbeaver</span><br><span class="line">    │   └── data</span><br><span class="line">    │       ├── GlobalConfiguration</span><br><span class="line">    │       └── user-projects</span><br><span class="line">    │           └── cbadmin</span><br><span class="line">    ├── keeper1</span><br><span class="line">    │   ├── data</span><br><span class="line">    │   │   ├── logs</span><br><span class="line">    │   │   │   └── changelog_1_100000.bin.zstd</span><br><span class="line">    │   │   ├── snapshots</span><br><span class="line">    │   │   ├── state</span><br><span class="line">    │   │   └── uuid</span><br><span class="line">    │   └── <span class="built_in">log</span></span><br><span class="line">    │       ├── clickhouse-keeper.err.log</span><br><span class="line">    │       └── clickhouse-keeper.log</span><br><span class="line">    ├── keeper2</span><br><span class="line">    │   ├── data</span><br><span class="line">    │   │   ├── logs</span><br><span class="line">    │   │   │   └── changelog_1_100000.bin.zstd</span><br><span class="line">    │   │   ├── snapshots</span><br><span class="line">    │   │   ├── state</span><br><span class="line">    │   │   └── uuid</span><br><span class="line">    │   └── <span class="built_in">log</span></span><br><span class="line">    │       ├── clickhouse-keeper.err.log</span><br><span class="line">    │       └── clickhouse-keeper.log</span><br><span class="line">    ├── keeper3</span><br><span class="line">    │   ├── data</span><br><span class="line">    │   │   ├── logs</span><br><span class="line">    │   │   │   └── changelog_1_100000.bin.zstd</span><br><span class="line">    │   │   ├── snapshots</span><br><span class="line">    │   │   ├── state</span><br><span class="line">    │   │   └── uuid</span><br><span class="line">    │   └── <span class="built_in">log</span></span><br><span class="line">    │       ├── clickhouse-keeper.err.log</span><br><span class="line">    │       └── clickhouse-keeper.log</span><br><span class="line">    ├── myscaledb1</span><br><span class="line">    │   ├── data  [17 entries exceeds filelimit, not opening <span class="built_in">dir</span>]</span><br><span class="line">    │   └── <span class="built_in">log</span></span><br><span class="line">    │       ├── clickhouse-server.err.log</span><br><span class="line">    │       └── clickhouse-server.log</span><br><span class="line">    ├── myscaledb2</span><br><span class="line">    │   ├── data  [17 entries exceeds filelimit, not opening <span class="built_in">dir</span>]</span><br><span class="line">    │   └── <span class="built_in">log</span></span><br><span class="line">    │       ├── clickhouse-server.err.log</span><br><span class="line">    │       └── clickhouse-server.log</span><br><span class="line">    ├── myscaledb3</span><br><span class="line">    │   ├── data  [17 entries exceeds filelimit, not opening <span class="built_in">dir</span>]</span><br><span class="line">    │   └── <span class="built_in">log</span></span><br><span class="line">    │       ├── clickhouse-server.err.log</span><br><span class="line">    │       └── clickhouse-server.log</span><br><span class="line">    └── myscaledb4</span><br><span class="line">        ├── data  [17 entries exceeds filelimit, not opening <span class="built_in">dir</span>]</span><br><span class="line">        └── <span class="built_in">log</span></span><br><span class="line">            ├── clickhouse-server.err.log</span><br><span class="line">            └── clickhouse-server.log</span><br><span class="line"></span><br><span class="line">35 directories, 28 files</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>登录用户信息</p>
+<ul>
+<li>
+<p>默认用户 <strong>default</strong> 无密码，只允许在 myscaledb 容器内使用 clickhouse-client 登录使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it myscaledb1 clickhouse-client --user default --password</span><br><span class="line"></span><br><span class="line"><span class="comment"># 注意，执行此命令后，系统要求输入密码，请直接回车即可</span></span><br><span class="line"></span><br><span class="line">ClickHouse client version 23.3.2.1.</span><br><span class="line">Password <span class="keyword">for</span> user (default):</span><br><span class="line">Connecting to localhost:9000 as user default.</span><br><span class="line">Connected to ClickHouse server version 23.3.2 revision 54462.</span><br><span class="line"></span><br><span class="line">Warnings:</span><br><span class="line">* Linux is not using a fast clock <span class="built_in">source</span>. Performance can be degraded. Check /sys/devices/system/clocksource/clocksource0/current_clocksource</span><br><span class="line">* Table system.session_log is enabled. It<span class="string">&#x27;s unreliable and may contain garbage. Do not use it for any kind of security monitoring.</span></span><br><span class="line"><span class="string">* Some obsolete setting is changed. Check &#x27;</span><span class="keyword">select</span> * from system.settings <span class="built_in">where</span> changed<span class="string">&#x27; and read the changelog.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">default@:myscaledb1 :)</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>普通用户 <strong>myscaledb</strong>，密码同用户名。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="MyScaleDB-分区与副本的使用说明">MyScaleDB 分区与副本的使用说明</h2>
+<p>集群是副本和分片的基础，它将 ClickHouse 的服务拓扑由单个节点延伸到多个节点，并提供灵活的集群配置方式，在一个集群里配置不同的小集群，小集群中可以有不同的节点、分区以及副本数量。</p>
+<h3 id="MyScaleDB-的引擎">MyScaleDB 的引擎</h3>
+<p>MyScaleDB 基于 ClickHouse 开发，因此基本上全盘继承了 ClickHouse 引擎。不同引擎对于分区和副本有不同的限制，因此了解各个引擎的差异，有助于我们更好地使用 MyScaleDB。以下是截止到20240523一些常见的 ClickHouse 表引擎：</p>
+<ul>
+<li>MergeTree 系列引擎:
+<ul>
+<li>MergeTree: 基础引擎，支持主键索引、数据分区。</li>
+<li>ReplicatedMergeTree: 用于实现数据副本。</li>
+<li>SummingMergeTree: 用于实时聚合求和。</li>
+<li>AggregatingMergeTree: 用于实时聚合任意的聚合函数。</li>
+<li>CollapsingMergeTree: 用于处理重复数据，例如时间序列数据中的取消操作。</li>
+<li>VersionedCollapsingMergeTree: 带有版本控制的 CollapsingMergeTree。</li>
+<li>GraphiteMergeTree: 用于存储和查询 Graphite 格式的数据。</li>
+</ul>
+</li>
+<li>Log 系列引擎:
+<ul>
+<li>TinyLog: 简单引擎，用于快速写入小表，数据文件按列独立存储。</li>
+<li>Log: 支持并发读取，数据文件按列存储。</li>
+<li>StripeLog: 支持并发读取，所有列数据存储在同一个文件中。</li>
+</ul>
+</li>
+<li>集成外部数据源的引擎:
+<ul>
+<li>HDFS: 允许直接从 HDFS 读取数据。</li>
+<li>MySQL: 允许从 MySQL 数据库读取数据。</li>
+<li>JDBC: 允许从任何支持 JDBC 的数据库读取数据。</li>
+<li>File: 允许读取文件系统上的数据。</li>
+</ul>
+</li>
+<li>特殊用途的引擎:
+<ul>
+<li>Distributed: 用于分布式查询，不存储数据。</li>
+<li>Memory: 将所有数据保存在 RAM 中。</li>
+<li>Set: 用于存储唯一值。</li>
+<li>Buffer: 用于在特定条件下将数据异步写入目标表。</li>
+<li>MaterializedView: 物化视图，根据 SELECT 查询的结果创建。</li>
+</ul>
+</li>
+<li>其他引擎:
+<ul>
+<li>Join: 用于在运行时执行 JOIN 操作。</li>
+<li>URL: 允许从 URL 读取数据。</li>
+<li>Kafka: 用于从 Kafka 读取数据。</li>
+<li>Redis: 用于从 Redis 读取数据。</li>
+</ul>
+</li>
+</ul>
+<p>以上这些引擎，按照对多分区、多副本的支持进行分类：</p>
+<ul>
+<li><strong>支持多分区的引擎</strong>:
+<ul>
+<li>MergeTree: 支持数据分区。</li>
+<li>SummingMergeTree: 继承自 MergeTree，支持分区。</li>
+<li>AggregatingMergeTree: 继承自 MergeTree，支持分区。</li>
+<li>CollapsingMergeTree: 继承自 MergeTree，支持分区。</li>
+<li>VersionedCollapsingMergeTree: 继承自 CollapsingMergeTree，支持分区。</li>
+<li>GraphiteMergeTree: 继承自 MergeTree，支持分区。</li>
+</ul>
+</li>
+<li><strong>支持多副本的引擎</strong>:
+<ul>
+<li>ReplicatedMergeTree: 专为复制表设计，支持多副本。</li>
+</ul>
+</li>
+<li><strong>既支持多分区，也支持多副本的引擎</strong>:
+<ul>
+<li>ReplicatedMergeTree: 这是唯一一个既支持多分区也支持多副本的引擎。它结合了 MergeTree 系列引擎的分区特性和复制表引擎的多副本特性。</li>
+</ul>
+</li>
+</ul>
+<p>请注意，虽然 ReplicatedMergeTree 支持多分区和多副本，但是它通常用于特定的集群设置中，需要与 ZooKeeper/ClickHouseKeeper 一起使用以管理副本之间的一致性。</p>
+<p>其他引擎，如 TinyLog, Log, StripeLog 等，虽然可能支持分区，但它们通常用于特定的用例，如日志存储，并不支持复制表的特性。而 Distributed, Memory, Set, Buffer 等引擎主要用于特定的查询或数据管理操作，并不直接支持多分区或多副本的特性。在选择表引擎时，需要根据具体的业务需求和集群架构来确定最适合的引擎。</p>
+<h3 id="在-cluster-2s-2r-集群使用-ReplicatedMergeTree-引擎示例">在 cluster_2s_2r 集群使用 ReplicatedMergeTree 引擎示例</h3>
+<h4 id="启动-docker-compose">启动 docker-compose</h4>
+<p>按照 <a href="#%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E6%AD%A4docker-compose">如何使用此docker-compose</a> 步骤在本机启动一套 MyScaleDB 集群，启动成功后，进入 myscaledb1 实例内的 clickhouse-client:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it myscaledb1 clickhouse-client --user default --password</span><br></pre></td></tr></table></figure>
+<p>查看集群信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb1 :) <span class="keyword">show</span> clusters;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SHOW</span> CLUSTERS</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">246</span>fc8bc<span class="operator">-</span>d94a<span class="number">-4410</span><span class="operator">-</span>aadb<span class="number">-224278262797</span></span><br><span class="line"></span><br><span class="line">┌─cluster───────┐</span><br><span class="line">│ cluster_2s_2r │</span><br><span class="line">│ <span class="keyword">default</span>       │</span><br><span class="line">└───────────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">2</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.005</span> sec.</span><br></pre></td></tr></table></figure>
+<p>进入 myscaledb3 实例内的 clickhouse-client，查看集群信息，获得同样的结果:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb3 :) <span class="keyword">show</span> clusters;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SHOW</span> CLUSTERS</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">540</span>fd0be<span class="number">-38</span>d7<span class="number">-43</span>ee<span class="number">-82</span>d8<span class="number">-67</span>bb8cc11447</span><br><span class="line"></span><br><span class="line">┌─cluster───────┐</span><br><span class="line">│ cluster_2s_2r │</span><br><span class="line">│ <span class="keyword">default</span>       │</span><br><span class="line">└───────────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">2</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.004</span> sec.</span><br></pre></td></tr></table></figure>
+<p>查看 keeper 信息，如果一切运行正常，将会看到以下信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb3 :) <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> system.zookeeper <span class="keyword">WHERE</span> path <span class="keyword">IN</span> (<span class="string">&#x27;/&#x27;</span>, <span class="string">&#x27;/clickhouse&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> system.zookeeper</span><br><span class="line"><span class="keyword">WHERE</span> path <span class="keyword">IN</span> (<span class="string">&#x27;/&#x27;</span>, <span class="string">&#x27;/clickhouse&#x27;</span>)</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">98042</span>db8<span class="number">-939</span>f<span class="number">-493</span>d<span class="number">-9</span>ac3<span class="operator">-</span>eaba0860db63</span><br><span class="line"></span><br><span class="line">┌─name───────┬─<span class="keyword">value</span>─┬─path────────┐</span><br><span class="line">│ keeper     │       │ <span class="operator">/</span>           │</span><br><span class="line">│ clickhouse │       │ <span class="operator">/</span>           │</span><br><span class="line">│ task_queue │       │ <span class="operator">/</span>clickhouse │</span><br><span class="line">│ moqi       │       │ <span class="operator">/</span>clickhouse │</span><br><span class="line">└────────────┴───────┴─────────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">4</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.007</span> sec.</span><br></pre></td></tr></table></figure>
+<h4 id="创建-database-table">创建 database + table</h4>
+<p>由于我们在此 docker-compose 中配置了 <a href="./configs/distributed-ddl.xml">distributed-ddl.xml</a>, 因此创建数据库、创建表支持分布式 DDL，我们在集群内某个节点执行相关操作，其他节点也会同步执行。我们选择 myscaledb4 节点，执行以下命令：</p>
+<h5 id="创建数据库">创建数据库</h5>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># 创建 testdb 数据库</span><br><span class="line"><span class="keyword">default</span>@:myscaledb4 :) <span class="keyword">CREATE</span> DATABASE testdb <span class="keyword">ON</span> CLUSTER <span class="string">&#x27;cluster_2s_2r&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> DATABASE testdb <span class="keyword">ON</span> CLUSTER cluster_2s_2r</span><br><span class="line"></span><br><span class="line">Query id: ad2e93ed<span class="operator">-</span>fbf6<span class="number">-498</span>f<span class="operator">-</span>b8ab<span class="operator">-</span>a51066b87c5f</span><br><span class="line"></span><br><span class="line">┌─host───────┬─port─┬─status─┬─error─┬─num_hosts_remaining─┬─num_hosts_active─┐</span><br><span class="line">│ myscaledb3 │ <span class="number">9000</span> │      <span class="number">0</span> │       │                   <span class="number">3</span> │                <span class="number">0</span> │</span><br><span class="line">│ myscaledb1 │ <span class="number">9000</span> │      <span class="number">0</span> │       │                   <span class="number">2</span> │                <span class="number">0</span> │</span><br><span class="line">│ myscaledb4 │ <span class="number">9000</span> │      <span class="number">0</span> │       │                   <span class="number">1</span> │                <span class="number">0</span> │</span><br><span class="line">│ myscaledb2 │ <span class="number">9000</span> │      <span class="number">0</span> │       │                   <span class="number">0</span> │                <span class="number">0</span> │</span><br><span class="line">└────────────┴──────┴────────┴───────┴─────────────────────┴──────────────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">4</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.318</span> sec.</span><br></pre></td></tr></table></figure>
+<p>执行成功之后，四个节点的 myscaledb 实例，都已经创建了 testdb 数据库。选择 myscaledb1 节点，执行以下命令：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb1 :) <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> system.databases <span class="keyword">where</span> name<span class="operator">=</span><span class="string">&#x27;testdb&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> system.databases</span><br><span class="line"><span class="keyword">WHERE</span> name <span class="operator">=</span> <span class="string">&#x27;testdb&#x27;</span></span><br><span class="line"></span><br><span class="line">Query id: <span class="number">55</span>f0664b<span class="operator">-</span>e796<span class="number">-4821</span><span class="number">-864</span>f<span class="operator">-</span>ece9807fd080</span><br><span class="line"></span><br><span class="line">┌─name───┬─engine─────┬─data_path──────────────────┬─metadata_path───────────────────────────────────────────────────────┬─uuid─────────────────────────────────┬─engine_full─────────────────────────────────────────────────────────────┬─comment─┐</span><br><span class="line">│ testdb │ Replicated │ <span class="operator">/</span>var<span class="operator">/</span>lib<span class="operator">/</span>clickhouse<span class="operator">/</span>store<span class="operator">/</span> │ <span class="operator">/</span>var<span class="operator">/</span>lib<span class="operator">/</span>clickhouse<span class="operator">/</span>store<span class="operator">/</span><span class="number">0</span>dd<span class="operator">/</span><span class="number">0</span>dd896b7<span class="number">-8e88</span><span class="number">-4</span>b87<span class="number">-94</span>f3<span class="number">-3e8</span>d59b50f5d<span class="operator">/</span> │ <span class="number">0</span>dd896b7<span class="number">-8e88</span><span class="number">-4</span>b87<span class="number">-94</span>f3<span class="number">-3e8</span>d59b50f5d │ Replicated(<span class="string">&#x27;/clickhouse/moqi/databases/testdb&#x27;</span>, <span class="string">&#x27;&#123;shard&#125;&#x27;</span>, <span class="string">&#x27;&#123;replica&#125;&#x27;</span>) │         │</span><br><span class="line">└────────┴────────────┴────────────────────────────┴─────────────────────────────────────────────────────────────────────┴──────────────────────────────────────┴─────────────────────────────────────────────────────────────────────────┴─────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.060</span> sec.</span><br></pre></td></tr></table></figure>
+<h5 id="创建数据库的表">创建数据库的表</h5>
+<p>在 myscaledb3 上执行 SQL 创建 tablemoqi</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb3 :) <span class="keyword">CREATE TABLE</span> testdb.tablemoqi</span><br><span class="line">                       (</span><br><span class="line">                           `id` UInt64,</span><br><span class="line">                           `column1` String</span><br><span class="line">                       )</span><br><span class="line">                       ENGINE <span class="operator">=</span> ReplicatedMergeTree</span><br><span class="line">                       <span class="keyword">ORDER</span> <span class="keyword">BY</span> column1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE TABLE</span> testdb.tablemoqi</span><br><span class="line">(</span><br><span class="line">    `id` UInt64,</span><br><span class="line">    `column1` String</span><br><span class="line">)</span><br><span class="line">ENGINE <span class="operator">=</span> ReplicatedMergeTree</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> column1</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">107</span>fe99d<span class="number">-5656</span><span class="number">-4984</span><span class="number">-8048</span><span class="number">-2</span>ea5935e208b</span><br><span class="line"></span><br><span class="line">┌─shard─┬─replica────┬─status─┬─num_hosts_remaining─┬─num_hosts_active─┐</span><br><span class="line">│ <span class="number">02</span>    │ myscaledb3 │ OK     │                   <span class="number">3</span> │                <span class="number">3</span> │</span><br><span class="line">└───────┴────────────┴────────┴─────────────────────┴──────────────────┘</span><br><span class="line">┌─shard─┬─replica────┬─status─┬─num_hosts_remaining─┬─num_hosts_active─┐</span><br><span class="line">│ <span class="number">02</span>    │ myscaledb4 │ OK     │                   <span class="number">2</span> │                <span class="number">2</span> │</span><br><span class="line">└───────┴────────────┴────────┴─────────────────────┴──────────────────┘</span><br><span class="line">┌─shard─┬─replica────┬─status─┬─num_hosts_remaining─┬─num_hosts_active─┐</span><br><span class="line">│ <span class="number">01</span>    │ myscaledb2 │ OK     │                   <span class="number">1</span> │                <span class="number">1</span> │</span><br><span class="line">└───────┴────────────┴────────┴─────────────────────┴──────────────────┘</span><br><span class="line">┌─shard─┬─replica────┬─status─┬─num_hosts_remaining─┬─num_hosts_active─┐</span><br><span class="line">│ <span class="number">01</span>    │ myscaledb1 │ OK     │                   <span class="number">0</span> │                <span class="number">0</span> │</span><br><span class="line">└───────┴────────────┴────────┴─────────────────────┴──────────────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">4</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.683</span> sec.</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>此处直接声明表的引擎为 ReplicatedMergeTree， 实际测试法相，当声明引擎为 MergeTree，程序会自动转换创建使用 ReplicatedMergeTree 引擎。</p>
+</blockquote>
+<p>在任意其他节点，都可查看到此 tablemoqi 已经创建成功：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb4 :) <span class="keyword">select</span> `database`,name,`uuid`,`engine` <span class="keyword">from</span> system.tables <span class="keyword">where</span> name<span class="operator">=</span><span class="string">&#x27;tablemoqi&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    database,</span><br><span class="line">    name,</span><br><span class="line">    uuid,</span><br><span class="line">    engine</span><br><span class="line"><span class="keyword">FROM</span> system.tables</span><br><span class="line"><span class="keyword">WHERE</span> name <span class="operator">=</span> <span class="string">&#x27;tablemoqi&#x27;</span></span><br><span class="line"></span><br><span class="line">Query id: d2ce86d8<span class="operator">-</span>caec<span class="number">-4</span>b81<span class="operator">-</span>a549<span class="operator">-</span>eb2872abf6cb</span><br><span class="line"></span><br><span class="line">┌─database─┬─name──────┬─uuid─────────────────────────────────┬─engine──────────────┐</span><br><span class="line">│ testdb   │ tablemoqi │ <span class="number">39</span>b48ef9<span class="operator">-</span>c171<span class="number">-4</span>c18<span class="operator">-</span>b0dd<span class="number">-13</span>eea3b1505c │ ReplicatedMergeTree │</span><br><span class="line">└──────────┴───────────┴──────────────────────────────────────┴─────────────────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.012</span> sec.</span><br></pre></td></tr></table></figure>
+<h5 id="插入数据">插入数据</h5>
+<p>cluster_2s_2r 集群的网络拓扑如下图：</p>
+<pre><code class="highlight mermaid">graph TD;
+    A[cluster_2s_2r] --&gt; B[Shard 1]
+    A --&gt; C[Shard 2]
+    B --&gt; B1[myscaledb1:9000]
+    B --&gt; B2[myscaledb2:9000]
+    C --&gt; C1[myscaledb3:9000]
+    C --&gt; C2[myscaledb4:9000]
+</code></pre>
+<p>需要说明的是，Shard1 与 Shard2 数据是隔离的，在 myscaledb1 操作表数据，相关命令会同步到 myscaledb2，但是不会影响到 myscaledb3、myscaledb4 节点。下面我们通过实际的 SQL 指令验证此结论：</p>
+<p>在 myscaledb1 的 clickhouse-client 中执行：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb1 :) <span class="keyword">INSERT INTO</span> testdb.tablemoqi (id, column1) <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="string">&#x27;abc1&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT INTO</span> testdb.tablemoqi (id, column1) FORMAT <span class="keyword">Values</span></span><br><span class="line"></span><br><span class="line">Query id: a24a4892<span class="number">-5</span>fd2<span class="number">-4</span>f28<span class="number">-84</span>c5<span class="number">-108</span>b7e9798ae</span><br><span class="line"></span><br><span class="line">Ok.</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.204</span> sec.</span><br><span class="line"></span><br><span class="line"><span class="keyword">default</span>@:myscaledb1 :) <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> testdb.tablemoqi;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> testdb.tablemoqi</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">656</span>f7731<span class="operator">-</span>e176<span class="number">-4754</span><span class="operator">-</span>ad07<span class="operator">-</span>fca1c12dc18c</span><br><span class="line"></span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">1</span> │ abc1    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.030</span> sec.</span><br></pre></td></tr></table></figure>
+<p>进入 myscaledb2 的 clickhouse-client 中执行：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">#######################################</span><br><span class="line"># 查询表数据</span><br><span class="line">#######################################</span><br><span class="line"><span class="keyword">default</span>@:myscaledb2 :) <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> testdb.tablemoqi;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> testdb.tablemoqi</span><br><span class="line"></span><br><span class="line">Query id: bd615469<span class="number">-660</span>d<span class="number">-4502</span><span class="operator">-</span>b2cf<span class="operator">-</span>b256d14958c2</span><br><span class="line"></span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">1</span> │ abc1    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.013</span> sec.</span><br><span class="line"></span><br><span class="line">####################################### </span><br><span class="line"># 插入新数据</span><br><span class="line">#######################################</span><br><span class="line"><span class="keyword">default</span>@:myscaledb2 :) <span class="keyword">INSERT INTO</span> testdb.tablemoqi (id, column1) <span class="keyword">VALUES</span> (<span class="number">2</span>, <span class="string">&#x27;abc2&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT INTO</span> testdb.tablemoqi (id, column1) FORMAT <span class="keyword">Values</span></span><br><span class="line"></span><br><span class="line">Query id: <span class="number">730349</span>bc<span class="number">-18e6</span><span class="number">-4</span>ac8<span class="number">-845</span>a<span class="number">-2993309</span>cd831</span><br><span class="line"></span><br><span class="line">Ok.</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.206</span> sec.</span><br><span class="line"></span><br><span class="line">#######################################</span><br><span class="line"># 查询表数据</span><br><span class="line">#######################################</span><br><span class="line"><span class="keyword">default</span>@:myscaledb2 :) <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> testdb.tablemoqi;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> testdb.tablemoqi</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">3</span>ef60150<span class="number">-667</span>c<span class="number">-4e11</span><span class="operator">-</span>aeb2<span class="operator">-</span>afa2308b74d9</span><br><span class="line"></span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">1</span> │ abc1    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">2</span> │ abc2    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">2</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.042</span> sec.</span><br></pre></td></tr></table></figure>
+<p>进入 myscaledb3 的 clickhouse-client 中执行：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">#######################################</span><br><span class="line"># 查询表数据</span><br><span class="line"># 我们可以看到，myscaledb1<span class="operator">/</span>myscaledb2 插入的数据</span><br><span class="line"># 在 myscaledb3 并没有查询到</span><br><span class="line">#######################################</span><br><span class="line"><span class="keyword">default</span>@:myscaledb3 :) <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> testdb.tablemoqi;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> testdb.tablemoqi</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">12688</span>a16<span class="number">-91</span>d7<span class="number">-4</span>b8a<span class="operator">-</span>bb87<span class="number">-8e8</span>d6d98eeeb</span><br><span class="line"></span><br><span class="line">Ok.</span><br><span class="line"></span><br><span class="line"><span class="number">0</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.005</span> sec.</span><br><span class="line"></span><br><span class="line">####################################### </span><br><span class="line"># 插入新数据</span><br><span class="line">#######################################</span><br><span class="line"><span class="keyword">default</span>@:myscaledb3 :) <span class="keyword">INSERT INTO</span> testdb.tablemoqi (id, column1) <span class="keyword">VALUES</span> (<span class="number">3</span>, <span class="string">&#x27;abc3&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT INTO</span> testdb.tablemoqi (id, column1) FORMAT <span class="keyword">Values</span></span><br><span class="line"></span><br><span class="line">Query id: <span class="number">9</span>d962379<span class="number">-55e8</span><span class="number">-42</span>dd<span class="operator">-</span>b1b2<span class="operator">-</span>e6499c6e100d</span><br><span class="line"></span><br><span class="line">Ok.</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.238</span> sec.</span><br></pre></td></tr></table></figure>
+<p>进入 myscaledb4 的 clickhouse-client 中执行：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb4 :) <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> testdb.tablemoqi;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> testdb.tablemoqi</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">34</span>b711f5<span class="operator">-</span>afaa<span class="number">-4391</span><span class="number">-8987</span><span class="number">-1</span>bbf5f4f577c</span><br><span class="line"></span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">3</span> │ abc3    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.028</span> sec.</span><br></pre></td></tr></table></figure>
+<p>以上结果可以说明，分区 Shard1 与 Shard2 数据是隔离的。在下一个章节，会介绍如何将两个分区的数据合并查询。</p>
+<h4 id="创建-Distributed-分布式表引擎表">创建 Distributed 分布式表引擎表</h4>
+<p>Distributed 自身不存储任何数据，而是作为数据分片的透明代理，能够自动路由数据至集群中的各个节点，所以 Distributed 表引擎需要和其他数据表引擎一起协同工作。在任意一个 myscaledb 节点执行以下命令：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb4 :) <span class="keyword">CREATE TABLE</span> testdb.tablemoqi_dist</span><br><span class="line">                       (</span><br><span class="line">                           `id` UInt64,</span><br><span class="line">                           `column1` String</span><br><span class="line">                       )</span><br><span class="line">                       ENGINE <span class="operator">=</span> Distributed(<span class="string">&#x27;cluster_2s_2r&#x27;</span>, <span class="string">&#x27;testdb&#x27;</span>, <span class="string">&#x27;tablemoqi&#x27;</span>, rand());</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE TABLE</span> testdb.tablemoqi_dist</span><br><span class="line">(</span><br><span class="line">    `id` UInt64,</span><br><span class="line">    `column1` String</span><br><span class="line">)</span><br><span class="line">ENGINE <span class="operator">=</span> Distributed(<span class="string">&#x27;cluster_2s_2r&#x27;</span>, <span class="string">&#x27;testdb&#x27;</span>, <span class="string">&#x27;tablemoqi&#x27;</span>, rand())</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">2</span>cf95bd7<span class="operator">-</span>b0ef<span class="number">-4</span>f7c<span class="operator">-</span>bb5c<span class="operator">-</span>cee4be38dd96</span><br><span class="line"></span><br><span class="line">┌─shard─┬─replica────┬─status─┬─num_hosts_remaining─┬─num_hosts_active─┐</span><br><span class="line">│ <span class="number">02</span>    │ myscaledb4 │ OK     │                   <span class="number">3</span> │                <span class="number">3</span> │</span><br><span class="line">└───────┴────────────┴────────┴─────────────────────┴──────────────────┘</span><br><span class="line">┌─shard─┬─replica────┬─status─┬─num_hosts_remaining─┬─num_hosts_active─┐</span><br><span class="line">│ <span class="number">01</span>    │ myscaledb1 │ OK     │                   <span class="number">2</span> │                <span class="number">0</span> │</span><br><span class="line">│ <span class="number">02</span>    │ myscaledb3 │ OK     │                   <span class="number">1</span> │                <span class="number">0</span> │</span><br><span class="line">│ <span class="number">01</span>    │ myscaledb2 │ OK     │                   <span class="number">0</span> │                <span class="number">0</span> │</span><br><span class="line">└───────┴────────────┴────────┴─────────────────────┴──────────────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">4</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.235</span> sec.</span><br></pre></td></tr></table></figure>
+<p>一个名为 tablemoqi_dist 的 Distributed 分布式表引擎的表在四个节点都已经创建，此时，在任意节点查询 testdb.tablemoqi_dist，都可以将两个分区的 testdb.tablemoqi 表数据合并在一起查询：</p>
+<h5 id="分布式查询">分布式查询</h5>
+<p>在 myscaledb4 查询 tablemoqi_dist:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb4 :) <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> testdb.tablemoqi_dist;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> testdb.tablemoqi_dist</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">8917e8</span>e2<span class="operator">-</span>f720<span class="number">-40</span>b5<span class="number">-8001</span><span class="operator">-</span>fbd3b7464c08</span><br><span class="line"></span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">3</span> │ abc3    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">1</span> │ abc1    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">2</span> │ abc2    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">3</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.051</span> sec.</span><br></pre></td></tr></table></figure>
+<p>在 myscaledb2 查询 tablemoqi_dist:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb2 :) <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> testdb.tablemoqi_dist;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> testdb.tablemoqi_dist</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">8</span>d376b3d<span class="operator">-</span>cbc5<span class="number">-4</span>a77<span class="operator">-</span>bafc<span class="number">-0</span>b7939c7c2e3</span><br><span class="line"></span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">1</span> │ abc1    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">2</span> │ abc2    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">3</span> │ abc3    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">3</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.099</span> sec.</span><br></pre></td></tr></table></figure>
+<h5 id="分布式写入">分布式写入</h5>
+<p>在 myscaledb1 对 testdb.tablemoqi_dist 插入四条数据:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb1 :) <span class="keyword">INSERT INTO</span> testdb.tablemoqi_dist (id, column1) <span class="keyword">VALUES</span> (<span class="number">4</span>, <span class="string">&#x27;abc4&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT INTO</span> testdb.tablemoqi_dist (id, column1) FORMAT <span class="keyword">Values</span></span><br><span class="line"></span><br><span class="line">Query id: <span class="number">93</span>ee6c27<span class="number">-12</span>d1<span class="number">-4883</span><span class="operator">-</span>b393<span class="number">-11</span>af20874e68</span><br><span class="line"></span><br><span class="line">Ok.</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.199</span> sec.</span><br><span class="line"></span><br><span class="line"><span class="keyword">default</span>@:myscaledb1 :) <span class="keyword">INSERT INTO</span> testdb.tablemoqi_dist (id, column1) <span class="keyword">VALUES</span> (<span class="number">5</span>, <span class="string">&#x27;abc5&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT INTO</span> testdb.tablemoqi_dist (id, column1) FORMAT <span class="keyword">Values</span></span><br><span class="line"></span><br><span class="line">Query id: <span class="number">6</span>eccc9bf<span class="operator">-</span>abfb<span class="number">-49</span>d6<span class="operator">-</span>a9d2<span class="number">-3</span>b86f6faafa9</span><br><span class="line"></span><br><span class="line">Ok.</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.035</span> sec.</span><br><span class="line"></span><br><span class="line"><span class="keyword">default</span>@:myscaledb1 :) <span class="keyword">INSERT INTO</span> testdb.tablemoqi_dist (id, column1) <span class="keyword">VALUES</span> (<span class="number">6</span>, <span class="string">&#x27;abc6&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT INTO</span> testdb.tablemoqi_dist (id, column1) FORMAT <span class="keyword">Values</span></span><br><span class="line"></span><br><span class="line">Query id: <span class="number">3</span>caa458e<span class="number">-6304</span><span class="number">-481</span>f<span class="operator">-</span>b31c<span class="number">-581</span>dbc80f844</span><br><span class="line"></span><br><span class="line">Ok.</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.041</span> sec.</span><br><span class="line"></span><br><span class="line"><span class="keyword">default</span>@:myscaledb1 :) <span class="keyword">INSERT INTO</span> testdb.tablemoqi_dist (id, column1) <span class="keyword">VALUES</span> (<span class="number">7</span>, <span class="string">&#x27;abc7&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT INTO</span> testdb.tablemoqi_dist (id, column1) FORMAT <span class="keyword">Values</span></span><br><span class="line"></span><br><span class="line">Query id: b82c00f9<span class="operator">-</span>c693<span class="number">-4</span>c23<span class="number">-8</span>f17<span class="number">-4435814</span>af5cd</span><br><span class="line"></span><br><span class="line">Ok.</span><br><span class="line"></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.076</span> sec.</span><br><span class="line"></span><br><span class="line"># 查询集群内数据结果</span><br><span class="line"></span><br><span class="line"><span class="keyword">default</span>@:myscaledb1 :) <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> testdb.tablemoqi_dist;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> testdb.tablemoqi_dist</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">32</span>dc2a3e<span class="operator">-</span>ca06<span class="number">-4776</span><span class="number">-96</span>c0<span class="operator">-</span>f6b001245002</span><br><span class="line"></span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">1</span> │ abc1    │</span><br><span class="line">│  <span class="number">2</span> │ abc2    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">3</span> │ abc3    │</span><br><span class="line">│  <span class="number">4</span> │ abc4    │</span><br><span class="line">│  <span class="number">5</span> │ abc5    │</span><br><span class="line">│  <span class="number">6</span> │ abc6    │</span><br><span class="line">│  <span class="number">7</span> │ abc7    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">7</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.074</span> sec</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>在 cluster_2s_2r 集群的配置文件 <a href="./configs/2share2replica_config.xml">2share2replica_config.xml</a> 中分配配置分片的权重(weight)为 10/20，系统会根据此权重值判断数据存储的集群，实际数据分布会跟本教程有所区别。分别在 myscaledb2、myscaledb3 查看实际存储数据的表 testdb.tablemoqi 记录的数据数量:</p>
+<p>在 myscaledb2 中:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb2 :) <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> testdb.tablemoqi;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> testdb.tablemoqi</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">4</span>cbb09fe<span class="number">-4755</span><span class="number">-47</span>cd<span class="operator">-</span>a7c4<span class="number">-1</span>ca559822a8f</span><br><span class="line"></span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">1</span> │ abc1    │</span><br><span class="line">│  <span class="number">2</span> │ abc2    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">2</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.021</span> sec.</span><br></pre></td></tr></table></figure>
+<p>在 myscaledb3 中:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">default</span>@:myscaledb3 :) <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> testdb.tablemoqi;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> testdb.tablemoqi</span><br><span class="line"></span><br><span class="line">Query id: <span class="number">1</span>be83841<span class="number">-687</span>d<span class="number">-41</span>aa<span class="number">-9</span>bcf<span class="operator">-</span>f3f7ad522fbe</span><br><span class="line"></span><br><span class="line">┌─id─┬─column1─┐</span><br><span class="line">│  <span class="number">3</span> │ abc3    │</span><br><span class="line">│  <span class="number">4</span> │ abc4    │</span><br><span class="line">│  <span class="number">5</span> │ abc5    │</span><br><span class="line">│  <span class="number">6</span> │ abc6    │</span><br><span class="line">│  <span class="number">7</span> │ abc7    │</span><br><span class="line">└────┴─────────┘</span><br><span class="line"></span><br><span class="line"><span class="number">5</span> <span class="keyword">rows</span> <span class="keyword">in</span> set. Elapsed: <span class="number">0.012</span> sec.</span><br></pre></td></tr></table></figure>
+<h2 id="Reference">Reference</h2>
+<ul>
+<li><a target="_blank" href="https://clickhouse.com/docs/en/guides/sre/keeper/clickhouse-keeper#configuring-clickhouse-keeper-with-unique-paths" rel="external nofollow noreferrer noopener">Configuring ClickHouse Keeper with unique paths</a></li>
+<li><a target="_blank" href="https://clickhouse.com/docs/zh/operations/clickhouse-keeper" rel="external nofollow noreferrer noopener">clickhouse-keeper</a></li>
+<li><a target="_blank" href="https://clickhouse.com/docs/en/guides/sre/keeper/clickhouse-keeper#clickhouse-keeper-user-guide" rel="external nofollow noreferrer noopener">ClickHouse Keeper User Guide</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/clickhouse/" rel="tag"># clickhouse</a>
+              <a href="/tags/MyScaleDB/" rel="tag"># MyScaleDB</a>
+              <a href="/tags/Cluster/" rel="tag"># Cluster</a>
+              <a href="/tags/MergeTree/" rel="tag"># MergeTree</a>
+              <a href="/tags/ReplicatedMergeTree/" rel="tag"># ReplicatedMergeTree</a>
+              <a href="/tags/Distributed/" rel="tag"># Distributed</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/07/19/internationalCerificateOfVaccinationOrProphylaxis/" rel="prev" title="去非洲前打疫苗获取黄皮书攻略">
+                  <i class="fa fa-angle-left"></i> 去非洲前打疫苗获取黄皮书攻略
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/05/24/WhyIsClickHouseSoFast/" rel="next" title="ClickHouse 为何如此之快">
+                  ClickHouse 为何如此之快 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.0/pdfobject.min.js","integrity":"sha256-JJZNsid68vnh3/zyj0lY9BN5ynxVX/12XgOa1TlaYN0="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js"></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.min.js","integrity":"sha256-G8ouPAnw4zzMbnAenHnVz6h9XpKbNdOkrqTh7AadyHs="}}</script>
+  <script src="/js/third-party/tags/mermaid.js"></script>
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"d73ab57f8f020824c99832225ba223fb"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>
