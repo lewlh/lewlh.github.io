@@ -1,0 +1,2594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享感悟。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《SRE Google运维解密》读书笔记">
+<meta property="og:url" content="http://lewlh.github.io/2020/07/18/SRE-Google%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享感悟。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-3Google%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-4%E7%94%A8%E6%88%B7%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E8%BF%87%E7%A8%8B.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_7-1DNS%E6%9C%8D%E5%8A%A1%E7%9A%84ProdTest.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_7-2DNS%E6%9C%8D%E5%8A%A1%E7%9A%84ProdTest%E5%BC%82%E5%B8%B8%E4%BF%AE%E5%A4%8D%E6%B5%81%E7%A8%8B.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_8-1%E7%AE%80%E5%8C%96%E7%89%88Rapid%E6%9E%B6%E6%9E%84.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-1%E4%BB%8E%E4%B8%8D%E5%90%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E6%94%B6%E9%9B%86%E5%88%B0%E7%9A%84%E9%94%99%E8%AF%AF%E7%9B%91%E6%8E%A7%E5%8F%98%E9%87%8F%E7%9A%84%E5%AD%98%E5%82%A8%E5%BD%A2%E5%BC%8F.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-2time-series%E7%A4%BA%E8%8C%83%E6%95%B0%E6%8D%AE.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-3%E4%B8%80%E4%B8%AA%E5%9C%A8%E4%B8%89%E4%B8%AA%E9%9B%86%E7%BE%A4%E4%B8%AD%E5%B1%82%E7%BA%A7%E9%83%A8%E7%BD%B2%E7%9A%84Borgmon%E6%95%B0%E6%8D%AE%E6%B5%81%E5%90%91%E5%9B%BE.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_12-1%EF%BC%9A%E9%80%9A%E7%94%A8%E7%9A%84%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%E6%B5%81%E7%A8%8B.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_17-1%EF%BC%9A%E4%BC%A0%E7%BB%9F%E6%B5%8B%E8%AF%95%E7%9A%84%E5%B1%82%E7%BA%A7%E6%A8%A1%E5%9E%8B.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_18-1%EF%BC%9AAuxon%E7%9A%84%E4%B8%BB%E8%A6%81%E7%BB%84%E4%BB%B6.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_20-1%EF%BC%9A%E4%BB%BB%E5%8A%A1%E8%B4%9F%E8%BD%BD%E5%88%86%E5%B8%83%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%9C%BA%E6%99%AF.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_20-2%EF%BC%9ACPU%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E6%B5%AA%E8%B4%B9%E7%9A%84%E7%9B%B4%E6%96%B9%E5%9B%BE.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_20-3%EF%BC%9A300%E4%B8%AA%E5%AE%A2%E6%88%B7%E7%AB%AF%E3%80%81300%E4%B8%AA%E5%90%8E%E7%AB%AF%E5%92%8C%E5%AD%90%E9%9B%86%E5%A4%A7%E5%B0%8F%E4%B8%BA%E7%99%BE%E5%88%86%E4%B9%8B30%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%88%86%E5%B8%83%E5%9B%BE.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_20-4%EF%BC%9A300%E4%B8%AA%E5%AE%A2%E6%88%B7%E7%AB%AF%E3%80%81300%E4%B8%AA%E5%90%8E%E7%AB%AF%E5%92%8C%E5%AD%90%E9%9B%86%E5%A4%A7%E5%B0%8F%E4%B8%BA%E7%99%BE%E5%88%86%E4%B9%8B10%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%88%86%E5%B8%83%E5%9B%BE.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_20-5%EF%BC%9A300%E4%B8%AA%E5%AE%A2%E6%88%B7%E7%AB%AF%E3%80%81300%E4%B8%AA%E5%90%8E%E7%AB%AF%EF%BC%8C%E5%AD%90%E9%9B%86%E6%95%B0%E9%87%8F10%EF%BC%8C%E9%87%87%E7%94%A8%E7%A1%AE%E5%AE%9A%E6%80%A7%E7%AE%97%E6%B3%95%E7%9A%84%E7%BB%93%E6%9E%9C.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_22-2%EF%BC%9A%E6%AD%A3%E5%B8%B8%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%B4%9F%E8%BD%BD%E5%9C%A8%E9%9B%86%E7%BE%A4AB%E4%B9%8B%E9%97%B4%E7%9A%84%E5%88%86%E5%B8%83.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_22-3%EF%BC%9A%E9%9B%86%E7%BE%A4B%E5%87%BA%E7%8E%B0%E6%95%85%E9%9A%9C%EF%BC%8C%E6%89%80%E6%9C%89%E8%AF%B7%E6%B1%82%E9%83%BD%E5%8F%91%E5%BE%80%E9%9B%86%E7%BE%A4A.png">
+<meta property="og:image" content="http://paxos.systems/static/rsm.gif">
+<meta property="og:image" content="http://paxos.systems/static/consensus.gif">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-2%EF%BC%9A%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95%E5%92%8C%E5%A4%8D%E5%88%B6%E7%8A%B6%E6%80%81%E6%9C%BA%E7%9A%84%E5%85%B3%E7%B3%BB.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-3%EF%BC%9A%E4%BD%BF%E7%94%A8%E5%A4%8D%E5%88%B6%E8%BF%9B%E7%A8%8B%E8%BF%9B%E8%A1%8C%E9%A2%86%E5%A4%B4%E4%BA%BA%E9%80%89%E4%B8%BE%E6%9E%84%E9%80%A0%E7%9A%84%E9%AB%98%E5%8F%AF%E7%94%A8%E7%B3%BB%E7%BB%9F.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-5%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8E%E9%98%9F%E5%88%97%E7%9A%84%E4%BB%BB%E5%8A%A1%E5%88%86%E5%8F%91%E7%B3%BB%E7%BB%9F%EF%BC%8C%E5%88%A9%E7%94%A8%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E6%90%AD%E5%BB%BA%E7%9A%84%E5%8F%AF%E9%9D%A0%E9%98%9F%E5%88%97.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-7%EF%BC%9A%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%A4%8D%E5%90%88%E5%BC%8FPaxos%E6%B6%88%E6%81%AF%E6%B5%81.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-8%EF%BC%9A%E5%A4%8D%E5%90%88Paxos%E5%8D%8F%E8%AE%AE%E4%B8%AD%E7%9A%84%E2%80%9C%E6%8F%90%E8%AE%AE%E8%80%85%E5%86%B3%E6%96%97%E2%80%9D%E5%9C%BA%E6%99%AF.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-9%EF%BC%9A%E4%BD%BF%E7%94%A8%E4%BB%A3%E7%90%86%E6%B1%A0%E6%9D%A5%E9%99%8D%E4%BD%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B7%A8%E5%9C%B0%E7%90%86%E5%8C%BA%E5%9F%9F%E6%89%93%E5%BC%80TCPIP%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%BC%80%E9%94%80.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_24-1%EF%BC%9A%E4%B8%8D%E5%90%8C%E5%88%86%E5%B8%83%E5%BC%8FCron%E5%89%AF%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E4%BA%A4%E4%BA%92%E8%BF%87%E7%A8%8B.png">
+<meta property="og:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_24-2%EF%BC%9A%E4%BB%A5%E9%A2%86%E5%A4%B4%E4%BA%BA%E8%A7%86%E8%A7%92%E7%94%BB%E7%9A%84Cron%E4%BB%BB%E5%8A%A1%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E7%A4%BA%E6%84%8F%E5%9B%BE.png">
+<meta property="article:published_time" content="2020-07-18T13:07:52.000Z">
+<meta property="article:modified_time" content="2025-02-16T03:27:02.387Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="google">
+<meta property="article:tag" content="运维">
+<meta property="article:tag" content="Ops">
+<meta property="article:tag" content="Dev">
+<meta property="article:tag" content="错误预算">
+<meta property="article:tag" content="SRE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lewlh.github.io/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86.png">
+
+
+<link rel="canonical" href="http://lewlh.github.io/2020/07/18/SRE-Google%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2020/07/18/SRE-Google%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86/","path":"2020/07/18/SRE-Google运维解密/","title":"《SRE Google运维解密》读书笔记"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>《SRE Google运维解密》读书笔记 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">107</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">35</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-1-%E7%AB%A0-%E4%BB%8B%E7%BB%8D"><span class="nav-text">第 1 章 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86%E5%91%98%E6%A8%A1%E5%BC%8F"><span class="nav-text">系统管理员模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SRE-%E6%96%B9%E6%B3%95%E8%AE%BA"><span class="nav-text">SRE 方法论</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A1%AE%E4%BF%9D%E9%95%BF%E6%9C%9F%E5%85%B3%E6%B3%A8%E7%A0%94%E5%8F%91%E5%B7%A5%E4%BD%9C"><span class="nav-text">确保长期关注研发工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%A8%E4%BF%9D%E9%9A%9C%E6%9C%8D%E5%8A%A1-SLO-%E7%9A%84%E5%89%8D%E6%8F%90%E4%B8%8B%E6%9C%80%E5%A4%A7%E5%8C%96%E8%BF%AD%E4%BB%A3%E9%80%9F%E5%BA%A6"><span class="nav-text">在保障服务 SLO 的前提下最大化迭代速度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9F"><span class="nav-text">监控系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9C%80%E6%B1%82%E9%A2%84%E6%B5%8B%E5%92%8C%E5%AE%B9%E9%87%8F%E8%A7%84%E5%88%92"><span class="nav-text">需求预测和容量规划</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E9%83%A8%E7%BD%B2"><span class="nav-text">资源部署</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%88%E7%8E%87%E4%B8%8E%E6%80%A7%E8%83%BD"><span class="nav-text">效率与性能</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-2-%E7%AB%A0-Google-%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%EF%BC%9ASRE%E8%A7%86%E8%A7%92"><span class="nav-text">第 2 章 Google 生产环境：SRE视角</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6"><span class="nav-text">硬件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%A1%E7%90%86%E7%89%A9%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E7%B3%BB%E7%BB%9F%E7%AE%A1%E7%90%86%E8%BD%AF%E4%BB%B6"><span class="nav-text">管理物理服务器的系统管理软件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%A1%E7%90%86%E7%89%A9%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-text">管理物理服务器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%98%E5%82%A8"><span class="nav-text">存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C"><span class="nav-text">网络</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%B3%BB%E7%BB%9F%E8%BD%AF%E4%BB%B6"><span class="nav-text">其他系统软件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E6%9C%8D%E5%8A%A1"><span class="nav-text">分布式锁服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7%E4%B8%8E%E8%AD%A6%E6%8A%A5%E7%B3%BB%E7%BB%9F"><span class="nav-text">监控与警报系统</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD"><span class="nav-text">软件基础设施</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A0%94%E5%8F%91%E7%8E%AF%E5%A2%83"><span class="nav-text">研发环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8E%8E%E5%A3%AB%E6%AF%94%E4%BA%9A%E6%90%9C%E7%B4%A2%EF%BC%9A%E4%B8%80%E4%B8%AA%E7%A4%BA%E8%8C%83%E6%9C%8D%E5%8A%A1"><span class="nav-text">莎士比亚搜索：一个示范服务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-3-%E7%AB%A0-%E6%8B%A5%E6%8A%B1%E9%A3%8E%E9%99%A9"><span class="nav-text">第 3 章 拥抱风险</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%A1%E7%90%86%E9%A3%8E%E9%99%A9"><span class="nav-text">管理风险</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%A6%E9%87%8F%E6%9C%8D%E5%8A%A1%E7%9A%84%E9%A3%8E%E9%99%A9"><span class="nav-text">度量服务的风险</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E9%A3%8E%E9%99%A9%E7%9A%84%E5%AE%B9%E5%BF%8D%E5%BA%A6"><span class="nav-text">服务风险的容忍度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E9%94%99%E8%AF%AF%E9%A2%84%E7%AE%97%E7%9A%84%E7%9B%AE%E7%9A%84"><span class="nav-text">使用错误预算的目的</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%94%99%E8%AF%AF%E9%A2%84%E7%AE%97%E7%9A%84%E6%9E%84%E5%BB%BA%E8%BF%87%E7%A8%8B"><span class="nav-text">错误预算的构建过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A5%BD%E5%A4%84"><span class="nav-text">好处</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-4-%E7%AB%A0-%E6%9C%8D%E5%8A%A1%E8%B4%A8%E9%87%8F%E7%9B%AE%E6%A0%87"><span class="nav-text">第 4 章 服务质量目标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E8%B4%A8%E9%87%8F%E6%9C%AF%E8%AF%AD"><span class="nav-text">服务质量术语</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E6%A0%87"><span class="nav-text">指标</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87"><span class="nav-text">目标</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE"><span class="nav-text">协议</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E6%A0%87%E5%9C%A8%E5%AE%9E%E8%B7%B5%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-text">指标在实践中的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%90%E7%BB%B4%E4%BA%BA%E5%91%98%E5%92%8C%E6%9C%80%E7%BB%88%E7%94%A8%E6%88%B7%E5%90%84%E5%85%B3%E5%BF%83%E4%BB%80%E4%B9%88"><span class="nav-text">运维人员和最终用户各关心什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E6%A0%87%E7%9A%84%E6%94%B6%E9%9B%86"><span class="nav-text">指标的收集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B1%87%E6%80%BB"><span class="nav-text">汇总</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E6%A0%87%E7%9A%84%E6%A0%87%E5%87%86%E5%8C%96"><span class="nav-text">指标的标准化</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E5%9C%A8%E5%AE%9E%E8%B7%B5%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-text">目标在实践中的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-text">目标的定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-text">目标的选择</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E6%89%8B%E6%AE%B5"><span class="nav-text">控制手段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SLO-%E5%8F%AF%E4%BB%A5%E5%BB%BA%E7%AB%8B%E7%94%A8%E6%88%B7%E9%A2%84%E6%9C%9F"><span class="nav-text">SLO 可以建立用户预期</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE%E5%9C%A8%E5%AE%9E%E8%B7%B5%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-text">协议在实践中的应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-5-%E7%AB%A0-%E5%87%8F%E5%B0%91%E7%90%90%E4%BA%8B"><span class="nav-text">第 5 章 减少琐事</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%90%90%E4%BA%8B%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-text">琐事的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%90%90%E4%BA%8B%E8%B6%8A%E5%B0%91%E8%B6%8A%E5%A5%BD"><span class="nav-text">为什么琐事越少越好</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E7%AE%97%E4%BD%9C%E5%B7%A5%E7%A8%8B%E5%B7%A5%E4%BD%9C"><span class="nav-text">什么算作工程工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%90%90%E4%BA%8B%E7%B9%81%E5%A4%9A%E6%98%AF%E4%B8%8D%E6%98%AF%E4%B8%80%E5%AE%9A%E4%B8%8D%E5%A5%BD"><span class="nav-text">琐事繁多是不是一定不好</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-6-%E7%AB%A0-%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%9B%91%E6%8E%A7"><span class="nav-text">第 6 章 分布式系统的监控</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AF%E8%AF%AD%E5%AE%9A%E4%B9%89"><span class="nav-text">术语定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%9B%91%E6%8E%A7"><span class="nav-text">为什么要监控</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9F%E8%AE%BE%E7%BD%AE%E5%90%88%E7%90%86%E9%A2%84%E6%9C%9F"><span class="nav-text">对监控系统设置合理预期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%B0%E8%B1%A1%E4%B8%8E%E5%8E%9F%E5%9B%A0"><span class="nav-text">现象与原因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%BB%91%E5%92%8C%E7%9B%91%E6%8E%A7%E4%B8%8E%E7%99%BD%E7%9B%92%E7%9B%91%E6%8E%A7"><span class="nav-text">黑和监控与白盒监控</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%B8%AA%E9%BB%84%E9%87%91%E6%8C%87%E6%A0%87"><span class="nav-text">4 个黄金指标</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BB%B6%E8%BF%9F"><span class="nav-text">延迟</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%81%E9%87%8F"><span class="nav-text">流量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%94%99%E8%AF%AF"><span class="nav-text">错误</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A5%B1%E5%92%8C%E5%BA%A6"><span class="nav-text">饱和度</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E9%95%BF%E5%B0%BE%E9%97%AE%E9%A2%98"><span class="nav-text">关于长尾问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%A6%E9%87%8F%E6%8C%87%E6%A0%87%E6%97%B6%E9%87%87%E7%94%A8%E5%90%88%E9%80%82%E7%9A%84%E7%B2%BE%E5%BA%A6"><span class="nav-text">度量指标时采用合适的精度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E5%8C%96%EF%BC%8C%E7%9B%B4%E5%88%B0%E4%B8%8D%E8%83%BD%E5%86%8D%E7%AE%80%E5%8C%96"><span class="nav-text">简化，直到不能再简化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%86%E4%B8%8A%E8%BF%B0%E7%90%86%E5%BF%B5%E6%95%B4%E5%90%88%E8%B5%B7%E6%9D%A5"><span class="nav-text">将上述理念整合起来</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9F%E7%9A%84%E9%95%BF%E6%9C%9F%E7%BB%B4%E6%8A%A4"><span class="nav-text">监控系统的长期维护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93-2"><span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-7-%E7%AB%A0-Google-%E7%9A%84%E8%87%AA%E5%8A%A8%E5%8C%96%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%BC%94%E8%BF%9B"><span class="nav-text">第 7 章 Google 的自动化系统的演进</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E7%9A%84%E4%BB%B7%E5%80%BC"><span class="nav-text">自动化的价值</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-text">一致性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%B3%E5%8F%B0%E6%80%A7"><span class="nav-text">平台性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E9%80%9F%E5%BA%A6%E6%9B%B4%E5%BF%AB"><span class="nav-text">修复速度更快</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A1%8C%E5%8A%A8%E9%80%9F%E5%BA%A6%E6%9B%B4%E5%BF%AB"><span class="nav-text">行动速度更快</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%8A%82%E7%9C%81%E6%97%B6%E9%97%B4"><span class="nav-text">节省时间</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E5%AF%B9-Google-SRE-%E7%9A%84%E4%BB%B7%E5%80%BC"><span class="nav-text">自动化对 Google SRE 的价值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E7%9A%84%E5%BA%94%E7%94%A8%E6%A1%88%E4%BE%8B"><span class="nav-text">自动化的应用案例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Google-SRE-%E7%9A%84%E8%87%AA%E5%8A%A8%E5%8C%96%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B"><span class="nav-text">Google SRE 的自动化使用案例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E5%88%86%E7%B1%BB%E7%9A%84%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84"><span class="nav-text">自动化分类的层次结构</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A9%E8%87%AA%E5%B7%B1%E8%84%B1%E7%A6%BB%E5%B7%A5%E4%BD%9C%EF%BC%9A%E8%87%AA%E5%8A%A8%E5%8C%96%E6%89%80%E6%9C%89%E7%9A%84%E4%B8%9C%E8%A5%BF"><span class="nav-text">让自己脱离工作：自动化所有的东西</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%88%92%E7%BC%93%E7%96%BC%E7%97%9B%EF%BC%9A%E5%B0%86%E8%87%AA%E5%8A%A8%E5%8C%96%E5%BA%94%E7%94%A8%E5%88%B0%E9%9B%86%E7%BE%A4%E4%B8%8A%E7%BA%BF%E4%B8%AD"><span class="nav-text">舒缓疼痛：将自动化应用到集群上线中</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Prodtest-%E6%A3%80%E6%B5%8B%E4%B8%8D%E4%B8%80%E8%87%B4%E6%83%85%E5%86%B5"><span class="nav-text">使用 Prodtest 检测不一致情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%82%E7%AD%89%E5%9C%B0%E8%A7%A3%E5%86%B3%E4%B8%8D%E4%B8%80%E8%87%B4%E6%83%85%E5%86%B5"><span class="nav-text">幂等地解决不一致情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%93%E4%B8%9A%E5%8C%96%E5%80%BE%E5%90%91"><span class="nav-text">专业化倾向</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A5%E6%9C%8D%E5%8A%A1%E4%B8%BA%E5%AF%BC%E5%90%91%E7%9A%84%E9%9B%86%E7%BE%A4%E4%B8%8A%E7%BA%BF%E6%B5%81%E7%A8%8B"><span class="nav-text">以服务为导向的集群上线流程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Borg%EF%BC%9A%E4%BB%93%E5%BA%93%E8%A7%84%E6%A8%A1%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%9A%84%E8%AF%9E%E7%94%9F"><span class="nav-text">Borg：仓库规模计算机的诞生</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7%E6%98%AF%E6%9C%80%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="nav-text">可靠性是最基本的功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%BA%E8%AE%AE"><span class="nav-text">建议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-8-%E7%AB%A0-%E5%8F%91%E5%B8%83%E5%B7%A5%E7%A8%8B"><span class="nav-text">第 8 章 发布工程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B8%83%E5%B7%A5%E7%A8%8B%E5%B8%88%E8%A7%92%E8%89%B2"><span class="nav-text">发布工程师角色</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B8%83%E5%B7%A5%E7%A8%8B%E5%93%B2%E5%AD%A6"><span class="nav-text">发布工程哲学</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%87%AA%E6%9C%8D%E5%8A%A1%E6%A8%A1%E5%9E%8B"><span class="nav-text">自服务模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%BD%E6%B1%82%E9%80%9F%E5%BA%A6"><span class="nav-text">追求速度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%86%E9%97%AD%E6%80%A7"><span class="nav-text">密闭性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%BA%E8%B0%83%E7%AD%96%E7%95%A5%E5%92%8C%E6%B5%81%E7%A8%8B"><span class="nav-text">强调策略和流程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%81%E7%BB%AD%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2"><span class="nav-text">持续构建与部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86"><span class="nav-text">配置管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93-3"><span class="nav-text">小结</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8D%E4%BB%85%E4%BB%85%E5%8F%AA%E5%AF%B9-Google-%E6%9C%89%E7%94%A8"><span class="nav-text">不仅仅只对 Google 有用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E5%BC%80%E5%A7%8B%E5%B0%B1%E8%BF%9B%E8%A1%8C%E5%8F%91%E5%B8%83%E5%B7%A5%E7%A8%8B"><span class="nav-text">一开始就进行发布工程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-9-%E7%AB%A0-%E7%AE%80%E5%8D%95%E5%8C%96"><span class="nav-text">第 9 章 简单化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%A8%B3%E5%AE%9A%E6%80%A7%E4%B8%8E%E7%81%B5%E6%B4%BB%E6%80%A7"><span class="nav-text">系统的稳定性与灵活性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B9%8F%E5%91%B3%E6%98%AF%E4%B8%80%E7%A7%8D%E7%BE%8E%E5%BE%B7"><span class="nav-text">乏味是一种美德</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%91%E7%BB%9D%E5%AF%B9%E4%B8%8D%E6%94%BE%E5%BC%83%E6%88%91%E7%9A%84%E4%BB%A3%E7%A0%81"><span class="nav-text">我绝对不放弃我的代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%80%9C%E8%B4%9F%E4%BB%A3%E7%A0%81%E8%A1%8C%E2%80%9D%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E6%8C%87%E6%A0%87"><span class="nav-text">“负代码行”作为一个指标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F-API"><span class="nav-text">最小 API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E5%8C%96"><span class="nav-text">模块化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B8%83%E7%9A%84%E7%AE%80%E5%8D%95%E5%8C%96"><span class="nav-text">发布的简单化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93-4"><span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-10-%E7%AB%A0-%E5%9F%BA%E4%BA%8E%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C%E6%9C%89%E6%95%88%E6%8A%A5%E8%AD%A6"><span class="nav-text">第 10 章 基于时间序列数据进行有效报警</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Borgmon-%E7%9A%84%E8%B5%B7%E6%BA%90"><span class="nav-text">Borgmon 的起源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E8%BD%AF%E4%BB%B6%E7%9A%84%E7%9B%91%E6%8E%A7%E5%9F%8B%E7%82%B9"><span class="nav-text">应用软件的监控埋点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7%E6%8C%87%E6%A0%87%E7%9A%84%E6%94%B6%E9%9B%86"><span class="nav-text">监控指标的收集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%95%B0%E6%8D%AE%E7%9A%84%E5%AD%98%E5%82%A8"><span class="nav-text">时间序列数据的存储</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%87%E7%AD%BE%E5%9F%9F%E5%90%91%E9%87%8F"><span class="nav-text">标签域向量</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Borg-%E8%A7%84%E5%88%99%E8%AE%A1%E7%AE%97"><span class="nav-text">Borg 规则计算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%A5%E8%AD%A6"><span class="nav-text">报警</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%91%E6%8E%A7%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%88%86%E7%89%87%E6%9C%BA%E5%88%B6"><span class="nav-text">监控系统的分片机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%BB%91%E7%9B%92%E7%9B%91%E6%8E%A7"><span class="nav-text">黑盒监控</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%9A%84%E7%BB%B4%E6%8A%A4"><span class="nav-text">配置文件的维护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%81%E5%B9%B4%E4%B9%8B%E5%90%8E"><span class="nav-text">十年之后</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-11-%E7%AB%A0-on-call%E8%BD%AE%E5%80%BC"><span class="nav-text">第 11 章 on-call轮值</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#on-call-%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84%E4%B8%80%E5%A4%A9"><span class="nav-text">on-call 工程师的一天</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#on-call-%E5%B7%A5%E4%BD%9C%E5%B9%B3%E8%A1%A1"><span class="nav-text">on-call 工作平衡</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E9%87%8F%E4%B8%8A%E4%BF%9D%E6%8C%81%E5%B9%B3%E8%A1%A1"><span class="nav-text">数量上保持平衡</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B4%A8%E9%87%8F%E4%B8%8A%E4%BF%9D%E6%8C%81%E5%B9%B3%E8%A1%A1"><span class="nav-text">质量上保持平衡</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A1%A5%E8%B4%B4%E6%8E%AA%E6%96%BD"><span class="nav-text">补贴措施</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%84%9F"><span class="nav-text">安全感</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%BF%E5%85%8D%E8%BF%90%E7%BB%B4%E5%8E%8B%E5%8A%9B%E8%BF%87%E5%A4%A7"><span class="nav-text">避免运维压力过大</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%90%E7%BB%B4%E5%8E%8B%E5%8A%9B%E8%BF%87%E5%A4%A7"><span class="nav-text">运维压力过大</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A5%B8%E8%AF%88%E7%9A%84%E6%95%8C%E4%BA%BA%E2%80%94%E2%80%94%E8%BF%90%E7%BB%B4%E5%8E%8B%E5%8A%9B%E4%B8%8D%E5%A4%9F"><span class="nav-text">奸诈的敌人——运维压力不够</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93-5"><span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-12-%E7%AB%A0-%E6%9C%89%E6%95%88%E7%9A%84%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%E6%89%8B%E6%AE%B5"><span class="nav-text">第 12 章 有效的故障排查手段</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%90%86%E8%AE%BA"><span class="nav-text">理论</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E8%B7%B5"><span class="nav-text">实践</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%85%E9%9A%9C%E6%8A%A5%E5%91%8A"><span class="nav-text">故障报告</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E4%BD%8D"><span class="nav-text">定位</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A3%80%E6%9F%A5"><span class="nav-text">检查</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%8A%E6%96%AD"><span class="nav-text">诊断</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E5%92%8C%E4%BF%AE%E5%A4%8D"><span class="nav-text">测试和修复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A5%9E%E5%A5%87%E7%9A%84%E8%B4%9F%E9%9D%A2%E7%BB%93%E6%9E%9C"><span class="nav-text">神奇的负面结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B2%BB%E6%84%88"><span class="nav-text">治愈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-text">案例分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%E6%9B%B4%E7%AE%80%E5%8D%95"><span class="nav-text">使故障排查更简单</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93-6"><span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-13-%E7%AB%A0-%E7%B4%A7%E6%80%A5%E4%BA%8B%E4%BB%B6%E5%93%8D%E5%BA%94"><span class="nav-text">第 13 章 紧急事件响应</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BD%93%E7%B3%BB%E7%BB%9F%E5%87%BA%E7%8E%B0%E9%97%AE%E9%A2%98%E6%97%B6%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="nav-text">当系统出现问题时怎么办</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E5%AF%BC%E8%87%B4%E7%9A%84%E7%B4%A7%E6%80%A5%E4%BA%8B%E6%95%85-p132"><span class="nav-text">测试导致的紧急事故 p132</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%98%E6%9B%B4%E9%83%A8%E7%BD%B2%E5%B8%A6%E6%9D%A5%E7%9A%84%E7%B4%A7%E6%80%A5%E4%BA%8B%E6%95%85-p133"><span class="nav-text">变更部署带来的紧急事故 p133</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B%E5%AF%BC%E8%87%B4%E7%9A%84%E4%B8%A5%E9%87%8D%E4%BA%8B%E6%95%85-p135"><span class="nav-text">流程导致的严重事故 p135</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%80%E6%9C%89%E7%9A%84%E9%97%AE%E9%A2%98%E9%83%BD%E6%9C%89%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-text">所有的问题都有解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E8%BF%87%E5%8E%BB%E5%AD%A6%E4%B9%A0%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E9%87%8D%E5%A4%8D%E5%AE%83"><span class="nav-text">向过去学习，而不是重复它</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BA%8B%E6%95%85%E4%BF%9D%E7%95%99%E8%AE%B0%E5%BD%95"><span class="nav-text">为事故保留记录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8F%90%E5%87%BA%E9%82%A3%E4%BA%9B%E5%A4%A7%E7%9A%84%EF%BC%8C%E7%94%9A%E8%87%B3%E4%B8%8D%E5%8F%AF%E8%83%BD%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9A%E5%81%87%E8%AE%BE%C2%B7%C2%B7%C2%B7%C2%B7%C2%B7%C2%B7"><span class="nav-text">提出那些大的，甚至不可能的问题：假设······</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%BC%93%E5%8A%B1%E4%B8%BB%E5%8A%A8%E6%B5%8B%E8%AF%95"><span class="nav-text">鼓励主动测试</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93-7"><span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-14-%E7%AB%A0-%E7%B4%A7%E6%80%A5%E4%BA%8B%E6%95%85%E7%AE%A1%E7%90%86"><span class="nav-text">第 14 章 紧急事故管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A0%E6%B5%81%E7%A8%8B%E7%AE%A1%E7%90%86%E7%9A%84%E7%B4%A7%E6%80%A5%E4%BA%8B%E6%95%85-p140"><span class="nav-text">无流程管理的紧急事故 p140</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E8%BF%99%E6%AC%A1%E6%97%A0%E6%B5%81%E7%A8%8B%E7%AE%A1%E7%90%86%E7%9A%84%E4%BA%8B%E6%95%85%E7%9A%84%E5%89%96%E6%9E%90"><span class="nav-text">对这次无流程管理的事故的剖析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A7%E6%80%A5%E4%BA%8B%E6%95%85%E7%9A%84%E6%B5%81%E7%A8%8B%E7%AE%A1%E7%90%86%E8%A6%81%E7%B4%A0"><span class="nav-text">紧急事故的流程管理要素</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B5%8C%E5%A5%97%E5%BC%8F%E8%81%8C%E8%B4%A3%E5%88%86%E7%A6%BB"><span class="nav-text">嵌套式职责分离</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E4%B8%AD%E5%BF%83"><span class="nav-text">控制中心</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E6%97%B6%E4%BA%8B%E6%95%85%E7%8A%B6%E6%80%81%E6%96%87%E6%A1%A3"><span class="nav-text">实时事故状态文档</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%98%8E%E7%A1%AE%E5%85%AC%E5%BC%80%E7%9A%84%E8%81%8C%E8%B4%A3%E4%BA%A4%E6%8E%A5"><span class="nav-text">明确公开的职责交接</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E6%AC%A1%E6%B5%81%E7%A8%8B%E7%AE%A1%E7%90%86%E8%89%AF%E5%A5%BD%E7%9A%84%E4%BA%8B%E6%95%85"><span class="nav-text">一次流程管理良好的事故</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%AF%B9%E5%A4%96%E5%AE%A3%E5%B8%83%E4%BA%8B%E6%95%85"><span class="nav-text">什么时候对外宣布事故</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93-8"><span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-15-%E7%AB%A0-%E4%BA%8B%E5%90%8E%E6%80%BB%E7%BB%93%EF%BC%9A%E4%BB%8E%E5%A4%B1%E8%B4%A5%E4%B8%AD%E5%AD%A6%E4%B9%A0"><span class="nav-text">第 15 章 事后总结：从失败中学习</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Google-%E7%9A%84%E4%BA%8B%E5%90%8E%E6%80%BB%E7%BB%93%E5%93%B2%E5%AD%A6"><span class="nav-text">Google 的事后总结哲学</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E4%BD%9C%E5%92%8C%E7%9F%A5%E8%AF%86%E5%85%B1%E4%BA%AB"><span class="nav-text">协作和知识共享</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8B%E4%BA%8B%E5%90%8E%E6%80%BB%E7%BB%93%E6%96%87%E5%8C%96"><span class="nav-text">建立事后总结文化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93%E4%BB%A5%E5%8F%8A%E4%B8%8D%E6%96%AD%E4%BC%98%E5%8C%96"><span class="nav-text">小结以及不断优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-16-%E7%AB%A0-%E8%B7%9F%E8%B8%AA%E6%95%85%E9%9A%9C"><span class="nav-text">第 16 章 跟踪故障</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-17-%E7%AB%A0-%E6%B5%8B%E8%AF%95%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="nav-text">第 17 章 测试可靠性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E6%B5%8B%E8%AF%95%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-text">软件测试的类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%A0%E7%BB%9F%E6%B5%8B%E8%AF%95"><span class="nav-text">传统测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E6%B5%8B%E8%AF%95"><span class="nav-text">生产测试</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E9%80%A0%E4%B8%80%E4%B8%AA%E6%9E%84%E5%BB%BA%E5%92%8C%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83"><span class="nav-text">创造一个构建和测试环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%A7%E8%A7%84%E6%A8%A1%E6%B5%8B%E8%AF%95"><span class="nav-text">大规模测试</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E5%A4%A7%E8%A7%84%E6%A8%A1%E4%BD%BF%E7%94%A8%E7%9A%84%E5%B7%A5%E5%85%B7"><span class="nav-text">测试大规模使用的工具</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%92%88%E5%AF%B9%E7%81%BE%E9%9A%BE%E7%9A%84%E6%B5%8B%E8%AF%95"><span class="nav-text">针对灾难的测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E9%80%9F%E5%BA%A6%E7%9A%84%E6%B8%B4%E6%B1%82"><span class="nav-text">对速度的渴求</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%91%E5%B8%83%E5%88%B0%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83"><span class="nav-text">发布到生产环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%81%E8%AE%B8%E6%B5%8B%E8%AF%95%E5%A4%B1%E8%B4%A5"><span class="nav-text">允许测试失败</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9B%86%E6%88%90"><span class="nav-text">集成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E6%8E%A2%E9%92%88"><span class="nav-text">生产环境探针</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93-9"><span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-18-%E7%AB%A0-SRE-%E9%83%A8%E9%97%A8%E4%B8%AD%E7%9A%84%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5"><span class="nav-text">第 18 章 SRE 部门中的软件工程实践</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-19-%E7%AB%A0-%E5%89%8D%E7%AB%AF%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="nav-text">第 19 章 前端服务器的负载均衡</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E6%97%B6%E5%80%99%E7%A1%AC%E4%BB%B6%E5%B9%B6%E4%B8%8D%E8%83%BD%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98"><span class="nav-text">有时候硬件并不能解决问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-DNS-%E8%BF%9B%E8%A1%8C%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="nav-text">使用 DNS 进行负载均衡</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%EF%BC%9A%E8%99%9A%E6%8B%9FIP"><span class="nav-text">负载均衡：虚拟IP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-20-%E7%AB%A0-%E6%95%B0%E6%8D%AE%E4%B8%AD%E5%BF%83%E5%86%85%E9%83%A8%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%B3%BB%E7%BB%9F"><span class="nav-text">第 20 章 数据中心内部的负载均衡系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%90%86%E6%83%B3%E6%83%85%E5%86%B5"><span class="nav-text">理想情况</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%86%E5%88%AB%E5%BC%82%E5%B8%B8%E4%BB%BB%E5%8A%A1%EF%BC%9A%E6%B5%81%E9%80%9F%E6%8E%A7%E5%88%B6%E5%92%8C%E8%B7%9B%E8%84%9A%E9%B8%AD%E4%BB%BB%E5%8A%A1"><span class="nav-text">识别异常任务：流速控制和跛脚鸭任务</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E4%BB%BB%E5%8A%A1%E7%9A%84%E7%AE%80%E5%8D%95%E5%BA%94%E5%AF%B9%E5%8A%9E%E6%B3%95%EF%BC%9A%E6%B5%81%E9%80%9F%E6%8E%A7%E5%88%B6"><span class="nav-text">异常任务的简单应对办法：流速控制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E5%8F%AF%E9%9D%A0%E7%9A%84%E8%AF%86%E5%88%AB%E5%BC%82%E5%B8%B8%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%96%B9%E6%B3%95%EF%BC%9A%E8%B7%9B%E8%84%9A%E9%B8%AD%E7%8A%B6%E6%80%81"><span class="nav-text">一个可靠的识别异常任务的方法：跛脚鸭状态</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E5%88%92%E5%88%86%E5%AD%90%E9%9B%86%E9%99%90%E5%88%B6%E8%BF%9E%E6%8E%A5%E6%B1%A0%E5%A4%A7%E5%B0%8F"><span class="nav-text">利用划分子集限制连接池大小</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E5%90%88%E9%80%82%E7%9A%84%E5%AD%90%E9%9B%86"><span class="nav-text">选择合适的子集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%90%E9%9B%86%E9%80%89%E6%8B%A9%E7%AE%97%E6%B3%95%E4%B8%80%EF%BC%9A%E9%9A%8F%E6%9C%BA%E9%80%89%E6%8B%A9"><span class="nav-text">子集选择算法一：随机选择</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%90%E9%9B%86%E9%80%89%E6%8B%A9%E7%AE%97%E6%B3%95%E4%BA%8C%EF%BC%9A%E7%A1%AE%E5%AE%9A%E6%80%A7%E7%AE%97%E6%B3%95"><span class="nav-text">子集选择算法二：确定性算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AD%96%E7%95%A5"><span class="nav-text">负载均衡策略</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E8%BD%AE%E8%AF%A2%E7%AE%97%E6%B3%95"><span class="nav-text">简单轮询算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E9%97%B2%E8%BD%AE%E8%AF%A2%E7%AD%96%E7%95%A5"><span class="nav-text">最闲轮询策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A0%E6%9D%83%E8%BD%AE%E8%AF%A2%E7%AD%96%E7%95%A5"><span class="nav-text">加权轮询策略</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-21-%E7%AB%A0-%E5%BA%94%E5%AF%B9%E8%BF%87%E8%BD%BD"><span class="nav-text">第 21 章 应对过载</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#QPS-%E9%99%B7%E9%98%B1"><span class="nav-text">QPS 陷阱</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%99%E6%AF%8F%E4%B8%AA%E7%94%A8%E6%88%B7%E8%AE%BE%E7%BD%AE%E9%99%90%E5%88%B6"><span class="nav-text">给每个用户设置限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BE%A7%E7%9A%84%E8%8A%82%E6%B5%81%E6%9C%BA%E5%88%B6"><span class="nav-text">客户端侧的节流机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E8%A6%81%E6%80%A7"><span class="nav-text">重要性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E5%88%A9%E7%94%A8%E7%8E%87%E4%BF%A1%E5%8F%B7"><span class="nav-text">资源利用率信号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E8%BF%87%E8%BD%BD%E9%94%99%E8%AF%AF"><span class="nav-text">处理过载错误</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%B3%E5%AE%9A%E4%BD%95%E6%97%B6%E9%87%8D%E8%AF%95"><span class="nav-text">决定何时重试</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E9%80%A0%E6%88%90%E7%9A%84%E8%B4%9F%E8%BD%BD"><span class="nav-text">连接造成的负载</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-22-%E7%AB%A0-%E5%A4%84%E7%90%86%E8%BF%9E%E9%94%81%E6%95%85%E9%9A%9C"><span class="nav-text">第 22 章 处理连锁故障</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E9%94%81%E6%95%85%E9%9A%9C%E4%BA%A7%E7%94%9F%E7%9A%84%E5%8E%9F%E5%9B%A0%E5%92%8C%E5%A6%82%E4%BD%95%E4%BB%8E%E8%AE%BE%E8%AE%A1%E4%B8%8A%E9%81%BF%E5%85%8D"><span class="nav-text">连锁故障产生的原因和如何从设计上避免</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%87%E8%BD%BD"><span class="nav-text">服务器过载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E8%80%97%E5%B0%BD"><span class="nav-text">资源耗尽</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E4%B8%8D%E5%8F%AF%E7%94%A8"><span class="nav-text">服务不可用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B2%E6%AD%A2%E8%BD%AF%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%87%E8%BD%BD"><span class="nav-text">防止软件服务器过载</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%9F%E5%88%97%E7%AE%A1%E7%90%86"><span class="nav-text">队列管理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%81%E9%87%8F%E6%8A%9B%E5%BC%83%E5%92%8C%E4%BC%98%E9%9B%85%E9%99%8D%E7%BA%A7"><span class="nav-text">流量抛弃和优雅降级</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E8%AF%95"><span class="nav-text">重试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E5%BB%B6%E8%BF%9F%E5%92%8C%E6%88%AA%E6%AD%A2%E6%97%B6%E9%97%B4"><span class="nav-text">请求延迟和截止时间</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%85%A2%E5%90%AF%E5%8A%A8%E5%92%8C%E5%86%B7%E7%BC%93%E5%AD%98"><span class="nav-text">慢启动和冷缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%9D%E6%8C%81%E8%B0%83%E7%94%A8%E6%A0%88%E6%B0%B8%E8%BF%9C%E5%90%91%E4%B8%8B"><span class="nav-text">保持调用栈永远向下</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E9%94%81%E6%95%85%E9%9A%9C%E7%9A%84%E8%A7%A6%E5%8F%91%E6%9D%A1%E4%BB%B6"><span class="nav-text">连锁故障的触发条件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E5%B4%A9%E6%BA%83"><span class="nav-text">进程崩溃</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E6%9B%B4%E6%96%B0"><span class="nav-text">进程更新</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B0%E7%9A%84%E5%8F%91%E5%B8%83"><span class="nav-text">新的发布</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%87%AA%E7%84%B6%E5%A2%9E%E9%95%BF"><span class="nav-text">自然增长</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E4%B8%AD%E6%88%96%E8%AE%A1%E5%88%92%E5%A4%96%E7%9A%84%E4%B8%8D%E5%8F%AF%E7%94%A8"><span class="nav-text">计划中或计划外的不可用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9E%E9%94%81%E6%95%85%E9%9A%9C%E7%9A%84%E6%B5%8B%E8%AF%95"><span class="nav-text">连锁故障的测试</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%9B%B4%E5%88%B0%E5%87%BA%E7%8E%B0%E6%95%85%E9%9A%9C%EF%BC%8C%E8%BF%98%E8%A6%81%E7%BB%A7%E7%BB%AD%E6%B5%8B%E8%AF%95"><span class="nav-text">测试直到出现故障，还要继续测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E6%9C%80%E5%B8%B8%E7%94%A8%E7%9A%84%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-text">测试最常用的客户端</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E9%9D%9E%E5%85%B3%E9%94%AE%E6%80%A7%E5%90%8E%E7%AB%AF"><span class="nav-text">测试非关键性后端</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E8%BF%9E%E9%94%81%E6%95%85%E9%9A%9C%E7%9A%84%E7%AB%8B%E5%8D%B3%E6%AD%A5%E9%AA%A4"><span class="nav-text">解决连锁故障的立即步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A2%9E%E5%8A%A0%E8%B5%84%E6%BA%90"><span class="nav-text">增加资源</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%81%9C%E6%AD%A2%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5%E5%AF%BC%E8%87%B4%E7%9A%84%E4%BB%BB%E5%8A%A1%E6%AD%BB%E4%BA%A1"><span class="nav-text">停止健康检查导致的任务死亡</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E5%90%AF%E8%BD%AF%E4%BB%B6%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-text">重启软件服务器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%A2%E5%BC%83%E6%B5%81%E9%87%8F"><span class="nav-text">丢弃流量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9B%E5%85%A5%E9%99%8D%E7%BA%A7%E6%A8%A1%E5%BC%8F"><span class="nav-text">进入降级模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E9%99%A4%E6%89%B9%E5%A4%84%E7%90%86%E8%B4%9F%E8%BD%BD"><span class="nav-text">消除批处理负载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E9%99%A4%E6%9C%89%E5%AE%B3%E7%9A%84%E6%B5%81%E9%87%8F"><span class="nav-text">消除有害的流量</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93-10"><span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-23-%E7%AB%A0-%E7%AE%A1%E7%90%86%E5%85%B3%E9%94%AE%E7%8A%B6%E6%80%81%EF%BC%9A%E5%88%A9%E7%94%A8%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E6%9D%A5%E6%8F%90%E9%AB%98%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="nav-text">第 23 章 管理关键状态：利用分布式共识来提高可靠性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%85%B1%E8%AF%86%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%8A%A8%E5%8A%9B%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E5%8D%8F%E8%B0%83%E5%A4%B1%E8%B4%A5"><span class="nav-text">使用共识系统的动力：分布式系统协调失败</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A1%88%E4%BB%B61%EF%BC%9A%E8%84%91%E8%A3%82%E9%97%AE%E9%A2%98"><span class="nav-text">案件1：脑裂问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A1%88%E4%BB%B62%EF%BC%9A%E9%9C%80%E8%A6%81%E4%BA%BA%E5%B7%A5%E5%B9%B2%E9%A2%84%E7%9A%84%E7%81%BE%E5%A4%87%E5%88%87%E6%8D%A2"><span class="nav-text">案件2：需要人工干预的灾备切换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A1%88%E4%BB%B63%EF%BC%9A%E6%9C%89%E9%97%AE%E9%A2%98%E7%9A%84%E5%B0%8F%E7%BB%84%E6%88%90%E5%91%98%E7%AE%97%E6%B3%95"><span class="nav-text">案件3：有问题的小组成员算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84"><span class="nav-text">分布式共识是如何工作的</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Paxos-%E6%A6%82%E8%A6%81%EF%BC%9A%E5%8D%8F%E8%AE%AE%E7%A4%BA%E4%BE%8B"><span class="nav-text">Paxos 概要：协议示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E7%9A%84%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E6%A8%A1%E5%BC%8F"><span class="nav-text">分布式共识的系统架构模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E9%9D%A0%E7%9A%84%E5%A4%8D%E5%88%B6%E7%8A%B6%E6%80%81%E6%9C%BA"><span class="nav-text">可靠的复制状态机</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E9%9D%A0%E7%9A%84%E5%A4%8D%E5%88%B6%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E5%92%8C%E9%85%8D%E7%BD%AE%E5%AD%98%E5%82%A8"><span class="nav-text">可靠的复制数据存储和配置存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E9%A2%86%E5%A4%B4%E4%BA%BA%E9%80%89%E4%B8%BE%E6%9C%BA%E5%88%B6%E5%AE%9E%E7%8E%B0%E9%AB%98%E5%8F%AF%E7%94%A8%E7%9A%84%E5%A4%84%E7%90%86%E7%B3%BB%E7%BB%9F"><span class="nav-text">使用领头人选举机制实现高可用的处理系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%8D%8F%E8%B0%83%E5%92%8C%E9%94%81%E6%9C%8D%E5%8A%A1"><span class="nav-text">分布式协调和锁服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E9%9D%A0%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%98%9F%E5%88%97%E5%92%8C%E6%B6%88%E6%81%AF%E4%BC%A0%E9%80%92"><span class="nav-text">可靠的分布式队列和消息传递</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%80%A7%E8%83%BD%E9%97%AE%E9%A2%98"><span class="nav-text">分布式共识系统的性能问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%8D%E5%90%88%E5%BC%8F-Paxos%EF%BC%9A%E6%B6%88%E6%81%AF%E6%B5%81%E8%BF%87%E7%A8%8B%E8%AF%A6%E8%A7%A3"><span class="nav-text">复合式 Paxos：消息流过程详解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%94%E5%AF%B9%E5%A4%A7%E9%87%8F%E7%9A%84%E8%AF%BB%E6%93%8D%E4%BD%9C"><span class="nav-text">应对大量的读操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%95%E5%AE%9A%E7%A7%9F%E7%BA%A6"><span class="nav-text">法定租约</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%80%A7%E8%83%BD%E4%B8%8E%E7%BD%91%E7%BB%9C%E5%BB%B6%E8%BF%9F"><span class="nav-text">分布式共识系统的性能与网络延迟</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F-Paxos-%E5%8D%8F%E8%AE%AE%EF%BC%9A%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="nav-text">快速 Paxos 协议：性能优化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A8%B3%E5%AE%9A%E7%9A%84%E9%A2%86%E5%A4%B4%E4%BA%BA%E6%9C%BA%E5%88%B6"><span class="nav-text">稳定的领头人机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%B9%E5%A4%84%E7%90%86"><span class="nav-text">批处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E8%AE%BF%E9%97%AE"><span class="nav-text">磁盘访问</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E7%B3%BB%E7%BB%9F%E7%9A%84%E9%83%A8%E7%BD%B2"><span class="nav-text">分布式共识系统的部署</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%89%AF%E6%9C%AC%E7%9A%84%E6%95%B0%E9%87%8F"><span class="nav-text">副本的数量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%89%AF%E6%9C%AC%E7%9A%84%E4%BD%8D%E7%BD%AE"><span class="nav-text">副本的位置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%B9%E9%87%8F%E8%A7%84%E5%88%92%E5%92%8C%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="nav-text">容量规划和负载均衡</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%B9%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%9B%91%E6%8E%A7"><span class="nav-text">对分布式共识系统的监控</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-24-%E7%AB%A0-%E5%88%86%E5%B8%83%E5%BC%8F%E5%91%A8%E6%9C%9F%E6%80%A7%E4%BB%BB%E5%8A%A1%E7%B3%BB%E7%BB%9F"><span class="nav-text">第 24 章 分布式周期性任务系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cron"><span class="nav-text">Cron</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D-2"><span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="nav-text">可靠性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cron-%E4%BB%BB%E5%8A%A1%E5%92%8C%E5%B9%82%E7%AD%89%E6%80%A7"><span class="nav-text">Cron 任务和幂等性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%A7%E8%A7%84%E6%A8%A1-Cron-%E7%B3%BB%E7%BB%9F"><span class="nav-text">大规模 Cron 系统</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD%E7%9A%84%E6%89%A9%E5%B1%95"><span class="nav-text">对基础设施的扩展</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E9%9C%80%E6%B1%82%E7%9A%84%E6%89%A9%E5%B1%95"><span class="nav-text">对需求的扩展</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Google-Cron-%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%9E%84%E5%BB%BA%E8%BF%87%E7%A8%8B"><span class="nav-text">Google Cron 系统的构建过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B7%9F%E8%B8%AA-Cron-%E4%BB%BB%E5%8A%A1%E7%9A%84%E7%8A%B6%E6%80%81"><span class="nav-text">跟踪 Cron 任务的状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Paxos-%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-text">Paxos 协议的使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%86%E5%A4%B4%E4%BA%BA%E8%A7%92%E8%89%B2%E5%92%8C%E8%BF%BD%E9%9A%8F%E8%80%85%E8%A7%92%E8%89%B2"><span class="nav-text">领头人角色和追随者角色</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%9D%E5%AD%98%E7%8A%B6%E6%80%81"><span class="nav-text">保存状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%90%E7%BB%B4%E5%A4%A7%E5%9E%8B-Cron-%E7%B3%BB%E7%BB%9F"><span class="nav-text">运维大型 Cron 系统</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-25-%E7%AB%A0-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-text">第 25 章 数据处理流水线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC-26-%E7%AB%A0-%E6%95%B0%E6%8D%AE%E5%AE%8C%E6%95%B4%E6%80%A7%EF%BC%9A%E8%AF%BB%E5%86%99%E4%B8%80%E8%87%B4"><span class="nav-text">第 26 章 数据完整性：读写一致</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">107</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2020/07/18/SRE-Google%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="《SRE Google运维解密》读书笔记 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          《SRE Google运维解密》读书笔记
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-07-18 21:07:52" itemprop="dateCreated datePublished" datetime="2020-07-18T21:07:52+08:00">2020-07-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-16 11:27:02" itemprop="dateModified" datetime="2025-02-16T11:27:02+08:00">2025-02-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86.png" alt="《SRE Google运维解密》"></p>
+<p>笔者维护开发的系统随着用户量、数据量的增长，出现了一些比较奇怪的问题，运维压力日益增加，目前处于被线上问题牵着鼻子走的境况，十分被动。为了改变这种状况，团队对网站可用性提出了新的要求，力求改变目前的境况。《SRE Google运维解密》是该领域非常受关注的书籍，笔者初步阅读后，已经感觉获益匪浅，因此决定花时间把该书阅读完。笔者借此机会写下阅读笔记，与诸位读者分享感悟。</p>
+<span id="more"></span>
+<hr>
+<h2 id="第-1-章-介绍">第 1 章 介绍</h2>
+<p>本章节目录：</p>
+<ul>
+<li>系统管理员模式</li>
+<li>Google 的解决之道：SRE</li>
+<li>SRE 方法论
+<ul>
+<li>确保长期关注研发工作</li>
+<li>在保障服务 SLO 的前提下最大化迭代速度</li>
+<li>监控系统</li>
+<li>应急事件处理</li>
+<li>变更管理</li>
+<li>需求预测和容量规划</li>
+<li>资源部署</li>
+<li>效率与性能</li>
+</ul>
+</li>
+<li>小结</li>
+</ul>
+<h3 id="系统管理员模式">系统管理员模式</h3>
+<p>行业内传统的做法是分别研发部门与运维部门，前者负责研发系统，开发业务逻辑，后者负责把新程序发布到生产环境，并维护系统的日常运行。作者从两方面分析这种做法的弊端：</p>
+<ol>
+<li>直接成本。运维团队的大小基本与系统负载成线性相关，共同成长。</li>
+<li>间接成本。线上问题大部分都与发版相关，研发部门期望“随时随地发布新功能，没有任何阻拦”，运维部门厌恶变化，为发版设置越来越多的门槛、限制，两者存在非常多的冲突。</li>
+</ol>
+<p>我认为，传统的“系统管理员模式”，只能解决低复杂度系统问题。随着系统复杂度的增长，系统模块、运行实例规模都高了几个数量级，对运维工作提出了更高的要。新功能必须在方案设计、指标设置、技术开发、监控系统、性能分析等方面提前规划。研发部门要提前考虑运维问题，运维部门也需要了解模块的实现机制，两者的工作逐渐融合。</p>
+<h3 id="SRE-方法论">SRE 方法论</h3>
+<p>本节作者介绍如何变革传统的模式，告诉读者，什么是 SRE。</p>
+<ol>
+<li>Google SRE 团队从2003年开始组建，由7名软件工程师组成。到2016年，约1000余人。</li>
+<li>SRE 团队由两种层次的工程师组成：<br>
+a. 50%-60% 是 Google 标准工程师；；<br>
+b. 40%-50% 是比标准工程师要求低一些的人，但具备其他能力的工程师，如 UNIX 内部细节和1-3层网络知识；</li>
+<li>SRE 团队成员有如下特点：<br>
+a. 对重复性、手工性的操作天然的排斥感。<br>
+b. 有足够的技术能力快速开发出软件系统以替代人工操作。</li>
+<li>避免团队的大小与所服务的产品负载呈线性同步增长：<br>
+a. 负责运维服务的团队必须有足够的时间编程，否则他们会被运维工作淹没；<br>
+b. 传统运维工作包括：工单处理，手工操作等，运维工程师最多只能花50%的时间放在传统运维工作；<br>
+c. SRE 管理层需要主动维护每一个 SRE 团队的工作平衡；<br>
+d. SRE 团队和研发队员之间的成员可以自由流动，可以获得更全面的体验及知识；</li>
+<li>由于 SRE 模型中为了提高可用性需要采取一些与常规做法违背的做法，所以需要强有力的管理层支持才能推行下去。</li>
+</ol>
+<h4 id="确保长期关注研发工作">确保长期关注研发工作</h4>
+<ul>
+<li>SRE 团队的运维工作限制在50%以内，他们应该将剩余时间花在研发项目上。</li>
+<li>可采取一些暂时性的措施将过多的运维压力移回给开发团队处理。</li>
+<li>SRE 处理运维工作的一项准则是：在每8~12小时的 on-call 轮值期间最多只处理两个紧急事件。</li>
+<li>所有的产品事故都应该有对应的事后总结，无论有没有触发警报。事后总结应该包括以下内容：事故发生、发现、解决的全过程，</li>
+</ul>
+<p>事故的根本原因，预防或者优化的解决方案。</p>
+<h4 id="在保障服务-SLO-的前提下最大化迭代速度">在保障服务 SLO 的前提下最大化迭代速度</h4>
+<blockquote>
+<p><strong>错误预算 p7</strong><br>
+“错误预算”起源于这样一个理念：任何产品都不是，也不应该做到 100% 可靠（显然这并不适用于心脏起搏器和防抱死刹车系统等）。一般来说，任何软件系统都不应该一味地追求 100% 可靠。因为对最终用户来说，99.999% 和 100% 的可用性是没有实质区别的。</p>
+</blockquote>
+<p>可靠性目标必须考虑以下几个方面：</p>
+<ul>
+<li>基于用户的使用习惯，服务可靠性要达到什么程度用户才会满意？</li>
+<li>如果这项服务的可靠程度不够，用户是否有其他的替代选择？</li>
+<li>服务的可靠程度是否会影响用户对这项服务的使用模式？从这几个方面，我们就可以推导出“错误预算”。通过引进“错误预算”的概念，我们解决了研发团队和 SRE 团队之间的组织架构冲突。</li>
+</ul>
+<p><strong>点评：</strong> 错误预算这一概念是 SRE 得以持续发展的基石，它提供了一个可度量的标尺，让资源可以得到充分地、高效的使用。</p>
+<h4 id="监控系统">监控系统</h4>
+<p>监控系统不应该依赖人来分析警报信息，而是应该由系统自动分析，仅当需要用户执行某种操作时，才需要通知用户。一个监控系统应该只有三类输出。</p>
+<ul>
+<li>紧急警报(alert)</li>
+<li>工单(ticker)</li>
+<li>日志(logging)</li>
+</ul>
+<h4 id="需求预测和容量规划">需求预测和容量规划</h4>
+<p>容量规划有几个步骤是必需的：</p>
+<ul>
+<li>必须有一个准确的自然增长需求预测模型，需求预测的时间应该超过资源获取的时间。</li>
+<li>规划中必须有准确的非自然增长的需求来源的统计；</li>
+<li>必须有周期性压力测试，以便准确地将系统原始资源信息域业务容量信息对应起来。</li>
+</ul>
+<blockquote>
+<p>SRE 应该主导容量规划的过程，这也意味着 SRE 需要主导资源部署的过程。</p>
+</blockquote>
+<h4 id="资源部署">资源部署</h4>
+<p>新资源测部署与配置是一个相对比较危险的操作，必须要小心谨慎地执行。</p>
+<h4 id="效率与性能">效率与性能</h4>
+<p>保证服务可用性的前提下，提高资源的利用率，最终实现服务成本的降低。</p>
+<hr>
+<h2 id="第-2-章-Google-生产环境：SRE视角">第 2 章 Google 生产环境：SRE视角</h2>
+<p>本章节目录：</p>
+<ul>
+<li>硬件</li>
+<li>管理物理服务器的系统管理软件
+<ul>
+<li>管理物理服务器</li>
+<li>存储</li>
+<li>网络</li>
+</ul>
+</li>
+<li>其他系统软件
+<ul>
+<li>分布式锁服务</li>
+<li>监控与警报系统</li>
+</ul>
+</li>
+<li>软件基础设施</li>
+<li>研发环境</li>
+<li>莎士比亚搜索：一个示范服务
+<ul>
+<li>用户请求的处理过程</li>
+<li>任务和数据的组织方式</li>
+</ul>
+</li>
+</ul>
+<h3 id="硬件">硬件</h3>
+<p>本节介绍了 Google 的服务集群情况。</p>
+<h3 id="管理物理服务器的系统管理软件">管理物理服务器的系统管理软件</h3>
+<h4 id="管理物理服务器">管理物理服务器</h4>
+<p>**点评：**Kubernetes，开源容器化集群编排系统，Google 创立于2014年。Kubernetes到今天已经成为业界事实上的行业标准，是管理物理服务器的最佳实践。</p>
+<h4 id="存储">存储</h4>
+<p>本节介绍了 Google 存储系统架构。存储系统有别与微服务容器，数据是需要落地的，因此管理难度更高。下图是Google 存储系统：<br>
+<img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-3Google%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F.png" alt="图2-3. Google 存储系统" title="Google 存储系统"></p>
+<h4 id="网络">网络</h4>
+<p>Google 使用一个基于 OpenFlow 协议的软件定义网络（SDN），并构建了全球负载均衡系统（GSLB）。GSLB 在三个层面上负责负载均衡工作：</p>
+<ul>
+<li>利用地理位置信息进行负载均衡 DNS 请求。</li>
+<li>在用户服务层面进行负载均衡。</li>
+<li>在远程调用（RPC）层面进行负载均衡。</li>
+</ul>
+<h3 id="其他系统软件">其他系统软件</h3>
+<h4 id="分布式锁服务">分布式锁服务</h4>
+<p>Google 使用 Chubby 提供分布式锁服务。</p>
+<h4 id="监控与警报系统">监控与警报系统</h4>
+<p>Google 使用 Borgmon 提供监控与警报系统服务。</p>
+<h3 id="软件基础设施">软件基础设施</h3>
+<ul>
+<li>每一个软件服务器都有一个内置的 HTTP 服务，提供一些调式信息和统计信息，供在线调试、监控使用。</li>
+<li>使用 gRPC 进行远程调用通信。</li>
+</ul>
+<h3 id="研发环境">研发环境</h3>
+<ul>
+<li>除部分开源项目之外，Google 工程师全部使用同一个共享软件仓库开发。</li>
+<li>完善的代码评审，CI/CD 流程。</li>
+</ul>
+<h3 id="莎士比亚搜索：一个示范服务">莎士比亚搜索：一个示范服务</h3>
+<p>本节举例说明 Google 的系统是如何运转的。<br>
+<img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_2-4%E7%94%A8%E6%88%B7%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E8%BF%87%E7%A8%8B.png" alt="图2-4. 用户请求处理过程" title="用户请求处理过程"></p>
+<hr>
+<h2 id="第-3-章-拥抱风险">第 3 章 拥抱风险</h2>
+<p>本章节目录：</p>
+<ul>
+<li>管理风险</li>
+<li>度量服务的风险</li>
+<li>服务风险的容忍度
+<ul>
+<li>辨别消费者服务的风险容忍度</li>
+<li>基础设施服务的风险容忍度</li>
+</ul>
+</li>
+<li>使用错误预算的目的
+<ul>
+<li>错误预算的构建过程</li>
+<li>好处</li>
+</ul>
+</li>
+</ul>
+<h3 id="管理风险">管理风险</h3>
+<p>在 SRE 团队中，我们管理服务的可靠性很大程度上是通过管理风险来进行的。可靠性需要成本，主要存在于以下两个维度:</p>
+<ul>
+<li>冗余物理服务器 / 计算资源的成本。通过投入冗余设备，我们可以进行常规的系统离线或者其他预料之外的维护性操作。又或者可以利用一些空间来存储奇偶校验码块，以此来提供一定程度的数据持久性保证。</li>
+<li>机会成本。这类成本由某一个组织承担。当该组织分配工程资源来构建减少风险的系统或功能，而非那些用户直接可用的功能时需要承担这些成本。这些工程师不能再从事为终端用户设计新功能和新产品的工作。</li>
+</ul>
+<h3 id="度量服务的风险">度量服务的风险</h3>
+<p>可用性评估的两种方式：</p>
+<ol>
+<li>基于时间的可用性：可用性 = 系统正常运行时间 / （系统正常运行时间 + 停机时间）</li>
+<li>合计可用性：可用性 = 成功请求数 / 总的请求数<br>
+Google 内部是使用第二项，合计可用性。</li>
+</ol>
+<h3 id="服务风险的容忍度">服务风险的容忍度</h3>
+<p>本文以消费者服务、基础设施服务两个角度，从可用性目标、故障的类型、成本等维度分析风险情况。</p>
+<h3 id="使用错误预算的目的">使用错误预算的目的</h3>
+<p>错误预算就是一个双方同意的客观指标，平衡了可用性以及风险，让决策基于数据成为可能。</p>
+<h4 id="错误预算的构建过程">错误预算的构建过程</h4>
+<ul>
+<li>产品管理层定义一个 SLO，确定一项服务在每个季度预计的正常运行时间。</li>
+<li>实际在线时间是通过一个中立第三方来测算的：我们的监控系统。</li>
+<li>这两个数字的差值就是这个季度中剩余的不可靠性预算。</li>
+<li>只要测算出的正常在线时间高于 SLO，也就是说，只要仍然有剩余的错误预算，就可以发布新的版本。</li>
+</ul>
+<h4 id="好处">好处</h4>
+<p>错误预算的主要好处就是它能够激励产品研发和 SRE 一起找出创新和可靠性之间合理的平衡点。</p>
+<blockquote>
+<ul>
+<li>管理服务的可靠性主要在于管理风险，而且管理风险的成本可能很高。</li>
+<li>100% 可能永远都不是一个正确的可靠性目标：不仅是不可能实现的，而且它通常比一项服务的用户期望的可靠性大得多。我们要将服务风险和意愿承担的业务风险相匹配。</li>
+<li>错误预算在 SRE 和产品研发团队之间调整激励，同时强调共同责任。错误预算试的讨论发布速率更容易，同时可有效地减少任何关于事故的讨论。这样，多个团队可以毫无怨言地对生产环境风险度达成一致。</li>
+</ul>
+</blockquote>
+<hr>
+<h2 id="第-4-章-服务质量目标">第 4 章 服务质量目标</h2>
+<p>本章节目录：</p>
+<ul>
+<li>服务质量术语
+<ul>
+<li>指标</li>
+<li>目标</li>
+<li>协议</li>
+</ul>
+</li>
+<li>指标在实践中的应用
+<ul>
+<li>运维人员和最终用户各关心什么</li>
+<li>指标的收集</li>
+<li>汇总</li>
+<li>指标的标准化</li>
+</ul>
+</li>
+<li>目标在实践中的应用
+<ul>
+<li>目标的定义</li>
+<li>目标的选择</li>
+<li>控制手段</li>
+<li>SLO 可以建立用户预期</li>
+</ul>
+</li>
+<li>协议在实践中的应用</li>
+</ul>
+<h3 id="服务质量术语">服务质量术语</h3>
+<ul>
+<li>SLI 是指服务质量指标（Indicator）——该服务的某项服务质量的一个具体量化指标。</li>
+<li>SLO 是服务质量目标（Objective）：服务的某个 SLI 的目标值，或者目标范围。SLO 的定义是 SLI ≤ 目标值，或者范围下限 ≤ SLI ≤ 范围上限。</li>
+<li>SLA 是服务质量协议（Agreement）：指服务与用户之间的一个明确的，或者不明确的协议，描述了在达到或者没有达到 SLO 之后的后果。</li>
+</ul>
+<h4 id="指标">指标</h4>
+<p>文中提到的 SLI 有：</p>
+<ol>
+<li>请求延迟——处理请求所消耗的时间。</li>
+<li>错误率——请求处理失败的百分比。</li>
+<li>系统吞吐量——每秒请求数量。</li>
+<li>可用性，代表服务可用时间的百分比，该指标通常利用“格式正确的请求处理成功的比例”来定义，有时也称为服务产出（yield）。</li>
+<li>对数据存储系统来说，持久性（durability）——数据能够完整保存的时间。</li>
+</ol>
+<blockquote>
+<p>目前 Google 云计算服务公开的可用性指标是“3.5个9”——99.95%可用。</p>
+</blockquote>
+<h4 id="目标">目标</h4>
+<p>本节提到的一个重要的结论：SLO 的选择和公布可以帮助设立用户对服务质量的预期。该举措可以：</p>
+<ul>
+<li>防止用户对某个服务的过度依赖；</li>
+<li>防止用户对某个服务信心不足；</li>
+</ul>
+<p>最后列举了一个例子《全球 Chubby 服务计划内停机》p36，告诉读者 Google 是如何处理用户对某个服务过度依赖的情况。</p>
+<h4 id="协议">协议</h4>
+<p>区别 SLO 和 SLA 的一个简单方法是问“如果 SLO 没有达到时，有什么后果？” 如果没有定义明确的后果，那么我们就肯定是在讨论一个 SLO，而不是 SLA。</p>
+<h3 id="指标在实践中的应用">指标在实践中的应用</h3>
+<h4 id="运维人员和最终用户各关心什么">运维人员和最终用户各关心什么</h4>
+<ul>
+<li>用户可见的服务系统，例如莎士比亚搜索服务的前端服务器通常关心可用性、延迟，以及吞吐量。</li>
+<li>存储系统通常强调：延迟、可用性和数据持久性。</li>
+<li>大数据系统，例如数据处理流水线系统，一般来说关心吞吐量和端到端延迟。</li>
+<li>所有的系统都应该关注：正确性。该指标通常不是 SRE 直接负责的，而应该由产品研发部门负责。</li>
+</ul>
+<h4 id="指标的收集">指标的收集</h4>
+<p>利用某种监控系统，大部分指标数据都在服务器端被收集，例如 Borgmon 或者 Prometheus。或者利用某种日志分析系统。</p>
+<h4 id="汇总">汇总</h4>
+<p>为了简化和使数据更可用，我们经常需要汇总原始度量数。汇总过程应该非常小心。</p>
+<blockquote>
+<p>大部分指标都应以&quot;分布&quot;，而不是平均值来定义。利用百分位指标可以帮助我们关注该指标的分布性：高百分位，例如 99% 和 99.9% 体现了指标的最差情况，而 50% 则体现了普遍情况。响应时间的分布越分散，意味着普通用户受到长尾请求延迟的影响就越明显，这可能预示了负载过高情况下出现的排队问题。用户研究显示，用户通常更喜欢速度较慢的系统，而不是一个请求速度抖动很厉害的系统，所以，某些 SRE 团队只关注长尾部分。本节末还提供了《关于统计性谬误》p39 一文，解析对于 SRE 为什么一组数据的百分比分布，比算数平均值更有价值。</p>
+</blockquote>
+<h4 id="指标的标准化">指标的标准化</h4>
+<p>作者建议标准化一些常见的 SLI，以避免每次都要重新评估它们。任何一个符合标准定义模板的服务可以不需要再次自己定义 SLI。</p>
+<ul>
+<li>汇总间隔：每 1 分钟汇总一次</li>
+<li>汇总范围：集群中的全部任务</li>
+<li>度量频率：每 10 秒一次</li>
+<li>包含哪些请求：从黑盒监控任务发来的 HTTP GET 请求</li>
+<li>数据如何获取：通过监控系统获取服务器端信息得到</li>
+<li>数据访问延迟：从收到请求到最后一个字节被发出</li>
+</ul>
+<h3 id="目标在实践中的应用">目标在实践中的应用</h3>
+<h4 id="目标的定义">目标的定义</h4>
+<p>本节主要介绍如何通过错误预算，定义目标。</p>
+<h4 id="目标的选择">目标的选择</h4>
+<p>本节提供了目标选择的建议：</p>
+<ul>
+<li>不要仅以目前的状态为基础选择目标</li>
+<li>保持简单</li>
+<li>避免绝对值</li>
+<li>SLO 越少越好</li>
+<li>不要追求完美</li>
+</ul>
+<p>SLO 代表了用户体验的程度，是划分工作优先级的重要参考。</p>
+<h4 id="控制手段">控制手段</h4>
+<p>SLI 和 SLO 在决策系统运维是也非常有用：</p>
+<ol>
+<li>监控并且度量系统的 SLI。</li>
+<li>比较 SLI 和 SLO，以决定是否需要执行操作。</li>
+<li>如果需要执行操作，则要决定究竟什么操作需要被执行，以便满足目标。</li>
+<li>执行这些操作。</li>
+</ol>
+<h4 id="SLO-可以建立用户预期">SLO 可以建立用户预期</h4>
+<p>通过公布 SLO 可以设置用户对系统行为的预期。为了让用户拥有正确的预期，我们可以考虑使用以下几种策略：</p>
+<ul>
+<li>留出一定的安全区</li>
+<li>实际 SLO 也不要过高</li>
+</ul>
+<h3 id="协议在实践中的应用">协议在实践中的应用</h3>
+<p>协议涉及到法律问题，应保持保守。</p>
+<hr>
+<h2 id="第-5-章-减少琐事">第 5 章 减少琐事</h2>
+<p>本章节目录：</p>
+<ul>
+<li>琐事的定义</li>
+<li>为什么所示越少越好</li>
+<li>什么算作工程工作</li>
+<li>琐事繁多是不是一定不好</li>
+<li>小结</li>
+</ul>
+<h3 id="琐事的定义">琐事的定义</h3>
+<p>琐事就是运维服务中手动性的，重复性的，可以被自动化的，战术性，没有持久价值的工作。琐事与服务呈线性关系的增长。每件琐事都满足下列一个或多个属性：</p>
+<ul>
+<li>手动性</li>
+<li>重复性的</li>
+<li>可以被自动化的</li>
+<li>战术性的</li>
+<li>没有持久价值</li>
+<li>与服务同步线性增长</li>
+</ul>
+<h3 id="为什么琐事越少越好">为什么琐事越少越好</h3>
+<p><strong>点评：</strong> 原因其实不言自明，琐事越来越多会让 SRE 的开发工作无法进行，击垮 SRE 的工作热情。前文提到的 SRE 工程师必须保证有 50% 以上的时间用于开发，开发的内容，很大一部分其实就是消灭这些琐事。文末《琐事的计算》p46 还介绍了 Google 关于琐事时间占用的情况，大约 33%，比目标做得更好。</p>
+<h3 id="什么算作工程工作">什么算作工程工作</h3>
+<ol>
+<li>软件工程。编写或修改代码，以及所有其他相关的设计和文档工作。</li>
+<li>系统工程。配置生产环境，修改现存配置，或者用一种通过一次性工作产生持久的改进的方法来书写系统文档。</li>
+<li>琐事。与运维服务相关的重复性的、手工的劳动。</li>
+<li>流程负担。与运维服务不直接相关的行政工作。</li>
+</ol>
+<h3 id="琐事繁多是不是一定不好">琐事繁多是不是一定不好</h3>
+<p>适度的琐事，有助于个人平复心态，获得满足感和胜利感。但总体而言，琐事的弊大于利。对于个人而言，有如下问题：</p>
+<ul>
+<li>职业停滞</li>
+<li>士气低落</li>
+</ul>
+<p>对于 SRE 组织：</p>
+<ul>
+<li>造成误解</li>
+<li>进展缓慢</li>
+<li>开创先例：如果 SRE 过于愿意承担琐事，研发同事就更倾向于加入更多的琐事，有时候甚至将本来应该由研发团队承担的运维工作转给 SER 承担。</li>
+<li>促进摩擦产生</li>
+<li>违反承诺</li>
+</ul>
+<h3 id="小结">小结</h3>
+<p>显然，消灭琐事，用工程化、自动化解决问题，是 SRE 存在的价值。</p>
+<hr>
+<h2 id="第-6-章-分布式系统的监控">第 6 章 分布式系统的监控</h2>
+<p>本章节目录：</p>
+<ul>
+<li>术语定义</li>
+<li>为什么要监控</li>
+<li>要监控系统设置合理预期</li>
+<li>现象与原因</li>
+<li>黑盒监控与白盒监控</li>
+<li>4 个黄金指标</li>
+<li>关于长尾问题</li>
+<li>度量指标时采用合适的精度</li>
+<li>简化，直到不能再简化</li>
+<li>将上述理念整合起来</li>
+<li>监控系统的长期维护
+<ul>
+<li>Bigtable SRE：警报过多的案例</li>
+<li>Gmail：可预知的、可脚本化的人工干预</li>
+<li>长跑</li>
+</ul>
+</li>
+<li>小结</li>
+</ul>
+<p>本节主要介绍： Google 的 SRE 团队在构建监控系统和报警系统方面遵循一些核心思想和最佳实践。</p>
+<h3 id="术语定义">术语定义</h3>
+<ol>
+<li>监控（monitoring）。</li>
+<li>百合监控（white-box monitoring）。依靠系统内部暴露的一些性能指标进行监控。包括日志分析，Java 虚拟机提供的监控接口，或者一个列出内部统计数据的 HTTP 接口进行监控。</li>
+<li>黑盒监控（black-box monitoring）。通过测试某种外部用户可见的系统行为进行监控。</li>
+<li>监控台页面（dashboard）。</li>
+<li>警报（alert）。</li>
+<li>根源问题（root cause）。</li>
+<li>节点或者机器（node/machine）。</li>
+<li>推送（push）。</li>
+</ol>
+<h3 id="为什么要监控">为什么要监控</h3>
+<p>监控一个系统有多个原因，包括如下几项：</p>
+<ul>
+<li>分析长期趋势。</li>
+<li>跨时间范围的比较，或者是观察实验组与控制组之间的区别。</li>
+<li>报警。</li>
+<li>构建监控台页面。</li>
+<li>临时性的回溯分析（也就是在线调试）。</li>
+<li>系统监控在给业务分析提供原始数据和分析安全入侵的场景时也有一定的作用。</li>
+</ul>
+<h3 id="对监控系统设置合理预期">对监控系统设置合理预期</h3>
+<p>文中提到 Google 在每个由10~12个人组成的标准 SRE 团队至少有一个“监控专员”进行监控的构建和维护工作，该专员会根据系统的迭代随时对监控系统进行调整。监控构建的原则是简单、明确、减少复杂的依赖关系。</p>
+<h3 id="现象与原因">现象与原因</h3>
+<p>监控空系统应该解决两个问题：什么东西出故障了，以及为什么出故障。前者为现象（symptom），后者代表原因。</p>
+<blockquote>
+<p>“现象”和“原因”的区分是构建信噪比高的监控系统时最重要的概念。</p>
+</blockquote>
+<h3 id="黑和监控与白盒监控">黑和监控与白盒监控</h3>
+<p>黑盒监控与白盒监控最简单的区别是：黑盒监控面向现象的，代表了目前正在发生的——而非预测会发生的——问题，即“系统现在有故障”。白盒监控则大量依赖对系统内部信息的检测，如系统日志，抓取提供指标信息的 HTTP 节点等。白盒监控系统因此可以检测到即将发生的问题及哪些重试所掩盖的问题等。</p>
+<h3 id="4-个黄金指标">4 个黄金指标</h3>
+<blockquote>
+<p>监控系统的4个黄金指标分别是延迟、流量、错误和饱和度（saturation）。</p>
+</blockquote>
+<h4 id="延迟">延迟</h4>
+<p>服务处理某个请求所需要的时间。这里区分成功请求和失败请求很重要。“慢”错误要比“快”错误更糟！因此，监控错误回复的延迟是很重要的。</p>
+<p>**点评：**区分成功和失败请求大部分人能做到，但是需要重视失败请求的高延迟这件事，确实很少人能意识到。</p>
+<h4 id="流量">流量</h4>
+<p>使用系统系统中的某个高层次的指标针对系统负载需求所进行的度量。</p>
+<h4 id="错误">错误</h4>
+<p>请求失败的速率，要么是显式失败（例如 HTTP 500），要么是隐式失败（例如 HTTP 200 回复中包含了错误内容），或者是策略原因的失败（例如，如果要求回复在 1s 内发出，任何超过 1s 的请求就都是失败请求）。</p>
+<h4 id="饱和度">饱和度</h4>
+<p>服务容量有多“满”。通常是系统中目前最为受限的某种资源的某个具体指标的度量。很多系统在达到 100% 利用率之前性能会严重下降，增加一个利用率目标也是很重要的。饱和度也有预警的作用。</p>
+<h3 id="关于长尾问题">关于长尾问题</h3>
+<p>区分平均值的“慢”和长尾值的“慢”的一个最简单办法是将请求按延迟分组计数（可以用来制作直方图）：延迟为 0-100ms之间的请求数量有多少，30-100ms之间、100-300ms之间等。将直方图的边界定义为指数型增长是直观展现请求分布的最好方式。</p>
+<h3 id="度量指标时采用合适的精度">度量指标时采用合适的精度</h3>
+<p>指标的指定需要考虑效果、存储成本、收集成本、可用性等方面平衡。这需要逐步积累探索，没有一成不变的公式。</p>
+<h3 id="简化，直到不能再简化">简化，直到不能再简化</h3>
+<p>设计监控系统是一定要追求简化。在选择需要检测什么的时候，将下列信息记在心里：</p>
+<ul>
+<li>那些最能反映真实故障的规则应该越简单越好，可预测性强，非常可靠。</li>
+<li>哪些不常用的数据收集、汇总，以及警报配置应该定时删除（某些 SRE 团队的标准是一个季度没有用到一次即将其删除）。</li>
+<li>收集到的数据，但是没有暴露给任何监控台，或者被任何警报规则使用的应该定时删除。</li>
+</ul>
+<h3 id="将上述理念整合起来">将上述理念整合起来</h3>
+<p>一些深层次的理念：</p>
+<ol>
+<li>每当收到紧急警报时，应该立即需要我进行某种操作。每天只能进入紧急状态几次，太多会导致“狼来了”效应。</li>
+<li>每个紧急报警都应该是可以具体操作的。</li>
+<li>每个紧急警报的回复都应该需要某种智力分析过程。如果某个紧急警报只是需要一个固定的机械操作，那么它就不应该成为紧急警报。</li>
+<li>每个紧急警报都应该是关于某个新问题的，不应该彼此重叠。</li>
+</ol>
+<p>如果某个紧急警报满足上述四点，那么不论是从白盒监控系统还是黑盒监控系统发出都一样。最好多花一些时间监控现象，而不是原因。</p>
+<h3 id="监控系统的长期维护">监控系统的长期维护</h3>
+<p>本节举了两个例子，Gmail 和 Bigtable，反映了一个问题：短期与长期的可用性的冲突。监控系统发现的问题，问题真正解决，在资源、技术能力有限的情况下，解决方案各不相同。决策的过程是一个艺术，实际情况实际处理。</p>
+<h3 id="小结-2">小结</h3>
+<p>长远来看，要建立一个成功的 on-call 轮值体系，以及构建一个稳定的产品需要选择那些正在发生和即将发生的问题进行报警，设置一个可以实际达到的合理目标，保证监控系统可以支持快速的问题定位与检测。</p>
+<hr>
+<h2 id="第-7-章-Google-的自动化系统的演进">第 7 章 Google 的自动化系统的演进</h2>
+<p>本章节目录：</p>
+<ul>
+<li>自动化的价值
+<ul>
+<li>一致性</li>
+<li>平台性</li>
+<li>修复速度更快</li>
+<li>行动速度更快</li>
+<li>节省时间</li>
+</ul>
+</li>
+<li>自动化对 Google SRE 的价值</li>
+<li>自动化的应用案例
+<ul>
+<li>Google SRE 的自动化使用案例</li>
+<li>自动化分类的层次结构</li>
+</ul>
+</li>
+<li>让自己脱离工作：自动化所有东西</li>
+<li>舒缓疼痛：将自动化应用到集群上线中
+<ul>
+<li>使用 Prodtest 检测不一致情况</li>
+<li>幂等地解决不一致情况</li>
+<li>专业化倾向</li>
+<li>以服务为导向的集群上线流程</li>
+</ul>
+</li>
+<li>Borg：仓库规模计算机的诞生</li>
+<li>可靠性是最基本的功能</li>
+<li>建议</li>
+</ul>
+<h3 id="自动化的价值">自动化的价值</h3>
+<h4 id="一致性">一致性</h4>
+<p>一致性地执行范围明确，步骤已知的程序——是自动化的首要价值。</p>
+<h4 id="平台性">平台性</h4>
+<p>自动化不仅仅提供一致性。通过正确地设计和实现，自动化的系统可以提供一个可以扩展的，广泛使用的，甚至可能带来额外收益的平台。平台可以将错误集中化，可以将工作流程化、标准化。</p>
+<h4 id="修复速度更快">修复速度更快</h4>
+<p>采用自动化系统解决系统中的常见故障，可以带来额外的好处。</p>
+<p>**点评：**自动化程序代码里，可以固化系统的一些信息、历史，方便问题的解决。</p>
+<h4 id="行动速度更快">行动速度更快</h4>
+<p>随着系统的复杂度的提升，自动化脚本可以极大地提高运维效率。</p>
+<h4 id="节省时间">节省时间</h4>
+<p>时间有两个维度：</p>
+<ul>
+<li>执行某个特定任务执行使用自动化；</li>
+<li>编写自动化需要的开发维护成本；</li>
+</ul>
+<p>这里需要实际情况实际处理了。</p>
+<h3 id="自动化对-Google-SRE-的价值">自动化对 Google SRE 的价值</h3>
+<p>**点评：**本节作者并没有实际归纳出具体是什么价值。我从文章里面体会到两点：</p>
+<ul>
+<li>选择自主开发平台，控制全部技术栈；</li>
+<li>利用这个平台，使用机器管理机器；</li>
+</ul>
+<h3 id="自动化的应用案例">自动化的应用案例</h3>
+<h4 id="Google-SRE-的自动化使用案例">Google SRE 的自动化使用案例</h4>
+<p>本节并没有提供具体的使用案例。</p>
+<h4 id="自动化分类的层次结构">自动化分类的层次结构</h4>
+<p>集群故障转移自动化是一个经典例子：故障转移可能每隔几个月甚至更长时间才发生一次，导致每次执行都不一致。自动化的演进遵循以下路径：</p>
+<ol>
+<li>没有自动化。手动将数据库主进程在多个位置之间转移。</li>
+<li>外部维护的系统特定的自动化系统。SRE 在他或她的主目录中保存了一份故障转移脚本。</li>
+<li>外部维护的通用的自动化系统。SRE 将数据库支持添加到每个人都在使用的“通用故障转移”脚本中。</li>
+<li>内部维护的系统特定的自动化。数据库自己发布故障转移脚本。</li>
+<li>不需要任何自动化系统。数据库注意到问题发生，在无须人工干预的情况下进行故障转移。</li>
+</ol>
+<p>**点评：**以上路径的划分已经非常清晰。推动该事项的发展，资源问题总是解决问题首要考虑的因素。系统需要推动到哪一步，非常考研决策者。</p>
+<h3 id="让自己脱离工作：自动化所有的东西">让自己脱离工作：自动化所有的东西</h3>
+<p>本节作者介绍了 Google 在推动 MySQL 实例高可用能力的历史，最终通过完成 MySQL On Borg 这个产品，完成了预定的目标：MySQL 自动进行故障转移。这项事情的完成给 Google 带来了丰厚的回报：</p>
+<ul>
+<li>SRE 在此项中花费的时间下降 95%；</li>
+<li>总运维成本下降近 95%；</li>
+<li>解放了近 60% 的硬件资源；</li>
+<li>SRE 的人力资源可以更多的其他事项中；</li>
+</ul>
+<p>**点评：**对于 Google 如此体量的企业，有非常强的技术实力，有非常强的业务需求，完成这种难度的任务并不让人意外。但是对于普通的企业，获得如此的投入产出比，是比较难的。</p>
+<h3 id="舒缓疼痛：将自动化应用到集群上线中">舒缓疼痛：将自动化应用到集群上线中</h3>
+<p>本节比较偏向服务器硬件层面，等机器上架、安装、配置等。对于这些工作，早期的自动化关注域加速集群交付。这种方法往往依靠“有创意”地使用 SSH 来应对繁琐的包分发和服务初始化问题。采用这种战略一开始很成功，但是这些格式自由的脚本逐渐堆积形成了技术债务。</p>
+<h4 id="使用-Prodtest-检测不一致情况">使用 Prodtest 检测不一致情况</h4>
+<p>配置新集群，需要解决但不限于以下问题：</p>
+<ul>
+<li>是否所有服务的依赖关系都可用，并且正确地配置了？</li>
+<li>所有的配置和包都与其他部署一致吗？</li>
+<li>团队是否能够确认配置中的每个例外都是合理的？</li>
+</ul>
+<p>作者给出了解决方案：Prodtest（生产测试）。他们对 Python 单元测试框架进行了扩展，使其可以用来对实际服务进行单元测试。这些单元测试有依赖关系，允许进行链条式测试，一个测试中出现的故障可以很快中止整个测试。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_7-1DNS%E6%9C%8D%E5%8A%A1%E7%9A%84ProdTest.png" alt="图7-1. DNS服务的ProdTest" title="DNS服务的ProdTest"></p>
+<h4 id="幂等地解决不一致情况">幂等地解决不一致情况</h4>
+<p>上一节介绍的 ProdTest，当发现机器有问题的时候，该如何修复？作者提出了方案：程序自动化执行操作幂等的修复程序。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_7-2DNS%E6%9C%8D%E5%8A%A1%E7%9A%84ProdTest%E5%BC%82%E5%B8%B8%E4%BF%AE%E5%A4%8D%E6%B5%81%E7%A8%8B.png" alt="图7-2. DNS服务的ProdTest异常修复流程" title="DNS服务的ProdTest异常修复流程"></p>
+<p>这种方式本身是存在严重缺陷的；在测试、修复、再测试之间的延迟引入了“不稳定”的测试，时好时坏。并不是所有的修复程序都具有幂等性，所以一个“不稳定”的测试引起的一次修复可能造成系统处于不一致的状态。</p>
+<h4 id="专业化倾向">专业化倾向</h4>
+<ul>
+<li>自动化代码必须持续维护，保证它与它所覆盖的代码仓库同步；</li>
+<li>自动化脚本权限需要细化，避免直接使用 root；</li>
+</ul>
+<h4 id="以服务为导向的集群上线流程">以服务为导向的集群上线流程</h4>
+<p>服务拥有者负责控制集群上线、下线。集群上线自动化进化遵循这样一个路径：</p>
+<ol>
+<li>操作人员触发手动操作（无自动化）。</li>
+<li>操作人员编写，系统特定的自动化。</li>
+<li>外部维护的通用自动化。</li>
+<li>内部维护，系统特定的自动化。</li>
+<li>不需要人为干预的自治系统。</li>
+</ol>
+<h3 id="Borg：仓库规模计算机的诞生">Borg：仓库规模计算机的诞生</h3>
+<p>这里讲述了 Google 发展 Borg 原因、理念、阶段历史。Borg 发展到现在，就是著名的 Kubernetes。</p>
+<h3 id="可靠性是最基本的功能">可靠性是最基本的功能</h3>
+<p>自动化将会导致技术人员与系统产生距离，这是不得不面对，但又无法避免的现实。所以，确保自动化的可靠性，是最重要的事项。</p>
+<h3 id="建议">建议</h3>
+<ul>
+<li>不论组织、业务规模的大小如何，对自动化的投资都是值得的。</li>
+<li>实践软件工程的良好标准做法。</li>
+</ul>
+<p>文末提供了 Google 一次大规模故障发生的事项，提示读者在系统设计中要考虑允许大规模故障发发生。</p>
+<hr>
+<h2 id="第-8-章-发布工程">第 8 章 发布工程</h2>
+<p>本章节目录：</p>
+<ul>
+<li>发布工程师角色</li>
+<li>发布工程哲学
+<ul>
+<li>自服务模型</li>
+<li>追求速度</li>
+<li>密闭性</li>
+<li>强调策略和流程</li>
+</ul>
+</li>
+<li>持续构建与部署
+<ul>
+<li>构建</li>
+<li>分支</li>
+<li>测试</li>
+<li>打包</li>
+<li>Rapid 系统</li>
+<li>部署</li>
+</ul>
+</li>
+<li>配置管理</li>
+<li>小结
+<ul>
+<li>不仅仅只对 Google 有用</li>
+<li>一开始就进行发布工程</li>
+</ul>
+</li>
+</ul>
+<p>发布工程（Release Engineering）是软件工程内部一个较新、发展较快的学科。发布工程师通常对源码管理、编译器、构建配置语言、自动化构建工具、包管理器和安装器等非常了解（甚至是这方面的专家）。他们的技能横跨很多领域：开发、配置管理、测试集成、系统管理、甚至用户支持。</p>
+<h3 id="发布工程师角色">发布工程师角色</h3>
+<p>介绍了 Google 发布工程师岗位的职责范围。</p>
+<h3 id="发布工程哲学">发布工程哲学</h3>
+<p>发布工程师的日常工作是由下列4个主要的工程与服务哲学指导的。</p>
+<h4 id="自服务模型">自服务模型</h4>
+<p>发布工程师开发工具，制定最佳实践，以便让产品研发团队可以自己掌握和执行自己的发布流程。</p>
+<h4 id="追求速度">追求速度</h4>
+<p>发版速度快，可以带来以下好处：</p>
+<ul>
+<li>让用户可见的功能越快上线越好。</li>
+<li>频繁的发布可以使得每个服务之间的变更更少。</li>
+<li>测试和调试变得简单。</li>
+</ul>
+<h4 id="密闭性">密闭性</h4>
+<p>构建工具必须保证一致性和可重复性。</p>
+<p>**点评：**我所在的研发团队，使用 docker 镜像固化编译环境，也是可以达到密闭性的效果。</p>
+<h4 id="强调策略和流程">强调策略和流程</h4>
+<p>多层安全和访问控制机制可以确保在发布过程中只有指定的人才能执行指定的操作。Google 主要关注的操作有如下几项：</p>
+<ul>
+<li>批准源代码改动——通过源代码仓库中的配置文件决定。</li>
+<li>指定发布流程中需要执行的具体动作。</li>
+<li>创建新的发布版本。</li>
+<li>批准初始的集成请求（也就是一个以某个源代码仓库版本为基础的构建请求），以及后续的 cherry picking 请求。</li>
+<li>实际部署某个发布版本。</li>
+<li>修改某个项目的构建配置文件。</li>
+</ul>
+<h3 id="持续构建与部署">持续构建与部署</h3>
+<p>Google 开发了一个自动化的发布系统：Rapid。本文主要围绕 Rapid 介绍 Google 的实践。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_8-1%E7%AE%80%E5%8C%96%E7%89%88Rapid%E6%9E%B6%E6%9E%84.png" alt="图8-1. 简化版Rapid架构" title="简化版Rapid架构"></p>
+<h3 id="配置管理">配置管理</h3>
+<p>配置管理是发布工程师与 SRE 紧密合作的一个区域。配置管理可能很简单，但是这其实是不稳定性的一个重要来源。本节介绍了 Google 的管理实践。</p>
+<h3 id="小结-3">小结</h3>
+<h4 id="不仅仅只对-Google-有用">不仅仅只对 Google 有用</h4>
+<p>发布工程可以提升软件、系统的质量，与团队大小无关。发布工程除了提升工作效率，也能提高稳定性，比如增加代码检测和单元测试。</p>
+<h4 id="一开始就进行发布工程">一开始就进行发布工程</h4>
+<p>这是一个值得投资的领域，越早开始越早受益。</p>
+<hr>
+<h2 id="第-9-章-简单化">第 9 章 简单化</h2>
+<p>本章节目录：</p>
+<ul>
+<li>系统的稳定性与灵活性</li>
+<li>乏味是一种美德</li>
+<li>我绝对不放弃我的代码</li>
+<li>“负代码行”作为一个指标</li>
+<li>最小 API</li>
+<li>模块化</li>
+<li>发布的简单化</li>
+<li>小结</li>
+</ul>
+<h3 id="系统的稳定性与灵活性">系统的稳定性与灵活性</h3>
+<p>SRE 通过创造流程，实践以及工具，来提高软件的可靠性。SRE 需要最小化这些工作对于开发人员的灵活性造成的影响。可靠的流程会提高研发人员的灵活性：快速、可靠的产品发布使得生成系统中的变化显而易见。</p>
+<h3 id="乏味是一种美德">乏味是一种美德</h3>
+<blockquote>
+<p>生产环境中意外是 SRE 最大的敌人。</p>
+</blockquote>
+<p>文中提到了必要复杂度和意外复杂度两个概念：</p>
+<ul>
+<li>必要复杂度是一个给定的情况所固有的复杂度，不能从该问题的定义中移除。</li>
+<li>意外复杂度是一个给定的情况不固定的复杂度，可以通过工程上的努力来解决。</li>
+</ul>
+<p>为了最小化意外复杂度，SRE 团队应该：</p>
+<ul>
+<li>在他们所负责的系统中引入意外复杂度时，及时提出抗议；</li>
+<li>不断地努力消除正在接受的和已经负责运维的系统的复杂度。</li>
+</ul>
+<h3 id="我绝对不放弃我的代码">我绝对不放弃我的代码</h3>
+<p>标题的立场是不对的。无用的代码，都要及时删除。</p>
+<h3 id="“负代码行”作为一个指标">“负代码行”作为一个指标</h3>
+<p>将无用的代码作为一个负向指标，要当做任务将其降低。</p>
+<h3 id="最小-API">最小 API</h3>
+<p>向 API 消费者提供的方法和参数越少越好。</p>
+<h3 id="模块化">模块化</h3>
+<p>本节主要介绍使用模块化思维解耦系统的联系，在工程上带来的好处。</p>
+<h3 id="发布的简单化">发布的简单化</h3>
+<p>小功能迭代发布升级，可以减少每次发布的风险，方便问题定位，解决。</p>
+<h3 id="小结-4">小结</h3>
+<blockquote>
+<p>软件的简单性是可靠性的前提条件。</p>
+</blockquote>
+<hr>
+<h2 id="第-10-章-基于时间序列数据进行有效报警">第 10 章 基于时间序列数据进行有效报警</h2>
+<p>本章节目录：</p>
+<ul>
+<li>Borgmon 的起源</li>
+<li>应用软件的监控埋点</li>
+<li>监控指标的收集</li>
+<li>时间序列数据的存储
+<ul>
+<li>标签域向量</li>
+</ul>
+</li>
+<li>Borg 规则计算</li>
+<li>报警</li>
+<li>监控系统的分片机制</li>
+<li>黑盒监控</li>
+<li>配置文件的维护</li>
+<li>十年之后</li>
+</ul>
+<p>监控一个大型系统本身是一项非常具有挑战性的工作：</p>
+<ul>
+<li>大型系统中组件数量特别多，分析工作繁杂繁重。</li>
+<li>监控系统本身的维护要求必须非常低。</li>
+</ul>
+<h3 id="Borgmon-的起源">Borgmon 的起源</h3>
+<p>Borgmon 是 Google 内部使用的监控系统。文中提到，在 Google 外部，与 Borgmon 最为类似的的监控系统是 Prometheus。我们可以参考 Prometheus 系统，感受 Google 的监控系统构建的细节。</p>
+<h3 id="应用软件的监控埋点">应用软件的监控埋点</h3>
+<p>监控接口只是用文本方式每行一个地列出应用中所暴露的全部监控变量值，格式是空格分隔的键值对。随后，又增加了一种 Map 格式，允许应用程序在键值对上增加标签（label）。</p>
+<h3 id="监控指标的收集">监控指标的收集</h3>
+<p>本文提到的几项实践非常值得借鉴：</p>
+<ul>
+<li>Borgmon 能够自动将每个目标的收集工作均匀地分散在整个周期中。这点在建立监控系统的时候很容易被忽略。</li>
+<li>使用服务发现体系可以降低监控系统的配置维护难度，允许监控系统自动扩展。</li>
+<li>应该为每一个服务自动生成“合成指标”，以便区分以下几种情况：
+<ul>
+<li>目标地址是否成功解析为 IP 和端口。</li>
+<li>目标是否响应了一次收集请求。</li>
+<li>目标是否响应了一次监控检查请求。</li>
+<li>数据收集成功结束的时间点。</li>
+</ul>
+</li>
+</ul>
+<h3 id="时间序列数据的存储">时间序列数据的存储</h3>
+<p>本节介绍了时间序列数据的存储原理以及实现方式，以及 Google 使用 Borgmon 的一些细节。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-1%E4%BB%8E%E4%B8%8D%E5%90%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E6%94%B6%E9%9B%86%E5%88%B0%E7%9A%84%E9%94%99%E8%AF%AF%E7%9B%91%E6%8E%A7%E5%8F%98%E9%87%8F%E7%9A%84%E5%AD%98%E5%82%A8%E5%BD%A2%E5%BC%8F.png" alt="从不同服务器上收集到的错误监控变量的存储形式"></p>
+<blockquote>
+<p>12小时这个神奇的数字既能保障在线排错时有足够的历史数据，也能避免内存占用量过大。</p>
+</blockquote>
+<h4 id="标签域向量">标签域向量</h4>
+<p>正如图10-2的示范数据所示，time-series 是按照时间戳和值的序列存放的，我们称之为向量（vector）。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-2time-series%E7%A4%BA%E8%8C%83%E6%95%B0%E6%8D%AE.png" alt="time-series示范数据"></p>
+<p>time-series 的名字成为标签集合（labelset），因为它的实现方式就是一个标签（key=value）的集合。标识一个 time-series 的标签必须同时有以下几个标签：</p>
+<ul>
+<li>var 代表变量名称。</li>
+<li>job 被监控的软件服务器类型名。</li>
+<li>service 一个松散定义的软件服务器类型组名，可以按对外名称分类，也可以按对内名称分类。</li>
+<li>zone Google 定义的一个惯例名称，代表收集该条信息的 Borgmon 做在的位置（一般以数据中心名称赋值）。</li>
+</ul>
+<p>这 4 条综合起来形成了一个完整的<strong>变量表达式</strong>：</p>
+<p var="http_requests,job=webserver,instance=host0:80,service=web,zone=us-west"></p>
+<h3 id="Borg-规则计算">Borg 规则计算</h3>
+<p>本节介绍了 Borgmon 的一些 query 规则。前文提到，Prometheus 与 Botgmon 非常类似，因此相关规则我们可以参考 <a target="_blank" href="https://prometheus.io/docs/prometheus/latest/querying/basics/" rel="external nofollow noreferrer noopener">Prometheus</a> 的技术文档。</p>
+<h3 id="报警">报警</h3>
+<p>报警管理服务负责将受到的报警转发到合适的通知渠道。报警管理服务的配置包括：</p>
+<ul>
+<li>当有其他报警触发的时候，抑制某些报警。</li>
+<li>将多个 Borgmon 发来的报警信息合并排重。</li>
+<li>根据标签信息将受到的报警信息展开或者将多个报警信息合并成一个。</li>
+</ul>
+<p>参考阅读：</p>
+<ol>
+<li><a target="_blank" href="https://prometheus.io/docs/practices/alerting/" rel="external nofollow noreferrer noopener">Prometheus Alert</a></li>
+<li><a target="_blank" href="https://grafana.com/docs/grafana/latest/alerting/alerts-overview/" rel="external nofollow noreferrer noopener">Grafana Alert</a></li>
+</ol>
+<h3 id="监控系统的分片机制">监控系统的分片机制</h3>
+<p>本节介绍了 Google Borgmon 集群数据分片机制。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_10-3%E4%B8%80%E4%B8%AA%E5%9C%A8%E4%B8%89%E4%B8%AA%E9%9B%86%E7%BE%A4%E4%B8%AD%E5%B1%82%E7%BA%A7%E9%83%A8%E7%BD%B2%E7%9A%84Borgmon%E6%95%B0%E6%8D%AE%E6%B5%81%E5%90%91%E5%9B%BE.png" alt="一个在三个集群中层级部署的Borgmon数据流向图"></p>
+<h3 id="黑盒监控">黑盒监控</h3>
+<p>Google SRE 团队通常利用探针程序（prober）解决黑和监控的问题。探针程序使用应用级别的自动请求探测目标是否成功返回，并通过 Borgmon 收集结果。</p>
+<h3 id="配置文件的维护">配置文件的维护</h3>
+<p>本节介绍了 Google 如果管理 Borgmon 的配置。</p>
+<h3 id="十年之后">十年之后</h3>
+<p>今天 Google 内部的监控系统已经相当完善。虽然 Borgmon 仍是 Google 内部工具，但是我们可以使用开源的 Prometheus、Riemann 等开源软件，实现与 Borgmon 类似的系统。</p>
+<hr>
+<h2 id="第-11-章-on-call轮值">第 11 章 on-call轮值</h2>
+<p>本章节目录：</p>
+<ul>
+<li>介绍</li>
+<li>on-call 工程师的一天</li>
+<li>on-call 工作平衡
+<ul>
+<li>数量上保持平衡</li>
+<li>质量上保持平衡</li>
+<li>补贴措施</li>
+</ul>
+</li>
+<li>安全感</li>
+<li>避免运维压力过大
+<ul>
+<li>运维压力过大</li>
+<li>奸诈的敌人——运维压力不够</li>
+</ul>
+</li>
+<li>小结</li>
+</ul>
+<h3 id="介绍">介绍</h3>
+<p>Google 为 SRE 花在纯运维事务上的时间设立了 50% 的上限。这个规则如何与 on-call 轮值机制配合，本章节分享他们的实践经验。</p>
+<h3 id="on-call-工程师的一天">on-call 工程师的一天</h3>
+<p>SRE 工程师是需要对 SLO 指标负责的。为了达成目标，on-call 工程师承诺可以在分钟级别执行生产系统中的维护需求。</p>
+<ul>
+<li>根据 Alert，工程师必须确认（ack），on-call 工程师必须能够及时定位问题，并且尝试解决问题。</li>
+<li>为今天处理的事项进行分析、输出报告</li>
+</ul>
+<h3 id="on-call-工作平衡">on-call 工作平衡</h3>
+<h4 id="数量上保持平衡">数量上保持平衡</h4>
+<p>本节介绍的<em>数量</em>，更多的是人力配置的角度，保证团队的工作状态、工作压力、身体健康以及人力成本。</p>
+<h4 id="质量上保持平衡">质量上保持平衡</h4>
+<p>本节介绍的<em>质量</em>是指 on-call 工程师的工作质量。每次值班工程中，轮值工程师必须有足够的时间处理紧急时间和后续跟进工作，例如写时候报告。</p>
+<h4 id="补贴措施">补贴措施</h4>
+<p>马云说的：员工离职只有两个原因，工作不开心，钱不到位。</p>
+<h3 id="安全感">安全感</h3>
+<p>SRE 思考和解决问题的方法论对正确处理问题是非常关键的。现代理论研究指出，在面临挑战时，一个人会主动或非主动（潜意识）地选择下列两种处理方法之一：</p>
+<ul>
+<li>依赖直觉，自动化、快速行动。</li>
+<li>理性、专注、有意识地进行认知类活动。</li>
+</ul>
+<p>我们应尽可能地让 on-call 工程师保持在第二种处理方式范围内，那么必须要减低工程师的压力。</p>
+<p>让 on-call SRE 知道他们可以寻求外部帮助，对减轻 on-call 压力也很有帮助。最重要的资源有：</p>
+<ul>
+<li>清晰的问题升级路线。</li>
+<li>清晰定义的应急事件处理步骤。</li>
+<li>无指责，对事不对人的文化氛围。</li>
+</ul>
+<p>一个工程师在处理非常复杂、需要同时引入多个团队的问题时，或者经过一段时间调查人不能预测多久能够恢复时，应该考虑启用某种正式的应急事务处理流程。</p>
+<p>SRE 团队必须在大型应急事件发生之后书写事后报告，详细记录所有事件发生的时间线。这些报告为之后的分析、优化提供了宝贵数据。</p>
+<h3 id="避免运维压力过大">避免运维压力过大</h3>
+<h4 id="运维压力过大">运维压力过大</h4>
+<ul>
+<li>解决错误的监控系统配置。</li>
+<li>控制 on-call 工程师收到的告警，减少重复、无效的告警，避免产生“狼来了”效应。</li>
+<li>及时将问题反馈给开发团队，极端情况下可以选择停止支持。</li>
+</ul>
+<h4 id="奸诈的敌人——运维压力不够">奸诈的敌人——运维压力不够</h4>
+<ul>
+<li>保证工程师参与 on-call 工作；</li>
+<li>举办灾难恢复演习（DiRT）；</li>
+</ul>
+<h3 id="小结-5">小结</h3>
+<p>Google 的实践证明这一套指导思想是可行、有效的。</p>
+<hr>
+<h2 id="第-12-章-有效的故障排查手段">第 12 章 有效的故障排查手段</h2>
+<p>本章节目录：</p>
+<ul>
+<li>理论</li>
+<li>实践
+<ul>
+<li>故障报告</li>
+<li>定位</li>
+<li>检查</li>
+<li>诊断</li>
+<li>测试和修复</li>
+</ul>
+</li>
+<li>神奇的负面结果
+<ul>
+<li>治愈</li>
+</ul>
+</li>
+<li>案例分析</li>
+<li>使故障排查更简单</li>
+<li>小结</li>
+</ul>
+<p>新手们常常不能有效地进行故障排查，是因为这个过程理想情况下同事需要两个条件：</p>
+<ol>
+<li>对通用的故障排查过程的理解（不依靠任何特定系统）。</li>
+<li>对发生故障的系统的足够了解。</li>
+</ol>
+<h3 id="理论">理论</h3>
+<blockquote>
+<p>从理论上讲，我们将故障排查过程定义为反复采用假设-排除手段的过程：针对某系统的一些观察结果和对该系统运行机制的理论认知，我们不断提出一个造成系统问题的假设，进而针对这些假设进行测试和排除。</p>
+</blockquote>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_12-1%EF%BC%9A%E9%80%9A%E7%94%A8%E7%9A%84%E6%95%85%E9%9A%9C%E6%8E%92%E6%9F%A5%E6%B5%81%E7%A8%8B.png" alt="通用的故障排查流程"></p>
+<h3 id="实践">实践</h3>
+<h4 id="故障报告">故障报告</h4>
+<p>有效的故障报告应该写清预期是什么，实际的结果是什么，以及如何复现。理想情况下，这些报告应该采用一致的格式，存储在一个可以搜索的系统中。</p>
+<p>在 Google，为每个错误报告提交一个 Bug 是常见的做法，包括由 E-mail 和 IM 收到的错误报告。</p>
+<h4 id="定位">定位</h4>
+<p>当你收到一个错误报告时，接下来的步骤是弄明白如何处理它。</p>
+<blockquote>
+<p>在大型问题中，你的第一反应可能是理解开始故障排查过程，试图尽快找到问题根源。这是错误的！不要这样做。正确的做法应该是：尽最大可能让系统恢复服务。</p>
+</blockquote>
+<h4 id="检查">检查</h4>
+<p>本节介绍了两个检查的方向：日志以及监控系统。</p>
+<h4 id="诊断">诊断</h4>
+<h5 id="简化和缩略">简化和缩略</h5>
+<p>简化和缩略问题，有助于快速定位问题的原因。文中提到两个方法，一个是利用系统配套的测试环境、测试用例进行调试，二是使用问题分解（Divide &amp; Conquer），采用对分法（bisection）将系统分为两部分，逐步缩小范围。</p>
+<h5 id="What-Why-Where">What Why Where</h5>
+<p>找出系统目前正在执行“什么”，然后通过询问该系统“为什么”正在做这些操作，以及系统的资源都被用在了“哪里”可以帮助你了解系统为什么出错。</p>
+<h5 id="最后一个修改">最后一个修改</h5>
+<p>很多线上问题都是由于发版新功能导致的，所以查看该版本的更新记录，有助于更快地找到问题线索。</p>
+<h5 id="有针对性地进行诊断">有针对性地进行诊断</h5>
+<p>通过开发专门的工具，用于某个特定系统的测试诊断。</p>
+<h3 id="测试和修复">测试和修复</h3>
+<p>在设计测试时，有一些考量必须时刻记住。</p>
+<ul>
+<li>一个理想的测试应该具有互斥性，通过执行这个测试，可以将一组假设推翻，同事确认另外一组假设。</li>
+<li>先测试最可能的情况。</li>
+<li>某项测试可能产生有误导性的结果。</li>
+<li>执行测试可能会带来副作用。</li>
+<li>某些测试无法得出准确的结论，只是建议性的。</li>
+</ul>
+<p>将你的想法明确记录下来，包括你执行了哪些测试，以及结果是什么。这有助于你在紧张的氛围中保持理智和清晰，提高效率。</p>
+<h3 id="神奇的负面结果">神奇的负面结果</h3>
+<p>“负面结果” 指一项实验中预期结果没有出现，也就是该试验没有成功。</p>
+<ul>
+<li>负面结果不应该被忽略，或者被轻视。</li>
+<li>一项实验中出现的负面结果是确凿的。</li>
+<li>工具和方法可能超越目前的试验，为未来的工作提供帮助。</li>
+<li>公布负面结果有助于提升整个行业的数据驱动风气。</li>
+<li>公布结果，可以让其他人避免重复工作，启发新的设计、实践。</li>
+</ul>
+<h3 id="治愈">治愈</h3>
+<p>重现一个线上问题可能需要非常大的成本，或者是不可能的。当你确定了某个因素是问题根源时，应该将系统中出错的部分，你是如何定位问题的，和你是如何修复问题的，如何防止再次发生等写下来。</p>
+<p>**点评：**事后总结是极为宝贵的财富，许多经验由此固化和积累。</p>
+<h3 id="案例分析">案例分析</h3>
+<p>本节分享了 Google App Engine 的一个故障案例。</p>
+<h3 id="使故障排查更简单">使故障排查更简单</h3>
+<ul>
+<li>增加可观察性。在实现之处就给每个组件增加白盒监控指标和结构化日志。</li>
+<li>利用成熟的，观察性好的组件接口设计系统。</li>
+</ul>
+<h3 id="小结-6">小结</h3>
+<p>**点评：**本节介绍了有效的故障排查手段，提供了方法论和时间经验，让新手有迹可循，让老手重新梳理自己以前的做法，获得新的思路。</p>
+<hr>
+<h2 id="第-13-章-紧急事件响应">第 13 章 紧急事件响应</h2>
+<p>本章节目录：</p>
+<ul>
+<li>当系统出现问题时怎么办</li>
+<li>测试导致的紧急事故
+<ul>
+<li>细节</li>
+<li>响应</li>
+<li>事后总结</li>
+</ul>
+</li>
+<li>变更部署带来的紧急事故
+<ul>
+<li>细节</li>
+<li>事故响应</li>
+<li>事后总结</li>
+</ul>
+</li>
+<li>流程导致的严重事故
+<ul>
+<li>细节</li>
+<li>灾难响应</li>
+<li>事后总结</li>
+</ul>
+</li>
+<li>所有的问题都有解决方案</li>
+<li>向过去学习，而不是重复它
+<ul>
+<li>为事故保留记录</li>
+<li>提出那些大的，甚至不可能的问题：假设······</li>
+<li>鼓励主动测试</li>
+</ul>
+</li>
+<li>小结</li>
+</ul>
+<h3 id="当系统出现问题时怎么办">当系统出现问题时怎么办</h3>
+<blockquote>
+<p>深吸一口气，慢慢来。如果感觉自己难以应对，就去找更多人参与进来。</p>
+</blockquote>
+<h3 id="测试导致的紧急事故-p132">测试导致的紧急事故 p132</h3>
+<p>本节介绍了 Google 因主动测试触发的紧急事故，给出了事故细节、处理过程以及总结。</p>
+<h3 id="变更部署带来的紧急事故-p133">变更部署带来的紧急事故 p133</h3>
+<p>本节介绍了 Google 一次因更新配置文件触发紧急事故，给出了事故细节、处理过程以及总结。</p>
+<h3 id="流程导致的严重事故-p135">流程导致的严重事故 p135</h3>
+<p>本节介绍了 Google 一次由自动化程序触发紧急事故，给出了事故细节、处理过程以及总结。</p>
+<h3 id="所有的问题都有解决方案">所有的问题都有解决方案</h3>
+<p>时间和经验一再证明，系统不但一定会出问题，而且会以没有人能够想到的方式出问题。工程师面对问题想不到解决办法，那么就在更大的范围内寻求帮助，而且要快。</p>
+<p>时间过去之后，别忘了留出一些时间书写时候报告。</p>
+<h3 id="向过去学习，而不是重复它">向过去学习，而不是重复它</h3>
+<h4 id="为事故保留记录">为事故保留记录</h4>
+<p>没有什么比过去的事故记录是更好的学习资料了。</p>
+<h4 id="提出那些大的，甚至不可能的问题：假设······">提出那些大的，甚至不可能的问题：假设······</h4>
+<p>不可能的问题，只要人能想到，就是有可能的问题。</p>
+<h4 id="鼓励主动测试">鼓励主动测试</h4>
+<p>主动测试让工程师更理解系统。</p>
+<h3 id="小结-7">小结</h3>
+<p>本章节介绍了三种不同的系统失败情况，对这些时间的处理有着共同的特点,响应者没有惊慌失措。他们在必要的时候引入了其他人的帮助。事故之后，留下事故记录，回顾学习分析，做出改进。严格来说，这些事项周而复始，需要持之以恒，才能保证系统的最佳状态。有几个经验值得重视：</p>
+<ul>
+<li>所有的脚本都应该测试，用事实保证测试的有效性；</li>
+<li>自动化脚本都应该使用白名单机制，尽可能确保操作是设计范围内的；</li>
+<li>主动进行灾难测试，可以有效地暴露问题，有条件的情况下应该勇于尝试；</li>
+</ul>
+<hr>
+<h2 id="第-14-章-紧急事故管理">第 14 章 紧急事故管理</h2>
+<p>本章节目录：</p>
+<ul>
+<li>无流程管理的紧急事故</li>
+<li>对这次无流程管理的事故的剖析
+<ul>
+<li>过于关注技术问题</li>
+<li>沟通不畅</li>
+<li>不请自来</li>
+</ul>
+</li>
+<li>紧急事故的流程管理要素
+<ul>
+<li>嵌套式职责分离</li>
+<li>控制中心</li>
+<li>实时事故状态文档</li>
+<li>明确公开的职责交接</li>
+</ul>
+</li>
+<li>一次流程管理良好的事故</li>
+<li>什么时候对外宣布事故</li>
+<li>小结</li>
+</ul>
+<h3 id="无流程管理的紧急事故-p140">无流程管理的紧急事故 p140</h3>
+<p>本节展示了一个案例，一次严重的事故，不同角色的人参与进来，尝试解决这个问题，大家都很着急、很努力，但是局面变得更糟糕，最后事故更加严重了。</p>
+<h3 id="对这次无流程管理的事故的剖析">对这次无流程管理的事故的剖析</h3>
+<p>有几个常见的问题导致了整个事故的失控：</p>
+<ul>
+<li>过于关注技术问题</li>
+<li>沟通不畅</li>
+<li>不请自来</li>
+</ul>
+<h3 id="紧急事故的流程管理要素">紧急事故的流程管理要素</h3>
+<p>Google 的紧急事故管理系统基于 Incident Commad System 的，这套体系以清晰度和灵活性著称。</p>
+<h4 id="嵌套式职责分离">嵌套式职责分离</h4>
+<p>明晰职责能够使每个人可以更独立自主地解决问题，因为他们不用怀疑和担心他们的同事都在干什么。</p>
+<p>以下是系统中可以分配给某个人的角色。</p>
+<ul>
+<li>事故总控（incident command）事故总控负责人掌握这次事故的概要信息。他们负责组件事故处理团队，按需求和优先级将一些任务分配给团队成员。未分配的职责任由事故总控人负责。如果有必要的话，他们要负责协调工作，让事务处理团队可以更有效地解决问题，比如申请权限、收集联系信息等。</li>
+<li>事务处理团队（operational work）事务处理团队负责人在与事故总控负责人充分沟通的情况下，负责指挥团队具体执行合适的事务来解决问题。事务处理团队是一次事故中唯一能够对系统做修改的团队。</li>
+<li>发言人（communication）该人是本次事故处理团队的公众发言人。他的职责包括向事故处理团队和所有关心的人发送周期性通知（通常以电子邮件形式），同事可能要负责维护目前的事故文档，保证其正确性和信息的及时性。</li>
+<li>规划负责人（planning）规划负责人负责为事务处理团队提供支持，负责处理一些持续性工作，例如填写 Bug 报告记录系统，给事务处理团队订晚餐，安排职责交接记录。同时负责记录在处理过程中对系统进行的特殊操作，以便未来事故结束后能够复原。</li>
+</ul>
+<h4 id="控制中心">控制中心</h4>
+<p>受到事故影响的部门或者人需要与事故总控负责人取得联系，文中提到的方式有：</p>
+<ul>
+<li>“作战室”（war room），大家都在以办公室。</li>
+<li>通过通讯软件，如 <a target="_blank" href="https://zh.wikipedia.org/wiki/IRC" rel="external nofollow noreferrer noopener">IRC</a> 或者 E-mail。</li>
+</ul>
+<p>Google 发现 IRC 对紧急事故处理非常有帮助。</p>
+<h4 id="实时事故状态文档">实时事故状态文档</h4>
+<blockquote>
+<p>事故总控负责人最重要的职责就是要维护一个实时事故文档。</p>
+</blockquote>
+<p>同步当前状态是非常非常重要的。</p>
+<h4 id="明确公开的职责交接">明确公开的职责交接</h4>
+<p>职责明晰，保证工作流程的顺畅。</p>
+<h3 id="一次流程管理良好的事故">一次流程管理良好的事故</h3>
+<p>本节按照流程管理的理念，重新演绎了<strong>无流程管理的紧急事故</strong>中的事故。</p>
+<h3 id="什么时候对外宣布事故">什么时候对外宣布事故</h3>
+<p>Google 团队依靠下面几个宽松的标准——如果下面任何一条满足条件，这次事故应该被及时宣布。</p>
+<ul>
+<li>是否需要引入第二个团队来帮助处理问题？</li>
+<li>这次事故是否正在影响最终用户？</li>
+<li>在集中分析一小时后，这个问题是否依然没有得到解决？</li>
+</ul>
+<h3 id="小结-8">小结</h3>
+<p>紧急事故管理需要训练以及演习，可以有效减低事故的平均恢复时间（MTTR），稳定紧急事故处理人的情绪，减低工作压力。文章最后提供了 <em>事故流程管理最佳实践</em></p>
+<ul>
+<li>划分优先级</li>
+<li>事前准备</li>
+<li>信任</li>
+<li>反思</li>
+<li>考虑替代方案</li>
+<li>练习</li>
+<li>换位思考</li>
+</ul>
+<hr>
+<h2 id="第-15-章-事后总结：从失败中学习">第 15 章 事后总结：从失败中学习</h2>
+<p>本章节目录：</p>
+<ul>
+<li>Google 的事后总结哲学</li>
+<li>协作和知识共享</li>
+<li>建立事后总结文化</li>
+<li>小结以及不断优化</li>
+</ul>
+<blockquote>
+<p>事后总结是 SRE 的一个必要工具。</p>
+</blockquote>
+<p>一篇事后总结是一次事故的书面记录，包括该事故造成的影响，为缓解该事故采取的措施，事故的根本原因，以及防止未来问题重现的后续任务。</p>
+<h3 id="Google-的事后总结哲学">Google 的事后总结哲学</h3>
+<p>书写事后总结的过程确实需要消耗团队的一定时间和经历，Google 内部团队大部分按照以下条件决定是否书写：</p>
+<ul>
+<li>用户可见的宕机时间或者服务质量降级程度达到一定标准。</li>
+<li>任何类型的数据丢失。</li>
+<li>on-call 工程师需要人工介入的事故（包括回滚、切换用户流量等）。</li>
+<li>问题解决耗时超过一定限制。</li>
+<li>监控问题（预示着问题是由人工发现的，而非报警系统）。</li>
+</ul>
+<p>在 SRE 的文化中，最重要的就是事后总结“对视不对人”。做点这一点，事后总结这项制度才能持续，才能更有积极性，才能发挥它的正向作用：从失败中吸取经验教训，解决实际问题。</p>
+<blockquote>
+<p>最佳实践：避免指责，提供建设性意见</p>
+</blockquote>
+<h3 id="协作和知识共享">协作和知识共享</h3>
+<p>书写事后总结文档时，采用的工具请确保优先选择下列功能：</p>
+<ol>
+<li>实时协作。</li>
+<li>开放的评论系统。</li>
+<li>邮件通知。</li>
+</ol>
+<p>书写事后总结的过程还包括正式的评审和发布过程。评审的条件包括如下几项：</p>
+<ul>
+<li>关键的灾难数据是否已经被收集并保存起来了？</li>
+<li>本次事故的影响评估是否完整？</li>
+<li>造成事故的根源问题是否足够深入？</li>
+<li>文档中记录的任务优先级是否合理，能否及时解决了根源问题？</li>
+<li>这次事故处理的过程是否共享给了所有相关部门？</li>
+</ul>
+<blockquote>
+<p>最佳实践：所有的事后总结都需要评审</p>
+</blockquote>
+<p>一旦所有的事故参与者都对文档和其中的代办事项表示了肯定，这篇事后总结就应该共享出来。透明化的共享机制保证了每个人都可以很容易地找到和学习以前的事故。</p>
+<h3 id="建立事后总结文化">建立事后总结文化</h3>
+<p>在引入事后总结机制的时候，最大的阻力来源于对投入产出比的质疑。下面的策略可以帮助面对这些挑战：</p>
+<ul>
+<li>逐渐引入事后总结流程。</li>
+<li>确保对有效的书面总结提供奖励和庆祝。</li>
+<li>鼓励公司高级管理层认可和参与其中。</li>
+</ul>
+<blockquote>
+<p>最佳实践：公开奖励做正确事的人最佳实践：收集关于事后总结有效性的反馈</p>
+</blockquote>
+<h3 id="小结以及不断优化">小结以及不断优化</h3>
+<p>文中作者说道：“我们可以自信地说，由于我们不断地培育公司事后总结文化，Google 的事故越来越少，用户体验也越来越好。”</p>
+<p><strong>点评：</strong> 很早以前我听到一位著名作家吴晓波说的一句话：“成功难以复制，失败或可避免。”机会稍纵即逝，成功真的是一件偶然事件，但是失败的事情都有规律，有迹可循，失败的事情太容易重现了。谷歌的这一套“事后总结”的机制，正是把失败的规律摸清摸透，通过制度和流程逐步克服，保证了 Google 的服务质量，构筑了 Google 的服务安全护城河。</p>
+<hr>
+<h2 id="第-16-章-跟踪故障">第 16 章 跟踪故障</h2>
+<p>本章节目录：</p>
+<ul>
+<li>Escalator</li>
+<li>Outalator
+<ul>
+<li>聚合</li>
+<li>加标签</li>
+<li>分析</li>
+<li>未预料到的好处</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>提高可靠性的唯一可靠的方法论是建立一个基线（baseline），同时不断跟踪改变。</p>
+</blockquote>
+<p>Google 使用 Outalator —— 一个故障跟踪工具来做这件事。</p>
+<p>本节内容主要想表达一个观点，就是一些小型的系列的故障，并不足以引起足够的重视进而输出一份事后总结，但是这些故障是有规律的，反映系统不良状态的故障。这些小故障需要建立一套系统和管理规则，通过分析才能从量变到质变，产生有意义的结论和指导意见，为系统的改进提供事实、数据依据。</p>
+<hr>
+<h2 id="第-17-章-测试可靠性">第 17 章 测试可靠性</h2>
+<p>本章节目录：</p>
+<ul>
+<li>软件测试的类型
+<ul>
+<li>传统测试</li>
+<li>生产测试</li>
+</ul>
+</li>
+<li>创造一个构建和测试环境</li>
+<li>大规模测试
+<ul>
+<li>测试大规模使用的工具</li>
+<li>针对灾难的测试</li>
+<li>对速度的渴求</li>
+<li>发布到生产环境</li>
+<li>允许测试失败</li>
+<li>集成</li>
+<li>生产环境探针</li>
+</ul>
+</li>
+<li>小结</li>
+</ul>
+<blockquote>
+<p>如果你还没有亲自试过某件东西，那么就假设它是坏的。</p>
+</blockquote>
+<h3 id="软件测试的类型">软件测试的类型</h3>
+<h4 id="传统测试">传统测试</h4>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_17-1%EF%BC%9A%E4%BC%A0%E7%BB%9F%E6%B5%8B%E8%AF%95%E7%9A%84%E5%B1%82%E7%BA%A7%E6%A8%A1%E5%9E%8B.png" alt="图17-1:传统测试的层级模型" title="传统测试的层级模型"></p>
+<ul>
+<li>单元测试（unit test）是最小、最简单的软件测试形式。</li>
+<li>集成测试：通过独立的单元测试的软件组件被组装成大的系统组件，工程师通过在这个组件中运行一个集成测试（integration test）来检验该组件的功能的正确性。</li>
+<li>系统测试：系统测试（system test）是一个在未部署的系统上运行的大型测试。
+<ul>
+<li>冒烟测试（smoke test）</li>
+<li>性能测试（performance test）</li>
+<li>回归测试（regression test）</li>
+</ul>
+</li>
+</ul>
+<p>很重要的是，每个测试都有成本，时间成本和计算资源成本。时刻关注测试的成本，是软件开发效率提升的重要因素。</p>
+<h4 id="生产测试">生产测试</h4>
+<p>生产测试和一个已经部署在生产环境中的业务系统直接交互，而不是运行在密闭的测试环境中，有时候也被称为黑盒测试。</p>
+<h5 id="配置测试">配置测试</h5>
+<p>在 Google 内部，Web 服务的配置信息保存在代码仓库中的文件中。本节主要介绍如何测试这些配置文件。</p>
+<h5 id="压力测试">压力测试</h5>
+<p>为了安全地操作某个系统，SRE 需要理解系统和组件的性能边界。工程师使用<em>压力测试</em>来找到 Web 服务的性能边界。压力测试能够回答以下问题：</p>
+<ul>
+<li>数据库容量满到什么程度，才会导致写请求失败。</li>
+<li>向某应用每秒发送多少个请求，将导致应用过载并导致请求处理失败。</li>
+</ul>
+<p><strong>点评：</strong> 压力测试在初创团队、用户量小的系统一般比较容易忽视，都是遇到瓶颈、出现服务异常时，才想到这个事情。按照我的理解，在模块已经比较稳定之后，需要尽快摸清该模块的性能边界、资源消耗，为 SLO、SLI 的制定提供依据。</p>
+<h5 id="金丝雀测试">金丝雀测试</h5>
+<p><em>金丝雀测试（Canary test）</em> 没有包含在上面的生产测试列表中。“金丝雀”一词来源于“煤矿中的金丝雀”这样一个说法，指代利用一只鸟来检测有毒气体以避免人类中毒的做法。</p>
+<p>要进行一次金丝雀测试，一小部分服务器被升级到一个新版本或者新配置，随后保持一定的孵化器。如果没有任何为预料的问题发生，发布流程会继续，其他的软件服务器也会被逐渐升级到新版本。如果发生了问题，这个发版流程会中止，被修改的服务器会被还原。</p>
+<blockquote>
+<p>金丝雀测试并不真的是一个测试，而是一种结构化的最终用户验收测试。</p>
+</blockquote>
+<p>文中提到了 Google 评估金丝雀测试错误报告数生成公式：</p>
+<blockquote>
+<p>CU = RK</p>
+<blockquote>
+<p>C 是错误报告累计值。<br>
+U 是错误等级。<br>
+K是用户流量增长 172%（呈自然对数 e 倍率增长）所需时间，文中假设使用指数型升级部署流程。<br>
+R 是错误发生的速率。</p>
+</blockquote>
+</blockquote>
+<p>该公式用于指导金丝雀测试。</p>
+<h3 id="创造一个构建和测试环境">创造一个构建和测试环境</h3>
+<ul>
+<li>一种建立强测试文化的方式是将所有遇到的问题都进行测试案例化，随着案例的增多，将会有一套晚上的回归测试体系。</li>
+<li>建立良好测试的软件的另外一项关键任务是建立起一套良好的测试基础设施。测试设施的基础是一套版本化源代码控制体系，可以追溯源代码的每一个改变。</li>
+<li>文中推荐了构建系统，<a target="_blank" href="https://www.bazel.build/" rel="external nofollow noreferrer noopener">Bazel</a>，该系统为精确地控制测试执行提供了非常有价值的功能，例如它可以为软件项目生成依赖图。</li>
+</ul>
+<blockquote>
+<p>Bazel 目前官方支持 Java、C++、Android、iOS、GO，其他语言框架可能支持得不大好。</p>
+</blockquote>
+<h3 id="大规模测试">大规模测试</h3>
+<h4 id="测试大规模使用的工具">测试大规模使用的工具</h4>
+<p>SRE 的工具也是软件项目，也需要测试。SRE 开发的工具可能负责以下操作：</p>
+<ul>
+<li>从数据库中获取并且传递的性能度量指标。</li>
+<li>从度量指标预测未来用量，进行容量规划。</li>
+<li>重构某个用户不可见的备份副本中的数据。</li>
+<li>修改某些文件。</li>
+</ul>
+<p>SRE 工具具有两个特点：</p>
+<ul>
+<li>这些工具的副作用基本处于被良好测试过的主流 API 范围内。</li>
+<li>由于现存的验证和发布流程，这些工具基本不会对用户造成直接影响。</li>
+</ul>
+<p>自动化工具也是软件项目。例如：</p>
+<ul>
+<li>数据库索引的选择。</li>
+<li>数据中心之间的负载均衡器。</li>
+<li>快速重排中继日志，以尽快重建主记录的工具。</li>
+</ul>
+<p>自动化工具具有两个共同点：</p>
+<ul>
+<li>他们的实际操作都是通过调用一个可靠的、经过良好测试的 API。</li>
+<li>对另外一个 API 用户来说，他们的调用结果是不可预知或不可见的。</li>
+</ul>
+<p><strong>点评：</strong> 这些工具专门为系统运维服务，直接对生产环境产生影响，测试这些工具需要非常必要。</p>
+<h4 id="针对灾难的测试">针对灾难的测试</h4>
+<p><strong>点评：</strong> 本章节描述的场景我比较陌生，不大能体会作者想表达的内容，暂且搁置。</p>
+<h4 id="对速度的渴求">对速度的渴求</h4>
+<p><strong>点评：</strong> 本章节介绍了面对一个复杂系统，测试难度、时间成本都比较高，如何更高效地进行测试。按照我的理解，作者面对的测试系统，不是那种要不就是对，要不就是错的测试结果，而是一种成功率的结果，我没有这方面的经验，暂时没有感悟到有价值的东西。</p>
+<h4 id="发布到生产环境">发布到生产环境</h4>
+<p>本节作者揭示了一个问题，生产环境的配置信息最终只能在生产环境中验证。因此，在发布到生产环境前，有必要先评估生产环境配置信息的最坏情况，提前做好预案。</p>
+<h4 id="允许测试失败">允许测试失败</h4>
+<p>测试失败意味着带有 bug 的程序会发布到生产环境，进而实际影响到用户。为了保障平均修复时间（MTTR）保持在较低的水平，Googe 使用配置文件的方式回滚生产环境的程序。</p>
+<p>为了让服务更可靠，避免 SRE 团队人数线性增长，生产环境必须做到基本无人值守运行。为了达到无人值守目标，生产环境必须能够应对小型的失败问题。当一项重大问题需要 SRE 手工参与时，SRE 所使用的工具必须是经过合理测试的。</p>
+<p><strong>点评：</strong> 本章节主要介绍当测试失败，有问题的程序发布到生产环境，SRE 该如何处理。处理时要围绕这几个方向展开：</p>
+<ul>
+<li>使用配置文件方式回滚更高效。</li>
+<li>保障平均修复时间（MTTR）保持在较低的水平。</li>
+<li>修复需要依赖自动化，尽可能避免 SRE 手工操作。</li>
+<li>自动化脚本、修复工具需要充分测试，尽可能地保证可信赖度。</li>
+</ul>
+<h4 id="集成">集成</h4>
+<p>这一章节的题目与内容感觉不是那么的融合，内容了讲了两方面的事情，一个是配置文件的解析过程测试，一个是对系统工程工具的测试。</p>
+<h4 id="生产环境探针">生产环境探针</h4>
+<p>测试的过程涉及的模块，有可能使用到别的团队的测试模块、伪后端（fake backend），与实际生产环境部署可能有比较大的区别。使用探针周期性的测试生产环境，可以监控系统的运行情况。文章主要介绍了探针的作用以及设计探针时的注意事项，如灰度发版时探针需要做到前后版本的兼容，避免误报等问题。</p>
+<h3 id="小结-9">小结</h3>
+<p>测试是工程师提高可靠性投入回报比最高的一种手段。测试并不是一种只执行一次或两次的活动，而是持久不断的。</p>
+<hr>
+<h2 id="第-18-章-SRE-部门中的软件工程实践">第 18 章 SRE 部门中的软件工程实践</h2>
+<p>本章节目录：</p>
+<ul>
+<li>为什么软件工程项目对 SRE 很重要</li>
+<li>Auxon 案例分析：项目背景和要解决的问题
+<ul>
+<li>传统的容量规划方法</li>
+<li>解决方案：基于意图的容量规划</li>
+</ul>
+</li>
+<li>基于异同的容量规划
+<ul>
+<li>表达产品意图的先导条件</li>
+<li>Auxon 简介</li>
+<li>需求和实现：成功和不足</li>
+<li>提升了解程度，推进采用率</li>
+<li>团队内部组成</li>
+</ul>
+</li>
+<li>SRE 团队中培养软件工程风气
+<ul>
+<li>在 SRE 团队中建立起软件工程氛围：招聘与开发时间</li>
+<li>做到这一点</li>
+</ul>
+</li>
+<li>小结</li>
+</ul>
+<p>本章节主要围绕 Google Auxon 软件，一个基于意图进行容量规划的工具展开。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_18-1%EF%BC%9AAuxon%E7%9A%84%E4%B8%BB%E8%A6%81%E7%BB%84%E4%BB%B6.png" alt="Auxon的主要组件" title="Auxon的主要组件"></p>
+<p>这个软件解决了 Google 系统部署与硬件资源管理的问题，提高了部署效率以及减少了人力成本。文章还介绍了开发 Auxon 软件的历史、开发者的背景以及未来的规划。对于大部分软件企业，其系统的复杂程度远远低于 Google 的规模，专门开发一套软件去管理系统部署和硬件资源，成本反而更高。本文更多地是让读者有个窗口，窥探 Google 的管理技术，知道高水平的运维管理是如何做的。</p>
+<hr>
+<h2 id="第-19-章-前端服务器的负载均衡">第 19 章 前端服务器的负载均衡</h2>
+<p>本章节目录：</p>
+<ul>
+<li>有时候硬件并不能解决问题</li>
+<li>使用 DNS 进行负载均衡</li>
+<li>负载均衡：虚拟IP</li>
+</ul>
+<p>本章节关注于高层次的负载均衡——Google 是如何在数据中心之间调节用户流量的。</p>
+<h3 id="有时候硬件并不能解决问题">有时候硬件并不能解决问题</h3>
+<p>用户流量负载均衡（traffic load balancing）系统是用来决定数据中心中的这些机器中哪一个用来处理某个请求。理想情况下，用户流量应该最优地分布于多条网络链路上、多个数据中心中，以及多台服务器上。“最优”依赖于下列三个因素：</p>
+<ul>
+<li>逻辑层级（是在全局还是在局部）。</li>
+<li>技术层面（硬件层面与软件层面）。</li>
+<li>用户流量的天然属性。</li>
+</ul>
+<h3 id="使用-DNS-进行负载均衡">使用 DNS 进行负载均衡</h3>
+<p>在某个客户端发送 HTTP 请求之前，经常需要先通过 DNS 查询 IP 地址。这就为我们第一层的负载均衡机制提供了一个良好基础：DNS 负载均衡。</p>
+<p>本章节介绍了使用 DNS 进行负载均衡面临的一些问题：</p>
+<ol>
+<li>这种机制对客户端行为的约束力很弱：记录是随机选择的，也就是每条记录都会引来有基本相同数量的请求流量。</li>
+<li>客户端无法识别“最近”的地址。</li>
+<li>DNS 中间人带来的第三个问题是跟缓存有关的。因为权威服务器不能主动清除某个解析器的缓存，DNS记录需要保持一个相对较低的时效值（TTL）。</li>
+</ol>
+<h3 id="负载均衡：虚拟IP">负载均衡：虚拟IP</h3>
+<p>虚拟IP地址（VIP）不是绑定在某一个特定的网络接口上的，它是由很多设备共享的。但是，从用户视角来看，VIP 仍然是一个独立的、普通的 IP 地址。</p>
+<p>对虚拟IP的负载均衡器，文中介绍了以下几个方案：</p>
+<ul>
+<li>永远优先目前负载最小的后端服务器。</li>
+<li>一致性哈希（consistent hashing）算法。</li>
+<li>修改数据链路层（OSI 模型的 2 层）的信息，直接服务器响应（DSR）。</li>
+<li>包封装（encapsulation）模式，Google 目前使用的方案。</li>
+</ul>
+<hr>
+<h2 id="第-20-章-数据中心内部的负载均衡系统">第 20 章 数据中心内部的负载均衡系统</h2>
+<p>本章节目录：</p>
+<ul>
+<li>理想情况</li>
+<li>识别异常任务：流速控制和跛脚鸭任务
+<ul>
+<li>异常任务的简单应对办法：流速控制</li>
+<li>一个可靠的识别异常任务的方法：跛脚鸭状态</li>
+</ul>
+</li>
+<li>利用划分子集限制连接池大小
+<ul>
+<li>选择合适的子集</li>
+<li>子集选择算法一：随机选择</li>
+<li>子集选择算法二：确定性算法</li>
+</ul>
+</li>
+<li>负载均衡策略
+<ul>
+<li>简单轮询算法</li>
+<li>最闲轮询策略</li>
+<li>加权轮询策略</li>
+</ul>
+</li>
+</ul>
+<p>本章关注于数据中心内部负载均衡系统，我们将讨论在数据中心内部采用的负载均衡算法。</p>
+<h3 id="理想情况">理想情况</h3>
+<p>在理想情况下，某个服务的负载会完全均匀地分发给所有的后端任务。在任何一个时间点上，最忙和最不忙的任务永远消耗同样数量的CPU。</p>
+<p>文中列举了两种糟糕的负载情况，任务负载分布以及 CPU 使用情况。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_20-1%EF%BC%9A%E4%BB%BB%E5%8A%A1%E8%B4%9F%E8%BD%BD%E5%88%86%E5%B8%83%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%9C%BA%E6%99%AF.png" alt="任务负载分布的两种场景"></p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_20-2%EF%BC%9ACPU%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E6%B5%AA%E8%B4%B9%E7%9A%84%E7%9B%B4%E6%96%B9%E5%9B%BE.png" alt="CPU的使用和浪费的直方图"></p>
+<h3 id="识别异常任务：流速控制和跛脚鸭任务">识别异常任务：流速控制和跛脚鸭任务</h3>
+<p>在我们决定哪个后端任务应该接受客户端请求之前，首先要先识别——并且避开——在后端任务池中处于不健康状态的任务。</p>
+<h4 id="异常任务的简单应对办法：流速控制">异常任务的简单应对办法：流速控制</h4>
+<p>这是一种非常简单的负载均衡机制：如果某个后端任务过载了，请求处理开始变慢，客户端会自动避开这个后端，从而将任务分配给其他的后端。但该机制无法解决底层的根源问题：识别一个任务是真的处于不健康状态，还是仅仅回复有点慢。</p>
+<h4 id="一个可靠的识别异常任务的方法：跛脚鸭状态">一个可靠的识别异常任务的方法：跛脚鸭状态</h4>
+<p>从一个客户端的视角来说，某个后端任务可能处于下列任一种状态中：</p>
+<ul>
+<li>健康</li>
+<li>拒绝连接</li>
+<li>跛脚鸭状态：后端任务正在监听端口，并且可以服务请求，但是已经明确要求客户端停止发送请求。</li>
+</ul>
+<p>允许任务处于这种半正常的跛脚鸭状态的好处就是让无缝停止任务变得更容易，处于停止过程中的任务不会给正在处理的请求返回一个错误值。</p>
+<h3 id="利用划分子集限制连接池大小">利用划分子集限制连接池大小</h3>
+<p>在健康管理之外，负载均衡另外要考虑的一个因素就是<em>子集划分</em>：限制某个客户端任务需要连接的后端任务数量。</p>
+<p>子集化可以避免一个客户端连接过多后端任务，或者一个后端任务接收过多客户端连接。</p>
+<h4 id="选择合适的子集">选择合适的子集</h4>
+<p>子集的选择过程由确定每个客户端任务需要连接的后端数量——子集大小——和选择算法决定。</p>
+<p>子集大小主要有你的服务决定。一下情况可能需要一个相对大的子集数量：</p>
+<ul>
+<li>客户端数量相比后端数量少很多。</li>
+<li>某个客户端任务经常出现负载不平衡的情况。</li>
+</ul>
+<p>算法的选择我们需要考虑一下问题：</p>
+<ul>
+<li>选择算法应该将后端平均分配给客户端，以优化资源利用率。</li>
+<li>该算法应该同时处理客户端程序和后端程序集群的大小调整，避免对现有连接的大幅度变动，同时在无法预知这些具体数字的情况下做到这一点。</li>
+</ul>
+<h4 id="子集选择算法一：随机选择">子集选择算法一：随机选择</h4>
+<p>一个最简单的子集选择算法是让所有客户端任务将后端列表随机排列一次，同时将其中的可解析/可服务状态的后端提取出来。</p>
+<p>Google 的实践给出的结论是，这个算法在大多数实际应用场景中效果非常差，因为负载均衡非常不均衡。文中列举了一个例子，并给出了两张分析图：</p>
+<ul>
+<li>300 个客户端</li>
+<li>300 个后端</li>
+<li>30% 的子集大小（每个客户端连接90个后端）</li>
+</ul>
+<p>300个客户端、300个后端和子集大小为30%的连接分布：</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_20-3%EF%BC%9A300%E4%B8%AA%E5%AE%A2%E6%88%B7%E7%AB%AF%E3%80%81300%E4%B8%AA%E5%90%8E%E7%AB%AF%E5%92%8C%E5%AD%90%E9%9B%86%E5%A4%A7%E5%B0%8F%E4%B8%BA%E7%99%BE%E5%88%86%E4%B9%8B30%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%88%86%E5%B8%83%E5%9B%BE.png" alt="300个客户端、300个后端和子集大小为30%的连接分布图"></p>
+<p>300个客户端、300个后端和子集大小为10%的连接分布</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_20-4%EF%BC%9A300%E4%B8%AA%E5%AE%A2%E6%88%B7%E7%AB%AF%E3%80%81300%E4%B8%AA%E5%90%8E%E7%AB%AF%E5%92%8C%E5%AD%90%E9%9B%86%E5%A4%A7%E5%B0%8F%E4%B8%BA%E7%99%BE%E5%88%86%E4%B9%8B10%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%88%86%E5%B8%83%E5%9B%BE.png" alt="300个客户端、300个后端和子集大小为10%的连接分布图"></p>
+<p>作者给出的最终结论是,如果使用随机子集分布算法，要相对地平均分配负载，需要至少75%的子集大小。</p>
+<h4 id="子集选择算法二：确定性算法">子集选择算法二：确定性算法</h4>
+<p>Google 对随机算法限制的解决方案是：确定性算法。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">def Subset(backends, client_id, subset_size):</span><br><span class="line">  subset_count = <span class="built_in">len</span>(backends) / subset_size</span><br><span class="line"></span><br><span class="line">  # 将客户端划分为多轮，每一轮计算使用同样的随机排列的列表。</span><br><span class="line">  round = client_id / subset_count</span><br><span class="line">  random.seed(round)</span><br><span class="line">  random.shuffle(backends)</span><br><span class="line"></span><br><span class="line">  # subset_id 代表了目前的客户端</span><br><span class="line">  subset_id = client_id % subset_count</span><br><span class="line"></span><br><span class="line">  start = subset_id * subset_size</span><br><span class="line">  <span class="keyword">return</span> backends[start:start + subset_size]</span><br></pre></td></tr></table></figure>
+<p>我们将客户端任务划分在多“轮”中，每一轮 i 包含了 subset_count 个连续的客户端，从客户端 subset_count * i 开始，同时 subset_count 是子集的个数（也就是后端数量除以想要的子集大小）。在每一轮计算中，每个后端都会被分配给一个而且仅有一个客户端任务（最后一轮除外，这时可能客户端数量不够，所以有些后端没有被分配）。</p>
+<p>如图所示，前述案例中的300个客户端每个连接300个后端中的10个，在这个算法下结果非常好：每个后端都接收到同样数量的连接。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_20-5%EF%BC%9A300%E4%B8%AA%E5%AE%A2%E6%88%B7%E7%AB%AF%E3%80%81300%E4%B8%AA%E5%90%8E%E7%AB%AF%EF%BC%8C%E5%AD%90%E9%9B%86%E6%95%B0%E9%87%8F10%EF%BC%8C%E9%87%87%E7%94%A8%E7%A1%AE%E5%AE%9A%E6%80%A7%E7%AE%97%E6%B3%95%E7%9A%84%E7%BB%93%E6%9E%9C.png" alt="300个客户端、300个后端，子集数量10，采用确定性算法的结果"></p>
+<h3 id="负载均衡策略">负载均衡策略</h3>
+<p>大部分负载均衡策略的复杂度都来自于决策的分布式特性。</p>
+<h4 id="简单轮询算法">简单轮询算法</h4>
+<p>一个非常简单的负载均衡策略是让每个客户端以轮询的方式发送给子集中的每个后端任务，只要这个后端可以成功连接并且不再跛脚鸭状态中即可。</p>
+<p>轮询策略（round robin）非常简单，并且比随机选择后端效果要好，但该策略的负载均衡结果可能非常差，造成的原因可能有以下几项：</p>
+<ul>
+<li>子集过小</li>
+<li>请求处理成本不同</li>
+<li>物理服务器的差异
+<ul>
+<li>Google 通过创造一个虚拟 CPU 单位评估不同CPU类型的性能差异。</li>
+</ul>
+</li>
+<li>无法预知的性能因素
+<ul>
+<li>坏邻居：一台服务器上还部署了其他的服务，这些服务可能会占用大量资源，产生资源的剧烈抖动。</li>
+<li>任务重启</li>
+</ul>
+</li>
+</ul>
+<h4 id="最闲轮询策略">最闲轮询策略</h4>
+<p>简单轮询策略的一个替代方案是让每个客户端跟踪子集中每个后端任务的活跃请求数量，然后在活跃请求数量最小的任务中进行轮询。</p>
+<p>最闲策略的思路来源于负载高的任务一般比负载低的任务延迟高，这个策略可以很好地将负载从这些负载高的任务迁走。</p>
+<p>文中提到该策略会面对<em>地漏效应（sinkhole effect）</em>，并给出了解决方案：将最近收到的错误信息计算为活跃请求。</p>
+<p>最闲轮询策略有两个很重要的限制：</p>
+<ul>
+<li>活跃请求的数量并不一定是后端容量的代表</li>
+<li>每个客户端的活跃请求不包括其他客户端发往同一个后端的请求</li>
+</ul>
+<h4 id="加权轮询策略">加权轮询策略</h4>
+<p>加权轮询策略通过在决策过程中加入后端提供的信息，是一个针对简单轮询策略和最闲轮询策略的加强。</p>
+<p>加权轮询策略理论上很简单：每个客户端为子集中的每个后端任务保持一个“能力”值。请求仍以轮询方式分发，但是客户端会按能力值权重比例调节。</p>
+<p>Google 的实践给出的结果是，该策略效果非常好，极大降低了最高和最低负载任务的差距。</p>
+<hr>
+<h2 id="第-21-章-应对过载">第 21 章 应对过载</h2>
+<p>本章节目录：</p>
+<ul>
+<li>QPS 陷阱</li>
+<li>给每个用户设置限制</li>
+<li>客户端侧的节流机制</li>
+<li>重要性</li>
+<li>资源利用率信号</li>
+<li>处理过载错误
+<ul>
+<li>决定何时重试</li>
+</ul>
+</li>
+<li>连接造成的负载</li>
+<li>小结</li>
+</ul>
+<p>避免过载，是负载均衡策略的一个重要目标。运维一个可靠系统的一个根本要求，就是能够优雅地处理过载情况。</p>
+<h3 id="QPS-陷阱">QPS 陷阱</h3>
+<blockquote>
+<p>Google 在多年的经验积累中得出：按照 QPS 来规划服务容量，或者是按照某种静态属性（认为其能指代处理所消耗的资源：例如某个请求所需要读取的键值数量）一般是错误的选择。</p>
+</blockquote>
+<p>更好的解决方案是直接以可用资源来衡量可用容量。</p>
+<p>在绝大部分情况下（当然总会有例外情况），我们发现简单地使用 CPU 数量作为资源配给的主要信号就可以工作得很好，原因如下：</p>
+<ul>
+<li>在有垃圾回收（GC）机制的编程程序里，内存的压力通常自然而然地变成 CPU 的压力（在内存受限的情况下，GC 会增加）。</li>
+<li>在其他编程环境里，其他资源一般可以通过某种比例进行配置，以便使这些资源的短缺情况非常罕见。</li>
+</ul>
+<h3 id="给每个用户设置限制">给每个用户设置限制</h3>
+<p>当全局过载情况真的发生时，使服务只针对某些“异常”客户返回错误是非常关键的，这样其他用户则不会受影响。为了达到这个目的，该服务的运维团队和客户团队协商一个合理的使用约定，同时使用这个约定来配置用户的配额，并且配置相应的资源。</p>
+<h3 id="客户端侧的节流机制">客户端侧的节流机制</h3>
+<p>本节介绍了一种称为<em>自适应节流</em>的技术，用于实现客户端节流。具体地说，每个客户端记录过去两分钟内的以下信息：</p>
+<ul>
+<li>请求数量（requests）：应用层代码发出的所有请求的数量总计（指运行于自适应节流系统之上的应用代码）。</li>
+<li>请求接受数量（accepts）：后端任务接受的请求数量。</li>
+</ul>
+<p>在常规情况下，这两个值是相等的。随着后端任务开始拒绝请求，请求接受数量开始比请求数量小。客户端可以继续发送请求直到 requests = K * accepts，一旦超过这个限制，客户端开始自行节流，新的请求会在本地直接以一定概率被拒绝（在客户端内部），概率使用公式 21-1 进行计算：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>m</mi><mi>a</mi><mi>x</mi><mo fence="true" stretchy="true" minsize="3em" maxsize="3em">(</mo><mn>0</mn><mo separator="true">,</mo><mfrac><mrow><mi>r</mi><mi>e</mi><mi>q</mi><mi>u</mi><mi>e</mi><mi>s</mi><mi>t</mi><mi>s</mi><mo>−</mo><mi>K</mi><mo>∗</mo><mi>a</mi><mi>c</mi><mi>c</mi><mi>e</mi><mi>p</mi><mi>t</mi><mi>s</mi></mrow><mrow><mi>r</mi><mi>e</mi><mi>q</mi><mi>u</mi><mi>e</mi><mi>s</mi><mi>t</mi><mi>s</mi><mo>+</mo><mn>1</mn></mrow></mfrac><mo fence="true" stretchy="true" minsize="3em" maxsize="3em">)</mo></mrow><annotation encoding="application/x-tex">max\Biggl(0,\frac{requests-K*accepts}{requests+1}\Biggr)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:3em;vertical-align:-1.25em;"></span><span class="mord mathnormal">ma</span><span class="mord mathnormal">x</span><span class="mopen"><span class="delimsizing size4">(</span></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">re</span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mord mathnormal">u</span><span class="mord mathnormal">es</span><span class="mord mathnormal">t</span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">1</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">re</span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mord mathnormal">u</span><span class="mord mathnormal">es</span><span class="mord mathnormal">t</span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">a</span><span class="mord mathnormal">cce</span><span class="mord mathnormal">pt</span><span class="mord mathnormal">s</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.8804em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose"><span class="delimsizing size4">)</span></span></span></span></span></span></p>
+<p>通过修改 K 值，我们可以调整拒绝概率：</p>
+<ul>
+<li>降低该倍值会使自适应节流算法更加激进。</li>
+<li>增加该倍值会使算法变得不再那么激进。</li>
+</ul>
+<p>一般来说推荐采用 K=2，通过允许后端接收到比预期值更多的请求，浪费了一定数量后端资源，但是却加快了后端状态到客户端的传递速度。</p>
+<h3 id="重要性">重要性</h3>
+<p>重要性（criticality）是另外一个在全局配额和限制机制中比较有用的信息。文章归纳了四种类型，并发现这四种分类可以描述大部分服务：</p>
+<ol>
+<li>最重要 CRITICAL_PLUS: 为最重要的请求预留的类型，拒绝这些请求会造成非常严重的用户可见的问题。</li>
+<li>重要 CRITICAL: 生产任务发出的默认请求类型。拒绝这些请求也会造成用户可见的问题，但是可能没有 CRITICAL_PLUS 那么严重。我们要求服务必须为所有的 CRITICAL 和 CRITICAL_PLUS 流量配置相应的资源。</li>
+<li>可丢弃的 SHEDDABLE_PLUS:这些流量可以容忍某种程度的不可用性。这是批量任务发出的请求的默认值。这些请求通常可以过几分钟，或者几个小时之后重试。</li>
+<li>可丢弃的 SHEDDABLE: 这些流量可能会经常遇到部分不可用的情况，偶尔会完全不可能用。</li>
+</ol>
+<p>通过重要性分类，在处理过载情况下可以使用该信息：</p>
+<ul>
+<li>当某个客户全局配额不够时，后端任务将会按请求优先级顺序分级拒绝请求（实际上，全局配额系统是可以按重要性分别设置的）。</li>
+<li>当某个任务开始进入过载状态时，低优先级的请求会先被拒绝。</li>
+<li>自适应节流系统也会根据每个优先级分别计数。</li>
+</ul>
+<h3 id="资源利用率信号">资源利用率信号</h3>
+<p>Google 的任务过载保护是基于资源利用率（utilization）实现的。在多数情况下，资源利用率仅仅是指目前 CPU 的消耗程度（目前 CPU 使用量除以全部预留 CPU 数量）。某些情况下，同时也会考虑内存的使用率。</p>
+<p>文中介绍了一种基于任务活跃线程数与该任务分配的CPU数量比值的负载计算方式，依据这个计算值，决定系统是否开始拒绝请求。</p>
+<h3 id="处理过载错误">处理过载错误</h3>
+<p>本节主要讨论当出现过载的情况下，需要如何处理重试的问题。</p>
+<h4 id="决定何时重试">决定何时重试</h4>
+<p>第一，我们增加了每次请求重试次数限制，限制重试3次。第二，我们实现了一个每客户端重试限制。每个客户端都跟踪重试域请求的比例，如<a href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BE%A7%E7%9A%84%E8%8A%82%E6%B5%81%E6%9C%BA%E5%88%B6">客户端侧的节流机制</a>小节介绍的字节流算法。第三，客户端在请求元数据中加入一个重试计数，提供给后端评估本模块是否处于过载的状态，从而告诉客户端“过载；无须重试”。</p>
+<h3 id="连接造成的负载">连接造成的负载</h3>
+<p>维护一个大型连接池的 CPU 和内存成本，或者是连接快速变动的成本，也会造成负载问题。以下策略可以帮助消除这些问题：</p>
+<ul>
+<li>将负载传递给跨数据中心负载均衡算法（如，使用资源利用率进行负载均衡，而不仅仅是请求数量）。在这种情况下，过载请求会被转移到其他数据中心。</li>
+<li>强制要求批处理任务使用某些特定的批处理代理后端任务，这些代理仅仅转发请求，同时将回复转发给客户端。于是，请求路线从“批处理客户端-&gt;后端”变为“批处理客户端-&gt;批处理代理-&gt;后端”。</li>
+</ul>
+<hr>
+<h2 id="第-22-章-处理连锁故障">第 22 章 处理连锁故障</h2>
+<p>本章节目录：</p>
+<ul>
+<li>连锁故障产生的原因和如何从设计上避免
+<ul>
+<li>服务器过载</li>
+<li>资源耗尽</li>
+<li>服务不可用</li>
+</ul>
+</li>
+<li>防止软件服务器过载
+<ul>
+<li>队列管理</li>
+<li>流量抛弃和优雅降级</li>
+<li>重试</li>
+<li>请求延迟和截止时间</li>
+</ul>
+</li>
+<li>慢启动和冷缓存
+<ul>
+<li>保持调用栈永远向下</li>
+</ul>
+</li>
+<li>连锁故障的触发条件
+<ul>
+<li>进程崩溃</li>
+<li>进程更新</li>
+<li>新的发布</li>
+<li>自然增长</li>
+<li>计划中或计划外的不可用</li>
+</ul>
+</li>
+<li>连锁故障的测试
+<ul>
+<li>测试直到出现故障，还要继续测试</li>
+<li>测试最常用的客户端</li>
+<li>测试非关键性后端</li>
+</ul>
+</li>
+<li>解决连锁故障的立即步骤
+<ul>
+<li>增加资源</li>
+<li>停止健康检查导致的任务死亡</li>
+<li>重启软件服务器</li>
+<li>丢弃流量</li>
+<li>进入降级模式</li>
+<li>消除批处理负载</li>
+<li>消除有害的流量</li>
+</ul>
+</li>
+<li>小结</li>
+</ul>
+<p>连锁故障是由于正反馈循环（positive feedback）导致的不断扩大规模的故障。</p>
+<h3 id="连锁故障产生的原因和如何从设计上避免">连锁故障产生的原因和如何从设计上避免</h3>
+<h4 id="服务器过载">服务器过载</h4>
+<p>服务器过载，大部分情况下，都是负载均衡造成的。以下两张图展示了节点 B 出现异常的时候，触发了负载均衡的机制，导致节点 A 出现服务器过载的情况。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_22-2%EF%BC%9A%E6%AD%A3%E5%B8%B8%E7%9A%84%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%B4%9F%E8%BD%BD%E5%9C%A8%E9%9B%86%E7%BE%A4AB%E4%B9%8B%E9%97%B4%E7%9A%84%E5%88%86%E5%B8%83.png" alt="正常的服务器负载在集群A/B之间的分布"></p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_22-3%EF%BC%9A%E9%9B%86%E7%BE%A4B%E5%87%BA%E7%8E%B0%E6%95%85%E9%9A%9C%EF%BC%8C%E6%89%80%E6%9C%89%E8%AF%B7%E6%B1%82%E9%83%BD%E5%8F%91%E5%BE%80%E9%9B%86%E7%BE%A4A.png" alt="集群B出现故障，所有请求都发往集群A"></p>
+<h4 id="资源耗尽">资源耗尽</h4>
+<p>某一种资源的耗尽可以导致高迟延、高错误率，或者低质量回复的发生。不同种类的资源耗尽会对软件服务器产生不同的影响。</p>
+<h5 id="CPU">CPU</h5>
+<p>如果 CPU 资源不足以应对请求负载，一般来说所有的请求都会变慢。副作用如下：</p>
+<ul>
+<li>正在处理的（in-flight）请求数量上升</li>
+<li>队列过长</li>
+<li>线程卡住：如果一个线程由于等待某个锁而无法处理请求，可能服务器无法在合理的时间内处理健康检查请求（Borg 系统会将这种情况视为服务器已经失败，从而杀掉它）。</li>
+<li>CPU 死锁或者请求卡住：服务器内置的看门狗机制（watchdog）可能会检测到服务器无法进行工作，导致软件服务器最终由于 CPU 资源不够而崩溃。如果看门狗机制是远端触发的，但是由于请求队列排队，这些请求无法被及时处理，而触发看门狗机制杀掉进程。</li>
+<li>RPC 超时</li>
+<li>CPU 缓存效率下降</li>
+</ul>
+<h5 id="内存">内存</h5>
+<p>内存耗尽可能导致如下情况的发生：</p>
+<ul>
+<li>任务崩溃</li>
+<li>Java 垃圾回收（GC）速率加快，从而导致CPU使用率上升</li>
+<li>缓存命中率下降</li>
+</ul>
+<h5 id="线程">线程</h5>
+<p>线程不足可能会导致错误或者导致健康检查失败。</p>
+<h5 id="文件描述符">文件描述符</h5>
+<p>文件描述符（file descriptor）不足可能会导致无法建立网络连接，进而导致健康检查失败。</p>
+<h5 id="资源之间的相互依赖">资源之间的相互依赖</h5>
+<p>很多资源的耗尽都会导致其他资源出现问题——某个服务过载经常会出现一系列次级现象看起来很像根本问题，这会使定位问题更困难。</p>
+<h4 id="服务不可用">服务不可用</h4>
+<p>资源耗尽可能导致软件服务器崩溃。</p>
+<h3 id="防止软件服务器过载">防止软件服务器过载</h3>
+<p>下面描述了避免过载的几种策略，大致以优先级排序。</p>
+<ul>
+<li>使用负载压力测试得出服务器的极限，同时测试过载情况下的失败模式</li>
+<li>提供降级结果</li>
+<li>在过载情况下主动拒绝请求</li>
+<li>上层系统应该主动拒绝请求</li>
+<li>进行容量规划</li>
+</ul>
+<h4 id="队列管理">队列管理</h4>
+<p>本节作者提到一个建议：对一个流量基本稳定的服务来说，队列长度比线程池大小更小会更好（如50%或更小）。当服务处理速度无法跟上请求到达速率时，尽早拒绝请求会更好。</p>
+<h4 id="流量抛弃和优雅降级">流量抛弃和优雅降级</h4>
+<p>流量抛弃（load shedding）是指在软件服务器临近过载时，主动抛弃一定量的负载。</p>
+<ul>
+<li>一种简单的流量抛弃实现方式是根据 CPU 使用量、内存使用量及队列长度等进行节流。</li>
+<li>另外的做法包括将标准的先入先出（FIFO）队列模式改成后入先出（LIFO），以及使用可控延迟算法（CodDel），或者类似的方式更进一步地避免处理那些不值得处理的请求。一些超过约定处理时间的任务，其实用户已经放弃了，这个时候完全没有必要处理这些任务。</li>
+</ul>
+<p>优雅降级（graceful degradation）可在流量抛弃的基础上进一步减少服务器的工作量。</p>
+<p>当我们评估流量抛弃或者优雅降级时，需要考虑以下几点：</p>
+<ul>
+<li>确定具体采用哪个指标作为流量评估和优雅降级的决定性指标。</li>
+<li>当服务进入降级模式时，需要执行什么动作？</li>
+<li>流量抛弃或者优雅降级应该在服务的哪一层实现？是否需要在整个服务的每一层都实现，还是可以选择某个高层面的关键节点来实现？</li>
+</ul>
+<p>具体实施时，还需要考虑以下几点：</p>
+<ul>
+<li>优雅降级不应该经常被触发。</li>
+<li>记住，代码中平时不会使用的代码路径是不工作的。因此需要针对性的经常测试，保证该模式还能工作。</li>
+<li>监控系统应该在进入这种模式的软件服务器过多时报警。</li>
+<li>复杂的流量抛弃和优雅降级系统本身就可能造成问题。</li>
+</ul>
+<h4 id="重试">重试</h4>
+<p>当发送自动重试时，需要将如下部分考虑在内：</p>
+<ul>
+<li>大部分后端保护策略都适用于此。</li>
+<li>一定要使用随机化的、指数型递增的重试周期。</li>
+<li>限制每个请求的重试次数。不要将请求无限重试。</li>
+<li>考虑使用一个全局重试预算。</li>
+<li>从多个视角重新审视该服务，决定是否需要在某个级别上进行重试。</li>
+<li>使用明确的返回代码，同时详细考虑每个错误模式应该如何处理。</li>
+</ul>
+<h4 id="请求延迟和截止时间">请求延迟和截止时间</h4>
+<p>当某个前端任务发送 RPC 给后端服务器时，前端需要消耗一定资源等待后端回复。RPC 截止时间（deadline）定义了前端会等待多长时间，这限制了后端可以消耗的前端资源。</p>
+<h5 id="选择截止时间">选择截止时间</h5>
+<p>设置一个截止时间通常是明智的。在多个限制条件中选择一个平衡点，可以避免资源的无谓消耗，甚至可以避免服务不可用导致重启的问题。</p>
+<h5 id="超过截止时间">超过截止时间</h5>
+<p>很多连锁故障场景下的一个常见问题是软件服务器正在消耗大量资源处理那些早已经超过客户端截止时间的请求。通过对截止时间的逻辑处理，及时中止相关服务，我们可以避免这种场景的发生。</p>
+<h5 id="截止时间传递">截止时间传递</h5>
+<p>与其在发送 RPC 给后端服务器时自拟一个截止时间，不如让软件服务器采用截止时间传递和取消的策略。可使用截止时间传递机制，截止时间在整个服务栈的高层设置（如，前端服务器。）。</p>
+<h5 id="请求延迟的双峰分布（Bimodal）">请求延迟的双峰分布（Bimodal）</h5>
+<p>双峰分布（bimodal distribution）是分布中的两个分数附近集中着较多的次数，以致次数分布曲线有两个隆起的峰，故名双峰分布。可查阅<a target="_blank" href="https://baike.baidu.com/item/%E5%8F%8C%E5%B3%B0%E5%88%86%E5%B8%83" rel="external nofollow noreferrer noopener">百度百科</a>。</p>
+<p>这里的双峰我认为指的是成功处理的服务以及失败处理的的时延出现了两个峰值。 本节作者举了一个例子，说明设置太长的截止时间，会导致请求延迟的双峰分布的情况，但并没有给出这两个峰值的描述。我认为一个峰值是满载处理的时延，另外一个峰值是设置的截止时间，这些失败的请求都是因为处理线程数不够导致服务超时。</p>
+<p>解决的指导思想：</p>
+<ul>
+<li>检测这个问题可能会很困难。尤其是当我们监控平均延迟的时候，很难发现原来是双峰分布导致的问题。当我们观测到延迟上升时，应该额外注意观察延迟的分布情况。</li>
+<li>如果无法完成的请求能够尽早返回以个错误而不是等完整个截止时间，我们就可以避免这个问题。</li>
+<li>将截止时间设置得比平均延迟大好几个数量级通常是不好的。</li>
+<li>当使用按键值空间分布的某种共享资源时，应该考虑按键值分布限制请求数量，或者使用某种滥用跟踪系统。</li>
+</ul>
+<h3 id="慢启动和冷缓存">慢启动和冷缓存</h3>
+<p>进程在刚刚启动之后通常要比稳定状态下处理请求的速度慢一点，原因如下：</p>
+<ul>
+<li>必需的初始化过程。在接收到第一个请求后，需要跟后端服务器建立连接。</li>
+<li>运行时性能优化，尤其是 JAVA。JIT 编译过程，热点优化，以及类延迟加载机制。</li>
+<li>有些服务器会在缓存没有充满之前效率很低。</li>
+</ul>
+<p>本节主要讨论了冷缓存的问题：</p>
+<ul>
+<li>上线一个新的集群。刚刚增加集群的缓存是空的。</li>
+<li>在某个集群维护之后恢复服务状态。缓存中的数据可能是过期的。</li>
+<li>重启。如果某个有缓存的任务最近重启了，那么它的缓存需要一定时间填充。</li>
+</ul>
+<p>如果缓存对服务造成了很大的影响，可能要采取以下几种策略中的一种或多种：</p>
+<ul>
+<li>过量配备（overprovision）该服务。</li>
+<li>使用通用的连锁故障避免手段。</li>
+<li>当为一个集群增加负载时，需要缓慢增加。</li>
+</ul>
+<h4 id="保持调用栈永远向下">保持调用栈永远向下</h4>
+<p>本节通过举了一个反例，证明为什么要<strong>保持调用栈永远向下</strong></p>
+<p>假设后端服务器中的所有任务会彼此通信。例如，当存储层无法处理某个请求时，后端服务器可能会彼此之间代理请求。这种在层内的交互通信可能会导致问题，原因有如下几个：</p>
+<ul>
+<li>这种通信容易导致分布式死锁。</li>
+<li>如果这种交互通信是由于某种失败因素或者过载情况导致的（如负载重新分布机制在负载很高的时候很活跃），这种交互通信可能在延迟上升的时候从不常见变得很常见。</li>
+<li>取决于交互通信的重要性，初始化整个系统可能会变得更复杂。</li>
+</ul>
+<h3 id="连锁故障的触发条件">连锁故障的触发条件</h3>
+<p>当某个服务容易产生连锁故障时，有一些情况可能触发多米诺骨牌效应。</p>
+<h4 id="进程崩溃">进程崩溃</h4>
+<p>某些服务任务会崩溃，减少了服务可用容量。</p>
+<h4 id="进程更新">进程更新</h4>
+<p>发布一个新版本或者更新配置文件时，可能由于大量任务同时受影响而触发连锁故障。</p>
+<h4 id="新的发布">新的发布</h4>
+<p>新的二进制文件、配置更改，或者底层架构的改变都可能导致请求特征的改变，资源使用和限制的改变、后端的改变和其他系统组件的改变可能导致连锁故障的发生。</p>
+<h4 id="自然增长">自然增长</h4>
+<p>由于使用量的天然上升，却没有进行对应的容量调整导致的。</p>
+<h4 id="计划中或计划外的不可用">计划中或计划外的不可用</h4>
+<p>如果服务是多集群部署的，某些容量可能会由于维护或者集群事故而不可用。</p>
+<ul>
+<li>请求特征的变化</li>
+<li>资源限制</li>
+</ul>
+<h3 id="连锁故障的测试">连锁故障的测试</h3>
+<p>管理者应该针对服务进行压力测试，通过对重载下服务行为的观察可以确定该服务在负载很重的情况下是否会进入连锁故障模式。</p>
+<h4 id="测试直到出现故障，还要继续测试">测试直到出现故障，还要继续测试</h4>
+<p>理解服务在高负载情况下的行为模式可能是避免连锁反应最重要的一步。知道系统过载时如何表现可以帮助确定为了修复问题所需要挖完成的最重要的工程性任务。最不济这种知识也能够在紧急情况下帮助 on-call 工程师处理故障。</p>
+<p>压力测试每个组件直到它们崩溃。当然，设计良好的组件应该可以拒绝一小部分请求而继续存活。压力测试同时显示了临界点所在，这一点是容量规划流程的关键所在。</p>
+<p>我们还需要验证：</p>
+<ul>
+<li>组件在过载之后，是否能按照设计要求无人工干预的恢复</li>
+<li>过载之后，服务器崩溃，负载需要降低多少才能是系统重新稳定下来</li>
+</ul>
+<h4 id="测试最常用的客户端">测试最常用的客户端</h4>
+<p>理解最大的客户是如何使用服务的。例如，我们想知道客户端：</p>
+<ul>
+<li>能够在服务中断的情况下排队。</li>
+<li>遇到错误时使用随机化的指数型延迟进行重试。</li>
+<li>是否会由于外部因素导致流量的突然变化（例如，某个外部软件更新可能会清空某个离线客户端的缓存）。</li>
+</ul>
+<h4 id="测试非关键性后端">测试非关键性后端</h4>
+<ul>
+<li>应该测试非关键性后端，以确保它们的不可用不会影响到系统中的其他关键性组件。</li>
+<li>在测试非关键性后端不可用之外，还应测试如果这些后端不返回结果前端如何表现。</li>
+</ul>
+<h3 id="解决连锁故障的立即步骤">解决连锁故障的立即步骤</h3>
+<p>一旦检测到服务处于连锁故障的情况下，可以使用一些不同的策略来应对——同时，连锁故障是使用故障管理流程的好时机。</p>
+<h4 id="增加资源">增加资源</h4>
+<p>如果系统容量不足，而又足够的空闲资源，增加任务数量可能是最快的解决方案。然而，如果服务已经进入了某种死亡螺旋，只增加资源可能不能完全解决问题。</p>
+<h4 id="停止健康检查导致的任务死亡">停止健康检查导致的任务死亡</h4>
+<p>某些集群任务管理系统，如 Borg，周期性检查任务的健康程度，自动重启不健康的任务。可能健康检查自身反而成为导致任务失败的一种模式。暂时禁止健康检查可能可以使系统恢复稳定状态。</p>
+<h4 id="重启软件服务器">重启软件服务器</h4>
+<p>针对以下场景可以试图重启：</p>
+<ul>
+<li>Java 服务器处于 GC 死亡螺旋中。</li>
+<li>某些正在处理的请求因为没有截止时间设置而正在消耗资源（如正在占用线程）。</li>
+<li>死锁。</li>
+</ul>
+<p>确保在重启服务之前先确定连锁故障的源头。还要确保这种操作不会简单地将流量迁移到别处。最好能够试验性地进行这种改变，同时缓慢实施。如果根本原因是因为冷缓存，那这种动作可能使现在的连锁故障更严重。</p>
+<h4 id="丢弃流量">丢弃流量</h4>
+<p>丢弃流量是一个重型操作，通常是在连锁故障严重而无法用其他方式解决时才会采用。如果高负载导致大部分服务器刚一启动就崩溃，可以通过以下手段将服务恢复到正常水平：</p>
+<ol>
+<li>解决最初的触发原因（如增加容量）。</li>
+<li>将负载降低到一定水平，使得崩溃停止。</li>
+<li>允许大部分的软件服务器恢复健康。</li>
+<li>逐渐提升负载水平。</li>
+</ol>
+<p>这个策略可以在负载恢复到正常水平之前帮助缓存预热，逐渐建立连接等。</p>
+<h4 id="进入降级模式">进入降级模式</h4>
+<p>通过提供降级回复来减少工作量，或者丢弃不重要的流量。</p>
+<h4 id="消除批处理负载">消除批处理负载</h4>
+<p>某些服务有一些重要的，但是并非关键的流量负载，可考虑将这些负载来源关闭。</p>
+<h4 id="消除有害的流量">消除有害的流量</h4>
+<p>如果某些请求造成了高负载，或者是崩溃（如致死请求），可考虑将它们屏蔽掉，或者是通过其他手段消除。</p>
+<h3 id="小结-10">小结</h3>
+<p>当一个系统过载时，某些东西总是要被牺牲掉。一旦一个服务越过了临界点，服务一些用户可见错误，或者低质量结果要比尝试继续服务所有请求要好。理解这些临界点所在，以及超过临界点系统的行为模式，是所有想避免连锁故障的运维人员所必需的。</p>
+<p>如果不加小心，某些原本为了降低服务背景错误率或者优化稳定状态的改变反而会让服务更容器出现事故。在请求失败的时候重试、负载自动转移、自动杀掉不健康的服务器、增加缓存以提高性能或者降低延迟：这些手段原本都是为了优化正常情况下的服务性能，但是也可能会提高大规模的服务故障的几率。一定要小心评估这些改变，否则灾难就会接踵而至。</p>
+<hr>
+<h2 id="第-23-章-管理关键状态：利用分布式共识来提高可靠性">第 23 章 管理关键状态：利用分布式共识来提高可靠性</h2>
+<p>本章节目录：</p>
+<ul>
+<li>使用共识系统的动力：分布式系统协调失败
+<ul>
+<li>案件1：脑裂问题</li>
+<li>案件2：需要人工干预的灾备切换</li>
+<li>案件3：有问题的小组成员算法</li>
+</ul>
+</li>
+<li>分布式共识是如何工作的
+<ul>
+<li>Paxos 概要：协议示例</li>
+</ul>
+</li>
+<li>分布式共识的系统架构模式
+<ul>
+<li>可靠的复制状态机</li>
+<li>可靠的复制数据存储和配置存储</li>
+<li>使用领头人选举机制实现高可用的处理系统</li>
+<li>分布式协调和锁服务</li>
+<li>可靠的分布式队列和消息传递</li>
+</ul>
+</li>
+<li>分布式共识系统的性能问题
+<ul>
+<li>复合式 Paxos：消息流过程详解</li>
+<li>应对大量的读操作</li>
+<li>法定租约</li>
+<li>分布式共识系统的性能与网络延迟</li>
+<li>快速 Paxos 协议：性能优化</li>
+<li>稳定的领头人机制</li>
+<li>批处理</li>
+<li>磁盘访问</li>
+</ul>
+</li>
+<li>分布式共识系统的部署
+<ul>
+<li>副本的数量</li>
+<li>副本的位置</li>
+<li>容量规划和负载均衡</li>
+</ul>
+</li>
+<li>对分布式共识系统的监控</li>
+<li>小结</li>
+</ul>
+<p>跨物理区域分布式运行系统相对来说是比较简单的，但是却带来维护系统一致状态试图的需求。解决这个问题常常是比较复杂且难以实现的。</p>
+<p>一组服务进程可能想要可靠地对以下问题产生共识：</p>
+<ul>
+<li>哪个进程目前是该组进程的领头人（leader）？</li>
+<li>本组中都包括哪些进程？</li>
+<li>是否已经将某个消息成功地插入了某个分布式队列？</li>
+<li>某个进程目前是否还持有租约（hold a lease）?</li>
+<li>数据存储中的某个键对应的值是什么？</li>
+</ul>
+<blockquote>
+<p><strong>CAP 理论</strong></p>
+<blockquote>
+<p>CAP 理论论述了一个分布式系统不可能同时满足以下三个要求：</p>
+<ul>
+<li>每个节点上所见数据是一致的。</li>
+<li>每个节点都可以访问数据。</li>
+<li>可以承受网络分区问题。</li>
+</ul>
+<p>该逻辑非常符合直觉：如果两个节点无法通信（因为网络出现了分区问题），那么整个系统要么在一个或多个节点上无法处理数&gt;据访问请求，要么可以照常处理请求，但是无法保障每个节点的数据具有一致性。</p>
+</blockquote>
+</blockquote>
+<p>系统工程师和软件工程师都很熟悉传统的 ACID 数据存储语义（原子性、一致性、隔离性和持久性），但是越来越多的分布式数据存储开始提供另外一套不同的语义，称之为 BASE ——基本可用、软状态、最终一致性（basically available、 soft state、 eventual consistency）。支持 BASE 的数据存储可以处理那些对支持 ACID 的数据存储来说成本特别高，甚至是压根不可能保存的超大数据集和事务。</p>
+<p>分布式共识算法，提供了在保证正确性的情况下，满足可靠性或者是性能的功能。</p>
+<h3 id="使用共识系统的动力：分布式系统协调失败">使用共识系统的动力：分布式系统协调失败</h3>
+<p>分布式系统协调失败，不一定由完全分区导致的，而是：</p>
+<ul>
+<li>网络非常慢。</li>
+<li>某些消息可以通过，但是某些消息被丢弃了。</li>
+<li>单方面的节流措施。</li>
+</ul>
+<h4 id="案件1：脑裂问题">案件1：脑裂问题</h4>
+<p>某服务是一个文件存储服务，允许多个用户同时操作一个文件。该服务使用两组运行在不同机柜（rack）上的互相复制的文件服务器来提高可靠性。该服务需要避免向某个复制组中的两台服务器同时写人数据,因为这样可能会造成数据损坏（可能是无法恢复的）。</p>
+<p>每组文件服务器有一个领头者和一个跟随者，两组服务通过心跳互相监控。如果某个文件服务器无法联系到另外一个服务器，它会发送一个 STONITH（当头一枪）命令来强制关闭另外一个服务器，同时成为文件的主服务者。这种机制是业界减少脑裂（Split-brain)场景发生的常规做法。但是接下来我们会论述，这在理论上是不正确的。</p>
+<p>当网络变慢，或者开始丢包的时候会发生什么呢？在这个场景下，文件服务器会心跳超时，按照设计，它们会发送 STONITH 命令给对方，同时成为文件的主服务者。但是，由于网络问题，某些命令可能没有成功发送。于是这两个文件服务器可能会存在同时为主的状态，也可能由于同时发送和接收到 STONITH 命令而都被关闭了。这要么会造成数据损坏：要么会导致数据不可用。</p>
+<p>这里的根源问题在于，该系统正在尝试使用简单超时机制来实现领头人选举。领头人选举是分布式异步共识问题的另一种表现形式，它不能够通过简单心跳来正确实现。</p>
+<h4 id="案件2：需要人工干预的灾备切换">案件2：需要人工干预的灾备切换</h4>
+<p>某个分片很多的分布式数据库系统的每个分片（shard）都有一个主实例，同步备份到另外一个数据中心的副实例上。某个外部系统检查主实例的键康度，如果主实例出现问题,将副实例提升为主实例。如果主实例无法确定副实例的健康度，那么它就会将自己标记为不可用，将问题升级给人工处理，以便避免案例1 中的脑裂场景发生。</p>
+<p>这种解决方案避免了数据丢失的危险，但是却影响了数据的可用性。同时，该系统没有必要地增加了运维人员的工作压力，运维压力实际限制了系统的扩展性。这类主从无法通信的问题在大型基础设施发生问题时很容易发生，运维人员可能已经忙着在解决其他问题了。如果网络质量真的很差，分布式共识系统也无法正确选举出主实例时，作为工程师可能也没有什么好办法来做出正确决策。</p>
+<h4 id="案件3：有问题的小组成员算法">案件3：有问题的小组成员算法</h4>
+<p>某个系统有一个组件负责构建索引以及提供搜索服务。当启动时，各个节点使用谣言协议（gossip）来相互发现和加入某个集群。该集群选举出一个领头者，该领头者负责进行工作协调。当集群内部出现网络分区问题时，两个分区内部分别（错误地）各自选举出了一个领头者,同时接受写人和删除操作,从而造成了一种脑裂场景,造成了数据损失。维护致的小组成员信息是分布式共识问题的另外一个变种。</p>
+<p>事实上，很多分布式系统问题最后都归结为分布式共识问题的不同变种。包括领头人选举，小组成员信息，各种分布式锁和租约机制，可靠的分布式队列和消息传递，以及任何“种需要在多个进程中共同维护致的关键状态的机制。所有这些问题都应该仅仅采用经过正式的正确性证明的分布式共识算法来解决，还要确保这个算法的实现经过了大量测试。任何一种临时解决这种问题的方法（例如心跳，以及谣言协议）在实践中都会遇到可靠性问题。</p>
+<h3 id="分布式共识是如何工作的">分布式共识是如何工作的</h3>
+<p>在实际操作中，我们通过保证给系统提供足够的健康的副本，以及良好的网络连接状态来保障分布式共识算法在大多数情况下是可以在有限时间内达成共识的。目前集中常见的分布式共识算法有：</p>
+<ul>
+<li>Paxos</li>
+<li>Raft</li>
+<li>Zab</li>
+<li>Mencius</li>
+</ul>
+<blockquote>
+<p>拜占庭式（Byzantine）问题指的是当某个进程由于程序 Bug 或者恶意行为发送不正确的消息的问题。这种问题相对来说处理成本更高，同时也更少见。</p>
+</blockquote>
+<h4 id="Paxos-概要：协议示例">Paxos 概要：协议示例</h4>
+<p>Paxos 是基于提案（proposal）序列运行的，这些提案可能会被“大多数（majority）”进程所接受，也可能会被拒绝，如果某个提案没有被接受，那么它就是失败的。每个提案都对应有一个序列号，这就保证了系统的所有操作有严格的版序性。</p>
+<p>在协议的第一阶段，提案者（proposer）发送一个序列号给数个接收者（aceeptor)。每个接收者仅仅在没有接受过带有更高序列号的提案情况下接受这个提案。提案者必要时可以用更高的序列号重试提案。提案者必须使用一个唯一的序列号（每个提案者从不相交的集合中提取序列号，或者将自身的主机名加入到序列号中等）。</p>
+<p>如果提案者从“大多数”接收者那里接收到了三同意“回复，它便可以通过发送一个带有值的提交信息（commit message）来尝试提交这个提案。提案的严格顺序性解决了系统中的消息排序问题。需要“大多数”签与者同意才能提交提案的要求保证了一个相同的提案无法提交两个不同的值，因为两个“大多数”肯定会至少重合一个节点。当接收者接收某个提案的时候，必须在持久存储上记录一个日志(journal),因为接收者必须在重启之后仍然保持这个状态。</p>
+<p>Paxos 本身来说不那么好用。它仅仅能够做到让节点共同接收一次某个值和提案号码。因为共同接收该值的节点数可以仅仅是“法定人数”（quorum)(也就是总数的一半再加1)，任何一个节点可能都没有一个完整的视图，不知道目前已经被接收的所有的值。这个限制在大部分分布式共识算法中都存在。</p>
+<p>Reference：</p>
+<ul>
+<li><a target="_blank" href="https://zh.wikipedia.org/wiki/Paxos%E7%AE%97%E6%B3%95" rel="external nofollow noreferrer noopener">Paxos算法</a></li>
+<li><a target="_blank" href="http://paxos.systems/why.html" rel="external nofollow noreferrer noopener">Why use Paxos?</a></li>
+</ul>
+<p><img data-src="http://paxos.systems/static/rsm.gif" alt="可复制状态机"></p>
+<p><img data-src="http://paxos.systems/static/consensus.gif" alt="共识"></p>
+<h3 id="分布式共识的系统架构模式">分布式共识的系统架构模式</h3>
+<p>分布式共识算法是很底层、很原始的：它们仅仅可以让一组节点一次共同接受同一个值，这并不能很好地跟我们的设计任务相对应。很多成功使用分布式共识算法的系统常常是作为该算法实现的服务的一个客户端使用的，例如 ZooKeeper、 Consul，以及 etcd。</p>
+<h4 id="可靠的复制状态机">可靠的复制状态机</h4>
+<p>一个复制状态机（replicated State machinc，RSM）是一个能在多个进程中用同样顺序执行同样的一组操作的系统。RSM 是一个有用的分布式系统基础组件，可以用来构建数据和配置存储，执行锁机制和领头人选举。</p>
+<p>在RSM 系统上进行的操作是通过共识算法来全局排序的。这是一个非常有用的概念：多篇文章都提到了任何一个具有确定性的程序都可以采用 RSM 来实现成为一个高可用的、分布式复制的服务。</p>
+<p>如图 23-2 所示，复制状态机是实现在共识算法逻辑层之上的一个系统。共识算法处理节点间对操作顺序的共识。RSM 系统按照这个顺序来执行操作。因为小组中的每个成员在每次提秦轮中不一定全部参与了，RSM 可能需要在成员之间同步状态。在Kirsch和 Amir（参见文献[Kir08]）的文章中描述到，可以采用滑动窗口协议（sliding-windowptotocol》在: RSM 成员之间同步状态信息。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-2%EF%BC%9A%E5%85%B1%E8%AF%86%E7%AE%97%E6%B3%95%E5%92%8C%E5%A4%8D%E5%88%B6%E7%8A%B6%E6%80%81%E6%9C%BA%E7%9A%84%E5%85%B3%E7%B3%BB.png" alt="共识算法和复制状态机的关系"></p>
+<h4 id="可靠的复制数据存储和配置存储">可靠的复制数据存储和配置存储</h4>
+<p>可靠的复制数据存储是复制状态机的一个应用。复制数据存储在关键路径中使用到了共识算法。因此，性能、吞吐量和扩展能力在这种设计中非常重要。</p>
+<h4 id="使用领头人选举机制实现高可用的处理系统">使用领头人选举机制实现高可用的处理系统</h4>
+<p>分布式系统的领头人选举是跟分布式共识等价的问题。复制多份服务并使用一个唯一的领头人（leader）来进行某种类型的工作是很常见的设计一唯的领头人是一种保证机粒度互斥性的方法。</p>
+<p>这种设计类型在服务领头人的工作量是分片的。或者可以被个进程所满足的情况下是合理的。系统设计师可以用个简单的单机程序。复制几份，再采用领头人选举方式来保证任意时间只有一个领头人在运行（参见图 23-3）的方式来构造个高可用的服务。领头人的工作通常是负责协调某个工作者池中的工作者进程。这个模式被 GFS 所采用。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-3%EF%BC%9A%E4%BD%BF%E7%94%A8%E5%A4%8D%E5%88%B6%E8%BF%9B%E7%A8%8B%E8%BF%9B%E8%A1%8C%E9%A2%86%E5%A4%B4%E4%BA%BA%E9%80%89%E4%B8%BE%E6%9E%84%E9%80%A0%E7%9A%84%E9%AB%98%E5%8F%AF%E7%94%A8%E7%B3%BB%E7%BB%9F.png" alt="使用复制进程进行领头人选举构造的高可用系统"></p>
+<blockquote>
+<p>在这种类型的组件里，不像复制数据存储那样，共识算法并不处于系统的关键路径中，所以共识算法的吞吐量不是系统的主要问题。</p>
+</blockquote>
+<h4 id="分布式协调和锁服务">分布式协调和锁服务</h4>
+<p>屏障（barrier）在分布式计算中是一种原语，可以用来阻挡一组进程继续工作，直到某种条件被满足。使用屏障实际将一个分布式计算划分成数个逻辑阶段执行。</p>
+<p>锁（lock）是另外一个很有用的协调性原语，可以用 RSM 实现。</p>
+<blockquote>
+<p>实践中，使用可续租约（renewable Lease）而不是无线时间锁是很有必要的，避免某个进程崩溃而导致锁无限期被持有。</p>
+</blockquote>
+<h4 id="可靠的分布式队列和消息传递">可靠的分布式队列和消息传递</h4>
+<p>队列（queue）是一种常见的数据结构，经常用来给多个工作进程分发任务。利用 RSM 来实现队列可以将队列不可用的危险性最小化，从而使得整个系统更加可靠。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-5%EF%BC%9A%E4%B8%80%E4%B8%AA%E5%9F%BA%E4%BA%8E%E9%98%9F%E5%88%97%E7%9A%84%E4%BB%BB%E5%8A%A1%E5%88%86%E5%8F%91%E7%B3%BB%E7%BB%9F%EF%BC%8C%E5%88%A9%E7%94%A8%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%B1%E8%AF%86%E6%90%AD%E5%BB%BA%E7%9A%84%E5%8F%AF%E9%9D%A0%E9%98%9F%E5%88%97.png" alt="一个基于队列的任务分发系统，利用分布式共识搭建的可靠队列"></p>
+<h3 id="分布式共识系统的性能问题">分布式共识系统的性能问题</h3>
+<p>虽然某些分布式共识系统的实现不佳，但是还是有很多方法提高性能。本节是为了帮助读者更好地理解分布式共识系统的潜力所在。</p>
+<p>系统负载（workload）可能会从多个维度大幅变动，理解负载变动的范围与特点是讨论系统性能的关键。在共识系统中，系统负载可能会从以下几个方面发生变动。</p>
+<ul>
+<li>吞吐量。在负载峰值时，单位时间内提出提议的数量。</li>
+<li>请求类型：需要修改状态的写请求的比例。</li>
+<li>读请求的一致性要求。</li>
+<li>如果数据大小可变。请求的大小。</li>
+</ul>
+<p>部署策略也有很多可变之处，例如：</p>
+<ul>
+<li>局部区城部署，还是广域部署？</li>
+<li>采用的是哪种仲裁过程，大部分进程的分布情况如何？</li>
+<li>该系统是否使用分片、流水线和批处理技术？</li>
+</ul>
+<p>很多共识系统都会选举出一个指定的领头人进程，同时要求所有请求都必须发往特殊节点。</p>
+<h4 id="复合式-Paxos：消息流过程详解">复合式 Paxos：消息流过程详解</h4>
+<p>本节举了 Paxos 消息流以及“提议者决斗”场景：</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-7%EF%BC%9A%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%A4%8D%E5%90%88%E5%BC%8FPaxos%E6%B6%88%E6%81%AF%E6%B5%81.png" alt="基本的复合式Paxos消息流"></p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-8%EF%BC%9A%E5%A4%8D%E5%90%88Paxos%E5%8D%8F%E8%AE%AE%E4%B8%AD%E7%9A%84%E2%80%9C%E6%8F%90%E8%AE%AE%E8%80%85%E5%86%B3%E6%96%97%E2%80%9D%E5%9C%BA%E6%99%AF.png" alt="复合Paxos协议中的“提议者决斗”场景"></p>
+<p>并提出了解决的方式：</p>
+<ul>
+<li>选举一个固定的提议者进程（也就是领头人），负责发送系统中的所有提议。</li>
+<li>使用一个轮换机制，给每个进程划分特定的提议槽。</li>
+</ul>
+<h4 id="应对大量的读操作">应对大量的读操作</h4>
+<p>许多系统都是读操作居多的，针对大量读操作的优化是这些系统性能优化的关键。复制数据存储的优势在于数据同时在多个地方可用，也就是说，如果不是所有的读请求都需要强一致性，数据就可以从任何一个副本来读取。为了保障该取的数据是最新的，包含在该读取操作执行之前的所有改变，以下几条中的一条必须要满足：</p>
+<ul>
+<li>进行一次只读的共识操作。</li>
+<li>从一个保证有最新数据的副本读取数据—在使用稳定领头入进程的系统中（大部分分布式具识系统都会有)，该领头人进程就可以提供这种保障。</li>
+<li>使用法定租约（quorum lease）协议，在该协议下，某些副本被授子部分或者全部数据的一个租约,用一些写性能上的损失换来了强致性的本地读操作的可能。该技术在接下来的一节中会详细描述。</li>
+</ul>
+<h4 id="法定租约">法定租约</h4>
+<p>法定租约（qurom leases）是一个最新研究的分布式共识性能优化手段，该手段专注于降低操作延迟和提高读操作的吞叶量。</p>
+<p>法定租约技术针对数据的一部分给系统中的法定人数进程发放了一个租约，这个租约是带有具体时间范围的（通常很短）。在这个法定租约有限期间，任何对该部分数据的操作都必须要被法定租约中的所有进程响应。如果租约中的任何一个副本不可用，那么该部分数据在租约过期前将无法被修改。</p>
+<p>法定租约对大量读操作的系统是非常有用的、尤其是当数据的某一部分是被集中在某一个地理区城的进程所读取的时候。</p>
+<h4 id="分布式共识系统的性能与网络延迟">分布式共识系统的性能与网络延迟</h4>
+<p>分布式系统的写性能面临两个主要的物理限制。</p>
+<p>第一个是网络往返时间（RTT)，不仅由源地址和目的地址的物理距离决定：还包括网络拥塞程度。</p>
+<p>第二个是数据写入持久化存储的时间。该问题涉及：</p>
+<ul>
+<li>通信协议的开销，如 TCP/IP。</li>
+<li>连接池频繁切换的开销。</li>
+</ul>
+<p>文中介绍了一个解决方案是使用地域性的代理池。该代理池的进程与共识组建立持久的 TCP/IP 进程，以降低客户端的开销。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_23-9%EF%BC%9A%E4%BD%BF%E7%94%A8%E4%BB%A3%E7%90%86%E6%B1%A0%E6%9D%A5%E9%99%8D%E4%BD%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B7%A8%E5%9C%B0%E7%90%86%E5%8C%BA%E5%9F%9F%E6%89%93%E5%BC%80TCPIP%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%BC%80%E9%94%80.png" alt="使用代理池来降低客户端跨地理区域打开TCP/IP连接的开销"></p>
+<h4 id="快速-Paxos-协议：性能优化">快速 Paxos 协议：性能优化</h4>
+<p>文中提到使用 Fast Paxos 提高性能，</p>
+<p>Reference：</p>
+<ul>
+<li><a target="_blank" href="https://zh.wikipedia.org/wiki/Paxos%E7%AE%97%E6%B3%95#Fast-Paxos" rel="external nofollow noreferrer noopener">Fast-Paxos</a></li>
+<li><a target="_blank" href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-2005-112.pdf" rel="external nofollow noreferrer noopener">《Fast Paxos》</a></li>
+<li><a target="_blank" href="http://www.sysnet.ucsd.edu/sysnet/miscpapers/hotdep07.pdf" rel="external nofollow noreferrer noopener">Classic Paxos vs. Fast Paxos: Caveat Emptor</a></li>
+</ul>
+<h4 id="稳定的领头人机制">稳定的领头人机制</h4>
+<p>通过选举稳定的领头人进程来提高性能。这种方案可以进一步进行读操作优化，因为领头人始终拥有最新倍息，但是也存在以下几个问题：</p>
+<ul>
+<li>所有的改变状态的操作都必须经由该领头人，这个要求使得距离领头人进程较远的客户端必须要增加额外的网络延迟。</li>
+<li>领头人进程的外发网络带宽是系统性能的瓶颈，因为该领头人的 Accept 消息包含了每个提议的所有数据，而其他进程发送的消息仅仅包含了交易数字，而没有真正的数据。</li>
+<li>如果领头人进程恰好处于一台有性能问题的机器上，整个系统的吞吐量都会受到影响。</li>
+</ul>
+<h4 id="批处理">批处理</h4>
+<p>某个共识组副本在等待其他人回复的时候仍然是处于闲置状态的。针对这种情况，我们可以采用流水线机制，从而使得多个提议可以同时进行。这种优化与TCP/IP的滑动窗口机制很像。流水线机制通常会和批处理机制结合使用。流水线中的。批请求仍然是用一个视图序号和交易序号全局排序的，所以这个方法并不会违反复制状态机所需要的全局排序机制。</p>
+<h4 id="磁盘访问">磁盘访问</h4>
+<p>为了使某个崩溃的节点返向集群后仍能够记住崩遗之前的状态。该节点需要将请求记录到持久化存储中。</p>
+<p>单个共识操作的延迟中，有以下几个操作；</p>
+<ul>
+<li>提议者的一次硬盘写人操作。</li>
+<li>并行消息发送给接收者。</li>
+<li>每个接收者的磁盘写操作（并行）。</li>
+<li>回复消息的传递。</li>
+</ul>
+<p>优化方向：</p>
+<ul>
+<li>先将数据写入内存缓存中，再重新排序以便更有效地写入磁盘。</li>
+<li>提议者中将多个客户端的操作批处理为一个操作。这将磁盘日志的写开销与网络延迟分不到更多操作上，从而提高系统吞吐量。</li>
+</ul>
+<h3 id="分布式共识系统的部署">分布式共识系统的部署</h3>
+<p>系统设计者部署共识系统时，最重要的决策在于选择副本的数量和对应的部署位置。</p>
+<h4 id="副本的数量">副本的数量</h4>
+<p>针对任何系统的副本数量的考虑都是基于以下几个因素中的一个进行妥协：</p>
+<ul>
+<li>对可靠性的要求</li>
+<li>计划内维护操作的频率</li>
+<li>危险性</li>
+<li>性能</li>
+<li>成本</li>
+</ul>
+<p>最后的决策每个系统都会不同：每个系统都有不同的可用性服务水平目标；某些组织会更频繁地进行维护性操作；而某些组织使用的硬件成本、质量和可靠性都有所不同。</p>
+<h4 id="副本的位置">副本的位置</h4>
+<p>关于共识集群进程的部署位置的决策主要来源手以下两个因素的取舍： 1.系统应该承受的故障域数量。2.系统的延迟性要求。在选择副本位置时，会产生很多复杂问题。</p>
+<p>一个故障域（failure domain）是指系统中可能由于一个故障而同时不可用的一组组件。常见的故障域包括：</p>
+<ul>
+<li>物理机器。</li>
+<li>数据中心中用同一个供电设施的一个机柜。</li>
+<li>数据中心中的数个机柜，使用同一个网络设备连接。</li>
+<li>受单个光纤影响的一个数据中心。</li>
+<li>处于同一个地理区域的一组数据中心，可能被同一个自然灾害所影响。</li>
+</ul>
+<blockquote>
+<p>当决定副本位置的时候，记得最关键的因素是客户端可见性能：理想情况下，客户端和共识系统之间的 RTT 应该是最小化的。</p>
+</blockquote>
+<h4 id="容量规划和负载均衡">容量规划和负载均衡</h4>
+<p>当设计某个部署场景时，我们必须保证有足够容量应对系统负载。本文从以下角度讨论了这个问题：</p>
+<ul>
+<li>副本数量对系统可用性的影响；</li>
+<li>领头人放置在一起会导致不均衡的带宽使用；</li>
+<li>当放在在一起的领头人进程同时迁移时，网络流量的使用率会大幅变化，可能出现带宽不足；</li>
+<li>通过仲裁组提高分布式共识系统性能；</li>
+</ul>
+<h3 id="对分布式共识系统的监控">对分布式共识系统的监控</h3>
+<p>由于分布式共识系统在整个服务集群中是关键系统的核心，所以对该系统的监控是非常重要的。分布式共识系统的某些区域需要特别关注，包括以下几项。</p>
+<ul>
+<li>每个共识组中的成员数量，以及每个成员的状态（健康或不健康）。某个进程可能仍在运行，但是却由于某种原因（硬件因素）无法工作。</li>
+<li>始终落后的副本。健康的共识组成员可能仍然处手不同的状态中。某个组成员可能是在启动时从同伴处恢复状态信息，或者相比仲裁组成员始终处于落后状态，或者目前处于完全参与状态，或者是当前组的领头人角色。</li>
+<li>领头人角色是否存在。基于类似复合 Paxos 算法的系统使用领头人角色，该角色必须被监控，以便保障领头人存在，因为如果系统不存在领头人角色。系统则不可用。</li>
+<li>领头人角色变化的次数。领头人角色的快速变化会影响那些使用稳定领头人角色的共识系统的性能，所以领头人角色变化的次数应该被监控。共识算法通常使用新的租约或者新的视图编号来标记领头人角色的变动，所以这可能是一个比较好的监控指标。领头人角色的快速改变意味着领头人正在快速变换（flapping)，可能是由于网络连接问题导致的。而视图编号的降低，可能预示着软件中的一个严重 Bug。</li>
+<li>共识交易记录数字。系统管理员需要知道目前系统是否正在处理交易。大多数共识算法采用一个递增的共识交易数字来代表目前系统的进度。这个数字在系统健康时应该随着时间不断增长。</li>
+<li>系统中的提议数量。以及系统中被接受的提议数量。这些数字可以显示当前系统是否在正确运行。</li>
+<li>吞吐量和延迟。</li>
+</ul>
+<p>为了更好地理解系统性能，以及帮助进行故障排查，我们还要监控以下几点：</p>
+<ul>
+<li>针对提议接收时间的延迟分布。</li>
+<li>系统不同部分之间观察到的网络延迟</li>
+<li>接收者在持久化日志上花费的时间。</li>
+<li>系统每秒处理的字节数。</li>
+</ul>
+<hr>
+<h2 id="第-24-章-分布式周期性任务系统">第 24 章 分布式周期性任务系统</h2>
+<p>本章节目录：</p>
+<ul>
+<li>Cron
+<ul>
+<li>介绍</li>
+<li>可靠性</li>
+</ul>
+</li>
+<li>Cron 任务和幂等性</li>
+<li>大规模 Cron 系统
+<ul>
+<li>对基础设施的扩展</li>
+<li>对需求的扩展</li>
+</ul>
+</li>
+<li>Google Cron 系统的构建过程
+<ul>
+<li>跟踪 Cron 任务的状态</li>
+<li>Paxos 协议的使用</li>
+<li>领头人角色和追随者角色</li>
+<li>保存状态</li>
+<li>运维大型 Cron 系统</li>
+</ul>
+</li>
+<li>小结</li>
+</ul>
+<p>Cron，作为一个很常见的 UNIX 工具，设计目标是根据用户定义的时间或者间隔来周期性启动一个任意的任务。本章节将分析单机的定时任务系统，与分布式周期性任务系统的差异。</p>
+<h3 id="Cron">Cron</h3>
+<h4 id="介绍-2">介绍</h4>
+<p>Cron 系统在设计上允许系统管理员和普通系统用户指定在某时某刻运行某个指令。Cron 通常的实现方式是由一个单独组件组成，通常被称为 crond。crond 是一个系统守护进程(daemon),该进程负责加载 Cron 任务的定义列表,而任务会在对应的时间被启动。</p>
+<h4 id="可靠性">可靠性</h4>
+<p>从可靠性的角度来看，Cron 服务有几个方面值得一提：</p>
+<ul>
+<li>Cron 服务的故障域仅仅是单台物理机器。</li>
+<li>当 crond 重启时（包括物理机器重启)，唯一需要保存的状态就是 crontab 配置文件自身。Cron 进程启动任务之后不会再追踪任务状态。</li>
+<li>ianacron 是一个特例。anacron 在系统恢复运行时，会试图运行那些在宕机时间中本来应该运行的程序。</li>
+</ul>
+<h3 id="Cron-任务和幂等性">Cron 任务和幂等性</h3>
+<p>Cron 任务可以分为两类：</p>
+<ul>
+<li>具有幂等性的任务；</li>
+<li>不具有幂等性的任务；</li>
+</ul>
+<p>对于第二种任务的异常情况，处理非常复杂，不一而足。为了避免系统化地制造困难局面，Google 在 Cron 服务中优先使用“失效关闭（fail-close）”的原则处理。</p>
+<h3 id="大规模-Cron-系统">大规模 Cron 系统</h3>
+<p>在展示 Google 的解决方案之前，我们会先讨论小规模部署和大规模部署的区别，并且描述在大规模部署下必需的某些设计改变。</p>
+<h4 id="对基础设施的扩展">对基础设施的扩展</h4>
+<p>在常规实现里，Cron 只能运行在一台机器上。大规模系统部署需要将 Cron 分布到多台机器上。</p>
+<ul>
+<li>为了提升 Cron 的可靠性,我们将实际进程与物理机器分开。</li>
+<li>为了保持任务的状态，我们可能会简单地将状态存储在一个分布式文件系统中。</li>
+<li>为了解决即时性任务的要求（如每5分钟运行一次），使用热备任务，在主任务迁移的时候及时介入恢复服务，可以极大降低系统的不可用时间。</li>
+</ul>
+<h4 id="对需求的扩展">对需求的扩展</h4>
+<p>将 Cron 系统部署到整个数据中心级别，一般来说意味着将进程部署到容器中，以便更好地进行资源隔离。</p>
+<ul>
+<li>监控 Cron 系统相关任务的资源使用情况。</li>
+<li>将进程启动过程与具体运行的机器分离使得整个 Cron 系统需要处理“部分启动”的故障类型。</li>
+<li>通过在数据中心内部分散地同时运行多份调度器的副本，我们可以避免单个供电单元故障造成整个 Cron 系统不可用。</li>
+</ul>
+<p>将 Cron 服务部署在全球范围内可能是可行的，但是将 Cron 部署在一个单独的数据中心中有其对应的好处：该服务与其对应的数据中心任务分发系统延迟很低，同时共享一个故障域。</p>
+<h3 id="Google-Cron-系统的构建过程">Google Cron 系统的构建过程</h3>
+<h4 id="跟踪-Cron-任务的状态">跟踪 Cron 任务的状态</h4>
+<blockquote>
+<p>我们需要记录关于 Cron 任务的一些状态信息，并且必须能够在系统发生故障的时候快速恢复。更重要的是，该状态信息的一致性是关键！</p>
+</blockquote>
+<p>跟踪任务的状态有两个选项：</p>
+<ul>
+<li>将数据存储在一个可用度很高的外部分布式存储上。</li>
+<li>系统内部自行存储一些（很小量的）状态信息。</li>
+</ul>
+<p>当 Google 设计分布式 Cron 任务的时候，我们选择的是第二个选项。这样选择的原因有以下几个：</p>
+<ul>
+<li>分布式文件系统，包括 GFS 和 HDFS 通常用来存储非常大的文件（例如，网页爬虫程序的输出文件)，而我们需要存储的 Cron 任务状态信息通常来说是非常小的。小型写操作在分布式文件系统上的开销很高，同时延迟也很高，因为这些文件系统就不是为这种类型的写操作进行优化的。</li>
+<li>基础服务，也就是那些失效时会带来许多副作用的（就像 Cron 这样的）服务应该依赖越少越好。即使数据中心的一部分出现故障，Cron 服务也应该能够持续工作一段时间。但是这个要求并不一定意味着存储区域一定要在 Cron 进程内部(存储部分其实只是一个实现细节)。然而，Cron 服务应该可以独立于下游系统而运行，以便服务更多的内部用户。</li>
+</ul>
+<h4 id="Paxos-协议的使用">Paxos 协议的使用</h4>
+<p>Google 为 Cron 服务部署了多个副本，同时采用 Paxos 分布式共识算法保证它们状态的一致。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_24-1%EF%BC%9A%E4%B8%8D%E5%90%8C%E5%88%86%E5%B8%83%E5%BC%8FCron%E5%89%AF%E6%9C%AC%E4%B9%8B%E9%97%B4%E7%9A%84%E4%BA%A4%E4%BA%92%E8%BF%87%E7%A8%8B.png" alt="不同分布式Cron副本之间的交互过程"></p>
+<h4 id="领头人角色和追随者角色">领头人角色和追随者角色</h4>
+<h5 id="领头人角色">领头人角色</h5>
+<p>本节介绍了领头人角色的职责以及相关行为，保证状态的一致性以及任务的独占性。</p>
+<p><img data-src="/images/SRE_Goolge%E8%BF%90%E7%BB%B4%E8%A7%A3%E5%AF%86_24-2%EF%BC%9A%E4%BB%A5%E9%A2%86%E5%A4%B4%E4%BA%BA%E8%A7%86%E8%A7%92%E7%94%BB%E7%9A%84Cron%E4%BB%BB%E5%8A%A1%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="以领头人视角画的Cron任务启动过程示意图"></p>
+<h5 id="追随者角色">追随者角色</h5>
+<p>本节介绍了追随者角色的职责以及相关行为，以及在领头人故障的情况下，选举新领头人的行为。</p>
+<h5 id="解决部分性失败情况">解决部分性失败情况</h5>
+<p>头人进程和数据中心调度系统之间的单个任务启动的过程可能在多个RPC 中间失败。我们的系统应该能处理这种状况。前文说过，每个任务启动都具有两个同步点：</p>
+<ul>
+<li>当启动执行之前</li>
+<li>当启动执行之后</li>
+</ul>
+<p>这两个同步点使我们可以标记每一次具体的启动。就算启动过程仅仅需要一个 RPC，我们怎么能够知道这个 RPC 是否已经发出了呢？这里还包括在标记启动已经执行之后，但是启动结束通知发送之前领头人进程就崩溃了的情况。</p>
+<p>为了能够判断 RPC 是否成功发送，下列情况中的一个必须被满足：</p>
+<ul>
+<li>所有需要在选举过后继续的，对外部系统的操作必须是幂等的（这样我们可以在选举过后重新进行该操作）。</li>
+<li>必须能够通过查询外部系统状态来无疑义地决定某项操作是否已经成功。</li>
+</ul>
+<p>本文提供了一种解决方案，为这些任务提供某种命名服务，我们可以通过这些名字查找任务状态、停止任务，或者进行其他的维护操作。如果领头人副本在启动过程中崩溃，新的领头人副本可以通过预计算的任务名称来查询任务的状态。</p>
+<p>我们在副本之间同步信息的时候会记录预期启动时间。同样的，我们需要将Cron 服务与数据中心调度器的交互也使用预期启动时间唯一标识。</p>
+<h4 id="保存状态">保存状态</h4>
+<p>使用 Paxos 协议来达成共识只是状态问题的一部分。Paxos 基本上是一个只能新增的日志，在每次状态变化后同步地新增。Paxos 协议的这种特性意味着以下两个问题：</p>
+<ul>
+<li>日志需要定期压缩，以防无限增长。</li>
+<li>日志必须要存储在某个地方。</li>
+</ul>
+<p>为了避免 Paxos 日志的无限增长,可以简单地将目前的状态进行一次快照（snapshot)。</p>
+<p>存储数据有两个方案：</p>
+<ul>
+<li>外部可用的分布式存储。</li>
+<li>在系统内部存储少量的数据。</li>
+</ul>
+<p>Google 在设计该系统是，综合了这两个选项的方案。他们将 Paxos 日志存储在服务副本运行的本地磁盘上。在标准情况下，我们有三个副本运行，也就是有三份日志。同时我们也将快照信息保存在本地磁盘上，然而因为这些信息很重要，会同时将它们备份到一个分布式存储上去。这样可以为三个机器同时出现问题的情况提供保护。</p>
+<h4 id="运维大型-Cron-系统">运维大型 Cron 系统</h4>
+<p>为了解决任何大型分布式系统都熟知的 <strong>惊群效应（thundering herd）</strong>，Google 优化了 crontab， 在格式上增加了一些扩展。</p>
+<blockquote>
+<p>在普通 crontab 格式中，用户用分钟、小时、月中的日期（或者周内的日期)，以及月份来标记某个任务应该运行的时间，或者使用“<em>”来标记任意值。每天在午夜时候运行会将 crontab 标记为“O 0</em>**”（也就是 0 分 0 时，月内的每一天，每个月，以及周内的每一天都会运行)。我们在这里增加了一个问号“？”，意味着任意一个值都可以接受，Cron 系统可以根据需要自行选择一个时间。用户可以将任务分散在整个事件序列里。</p>
+</blockquote>
+<hr>
+<h2 id="第-25-章-数据处理流水线">第 25 章 数据处理流水线</h2>
+<p>本章节目录：</p>
+<ul>
+<li>流水线设计模式的起源</li>
+<li>简单流水线设计模式域大数据</li>
+<li>周期性流水线模式的挑战</li>
+<li>工作分布不均造成的问题</li>
+<li>分布式环境中周期性数据流水线的缺点
+<ul>
+<li>监控周期性流水线的问题</li>
+<li>惊群效应</li>
+<li>摩尔负载模式</li>
+</ul>
+</li>
+<li>Google Workflow 简介
+<ul>
+<li>Workflow 是模型——视图——控制器（MVC）模式</li>
+</ul>
+</li>
+<li>Workflow 中执行阶段
+<ul>
+<li>Workflow 正确性保障</li>
+</ul>
+</li>
+<li>保障业务的持续性</li>
+<li>小结</li>
+</ul>
+<hr>
+<h2 id="第-26-章-数据完整性：读写一致">第 26 章 数据完整性：读写一致</h2>
+<p>本章节目录：</p>
+<ul>
+<li>数据完整性的强需求
+<ul>
+<li>提供超高的数据完整性的策略</li>
+<li>备份和存档</li>
+<li>云计算环境下的需求</li>
+</ul>
+</li>
+<li>保障数据完整性和可用性：Google SRE 的目标
+<ul>
+<li>数据完整性是手段，数据可用性是目标</li>
+<li>交付一个恢复系统，而非备份系统</li>
+<li>造成数据丢失的事故类型</li>
+<li>维护数据完整性的深度和广度的困难之处</li>
+</ul>
+</li>
+<li>Google SRE 保障数据完整性的手段
+<ul>
+<li>24 种数据完整性的事故组合</li>
+<li>第一层：软删除</li>
+<li>第二层：备份和相关的恢复方法</li>
+<li>额外一层：复制机制</li>
+<li>1T vs 1E：存储更多数据没那么简单</li>
+<li>第三层：早期预警</li>
+<li>确保数据恢复策略可以正常工作</li>
+</ul>
+</li>
+<li>案例分析
+<ul>
+<li>Gmail————2011年2月：从 GTape 上恢复数据（磁带）</li>
+<li>Google Music————2012年3月：一次意外删除事故的检测过程</li>
+</ul>
+</li>
+<li>SRE 的基本理念在数据完整性上的应用
+<ul>
+<li>保持初学者的心态</li>
+<li>信任但要验证</li>
+<li>不要一厢情愿</li>
+<li>纵深防御</li>
+</ul>
+</li>
+<li>小结</li>
+</ul>
+<p>未完待续…</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/google/" rel="tag"># google</a>
+              <a href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag"># 运维</a>
+              <a href="/tags/Ops/" rel="tag"># Ops</a>
+              <a href="/tags/Dev/" rel="tag"># Dev</a>
+              <a href="/tags/%E9%94%99%E8%AF%AF%E9%A2%84%E7%AE%97/" rel="tag"># 错误预算</a>
+              <a href="/tags/SRE/" rel="tag"># SRE</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/08/08/Hexo-Next%E6%94%AF%E6%8C%81LaTeX/" rel="prev" title="Hexo+Next支持LaTeX">
+                  <i class="fa fa-angle-left"></i> Hexo+Next支持LaTeX
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/07/13/PG%E4%B8%BB%E5%A4%87%E6%B5%81%E5%A4%8D%E5%88%B6%E6%9C%BA%E5%88%B6/" rel="next" title="PgSQL · 特性分析 · PG主备流复制机制">
+                  PgSQL · 特性分析 · PG主备流复制机制 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"ac7bdc630edf505cc1983c896ed97857"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>

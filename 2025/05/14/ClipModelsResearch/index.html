@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在视频安防领域，监控摄像头和无人机积累了海量视频数据。这些数据通常仅在有明确目标需求时通过人工查看，成本高且效率低，导致大部分视频数据未被有效利用，长期处于“沉默”状态，甚至最终被销毁。为充分挖掘这些视频数据的价值，我们需要通过抽帧分析提取特征，并支持以自然语言检索视频数据，从而显著提升使用效率、降低成本。要实现这一目标，类似CLIP的模型是关键技术路径。本文主要研究模型的技术水平，帮助技术人员做">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告">
+<meta property="og:url" content="http://lewlh.github.io/2025/05/14/ClipModelsResearch/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在视频安防领域，监控摄像头和无人机积累了海量视频数据。这些数据通常仅在有明确目标需求时通过人工查看，成本高且效率低，导致大部分视频数据未被有效利用，长期处于“沉默”状态，甚至最终被销毁。为充分挖掘这些视频数据的价值，我们需要通过抽帧分析提取特征，并支持以自然语言检索视频数据，从而显著提升使用效率、降低成本。要实现这一目标，类似CLIP的模型是关键技术路径。本文主要研究模型的技术水平，帮助技术人员做">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-05-14T09:50:12.000Z">
+<meta property="article:modified_time" content="2025-05-20T08:49:06.170Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="CLIP">
+<meta property="article:tag" content="CCTV">
+<meta property="article:tag" content="Overhead video">
+<meta property="article:tag" content="Deep Research with Gemini 2.5 Pro">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://lewlh.github.io/2025/05/14/ClipModelsResearch/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2025/05/14/ClipModelsResearch/","path":"2025/05/14/ClipModelsResearch/","title":"CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">107</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">35</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%89%A7%E8%A1%8C%E6%91%98%E8%A6%81"><span class="nav-text">1. 执行摘要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-CLIP%E7%B1%BB%E6%A8%A1%E5%9E%8B%E7%94%A8%E4%BA%8E%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E8%A7%86%E8%A7%89%E6%A3%80%E7%B4%A2%E6%A6%82%E8%BF%B0"><span class="nav-text">2. CLIP类模型用于自然语言视觉检索概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%AF%B9%E6%AF%94%E8%AF%AD%E8%A8%80-%E5%9B%BE%E5%83%8F%E9%A2%84%E8%AE%AD%E7%BB%83%EF%BC%88CLIP%EF%BC%89%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86"><span class="nav-text">2.1. 对比语言-图像预训练（CLIP）的核心原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E9%80%9A%E7%94%A8%E6%9E%B6%E6%9E%84%E6%A6%82%E8%A7%88"><span class="nav-text">2.2. 通用架构概览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E4%B8%8E%E5%AE%89%E9%98%B2%E7%9B%91%E6%8E%A7%E7%9A%84%E5%85%B3%E8%81%94%E6%80%A7"><span class="nav-text">2.3. 与安防监控的关联性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%AE%89%E9%98%B2%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%AF%B9CLIP%E7%B1%BB%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%89%B9%E5%AE%9A%E6%8C%91%E6%88%98"><span class="nav-text">3. 安防监控数据对CLIP类模型的特定挑战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%9B%BA%E5%AE%9A%E8%A7%86%E8%A7%92%E6%91%84%E5%83%8F%E5%A4%B4%EF%BC%88%E5%A6%82CCTV%EF%BC%89%E5%BD%B1%E5%83%8F%E7%89%B9%E7%82%B9"><span class="nav-text">3.1. 固定视角摄像头（如CCTV）影像特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%BF%AF%E8%A7%86-%E6%97%A0%E4%BA%BA%E6%9C%BA%E5%BD%B1%E5%83%8F%E7%89%B9%E7%82%B9"><span class="nav-text">3.2. 俯视&#x2F;无人机影像特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E5%AF%B9CLIP%E7%B1%BB%E6%A8%A1%E5%9E%8B%E6%A3%80%E7%B4%A2%E6%80%A7%E8%83%BD%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-text">3.3. 对CLIP类模型检索性能的影响</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%85%B3%E9%94%AE%E5%BC%80%E6%BA%90CLIP%E7%B1%BB%E6%A8%A1%E5%9E%8B%E6%80%A7%E8%83%BD%E8%AF%84%E4%BC%B0"><span class="nav-text">4. 关键开源CLIP类模型性能评估</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E9%80%89%E5%9E%8B%E6%A8%A1%E5%9E%8B%E5%88%86%E6%9E%90"><span class="nav-text">4.1. 选型模型分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%AE%89%E9%98%B2%E8%A7%86%E9%A2%91-%E5%9B%BE%E5%83%8F%E6%A3%80%E7%B4%A2%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87"><span class="nav-text">4.2. 安防视频&#x2F;图像检索性能指标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E5%9F%BA%E5%87%86%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90"><span class="nav-text">4.3. 基准性能分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-1-%E9%80%9A%E7%94%A8%E9%9B%B6%E6%A0%B7%E6%9C%AC%E6%A3%80%E7%B4%A2%E5%9F%BA%E5%87%86%E6%80%A7%E8%83%BD"><span class="nav-text">4.3.1. 通用零样本检索基准性能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-2-%E9%92%88%E5%AF%B9%E5%AE%89%E9%98%B2%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE%E9%9B%86-%E6%8C%91%E6%88%98%E7%9A%84%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90"><span class="nav-text">4.3.2. 针对安防相关数据集&#x2F;挑战的性能分析</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%8E%A8%E7%90%86%E6%88%90%E6%9C%AC%E4%B8%8E%E9%83%A8%E7%BD%B2%E8%80%83%E9%87%8F"><span class="nav-text">5. 推理成本与部署考量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E6%A8%A1%E5%9E%8B%E5%A4%A7%E5%B0%8F"><span class="nav-text">5.1. 模型大小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E7%A1%AC%E4%BB%B6%E9%9C%80%E6%B1%82"><span class="nav-text">5.2. 硬件需求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E6%8E%A8%E7%90%86%E9%80%9F%E5%BA%A6"><span class="nav-text">5.3. 推理速度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B%E6%AF%94%E8%BE%83%E5%88%86%E6%9E%90%E4%B8%8E%E5%BB%BA%E8%AE%AE"><span class="nav-text">6. 模型选型比较分析与建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E5%90%84%E6%A8%A1%E5%9E%8B%E5%AE%B6%E6%97%8F%E9%92%88%E5%AF%B9%E5%AE%89%E9%98%B2%E7%9B%91%E6%8E%A7%E7%9A%84%E4%BC%98%E5%8A%A3%E5%8A%BF%E5%88%86%E6%9E%90"><span class="nav-text">6.1. 各模型家族针对安防监控的优劣势分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E6%9D%83%E8%A1%A1%EF%BC%9A%E5%87%86%E7%A1%AE%E6%80%A7-vs-%E9%80%9F%E5%BA%A6-vs-%E6%88%90%E6%9C%AC"><span class="nav-text">6.2. 权衡：准确性 vs. 速度 vs. 成本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B%E6%8C%87%E5%AF%BC"><span class="nav-text">6.3. 模型选型指导</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E7%BB%93%E8%AE%BA%E4%B8%8E%E6%9C%AA%E6%9D%A5%E5%B1%95%E6%9C%9B"><span class="nav-text">7. 结论与未来展望</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E7%94%A8%E7%9A%84%E8%91%97%E4%BD%9C"><span class="nav-text">引用的著作</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">107</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2025/05/14/ClipModelsResearch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-05-14 17:50:12" itemprop="dateCreated datePublished" datetime="2025-05-14T17:50:12+08:00">2025-05-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-05-20 16:49:06" itemprop="dateModified" datetime="2025-05-20T16:49:06+08:00">2025-05-20</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在视频安防领域，监控摄像头和无人机积累了海量视频数据。这些数据通常仅在有明确目标需求时通过人工查看，成本高且效率低，导致大部分视频数据未被有效利用，长期处于“沉默”状态，甚至最终被销毁。为充分挖掘这些视频数据的价值，我们需要通过抽帧分析提取特征，并支持以自然语言检索视频数据，从而显著提升使用效率、降低成本。要实现这一目标，类似CLIP的模型是关键技术路径。本文主要研究模型的技术水平，帮助技术人员做方案决策。本文由 Deep Research with Gemini 2.5 Pro 撰写。</p>
+<span id="more"></span>
+<hr>
+<h2 id="1-执行摘要"><strong>1. 执行摘要</strong></h2>
+<p>本报告旨在对开源的CLIP（Contrastive Language-Image Pre-training）及其类似模型（主要包括OpenCLIP、JinaCLIP、SigLIP）在安防监控领域的应用潜力进行深入分析。应用场景聚焦于利用自然语言检索固定视角监控摄像头及无人机采集的视频图像数据，以期降低人力成本、提升数据利用效率。考虑到用户团队暂不具备模型微调能力，本报告将重点评估这些模型的零样本（zero-shot）基线性能，并结合安防数据的独有特性（如固定视角、俯视视角、小目标、多目标、光照变化、图像质量等），探讨其适用性及潜在挑战。同时，报告将详尽分析各模型的推理成本，包括模型大小、硬件需求（CPU/GPU、显存）和推理速度（延迟/吞吐量），为用户选择合适的模型提供决策支持。</p>
+<p>核心发现表明，尽管CLIP类模型在通用的图文匹配任务上表现出色，但直接应用于复杂的安防监控场景时，其零样本性能会受到数据特性的显著影响。例如，对小目标、异常姿态以及特定光照条件下的鲁棒性是关键考量。没有任何单一模型能在所有方面（尤其是在兼顾检索准确性和推理成本上）完美胜出。因此，模型的选择将高度依赖于用户在特定应用场景下对检索精度与运营成本之间的权衡。本报告将提供针对性的性能指标和详细的成本分析，以辅助这一决策过程。</p>
+<h2 id="2-CLIP类模型用于自然语言视觉检索概述"><strong>2. CLIP类模型用于自然语言视觉检索概述</strong></h2>
+<p>近年来，以CLIP为代表的视觉语言预训练模型在连接视觉信息和自然语言理解方面取得了革命性进展，为通过自然语言查询检索图像和视频内容提供了强大的技术基础。</p>
+<h3 id="2-1-对比语言-图像预训练（CLIP）的核心原理"><strong>2.1. 对比语言-图像预训练（CLIP）的核心原理</strong></h3>
+<p>CLIP模型的核心思想在于通过对比学习（contrastive learning）共同训练一个图像编码器和一个文本编码器，使它们能够将图像和文本投影到一个共享的语义嵌入空间中 1。在这个空间里，语义相关的图像和文本对的嵌入向量在空间上更接近，而不相关的则相互远离 3。训练数据通常来源于网络上大量的图像-文本对 2。</p>
+<p>这种预训练方式赋予了CLIP模型强大的“零样本”能力。所谓零样本，即模型无需在特定下游任务的数据集上进行微调，就能对未曾见过的类别或概念进行分类或检索 1。例如，通过计算输入图像的嵌入与描述不同类别的文本（如“一只猫的照片”）的嵌入之间的相似度，模型可以判断图像属于哪个类别 5。这一特性对于用户当前不具备微调能力的团队至关重要。</p>
+<h3 id="2-2-通用架构概览"><strong>2.2. 通用架构概览</strong></h3>
+<p>典型的CLIP类模型采用双编码器架构 2：</p>
+<ul>
+<li><strong>图像编码器（Image Encoder）</strong>: 负责从输入图像中提取视觉特征。常用的图像编码器包括视觉Transformer（Vision Transformer, ViT）或残差网络（ResNet）等。ViT因其利用自注意力机制有效捕捉图像全局和局部细节的能力，在许多CLIP变体中被广泛采用 3。</li>
+<li><strong>文本编码器（Text Encoder）</strong>: 负责从输入文本（自然语言查询）中提取文本特征。通常采用Transformer架构 1。</li>
+</ul>
+<p>两个编码器独立工作，分别将图像和文本映射到同一维度的嵌入向量，然后在共享空间中计算这些向量的相似度（如余弦相似度），以衡量图文之间的匹配程度。</p>
+<h3 id="2-3-与安防监控的关联性"><strong>2.3. 与安防监控的关联性</strong></h3>
+<p>对于安防监控领域，每天都会产生海量的视频和图像数据。传统的人工审查方式效率低下且成本高昂。CLIP类模型通过自然语言检索视频图像数据的能力，有望彻底改变这一现状（用户查询）。安防人员可以通过输入描述性的自然语言查询（例如“一个穿着红色外套的人在门口徘徊”，“一辆黑色轿车在禁停区停留超过五分钟”）来快速定位相关的视频片段或图像帧，从而大幅缩短调查时间，提高应急响应速度和证据搜集效率。</p>
+<p>尽管CLIP的核心原理为通用图文匹配提供了坚实基础，但其直接应用于安防监控的特殊场景时，仍面临诸多挑战。监控画面往往包含复杂的动态场景、多样的目标行为以及由环境因素导致的数据质量问题。模型需要理解的不仅仅是静态物体的标签，更重要的是物体的行为、交互以及场景的上下文。例如，区分“正常路过的人”和“行为可疑的徘徊者”，可能需要模型对细微的视觉线索和潜在的时间序列信息（尽管基础CLIP模型主要处理单帧图像）有更深层次的理解。这些都是在评估其适用性时需要重点考察的方面。</p>
+<h2 id="3-安防监控数据对CLIP类模型的特定挑战"><strong>3. 安防监控数据对CLIP类模型的特定挑战</strong></h2>
+<p>安防监控数据在视觉特性上与CLIP等模型常用的训练数据（如互联网图文对）存在显著差异。这些差异对模型的零样本检索性能构成了独特的挑战。</p>
+<h3 id="3-1-固定视角摄像头（如CCTV）影像特点"><strong>3.1. 固定视角摄像头（如CCTV）影像特点</strong></h3>
+<ul>
+<li><strong>静态或可预测的摄像机角度</strong>：监控摄像头通常具有固定的视角，很多是广角镜头，导致画面中物体相对于整个画幅而言尺寸较小 6。这与网络抓取的、通常以主体为中心、目标突出的图像形成对比。</li>
+<li><strong>镜头畸变</strong>：安防摄像头，尤其是广角镜头，常出现桶形畸变、枕形畸变或胡须状畸变等光学畸变。如果模型未经校准或对这类畸变不具备鲁棒性，物体外观的失真会影响识别准确率 7。</li>
+<li><strong>背景相对固定但存在变化</strong>：虽然背景大部分是静态的，但光照、天气、小物件的移动等因素仍会带来变化。</li>
+<li><strong>光照挑战</strong>：光照条件变化剧烈是常态，包括白天到夜晚的转换、强光、阴影、眩光和低照度环境 6。红外（IR）成像在夜间监控中常用，但其提供的视觉信息与可见光图像差异巨大，标准CLIP模型并未针对红外数据进行训练 6。</li>
+<li><strong>数据质量</strong>：监控视频可能存在低分辨率、压缩失真和噪声等问题，这些都会影响模型特征提取的质量和后续的检索效果 10。</li>
+</ul>
+<p>固定摄像头的“固定性”看似简化了问题，但如果模型的训练数据主要由动态的、以被摄主体为中心的网络图片构成，那么这种固定性反而可能导致“领域偏移”（domain shift）。模型可能过度适应于网络数据中多样化的、居中的主体，而对监控场景中特定的、持续的畸变和静态视角不够鲁棒。这不仅是图像质量问题，更是视觉信息呈现方式的差异。</p>
+<h3 id="3-2-俯视-无人机影像特点"><strong>3.2. 俯视/无人机影像特点</strong></h3>
+<ul>
+<li><strong>顶视视角</strong>：无人机常采用俯视或高空视角拍摄，这与CLIP模型训练数据中常见的地面平视视角显著不同。模型可能因为缺乏此类视角的训练样本而难以准确识别物体。</li>
+<li><strong>尺度变化大</strong>：从较高空域拍摄时，地面物体（如人、车辆）在画面中可能非常微小 12。</li>
+<li><strong>动态背景与运动模糊</strong>：无人机在移动中拍摄，会导致背景不断变化，并可能引入运动模糊。</li>
+<li><strong>云台控制与稳定性</strong>：尽管云台有助于稳定图像，但轻微的角度变化和抖动仍可能存在 12。</li>
+</ul>
+<p>无人机影像的俯视视角和小目标尺寸特性带来了复合挑战。CLIP模型在处理小目标方面已知的局限性 14，可能会因为这种非典型视角而进一步加剧。相较于平视视角，俯视视角下的小目标可能呈现更少的独有特征，使得图像编码器更难生成具有区分度的嵌入向量。</p>
+<h3 id="3-3-对CLIP类模型检索性能的影响"><strong>3.3. 对CLIP类模型检索性能的影响</strong></h3>
+<ul>
+<li><strong>视角敏感性</strong>：主要基于平视图像训练的模型，在面对固定的高角度或无人机顶视视角时，识别一致性可能下降 16。研究表明CLIP对物体姿态变化较为敏感。</li>
+<li><strong>小目标检测与检索</strong>：CLIP（尤其是基于ViT的）倾向于提取全局特征，可能忽略监控中常见的小尺寸但关键的目标或细节 14。例如，检索“手持小型物体的人”这类查询将极具挑战性。</li>
+<li><strong>遮挡处理</strong>：在真实场景中，目标部分被其他物体、植被或基础设施遮挡的情况非常普遍 17。遮挡会严重影响检测和检索的准确性。</li>
+<li><strong>环境变化鲁棒性</strong>：光照变化 8、天气条件或图像质量问题 10 都可能导致模型性能下降。16的分析也指出CLIP对某些视觉因素变化的鲁棒性有待提高。</li>
+<li><strong>区分细粒度活动</strong>：对于在通用图文对上训练的模型而言，区分语义上不同但视觉上细微的动作（例如，“形迹可疑的人”与“等待的人”）可能非常困难。已有研究指出CLIP在细粒度分类任务上存在不足 20。</li>
+</ul>
+<p>一个普遍存在于安防监控数据检索中的核心问题是“语义鸿沟”。CLIP模型训练所用的通用网络文本描述与安防场景下具体、通常面向行为或属性的查询之间存在差异。用户可能会查询“有人在爬围墙”或“红色汽车违章停放”，这些查询要求模型具备超越简单物体标记的细致理解能力。例如，CLIP模型在处理多目标场景时，其图像编码器可能偏好大目标，文本编码器可能偏好描述中先提及的目标 15，这对于需要准确理解复杂场景中多个对象及其交互的安防应用而言是一个显著的制约因素。</p>
+<h2 id="4-关键开源CLIP类模型性能评估"><strong>4. 关键开源CLIP类模型性能评估</strong></h2>
+<p>本节将对选定的主流开源CLIP类模型进行性能分析，重点考量其在安防监控视频图像检索任务中的潜力。</p>
+<h3 id="4-1-选型模型分析"><strong>4.1. 选型模型分析</strong></h3>
+<p>选择以下模型家族进行分析，主要基于其开源性质、流行程度、架构多样性及训练数据的差异性：</p>
+<ul>
+<li><strong>OpenCLIP</strong>:
+<ul>
+<li><strong>变体</strong>: 重点关注基于ViT-B/32和ViT-L/14架构的变体，这些变体使用了如LAION-2B、DataComp等不同的大规模数据集进行训练 2。这些模型代表了不同规模下广泛应用的开源实现。</li>
+<li><strong>架构</strong>: 主要采用ViT作为图像编码器 2。</li>
+</ul>
+</li>
+<li><strong>JinaCLIP</strong>:
+<ul>
+<li><strong>变体</strong>: 包括v1和v2版本 27。JinaCLIP v2提供了多语言支持和更高的输入图像分辨率（512x512），这对于未来的扩展性或处理多样化文本输入可能具有意义，尽管当前主要需求是英文检索。JinaCLIP的一个设计目标是同时提升图文检索和文本-文本检索的性能 27。</li>
+<li><strong>架构</strong>: v1版本结合了Jina BERT v2文本编码器和EVA-02图像编码器 27。v2版本则采用了Jina XLM-RoBERTa文本编码器和EVA02-L14图像编码器 29。</li>
+</ul>
+</li>
+<li><strong>SigLIP</strong>:
+<ul>
+<li><strong>变体</strong>: 重点关注基于ViT-B/16和ViT-L/14（或参数量接近的So400M）架构，并在WebLI等数据集上训练的变体 37。</li>
+<li><strong>架构</strong>: 采用了类似CLIP的框架，但其关键区别在于使用了sigmoid损失函数进行训练，据称这能改善模型性能，尤其是在不同批量大小的情况下 37。</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-2-安防视频-图像检索性能指标"><strong>4.2. 安防视频/图像检索性能指标</strong></h3>
+<p>为了全面评估模型在安防场景下的表现，除了标准的零样本检索指标外，还需考虑针对安防数据特性的特定指标。</p>
+<ul>
+<li><strong>标准零样本检索指标</strong>:
+<ul>
+<li><strong>Recall@K (R@1, R@5, R@10)</strong>: 用于文本到图像（T2I）和图像到文本（I2T）检索任务，衡量在前K个检索结果中出现正确匹配项的概率 62。K值通常取1, 5, 10。</li>
+<li><strong>平均精度均值 (mAP)</strong>: 提供对排序质量更全面的度量，尤其在多类别或多目标检索中 62。</li>
+</ul>
+</li>
+<li><strong>针对应用的特定性能考量 (定性或定量评估，若有相关研究数据支持)</strong>:
+<ul>
+<li><strong>视角不变性得分</strong>: 评估模型对常见固定摄像头角度（如高位广角）和无人机视角（如俯视）的鲁棒性。这可以从模型在包含此类视角的特定数据集（如VisDrone, UAVDT，若有相关检索结果）上的表现，或从分析姿态敏感性的研究（如 16）中推断。</li>
+<li><strong>小目标检索准确率</strong>: 评估模型在针对微小或远距离目标的查询上的性能。关于CLIP与YOLOv10结合处理小目标的研究 14 以及CLIP对小目标存在偏见的研究 15 在此具有参考价值。</li>
+<li><strong>遮挡处理能力</strong>: 衡量模型检索部分被遮挡目标的能力。遮挡是安防场景中的常见挑战 18。</li>
+<li><strong>图像退化鲁棒性</strong>: 评估模型在模拟或真实的图像退化（如低分辨率 10、恶劣光照 6、压缩失真）下的性能。文献 16 探讨了模型对多种视觉因素的鲁棒性。</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-3-基准性能分析"><strong>4.3. 基准性能分析</strong></h3>
+<h4 id="4-3-1-通用零样本检索基准性能"><strong>4.3.1. 通用零样本检索基准性能</strong></h4>
+<p>MS COCO 63 和 Flickr30k 63 是评估图文检索模型性能的常用标准数据集。下表汇总了部分代表性模型在这些数据集上的零样本检索性能。这些基准测试虽然不直接反映安防场景的复杂性，但它们为评估模型基础的图文对齐能力提供了一个重要的参考点。模型在这些通用数据集上的表现差异，可能预示着其在理解基本图文关系方面的固有强弱。</p>
+<p><strong>表1：部分CLIP类模型在MS COCO和Flickr30k上的零样本检索性能对比</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型变体 (预训练数据集)</th>
+<th style="text-align:left">参数量 (M)</th>
+<th style="text-align:left">MS COCO T2I R@1/5/10 (%)</th>
+<th style="text-align:left">MS COCO I2T R@1/5/10 (%)</th>
+<th style="text-align:left">Flickr30k T2I R@1/5/10 (%)</th>
+<th style="text-align:left">Flickr30k I2T R@1/5/10 (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">OpenCLIP ViT-B/32 (datacomp_s1b_b8k)</td>
+<td style="text-align:left">151.3</td>
+<td style="text-align:left">36.2 / 59.6 / 68.8</td>
+<td style="text-align:left">50.1 / 73.8 / 81.8</td>
+<td style="text-align:left">64.0 / 86.2 / 91.4</td>
+<td style="text-align:left">81.7 / 95.8 / 97.9</td>
+</tr>
+<tr>
+<td style="text-align:left">OpenCLIP ViT-L/14 (laion2b_s32b_b82k)</td>
+<td style="text-align:left">427.6</td>
+<td style="text-align:left">49.9 / 73.0 / 80.8</td>
+<td style="text-align:left">61.8 / 83.0 / 89.1</td>
+<td style="text-align:left">79.1 / 95.0 / 97.5</td>
+<td style="text-align:left">90.6 / 98.6 / 99.4</td>
+</tr>
+<tr>
+<td style="text-align:left">JinaCLIP v1 (Jina BERT v2 + EVA-02, mixed)</td>
+<td style="text-align:left">223</td>
+<td style="text-align:left">79.02 (R@5)</td>
+<td style="text-align:left">66.42 (R@5)</td>
+<td style="text-align:left">96.40 (R@5)</td>
+<td style="text-align:left">89.04 (R@5)</td>
+</tr>
+<tr>
+<td style="text-align:left">JinaCLIP v2 (Jina XLM-R + EVA02-L14, mixed)</td>
+<td style="text-align:left">865</td>
+<td style="text-align:left">81.46 (R@5)</td>
+<td style="text-align:left">68.35 (R@5)</td>
+<td style="text-align:left">98.00 (R@5)</td>
+<td style="text-align:left">89.84 (R@5)</td>
+</tr>
+<tr>
+<td style="text-align:left">SigLIP ViT-B/16-256px (webli)</td>
+<td style="text-align:left">203.2</td>
+<td style="text-align:left">66.1 / 86.3 / 91.8</td>
+<td style="text-align:left">48.3 / 72.5 / 81.0</td>
+<td style="text-align:left">90.4 / 98.3 / 99.3</td>
+<td style="text-align:left">75.0 / 92.4 / 96.3</td>
+</tr>
+<tr>
+<td style="text-align:left">SigLIP ViT-L/16-384px (webli)</td>
+<td style="text-align:left">652.5</td>
+<td style="text-align:left">71.9 / 90.1 / 94.1</td>
+<td style="text-align:left">53.9 / 76.6 / 84.0</td>
+<td style="text-align:left">93.7 / 99.2 / 99.9</td>
+<td style="text-align:left">81.4 / 95.4 / 97.5</td>
+</tr>
+</tbody>
+</table>
+<p><em>注：JinaCLIP v1 和 v2 的性能数据主要来自其官方论文中报告的R@5值 31。OpenCLIP 和 SigLIP 的详细R@1/5/10数据主要来源于 25。参数量参考各模型的技术文档或相关研究。不同来源的评估设置可能存在细微差异。</em></p>
+<h4 id="4-3-2-针对安防相关数据集-挑战的性能分析"><strong>4.3.2. 针对安防相关数据集/挑战的性能分析</strong></h4>
+<p>尽管直接针对VisDrone、UAVDT或UCF-Crime等安防相关数据集的CLIP类模型零样本<em>检索</em>基准数据在现有文献中较为缺乏，但我们可以从相关研究中推断其潜在表现。例如，有研究探讨了在VisDrone上使用CLIP与YOLO结合进行零样本目标检测，并使用mAP和Recall@100作为评估指标 64。UAVDT数据集则突出了无人机视角下目标检测的挑战，如不同飞行高度和天气条件下的目标尺度变化和外观变化 68。UCF-Crime等数据集则被用于评估大型视觉语言模型在视频异常行为理解方面的能力 70。</p>
+<p>更为直接的参考来自于对CLIP模型鲁棒性的研究。文献 16 对CLIP模型在多种视觉因素（包括姿态/视角、尺度、背景等）下的鲁棒性进行了评估。研究发现，CLIP模型对物体姿态（视角）的变化相对不鲁棒，但对尺度和纹理变化表现出较好的鲁棒性。这对安防应用具有重要启示：固定摄像头的高角度或无人机的俯视视角可能对CLIP的性能构成挑战，而其对物体大小变化的鲁棒性则是一个优势。</p>
+<p>关于小目标检索，研究 14 提出通过结合YOLOv10来提升CLIP在小目标和复杂背景下的检索能力。而另一项研究 15 指出，CLIP的图像编码器倾向于关注大目标，文本编码器则可能优先处理描述中首先提及的对象，这对于包含多个目标和复杂活动的监控场景来说是不利的。</p>
+<p>标准基准测试（如MS COCO/Flickr30k）的成绩可能无法完全预测模型在安防数据上的表现，因为安防数据在视觉特征和查询类型上均有其独特性。因此，对模型鲁棒性的研究（如 16）以及针对小目标检索等特定挑战的分析（如 14），为用户在安防领域的应用提供了更直接的性能参考。</p>
+<p>此外，需要注意的是“零样本”的定义本身也可能存在细微差别。虽然模型未在目标数据集上进行微调，但用于零样本分类或检索的提示（prompt）对性能有显著影响 49。对于用户通过自然语言进行检索的任务而言，用户的查询本身即是“提示”。模型对用户多样化自然语言表达的泛化能力至关重要。</p>
+<h2 id="5-推理成本与部署考量"><strong>5. 推理成本与部署考量</strong></h2>
+<p>在选择模型时，除了性能表现，推理成本和部署可行性也是至关重要的因素。这包括模型大小、硬件需求（尤其是显存VRAM）以及推理速度（延迟和吞吐量）。</p>
+<h3 id="5-1-模型大小"><strong>5.1. 模型大小</strong></h3>
+<ul>
+<li><strong>参数量</strong>:
+<ul>
+<li>OpenCLIP ViT-B/32 (datacomp): 约1.51亿 25。</li>
+<li>OpenCLIP ViT-L/14 (laion2b): 约4.28亿 20。</li>
+<li>JinaCLIP v1: 2.23亿 27。</li>
+<li>JinaCLIP v2: 总计8.65亿 (文本编码器5.61亿，图像编码器3.04亿) 29。</li>
+<li>SigLIP ViT-B/16 (256px, webli): 约2.03亿 25。</li>
+<li>SigLIP ViT-L/16 (384px, webli): 约6.52亿 25。</li>
+</ul>
+</li>
+<li><strong>磁盘存储 (MB/GB)</strong>: 模型检查点文件的大小。
+<ul>
+<li>OpenCLIP ViT-B/32: FP16精度下约288-302MB 77。</li>
+<li>OpenCLIP ViT-L/14: FP16精度下约856MB（基于4.28亿参数估算）。DINOv2 ViT-L/14约为1.13GB 78。</li>
+<li>JinaCLIP v1: FP32精度下约892MB，FP16精度下约446MB 79。</li>
+<li>JinaCLIP v2: FP16精度下约1.73GB 35。</li>
+<li>SigLIP ViT-B/16: FP16精度下约406MB。</li>
+<li>SigLIP ViT-L/16-384px: FP16精度下约1.3GB。</li>
+<li>需要注意，open_clip_torch等库本身的安装包很小（如1.4MB 80），这里指的是模型权重文件的大小。</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-2-硬件需求"><strong>5.2. 硬件需求</strong></h3>
+<ul>
+<li><strong>CPU vs. GPU</strong>: 对于大多数CLIP类模型的推理，GPU通常远快于CPU。尽管对于小模型或低吞吐量需求，CPU可能成本更低 82，但考虑到安防检索任务可能涉及大量数据和对实时性的要求，GPU可能是必要的。</li>
+<li><strong>GPU型号</strong>: 不同型号的GPU（如NVIDIA T4, V100, A100以及更新的Blackwell系列，AMD MI325X等）性能差异显著 80。选择时需平衡性能与预算。</li>
+<li><strong>显存 (VRAM) 消耗</strong>: 这是加载和运行模型的关键瓶颈。模型越大，所需显存越多。
+<ul>
+<li>OpenAI CLIP ViT-Base-patch32: 推理时FP16权重约需288MB显存 77。</li>
+<li>JinaCLIP v2: 处理单张512x512图像（FP16）时，有用户报告称占用了6GB显存 93。这表明其图像处理流程（可能涉及分块处理高分辨率图像）对显存需求较高。</li>
+<li>一般而言，FP16模型权重约占每参数2字节的存储空间。</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-3-推理速度"><strong>5.3. 推理速度</strong></h3>
+<ul>
+<li><strong>延迟 (ms/查询)</strong>: 处理单个查询所需的时间，对实时应用非常重要。
+<ul>
+<li>OpenCLIP ViT-B/32 (datacomp) 在CPU (12代 Intel i7) 上图像编码约114毫秒/帧 94。</li>
+<li>OpenCLIP ViT-B/32 在GPU (RTX 3090) 上图像编码约6.3毫秒/帧 94。</li>
+<li>Marqo基准测试中，OpenCLIP ViT-B/32 (laion2b) 在T4上文本推理7.6ms，图像推理8.4ms；在A10g上文本推理3.2ms，图像推理3.4ms 95。</li>
+<li>Marqo基准测试中，OpenCLIP ViT-L/14 (laion2b) 在T4上文本推理20.8ms，图像推理42.8ms；在A10g上文本推理8.4ms，图像推理16.2ms 95。</li>
+<li>SigLIP ViT-L/16-384px: 有报告称“几秒钟处理一张图片” 96 或“非常快” 98。Marqo基准测试中，在T4上文本推理20.9ms，图像推理49.9ms；在A10g上文本推理8.3ms，图像推理19.0ms 95。</li>
+<li>SigLIP ViT-B/16: 有报告称“毫秒级处理一张图片” 51。Marqo基准测试中，在T4上文本推理7.8ms，图像推理9.8ms；在A10g上文本推理3.2ms，图像推理3.9ms 95。</li>
+</ul>
+</li>
+<li><strong>吞吐量 (查询/秒)</strong>: 单位时间内处理的查询数量，对批量处理或高并发系统很重要。
+<ul>
+<li>使用clip-retrieval工具（基于OpenCLIP）在RTX 3080上可达到1500样本/秒的处理速度 99。</li>
+<li>NVIDIA Triton 推理服务器通过动态批处理和多模型实例等技术可以显著提升吞吐量 100。</li>
+</ul>
+</li>
+</ul>
+<p>下表总结了部分代表性模型的推理成本相关信息。</p>
+<p><strong>表2：部分CLIP类模型推理成本对比分析</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型变体 (预训练数据集)</th>
+<th style="text-align:left">参数量 (M)</th>
+<th style="text-align:left">磁盘大小 (FP16估算)</th>
+<th style="text-align:left">GPU型号 (示例)</th>
+<th style="text-align:left">文本推理延迟 (ms)</th>
+<th style="text-align:left">图像推理延迟 (ms)</th>
+<th style="text-align:left">VRAM占用 (估算/报告)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">OpenCLIP ViT-B/32 (datacomp_s1b_b8k)</td>
+<td style="text-align:left">151.3</td>
+<td style="text-align:left">&lt;sub&gt;302 MB</td>
+<td style="text-align:left" rowspan="2">T4 / A10g</td>
+<td style="text-align:left">7.6 / 3.2</td>
+<td style="text-align:left">8.4 / 3.4</td>
+<td style="text-align:left">&lt;/sub&gt;300MB / 较低</td>
+</tr>
+<tr>
+<td style="text-align:left">OpenCLIP ViT-L/14 (laion2b_s32b_b82k)</td>
+<td style="text-align:left">427.6</td>
+<td style="text-align:left">~856 MB</td>
+<td style="text-align:left">20.8 / 8.4</td>
+<td style="text-align:left">42.8 / 16.2</td>
+<td style="text-align:left">中等</td>
+</tr>
+<tr>
+<td style="text-align:left">JinaCLIP v1 (mixed)</td>
+<td style="text-align:left">223</td>
+<td style="text-align:left">~446 MB (FP16)</td>
+</tr>
+<tr>
+<td style="text-align:left">JinaCLIP v2 (mixed)</td>
+<td style="text-align:left">865</td>
+<td style="text-align:left">~1.73 GB</td>
+<td style="text-align:left">高性能GPU</td>
+<td style="text-align:left" colspan="2">较快 (优化后)</td>
+</tr>
+<tr>
+<td style="text-align:left">SigLIP ViT-B/16-256px (webli)</td>
+<td style="text-align:left">203.2</td>
+<td style="text-align:left">~406 MB</td>
+<td style="text-align:left" rowspan="2">T4 / A10g</td>
+<td style="text-align:left">7.8 / 3.2</td>
+<td style="text-align:left">9.8 / 3.9</td>
+<td style="text-align:left">较低-中等</td>
+</tr>
+<tr>
+<td style="text-align:left">SigLIP ViT-L/16-384px (webli)</td>
+<td style="text-align:left">652.5</td>
+<td style="text-align:left">~1.3 GB</td>
+<td style="text-align:left">20.9 / 8.3</td>
+<td style="text-align:left">49.9 / 19.0</td>
+<td style="text-align:left">中等-较高</td>
+</tr>
+</tbody>
+</table>
+<p><em>注：延迟数据主要参考Marqo基准测试 95 在T4和A10g上的表现。VRAM占用除JinaCLIP v2有具体报告外，其余多为基于模型大小的估算。实际表现会因具体硬件、批处理大小、软件优化（如TensorRT, OpenVINO 49）等因素而异。JinaCLIP v2的VRAM报告 93 提示高分辨率图像处理可能对显存有较高要求。</em></p>
+<p>推理成本并非仅由模型大小决定，还与具体实现、可用的优化工具（如ONNX、TensorRT、OpenVINO）以及所用硬件密切相关。JinaCLIP v2在高分辨率图像处理时的高显存占用是一个需要特别注意的信号，尤其对于可能采用高分辨率无人机或固定摄像头的用户。</p>
+<p>CPU与GPU的选择也并非绝对，它取决于模型大小、批处理大小以及对延迟和吞吐量的具体需求。对于安防这类可能需要近实时响应或处理大量数据的任务，特别是使用较大型CLIP变体时，GPU几乎是保证满意性能的必需品。即便是参数量低于10亿的模型，如果需要处理高分辨率图像或追求低延迟，CPU的性能（如OpenCLIP ViT-B/32在CPU上图像编码耗时100+毫秒 94）可能难以满足大规模高效检索或实时应用的需求。</p>
+<h2 id="6-模型选型比较分析与建议"><strong>6. 模型选型比较分析与建议</strong></h2>
+<p>基于前述对模型性能和成本的分析，本节将对各模型家族在安防监控应用中的优劣势进行总结，并提供选型建议。</p>
+<h3 id="6-1-各模型家族针对安防监控的优劣势分析"><strong>6.1. 各模型家族针对安防监控的优劣势分析</strong></h3>
+<ul>
+<li><strong>OpenCLIP</strong>:
+<ul>
+<li><strong>优势</strong>: 拥有广泛的模型尺寸和预训练数据集选择 24，开源社区活跃，在通用基准上展现出良好的基线性能。部分大型变体（如ViT-G/14）的零样本准确率非常高 22。</li>
+<li><strong>劣势</strong>: 性能随训练数据不同而有较大差异。可能继承了通用CLIP模型在处理小目标、细粒度细节方面的局限性，以及对特定视觉因素（如姿态）的鲁棒性问题 15。</li>
+</ul>
+</li>
+<li><strong>JinaCLIP</strong>:
+<ul>
+<li><strong>优势</strong>: 其设计目标是同时优化文本到文本和文本到图像的检索性能 27，这可能使其能更好地理解细致或复杂的自然语言查询。JinaCLIP v2支持更高分辨率的图像输入（512x512）和多语言能力 29，并引入了灵活的嵌入维度（Matryoshka表示学习）29。在视觉文档检索方面也有性能提升 31。</li>
+<li><strong>劣势</strong>: JinaCLIP v1仅支持英文 30。JinaCLIP v2虽然功能强大，但模型参数量较大（8.65亿），且有报告指出其在图像处理时显存占用较高 93，可能导致较高的推理成本。</li>
+</ul>
+</li>
+<li><strong>SigLIP</strong>:
+<ul>
+<li><strong>优势</strong>: 采用sigmoid损失函数，据称能在较小批量下获得更好性能，并且易于扩展 37。通常具有良好的零样本性能，在ImageNet等基准上有时优于标准CLIP 37。部分变体支持更高的输入分辨率（如384px, 512px 25）。</li>
+<li><strong>劣势</strong>: 其核心架构仍与CLIP类似，因此可能在特定安防挑战（如小目标识别、复杂场景理解）方面存在相似的局限性，除非有特定变体针对这些问题进行了优化。若输入的文本与训练数据（如WebLI）差异较大，性能可能会受影响 51。</li>
+</ul>
+</li>
+</ul>
+<h3 id="6-2-权衡：准确性-vs-速度-vs-成本"><strong>6.2. 权衡：准确性 vs. 速度 vs. 成本</strong></h3>
+<p>在模型选择中，通常需要在检索准确性、推理速度和部署成本之间进行权衡。</p>
+<ul>
+<li><strong>大型模型</strong> (如OpenCLIP ViT-L/H/G系列, JinaCLIP v2, SigLIP ViT-L系列) 通常在基准测试中展现出更高的检索准确率，但伴随而来的是更高的计算成本，包括对显存、GPU性能的要求更高，以及可能更长的处理延迟 22。</li>
+<li><strong>小型模型</strong> (如OpenCLIP ViT-B系列, SigLIP ViT-B系列) 运行速度更快，成本更低，但可能在处理复杂查询或识别细微视觉差异时表现稍逊 51。</li>
+</ul>
+<h3 id="6-3-模型选型指导"><strong>6.3. 模型选型指导</strong></h3>
+<p>基于不同安防场景的特点和需求，提出以下选型倾向：</p>
+<ul>
+<li><strong>针对固定广角摄像头</strong>:
+<ul>
+<li>优先考虑对尺度变化鲁棒性较好，并可能对镜头畸变有一定适应性的模型。视角鲁棒性是一个普遍关注点 16；在更多样化数据上训练的模型可能略有优势。</li>
+<li>若源视频分辨率较高，JinaCLIP v2的512x512输入分辨率可能带来益处，但需注意其显存消耗。</li>
+</ul>
+</li>
+<li><strong>针对无人机/俯视视角</strong>:
+<ul>
+<li>小目标检索能力是核心。可以考察SigLIP或OpenCLIP中在细粒度任务上表现较好的变体。然而，模型普遍存在对小目标的偏见 15 是一个主要障碍。非典型视角对所有模型都是挑战。</li>
+</ul>
+</li>
+<li><strong>优先实时警报（低延迟需求）</strong>:
+<ul>
+<li>应首选小型模型（如ViT-B系列）或针对速度进行过特定优化的模型（例如，MobileCLIP系列 53 若作为主要考虑对象，或参考 95 中关于最快推理速度的讨论）。这可能意味着在一定程度上牺牲准确性。</li>
+</ul>
+</li>
+<li><strong>优先事后分析（可容忍较高延迟，追求高准确率）</strong>:
+<ul>
+<li>如果准确性是首要目标，且处理时间不那么关键，可以考虑大型模型（如ViT-L/H/G系列, JinaCLIP v2）。</li>
+</ul>
+</li>
+<li><strong>预算限制</strong>:
+<ul>
+<li>若硬件预算非常有限（例如仅CPU或低端GPU），则只有最小型、最高效的模型是可行的，但预期性能会有所下降。</li>
+</ul>
+</li>
+</ul>
+<p>下表提供了一个针对安防监控适用性的总结比较矩阵，旨在帮助用户根据其具体业务优先级来缩小选择范围。此表超越了通用的基准分数，而是针对安防数据的独有挑战（如固定/俯视视角、小目标、鲁棒性）和实际部署限制（推理效率）进行评估。</p>
+<p><strong>表3：CLIP类模型安防监控适用性总结比较矩阵</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型家族/变体 (代表)</th>
+<th style="text-align:left">核心架构差异</th>
+<th style="text-align:left">估算参数量</th>
+<th style="text-align:left">输入分辨率</th>
+<th style="text-align:left">固定视角适宜性 (视角/畸变鲁棒性)</th>
+<th style="text-align:left">俯视/无人机适宜性 (小目标/顶视)</th>
+<th style="text-align:left">光照/退化鲁棒性</th>
+<th style="text-align:left">推理效率 (速度/成本综合)</th>
+<th style="text-align:left">安防场景关键优势</th>
+<th style="text-align:left">安防场景关键劣势</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">OpenCLIP (ViT-L/14)</td>
+<td style="text-align:left">标准ViT编码器, 多种预训练数据</td>
+<td style="text-align:left">~428M</td>
+<td style="text-align:left">224x224</td>
+<td style="text-align:left">中 (对姿态敏感 16)</td>
+<td style="text-align:left">中-低 (对小目标敏感 15)</td>
+<td style="text-align:left">中-高 (对尺度/纹理较好)</td>
+<td style="text-align:left">中</td>
+<td style="text-align:left">广泛选择, 社区支持, 大型号性能强</td>
+<td style="text-align:left">视角/小目标敏感性, 性能依赖训练数据</td>
+</tr>
+<tr>
+<td style="text-align:left">JinaCLIP v2</td>
+<td style="text-align:left">XLM-R文本编码器, EVA02图像编码器, 支持长文本/高分</td>
+<td style="text-align:left">865M</td>
+<td style="text-align:left">512x512</td>
+<td style="text-align:left">中-高 (高分辨率输入)</td>
+<td style="text-align:left">中 (高分辨率可能缓解小目标问题)</td>
+<td style="text-align:left">中</td>
+<td style="text-align:left">低-中 (显存需求高 93)</td>
+<td style="text-align:left">优异文本理解, 高分辨率图像处理, 多语言</td>
+<td style="text-align:left">模型较大, 显存消耗高, 推理成本可能较高</td>
+</tr>
+<tr>
+<td style="text-align:left">SigLIP (ViT-L/16-384px)</td>
+<td style="text-align:left">Sigmoid损失函数, ViT编码器</td>
+<td style="text-align:left">~652M</td>
+<td style="text-align:left">384x384</td>
+<td style="text-align:left" colspan="2">中 (类似OpenCLIP)</td>
+<td style="text-align:left">中-高</td>
+<td style="text-align:left">中</td>
+<td style="text-align:left">较小批次下性能好, 扩展性好, 零样本性能佳</td>
+</tr>
+<tr>
+<td style="text-align:left">OpenCLIP (ViT-B/32)</td>
+<td style="text-align:left">标准ViT编码器, 多种预训练数据</td>
+<td style="text-align:left">~151M</td>
+<td style="text-align:left">224x224</td>
+<td style="text-align:left">中 (对姿态敏感)</td>
+<td style="text-align:left">低 (对小目标敏感)</td>
+<td style="text-align:left" rowspan="2">中</td>
+<td style="text-align:left" rowspan="2">高</td>
+<td style="text-align:left">推理成本低, 速度快</td>
+<td style="text-align:left" rowspan="2">复杂场景/小目标准确率可能较低</td>
+</tr>
+<tr>
+<td style="text-align:left">SigLIP (ViT-B/16-256px)</td>
+<td style="text-align:left">Sigmoid损失函数, ViT编码器</td>
+<td style="text-align:left">~203M</td>
+<td style="text-align:left">256x256</td>
+<td style="text-align:left">中 (类似OpenCLIP)</td>
+<td style="text-align:left">低-中 (类似OpenCLIP)</td>
+<td style="text-align:left">推理成本较低, 速度较快, 较小批次性能好</td>
+</tr>
+</tbody>
+</table>
+<p>“最佳”模型高度依赖于具体应用场景。在通用基准上表现优异的模型，如果其训练数据未覆盖相似的视觉特征，或者模型本身存在固有偏见（例如对小目标的识别能力不足），则在特定的安防场景中可能会表现不佳。用户需要权衡这些特定的失效模式与通用性能。</p>
+<p>考虑到用户无法进行微调，预训练模型对安防场景中用户将提出的<em>特定类型自然语言查询</em>的固有零样本泛化能力至关重要。安防查询可能涉及复杂的场景描述和行为判断，例如“查找所有在凌晨2点到3点间在后门附近徘徊的穿红色衬衫的人”。虽然时间维度的理解超出了单帧CLIP模型的范畴，但描述性部分（如“红色衬衫”，“徘徊”，“后门”）仍需要良好的视觉语言对齐。JinaCLIP明确致力于提升文本-文本检索能力及支持长文本上下文 27，这可能使其在理解更复杂或描述性更强的查询方面具有一定优势，即便其图像处理对资源要求较高。</p>
+<h2 id="7-结论与未来展望"><strong>7. 结论与未来展望</strong></h2>
+<p>本报告对OpenCLIP、JinaCLIP和SigLIP等主流开源CLIP类模型在安防监控视频图像自然语言检索应用中的零样本性能和推理成本进行了分析。核心结论如下：</p>
+<ol>
+<li><strong>性能与成本的权衡是关键</strong>：大型模型（如OpenCLIP ViT-L/H/G、JinaCLIP v2、SigLIP ViT-L）通常在通用基准上表现更优，但在安防特定挑战（如小目标、非典型视角、复杂行为理解）面前，其零样本优势可能减弱，且推理成本（硬件、时间）显著更高。小型模型（如OpenCLIP ViT-B、SigLIP ViT-B）成本较低、速度更快，但在复杂场景下的检索精度可能不足。</li>
+<li><strong>安防数据特性带来挑战</strong>：固定摄像头的静态高位视角、无人机的俯视视角、常见的光照变化、图像质量问题、目标遮挡以及小目标识别等，均对主要在通用网络图文数据上预训练的CLIP模型构成挑战。特别是视角敏感性（姿态变化）和小目标识别能力是当前零样本CLIP类模型应用于安防监控的主要瓶颈。</li>
+<li><strong>JinaCLIP v2的潜力与代价</strong>：JinaCLIP v2凭借其对高分辨率图像的处理能力和对长文本的更强理解潜力，在理论上可能更适合处理细节丰富的安防影像和复杂查询。然而，其较大的模型体积和报告的高显存占用，意味着更高的部署门槛和运行成本。</li>
+<li><strong>SigLIP的效率优势</strong>：SigLIP通过改进损失函数，在保持良好零样本性能的同时，可能在训练效率和不同批次大小下的稳定性方面具有优势，但其在安防特定挑战上的表现仍需进一步验证。</li>
+<li><strong>OpenCLIP的多样性</strong>：OpenCLIP提供了最广泛的模型和预训练数据选择，为用户提供了根据具体需求（如模型大小、特定预训练数据源）进行初步筛选的灵活性。</li>
+</ol>
+<p><strong>最终模型选型建议</strong>：</p>
+<ul>
+<li><strong>若优先考虑低成本和快速部署验证</strong>：可以从<strong>OpenCLIP ViT-B/32</strong>或<strong>SigLIP ViT-B/16</strong>（如256px输入版本）入手。它们参数量较小，推理成本相对较低，可在CPU或中低端GPU上运行。预期在简单场景和清晰目标下能获得一定的检索效果，但对复杂场景、小目标、恶劣光照等情况下的性能期望不宜过高。</li>
+<li><strong>若追求更高的检索准确率，且具备中高端GPU资源</strong>：可以考虑<strong>OpenCLIP ViT-L/14</strong>或<strong>SigLIP ViT-L/16</strong>（如384px输入版本）。它们在通用基准上表现更强，但需要关注其在安防特定挑战（如视角、小目标）下的实际表现。</li>
+<li><strong>若处理高分辨率图像（如部分无人机影像）且查询语句可能较为复杂，并能接受较高的硬件成本</strong>：可以评估<strong>JinaCLIP v2</strong>。其对512x512图像的支持和长文本处理能力是优势，但务必充分测试其显存占用和推理速度是否满足实际需求。</li>
+</ul>
+<p>由于用户暂不具备微调能力，强烈建议在选定候选模型后，利用少量代表性的自有安防数据进行实际的零样本检索测试，以直观评估其在真实场景中的表现。</p>
+<p><strong>未来展望</strong>：</p>
+<p>视觉语言模型领域发展迅速。未来可能出现更多针对特定领域（如监控）、具有更强鲁棒性（如对视角、小目标）、更高推理效率的开源模型。尽管当前用户不进行微调，但未来若条件允许，诸如提示工程（prompt engineering）、适配器（adapter）微调等轻量级调整技术，也可能在不消耗大量资源的情况下提升模型在特定任务上的性能。本报告建立的评估框架和对挑战的理解，将对用户评估未来出现的新模型和技术持续提供价值。</p>
+<h2 id="引用的著作"><strong>引用的著作</strong></h2>
+<ol>
+<li>Building CLIP from Scratch: A Tutorial on Multi-Modal Learning - Ready Tensor, 访问时间为 五月 14, 2025， <a target="_blank" href="https://app.readytensor.ai/publications/building-clip-from-scratch-a-tutorial-on-multimodal-learning-57Nhu0gMyonV" rel="external nofollow noreferrer noopener">https://app.readytensor.ai/publications/building-clip-from-scratch-a-tutorial-on-multimodal-learning-57Nhu0gMyonV</a></li>
+<li>Contrastive Language-Image Pre-training - Wikipedia, 访问时间为 五月 14, 2025， <a target="_blank" href="https://en.wikipedia.org/wiki/Contrastive_Language-Image_Pre-training" rel="external nofollow noreferrer noopener">https://en.wikipedia.org/wiki/Contrastive_Language-Image_Pre-training</a></li>
+<li>Enhancing Multimodal Understanding with CLIP-Based Image-to-Text Transformation, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/html/2401.06167v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2401.06167v1</a></li>
+<li>CLIP: Connecting text and images - OpenAI, 访问时间为 五月 14, 2025， <a target="_blank" href="https://openai.com/index/clip/" rel="external nofollow noreferrer noopener">https://openai.com/index/clip/</a></li>
+<li>openai/CLIP: CLIP (Contrastive Language-Image … - GitHub, 访问时间为 五月 14, 2025， <a target="_blank" href="https://github.com/openai/CLIP" rel="external nofollow noreferrer noopener">https://github.com/openai/CLIP</a></li>
+<li>Define Surveillance Camera: A Complete Guide - Stealth Monitoring, 访问时间为 五月 14, 2025， <a target="_blank" href="https://stealthmonitoring.com/security-blog/define-surveillance-camera-a-complete-guide" rel="external nofollow noreferrer noopener">https://stealthmonitoring.com/security-blog/define-surveillance-camera-a-complete-guide</a></li>
+<li>2025 Vision AI Camera Calibration - Ultralytics, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.ultralytics.com/blog/a-guide-to-camera-calibration-for-computer-vision-in-2025" rel="external nofollow noreferrer noopener">https://www.ultralytics.com/blog/a-guide-to-camera-calibration-for-computer-vision-in-2025</a></li>
+<li>Tech Papers: Lighting for Facial Biometrics | AIA, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.automate.org/vision/tech-papers/lighting-for-facial-biometrics" rel="external nofollow noreferrer noopener">https://www.automate.org/vision/tech-papers/lighting-for-facial-biometrics</a></li>
+<li>Diverse Lighting Face Recognition: AI Enhancing Accuracy - FaceOnLive : On-Premises ID Verification &amp; Biometrics Solution Provider, 访问时间为 五月 14, 2025， <a target="_blank" href="https://faceonlive.com/diverse-lighting-face-recognition-ai-enhancing-accuracy/" rel="external nofollow noreferrer noopener">https://faceonlive.com/diverse-lighting-face-recognition-ai-enhancing-accuracy/</a></li>
+<li>Why Are Security Cameras So Low Quality [Answered] - Eufy, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.eufy.com/blogs/security-camera/why-are-security-cameras-so-low-quality" rel="external nofollow noreferrer noopener">https://www.eufy.com/blogs/security-camera/why-are-security-cameras-so-low-quality</a></li>
+<li>AI In Security Cameras: Real Change Or Hype? | Tech Focus - Electronics For You, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.electronicsforu.com/technology-trends/ai-in-security-cameras-real-change-or-hype" rel="external nofollow noreferrer noopener">https://www.electronicsforu.com/technology-trends/ai-in-security-cameras-real-change-or-hype</a></li>
+<li>Drones For Surveillance: The Ultimate Guide - FlytBase, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.flytbase.com/blog/drone-surveillance-system" rel="external nofollow noreferrer noopener">https://www.flytbase.com/blog/drone-surveillance-system</a></li>
+<li>How Drones Are Used for Better Surveillance &amp; Security? - IoTechWorld, 访问时间为 五月 14, 2025， <a target="_blank" href="https://iotechworld.com/how-drones-are-used-for-better-surveillance-security/" rel="external nofollow noreferrer noopener">https://iotechworld.com/how-drones-are-used-for-better-surveillance-security/</a></li>
+<li>Enhanced image-text retrieval based on CLIP with YOLOv10 and Next-ViT, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.spiedigitallibrary.org/conference-proceedings-of-spie/13486/134862K/Enhanced-image-text-retrieval-based-on-CLIP-with-YOLOv10-and/10.1117/12.3055876.full" rel="external nofollow noreferrer noopener">https://www.spiedigitallibrary.org/conference-proceedings-of-spie/13486/134862K/Enhanced-image-text-retrieval-based-on-CLIP-with-YOLOv10-and/10.1117/12.3055876.full</a></li>
+<li>Analyzing CLIP’s Performance Limitations in Multi-Object Scenarios: A Controlled High-Resolution Study - arXiv, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/html/2502.19828v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2502.19828v1</a></li>
+<li><a target="_blank" href="http://arxiv.org" rel="external nofollow noreferrer noopener">arxiv.org</a>, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/abs/2402.07410" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2402.07410</a></li>
+<li>Choosing the Right Motion Capture Solution: Sensor-Based Suits and Gloves vs. Camera-Based AI Vision - Rokoko, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.rokoko.com/insights/motion-capture-suit-vs-vision-ai-camera-mocap" rel="external nofollow noreferrer noopener">https://www.rokoko.com/insights/motion-capture-suit-vs-vision-ai-camera-mocap</a></li>
+<li>Video Object Tracking Made Easy: Problems and Solutions, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.atltranslate.com/ai/blog/video-object-tracking-problems-solutions" rel="external nofollow noreferrer noopener">https://www.atltranslate.com/ai/blog/video-object-tracking-problems-solutions</a></li>
+<li>How does occlusion affect the performance of object detection models in real-world scenarios? - Massed Compute, 访问时间为 五月 14, 2025， <a target="_blank" href="https://massedcompute.com/faq-answers/?question=How+does+occlusion+affect+the+performance+of+object+detection+models+in+real-world+scenarios?" rel="external nofollow noreferrer noopener">https://massedcompute.com/faq-answers/?question=How%20does%20occlusion%20affect%20the%20performance%20of%20object%20detection%20models%20in%20real-world%20scenarios?</a></li>
+<li>openai/clip-vit-large-patch14 · Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/openai/clip-vit-large-patch14" rel="external nofollow noreferrer noopener">https://huggingface.co/openai/clip-vit-large-patch14</a></li>
+<li>openclip-b - Kaggle, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.kaggle.com/datasets/humbleyll/openclip-b" rel="external nofollow noreferrer noopener">https://www.kaggle.com/datasets/humbleyll/openclip-b</a></li>
+<li>Reaching 80% zero-shot accuracy with OpenCLIP: ViT-G/14 trained on LAION-2B, 访问时间为 五月 14, 2025， <a target="_blank" href="https://laion.ai/blog/giant-openclip/" rel="external nofollow noreferrer noopener">https://laion.ai/blog/giant-openclip/</a></li>
+<li>Large scale openCLIP: L/14, H/14 and g/14 trained on LAION-2B …, 访问时间为 五月 14, 2025， <a target="_blank" href="https://laion.ai/blog/large-openclip/" rel="external nofollow noreferrer noopener">https://laion.ai/blog/large-openclip/</a></li>
+<li>openclip · 90bfad114813389a01a8d98e29d15458929a2e30 · William Eriksson / Deep_Learning_Project - GitLab, 访问时间为 五月 14, 2025， <a target="_blank" href="https://scolopendra.it.liu.se/wiler441/Deep_Learning_Project/-/tree/90bfad114813389a01a8d98e29d15458929a2e30/openclip" rel="external nofollow noreferrer noopener">https://scolopendra.it.liu.se/wiler441/Deep_Learning_Project/-/tree/90bfad114813389a01a8d98e29d15458929a2e30/openclip</a></li>
+<li>open_clip/docs/openclip_retrieval_results.csv at main - GitHub, 访问时间为 五月 14, 2025， <a target="_blank" href="https://github.com/mlfoundations/open_clip/blob/main/docs/openclip_retrieval_results.csv" rel="external nofollow noreferrer noopener">https://github.com/mlfoundations/open_clip/blob/main/docs/openclip_retrieval_results.csv</a></li>
+<li>mlfoundations/open_clip: An open source implementation … - GitHub, 访问时间为 五月 14, 2025， <a target="_blank" href="https://github.com/mlfoundations/open_clip" rel="external nofollow noreferrer noopener">https://github.com/mlfoundations/open_clip</a></li>
+<li>jina-clip-v1 - Search Foundation Models - Jina AI, 访问时间为 五月 14, 2025， <a target="_blank" href="https://jina.ai/models/jina-clip-v1/" rel="external nofollow noreferrer noopener">https://jina.ai/models/jina-clip-v1/</a></li>
+<li>Jina Clip - Dataloop, 访问时间为 五月 14, 2025， <a target="_blank" href="https://dataloop.ai/library/model/tag/jina_clip/" rel="external nofollow noreferrer noopener">https://dataloop.ai/library/model/tag/jina_clip/</a></li>
+<li>jina-clip-v2 - Search Foundation Models - Jina AI, 访问时间为 五月 14, 2025， <a target="_blank" href="https://jina.ai/models/jina-clip-v2/" rel="external nofollow noreferrer noopener">https://jina.ai/models/jina-clip-v2/</a></li>
+<li>jina-clip-v2: Multilingual Multimodal Embeddings for Text and Images - arXiv, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/html/2412.08802v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2412.08802v1</a></li>
+<li>jina-clip-v2: Multilingual Multimodal Embeddings for Text and Images - arXiv, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/html/2412.08802v2" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2412.08802v2</a></li>
+<li>访问时间为 一月 1, 1970， <a target="_blank" href="https://huggingface.co/collections/jinaai/jina-clip-6556935160851a3499190701" rel="external nofollow noreferrer noopener">https://huggingface.co/collections/jinaai/jina-clip-6556935160851a3499190701</a></li>
+<li><a target="_blank" href="http://arxiv.org" rel="external nofollow noreferrer noopener">arxiv.org</a>, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/abs/2401.00862" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2401.00862</a></li>
+<li><a target="_blank" href="http://arxiv.org" rel="external nofollow noreferrer noopener">arxiv.org</a>, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/abs/2312.16201" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2312.16201</a></li>
+<li>jinaai/jina-clip-v2 - Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/jinaai/jina-clip-v2" rel="external nofollow noreferrer noopener">https://huggingface.co/jinaai/jina-clip-v2</a></li>
+<li><a target="_blank" href="http://arxiv.org" rel="external nofollow noreferrer noopener">arxiv.org</a>, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/abs/2412.08802" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2412.08802</a></li>
+<li>SigLIP Classification Model: What is, How to Use - Roboflow, 访问时间为 五月 14, 2025， <a target="_blank" href="https://roboflow.com/model/siglip" rel="external nofollow noreferrer noopener">https://roboflow.com/model/siglip</a></li>
+<li>Siglip Base Patch16 512 · Models · Dataloop, 访问时间为 五月 14, 2025， <a target="_blank" href="https://dataloop.ai/library/model/google_siglip-base-patch16-512/" rel="external nofollow noreferrer noopener">https://dataloop.ai/library/model/google_siglip-base-patch16-512/</a></li>
+<li>transformers/docs/source/en/model_doc/siglip.md at main - GitHub, 访问时间为 五月 14, 2025， <a target="_blank" href="https://github.com/huggingface/transformers/blob/main/docs/source/en/model_doc/siglip.md" rel="external nofollow noreferrer noopener">https://github.com/huggingface/transformers/blob/main/docs/source/en/model_doc/siglip.md</a></li>
+<li>Projects based on SigLIP (Zhai et. al, 2023) and Hugging Face transformers integration - GitHub, 访问时间为 五月 14, 2025， <a target="_blank" href="https://github.com/merveenoyan/siglip" rel="external nofollow noreferrer noopener">https://github.com/merveenoyan/siglip</a></li>
+<li>Siglip Base Patch16 224 · Models - Dataloop AI, 访问时间为 五月 14, 2025， <a target="_blank" href="https://dataloop.ai/library/model/google_siglip-base-patch16-224/" rel="external nofollow noreferrer noopener">https://dataloop.ai/library/model/google_siglip-base-patch16-224/</a></li>
+<li>Siglip So400m Patch16 256 I18n · Models - Dataloop, 访问时间为 五月 14, 2025， <a target="_blank" href="https://dataloop.ai/library/model/google_siglip-so400m-patch16-256-i18n/" rel="external nofollow noreferrer noopener">https://dataloop.ai/library/model/google_siglip-so400m-patch16-256-i18n/</a></li>
+<li>visheratin/mexma-siglip2 · How to Optimize Slow CPU Inference Speed - Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/visheratin/mexma-siglip2/discussions/2" rel="external nofollow noreferrer noopener">https://huggingface.co/visheratin/mexma-siglip2/discussions/2</a></li>
+<li>SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding, Localization, and Dense Features - arXiv, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/html/2502.14786v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2502.14786v1</a></li>
+<li>Image Retrieval with Short Text Queries - <a target="_blank" href="http://CEUR-WS.org" rel="external nofollow noreferrer noopener">CEUR-WS.org</a>, 访问时间为 五月 14, 2025， <a target="_blank" href="https://ceur-ws.org/Vol-3910/aics2024_p46.pdf" rel="external nofollow noreferrer noopener">https://ceur-ws.org/Vol-3910/aics2024_p46.pdf</a></li>
+<li>ELIP: Enhanced Visual-Language Foundation Models for Image Retrieval - arXiv, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/html/2502.15682v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2502.15682v1</a></li>
+<li>arXiv:2503.06626v1 [cs.CV] 9 Mar 2025 - alphaXiv, 访问时间为 五月 14, 2025， <a target="_blank" href="https://fetcher.alphaxiv.org/v2/pdf/2503.06626v1" rel="external nofollow noreferrer noopener">https://fetcher.alphaxiv.org/v2/pdf/2503.06626v1</a></li>
+<li>An Enhanced CLIP Framework for Learning with Synthetic Captions, 访问时间为 五月 14, 2025， <a target="_blank" href="https://ucsc-vlaa.github.io/CLIPS/" rel="external nofollow noreferrer noopener">https://ucsc-vlaa.github.io/CLIPS/</a></li>
+<li>Zero-shot Image Classification with SigLIP - OpenVINO™ documentation, 访问时间为 五月 14, 2025， <a target="_blank" href="https://docs.openvino.ai/2025/notebooks/siglip-zero-shot-image-classification-with-output.html" rel="external nofollow noreferrer noopener">https://docs.openvino.ai/2025/notebooks/siglip-zero-shot-image-classification-with-output.html</a></li>
+<li>This Visual Illusions Benchmark Makes Me Question the Power of VLMs - Voxel51, 访问时间为 五月 14, 2025， <a target="_blank" href="https://voxel51.com/blog/this-visual-illusions-benchmark-makes-me-question-the-power-of-vlms/" rel="external nofollow noreferrer noopener">https://voxel51.com/blog/this-visual-illusions-benchmark-makes-me-question-the-power-of-vlms/</a></li>
+<li>ViT B 16 SigLIP · Models - Dataloop AI, 访问时间为 五月 14, 2025， <a target="_blank" href="https://dataloop.ai/library/model/timm_vit-b-16-siglip/" rel="external nofollow noreferrer noopener">https://dataloop.ai/library/model/timm_vit-b-16-siglip/</a></li>
+<li>timm/ViT-B-16-SigLIP2-512 - Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/timm/ViT-B-16-SigLIP2-512" rel="external nofollow noreferrer noopener">https://huggingface.co/timm/ViT-B-16-SigLIP2-512</a></li>
+<li>Visual Content Search using MobileCLIP and OpenVINO, 访问时间为 五月 14, 2025， <a target="_blank" href="https://docs.openvino.ai/2025/notebooks/mobileclip-video-search-with-output.html" rel="external nofollow noreferrer noopener">https://docs.openvino.ai/2025/notebooks/mobileclip-video-search-with-output.html</a></li>
+<li>SigLIP - Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/docs/transformers/model_doc/siglip" rel="external nofollow noreferrer noopener">https://huggingface.co/docs/transformers/model_doc/siglip</a></li>
+<li>google/siglip-large-patch16-384 · Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/google/siglip-large-patch16-384" rel="external nofollow noreferrer noopener">https://huggingface.co/google/siglip-large-patch16-384</a></li>
+<li>Modeling Caption Diversity in Contrastive Vision-Language Pretraining - arXiv, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/html/2405.00740v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2405.00740v1</a></li>
+<li>Modeling Caption Diversity in Contrastive Vision-Language Pretraining - GitHub, 访问时间为 五月 14, 2025， <a target="_blank" href="https://raw.githubusercontent.com/mlresearch/v235/main/assets/lavoie24a/lavoie24a.pdf" rel="external nofollow noreferrer noopener">https://raw.githubusercontent.com/mlresearch/v235/main/assets/lavoie24a/lavoie24a.pdf</a></li>
+<li>Models - Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/models?other=siglip" rel="external nofollow noreferrer noopener">https://huggingface.co/models?other=siglip</a></li>
+<li><a target="_blank" href="http://arxiv.org" rel="external nofollow noreferrer noopener">arxiv.org</a>, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/abs/2303.15343" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2303.15343</a></li>
+<li><a target="_blank" href="http://arxiv.org" rel="external nofollow noreferrer noopener">arxiv.org</a>, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/abs/2402.14786" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2402.14786</a></li>
+<li><a target="_blank" href="http://arxiv.org" rel="external nofollow noreferrer noopener">arxiv.org</a>, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/abs/2502.15682" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2502.15682</a></li>
+<li>How do you evaluate cross-modal retrieval performance in VLMs? - Milvus, 访问时间为 五月 14, 2025， <a target="_blank" href="https://milvus.io/ai-quick-reference/how-do-you-evaluate-crossmodal-retrieval-performance-in-vlms" rel="external nofollow noreferrer noopener">https://milvus.io/ai-quick-reference/how-do-you-evaluate-crossmodal-retrieval-performance-in-vlms</a></li>
+<li>Image–Text Cross-Modal Retrieval with Instance Contrastive Embedding - MDPI, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.mdpi.com/2079-9292/13/2/300" rel="external nofollow noreferrer noopener">https://www.mdpi.com/2079-9292/13/2/300</a></li>
+<li>Zero-shot Obejct Detection - VISDRONE, 访问时间为 五月 14, 2025， <a target="_blank" href="https://aiskyeye.com/zero-shot-obejct-detection/" rel="external nofollow noreferrer noopener">https://aiskyeye.com/zero-shot-obejct-detection/</a></li>
+<li>MS COCO Benchmark (Zero-shot Text-to-Image Retrieval) | Papers …, 访问时间为 五月 14, 2025， <a target="_blank" href="https://paperswithcode.com/sota/zero-shot-text-to-image-retrieval-on-ms-coco" rel="external nofollow noreferrer noopener">https://paperswithcode.com/sota/zero-shot-text-to-image-retrieval-on-ms-coco</a></li>
+<li>CLIP Zero-Shot retrieval results on the Flickr30K test set. We show… - ResearchGate, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.researchgate.net/figure/CLIP-Zero-Shot-retrieval-results-on-the-Flickr30K-test-set-We-show-retrieval-performance_tbl2_364443227" rel="external nofollow noreferrer noopener">https://www.researchgate.net/figure/CLIP-Zero-Shot-retrieval-results-on-the-Flickr30K-test-set-We-show-retrieval-performance_tbl2_364443227</a></li>
+<li>Architecture of the proposed zero-shot object detection framework. The… - ResearchGate, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.researchgate.net/figure/Architecture-of-the-proposed-zero-shot-object-detection-framework-The-core-idea-is-to_fig3_380788545" rel="external nofollow noreferrer noopener">https://www.researchgate.net/figure/Architecture-of-the-proposed-zero-shot-object-detection-framework-The-core-idea-is-to_fig3_380788545</a></li>
+<li>Self-Prompting Analogical Reasoning for UAV Object Detection, 访问时间为 五月 14, 2025， <a target="_blank" href="https://ojs.aaai.org/index.php/AAAI/article/view/34026/36181" rel="external nofollow noreferrer noopener">https://ojs.aaai.org/index.php/AAAI/article/view/34026/36181</a></li>
+<li>UAVDT - Dataset Ninja, 访问时间为 五月 14, 2025， <a target="_blank" href="https://datasetninja.com/uavdt" rel="external nofollow noreferrer noopener">https://datasetninja.com/uavdt</a></li>
+<li>[2502.09325] A Benchmark for Crime Surveillance Video Analysis with Large Models - arXiv, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/abs/2502.09325" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2502.09325</a></li>
+<li>Zero-Shot Action Recognition in Surveillance Videos - arXiv, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/html/2410.21113v2" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2410.21113v2</a></li>
+<li>Zero-shot Video Moment Retrieval via Off-the-shelf Multimodal Large Language Models, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/html/2501.07972v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2501.07972v1</a></li>
+<li>CLIP-Enhance: Improving CLIP Zero-Shot Classification via von Mises-Fisher Clustering, 访问时间为 五月 14, 2025， <a target="_blank" href="https://openreview.net/forum?id=KyeyEFPxJX" rel="external nofollow noreferrer noopener">https://openreview.net/forum?id=KyeyEFPxJX</a></li>
+<li>Developing Japanese CLIP Models Leveraging an Open-weight LLM for Large-scale Dataset Translation - ACL Anthology, 访问时间为 五月 14, 2025， <a target="_blank" href="https://aclanthology.org/2025.naacl-srw.15.pdf" rel="external nofollow noreferrer noopener">https://aclanthology.org/2025.naacl-srw.15.pdf</a></li>
+<li>Daily Papers - Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/papers?q=CLIP-UP" rel="external nofollow noreferrer noopener">https://huggingface.co/papers?q=CLIP-UP</a></li>
+<li>zsxkib/jina-clip-v2 – Run with an API on Replicate, 访问时间为 五月 14, 2025， <a target="_blank" href="https://replicate.com/zsxkib/jina-clip-v2/readme" rel="external nofollow noreferrer noopener">https://replicate.com/zsxkib/jina-clip-v2/readme</a></li>
+<li>laion/CLIP-ViT-B-32-laion2B-s34B-b79K · [AUTOMATED] Model Memory Requirements, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/laion/CLIP-ViT-B-32-laion2B-s34B-b79K/discussions/7" rel="external nofollow noreferrer noopener">https://huggingface.co/laion/CLIP-ViT-B-32-laion2B-s34B-b79K/discussions/7</a></li>
+<li>Built-In Zoo Models — FiftyOne 1.5.2 documentation - Voxel51, 访问时间为 五月 14, 2025， <a target="_blank" href="https://docs.voxel51.com/model_zoo/models.html" rel="external nofollow noreferrer noopener">https://docs.voxel51.com/model_zoo/models.html</a></li>
+<li>jinaai/jina-clip-v1 · Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/jinaai/jina-clip-v1" rel="external nofollow noreferrer noopener">https://huggingface.co/jinaai/jina-clip-v1</a></li>
+<li>OpenCLIP - open-clip-torch · PyPI, 访问时间为 五月 14, 2025， <a target="_blank" href="https://pypi.org/project/open-clip-torch/2.0.2/" rel="external nofollow noreferrer noopener">https://pypi.org/project/open-clip-torch/2.0.2/</a></li>
+<li>OpenCLIP - open-clip-torch · PyPI, 访问时间为 五月 14, 2025， <a target="_blank" href="https://pypi.org/project/open-clip-torch/0.2.0/" rel="external nofollow noreferrer noopener">https://pypi.org/project/open-clip-torch/0.2.0/</a></li>
+<li>GPU vs CPU for inference : r/learnmachinelearning - Reddit, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.reddit.com/r/learnmachinelearning/comments/1aubc4u/gpu_vs_cpu_for_inference/" rel="external nofollow noreferrer noopener">https://www.reddit.com/r/learnmachinelearning/comments/1aubc4u/gpu_vs_cpu_for_inference/</a></li>
+<li>AI models on CPUs: accurate audio transcriptions without breaking the bank - Mux, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.mux.com/blog/how-to-leverage-ai-models-without-breaking-the-bank" rel="external nofollow noreferrer noopener">https://www.mux.com/blog/how-to-leverage-ai-models-without-breaking-the-bank</a></li>
+<li>Building High-Performance Image Search with OpenCLIP, Chroma, and Intel® Max GPUs, 访问时间为 五月 14, 2025， <a target="_blank" href="https://community.intel.com/t5/Blogs/Tech-Innovation/Artificial-Intelligence-AI/Building-High-Performance-Image-Search-with-OpenCLIP-Chroma-and/post/1686081" rel="external nofollow noreferrer noopener">https://community.intel.com/t5/Blogs/Tech-Innovation/Artificial-Intelligence-AI/Building-High-Performance-Image-Search-with-OpenCLIP-Chroma-and/post/1686081</a></li>
+<li>Modeling Caption Diversity in Contrastive Vision-Language Pretraining - arXiv, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/html/2405.00740v4" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2405.00740v4</a></li>
+<li>AMD Instinct™ MI325X GPUs Produce Strong Performance in MLPerf Inference v5.0, 访问时间为 五月 14, 2025， <a target="_blank" href="https://rocm.blogs.amd.com/artificial-intelligence/mi325x-accelerates-mlperf-inference/README.html" rel="external nofollow noreferrer noopener">https://rocm.blogs.amd.com/artificial-intelligence/mi325x-accelerates-mlperf-inference/README.html</a></li>
+<li>NVIDIA Data Center Deep Learning Product Performance AI Inference, 访问时间为 五月 14, 2025， <a target="_blank" href="https://developer.nvidia.com/deep-learning-performance-training-inference/ai-inference" rel="external nofollow noreferrer noopener">https://developer.nvidia.com/deep-learning-performance-training-inference/ai-inference</a></li>
+<li>NVIDIA A100 Aces Throughput, Latency Results in Key Inference Benchmark for Financial Services Industry, 访问时间为 五月 14, 2025， <a target="_blank" href="https://blogs.nvidia.com/blog/stac-ml-inference-gpu/" rel="external nofollow noreferrer noopener">https://blogs.nvidia.com/blog/stac-ml-inference-gpu/</a></li>
+<li>4×A100 vs. 4×A6000 vLLM Benchmark for 72B LLM Inference - Database Mart, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.databasemart.com/blog/vllm-gpu-benchmark-a100-40gb-4" rel="external nofollow noreferrer noopener">https://www.databasemart.com/blog/vllm-gpu-benchmark-a100-40gb-4</a></li>
+<li>Benchmarking Nvidia RTX 5090 | Computer Vision Lab - Nikolay Falaleev, 访问时间为 五月 14, 2025， <a target="_blank" href="https://nikolasent.github.io/hardware/deeplearning/benchmark/2025/02/17/RTX5090-Benchmark.html" rel="external nofollow noreferrer noopener">https://nikolasent.github.io/hardware/deeplearning/benchmark/2025/02/17/RTX5090-Benchmark.html</a></li>
+<li>NVIDIA Blackwell Delivers World-Record DeepSeek-R1 Inference Performance, 访问时间为 五月 14, 2025， <a target="_blank" href="https://developer.nvidia.com/blog/nvidia-blackwell-delivers-world-record-deepseek-r1-inference-performance/" rel="external nofollow noreferrer noopener">https://developer.nvidia.com/blog/nvidia-blackwell-delivers-world-record-deepseek-r1-inference-performance/</a></li>
+<li>openai/clip-vit-base-patch32 · [AUTOMATED] Model Memory Requirements - Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/openai/clip-vit-base-patch32/discussions/11" rel="external nofollow noreferrer noopener">https://huggingface.co/openai/clip-vit-base-patch32/discussions/11</a></li>
+<li>jinaai/jina-clip-v2 · The issue of VRAM usage in image extraction - Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/jinaai/jina-clip-v2/discussions/35" rel="external nofollow noreferrer noopener">https://huggingface.co/jinaai/jina-clip-v2/discussions/35</a></li>
+<li>The inference speed of MobileCLIP-S2’s image encoder is slower than OpenCLIP’s ViT-B-32-256 model on both CPU and GPU - Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/apple/MobileCLIP-S2-OpenCLIP/discussions/3" rel="external nofollow noreferrer noopener">https://huggingface.co/apple/MobileCLIP-S2-OpenCLIP/discussions/3</a></li>
+<li>Benchmarking Models for Multi-modal Search - Marqo, 访问时间为 五月 14, 2025， <a target="_blank" href="https://www.marqo.ai/blog/benchmarking-models-for-multimodal-search" rel="external nofollow noreferrer noopener">https://www.marqo.ai/blog/benchmarking-models-for-multimodal-search</a></li>
+<li>ViT L 16 SigLIP 384 · Models - Dataloop AI, 访问时间为 五月 14, 2025， <a target="_blank" href="https://dataloop.ai/library/model/jonas-wells_vit-l-16-siglip-384/" rel="external nofollow noreferrer noopener">https://dataloop.ai/library/model/jonas-wells_vit-l-16-siglip-384/</a></li>
+<li>ViT L 16 SigLIP 384 · Models - Dataloop AI, 访问时间为 五月 14, 2025， <a target="_blank" href="https://dataloop.ai/library/model/timm_vit-l-16-siglip-384/" rel="external nofollow noreferrer noopener">https://dataloop.ai/library/model/timm_vit-l-16-siglip-384/</a></li>
+<li>ViT SO400M 14 SigLIP · Models - Dataloop AI, 访问时间为 五月 14, 2025， <a target="_blank" href="https://dataloop.ai/library/model/timm_vit-so400m-14-siglip/" rel="external nofollow noreferrer noopener">https://dataloop.ai/library/model/timm_vit-so400m-14-siglip/</a></li>
+<li>Easily compute clip embeddings and build a clip retrieval system with them - GitHub, 访问时间为 五月 14, 2025， <a target="_blank" href="https://github.com/rom1504/clip-retrieval" rel="external nofollow noreferrer noopener">https://github.com/rom1504/clip-retrieval</a></li>
+<li>NVIDIA Deepstream vs NVIDIA Triton Inference Server - Roboflow, 访问时间为 五月 14, 2025， <a target="_blank" href="https://roboflow.com/compare-inference-servers/nvidia-deepstream-vs-nvidia-triton-inference-server" rel="external nofollow noreferrer noopener">https://roboflow.com/compare-inference-servers/nvidia-deepstream-vs-nvidia-triton-inference-server</a></li>
+<li>Optimization — NVIDIA Triton Inference Server - NVIDIA Docs Hub, 访问时间为 五月 14, 2025， <a target="_blank" href="https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/optimization.html" rel="external nofollow noreferrer noopener">https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/optimization.html</a></li>
+<li>OpenVINO Inference Optimization for YOLO - Ultralytics YOLO Docs, 访问时间为 五月 14, 2025， <a target="_blank" href="https://docs.ultralytics.com/guides/optimizing-openvino-latency-vs-throughput-modes/" rel="external nofollow noreferrer noopener">https://docs.ultralytics.com/guides/optimizing-openvino-latency-vs-throughput-modes/</a></li>
+<li>SigLIP - Hugging Face, 访问时间为 五月 14, 2025， <a target="_blank" href="https://huggingface.co/docs/transformers/en/model_doc/siglip" rel="external nofollow noreferrer noopener">https://huggingface.co/docs/transformers/en/model_doc/siglip</a></li>
+<li>Simplifying CLIP: Unleashing the Power of Large-Scale Models on Consumer-level Computers - arXiv, 访问时间为 五月 14, 2025， <a target="_blank" href="https://arxiv.org/html/2411.14789v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2411.14789v1</a></li>
+<li>MobileCLIP: Fast Image-Text Models through Multi-Modal Reinforced Training - ar5iv - arXiv, 访问时间为 五月 14, 2025， <a target="_blank" href="https://ar5iv.labs.arxiv.org/html/2311.17049" rel="external nofollow noreferrer noopener">https://ar5iv.labs.arxiv.org/html/2311.17049</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CLIP/" rel="tag"># CLIP</a>
+              <a href="/tags/CCTV/" rel="tag"># CCTV</a>
+              <a href="/tags/Overhead-video/" rel="tag"># Overhead video</a>
+              <a href="/tags/Deep-Research-with-Gemini-2-5-Pro/" rel="tag"># Deep Research with Gemini 2.5 Pro</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/06/AiInTheEnterprise/" rel="next" title="OpenAI《AI in the Enterprise》中文翻译">
+                  OpenAI《AI in the Enterprise》中文翻译 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"6730ac077ac08abb600536641df60092"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>

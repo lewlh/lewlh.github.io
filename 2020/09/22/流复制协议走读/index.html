@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="笔者使用 Stolon Cluster 实现 PostgreSQL10 数据库的高可用。本文将按照笔者的理解，梳理 Stolon 以及 Postgres 高可用实现逻辑。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="流复制协议走读">
+<meta property="og:url" content="http://lewlh.github.io/2020/09/22/%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8D%8F%E8%AE%AE%E8%B5%B0%E8%AF%BB/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="笔者使用 Stolon Cluster 实现 PostgreSQL10 数据库的高可用。本文将按照笔者的理解，梳理 Stolon 以及 Postgres 高可用实现逻辑。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.postgresql.org/media/img/about/press/elephant.png">
+<meta property="og:image" content="http://lewlh.github.io/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png">
+<meta property="article:published_time" content="2020-09-22T05:14:23.000Z">
+<meta property="article:modified_time" content="2025-02-16T03:27:02.394Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="PostgreSQL">
+<meta property="article:tag" content="wal">
+<meta property="article:tag" content="pg10">
+<meta property="article:tag" content="stolon">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.postgresql.org/media/img/about/press/elephant.png">
+
+
+<link rel="canonical" href="http://lewlh.github.io/2020/09/22/%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8D%8F%E8%AE%AE%E8%B5%B0%E8%AF%BB/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2020/09/22/%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8D%8F%E8%AE%AE%E8%B5%B0%E8%AF%BB/","path":"2020/09/22/流复制协议走读/","title":"流复制协议走读"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>流复制协议走读 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">107</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">35</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Postgres-%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8D%8F%E8%AE%AE"><span class="nav-text">Postgres 流复制协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A0%87%E8%AF%86%E5%AE%83%E8%87%AA%E5%B7%B1"><span class="nav-text">请求服务器标识它自己</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%8F%91%E9%80%81%E8%BF%90%E8%A1%8C%E6%97%B6%E5%8F%82%E6%95%B0%E7%9A%84%E5%BD%93%E5%89%8D%E8%AE%BE%E7%BD%AE"><span class="nav-text">请求服务器发送运行时参数的当前设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E6%97%B6%E9%97%B4%E7%BA%BF%E5%8E%86%E5%8F%B2%E6%96%87%E4%BB%B6"><span class="nav-text">获取时间线历史文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%A4%8D%E5%88%B6%E6%A7%BD"><span class="nav-text">创建复制槽</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%A7%8B%E6%B5%81%E5%A4%8D%E5%88%B6"><span class="nav-text">开始流复制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%88%B0%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-text">从服务器到客户端</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%88%B0%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-text">从客户端到服务器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%A7%8B%E9%80%BB%E8%BE%91%E5%A4%8D%E5%88%B6"><span class="nav-text">开始逻辑复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E5%A4%8D%E5%88%B6%E6%A7%BD"><span class="nav-text">删除一个复制槽</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E9%80%81%E4%B8%80%E4%B8%AA%E5%9F%BA%E7%A1%80%E5%A4%87%E4%BB%BD"><span class="nav-text">传送一个基础备份</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E5%90%88-postgres-%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%E6%B5%81%E5%A4%8D%E5%88%B6%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-text">结合 postgres 源码剖析流复制的流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Standby-%E8%8A%82%E7%82%B9"><span class="nav-text">Standby 节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#master-%E8%8A%82%E7%82%B9"><span class="nav-text">master 节点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-text">Reference</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">107</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2020/09/22/%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8D%8F%E8%AE%AE%E8%B5%B0%E8%AF%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="流复制协议走读 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          流复制协议走读
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-09-22 13:14:23" itemprop="dateCreated datePublished" datetime="2020-09-22T13:14:23+08:00">2020-09-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-16 11:27:02" itemprop="dateModified" datetime="2025-02-16T11:27:02+08:00">2025-02-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img data-src="https://www.postgresql.org/media/img/about/press/elephant.png" alt="PostgreSQL"></p>
+<p>笔者使用 <a target="_blank" href="https://github.com/sorintlab/stolon" rel="external nofollow noreferrer noopener">Stolon Cluster</a> 实现 PostgreSQL10 数据库的高可用。本文将按照笔者的理解，梳理 Stolon 以及 Postgres 高可用实现逻辑。</p>
+<span id="more"></span>
+<hr>
+<h2 id="Postgres-流复制协议">Postgres 流复制协议</h2>
+<p>Stolon 利用 Postgres 9.0+ 以上版本提供的流复制特性，实现了高可用的功能。在 Postgres10 中，Stolon 通过管理 <strong>postgresql.conf</strong>、 <strong>recovery.conf</strong>这些文件，影响 postgres 角色、行为。Stolon 在备用服务器，根据集群配置生成 <code>recovery.conf</code> 文件，备用服务器启动后探测到该配置文件，会启动 walreceiver 连接到主服务器并请求XLOG streaming replication， 主服务器接收到该请求，由 postmaster 启动 walsender 进程。walreceiver 以及 walsender 根据流复制协议进行交互。下文将介绍相关接口。</p>
+<h3 id="请求服务器标识它自己">请求服务器标识它自己</h3>
+<blockquote>
+<p>IDENTIFY_SYSTEM</p>
+</blockquote>
+<p>请求服务器标识它自己。服务器以一个行构成的结果集作为答复，其中包含四个域：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性名</th>
+<th style="text-align:center">类型</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">systemid</td>
+<td style="text-align:center">text</td>
+<td style="text-align:left">标识该集簇的唯一的系统标识符。这可以被用来检查用于初始化后备机的基础备份是否来自于同一个集簇。</td>
+</tr>
+<tr>
+<td style="text-align:center">timeline</td>
+<td style="text-align:center">int4</td>
+<td style="text-align:left">当前的时间线 ID。也对于检查后备机是否与主控机一致有用。</td>
+</tr>
+<tr>
+<td style="text-align:center">xlogpos</td>
+<td style="text-align:center" rowspan="2">text</td>
+<td style="text-align:left">当前的 WAL 刷写位置。用于得到一个在预写日志中的已知位置作为流的开始位置。</td>
+</tr>
+<tr>
+<td style="text-align:center">dbname</td>
+<td style="text-align:left">要连接到的数据库或者空。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="请求服务器发送运行时参数的当前设置">请求服务器发送运行时参数的当前设置</h3>
+<blockquote>
+<p>SHOW name</p>
+</blockquote>
+<p>请求服务器发送运行时参数的当前设置。这与SQL命令<a target="_blank" href="http://www.postgres.cn/docs/10/sql-show.html" rel="external nofollow noreferrer noopener">SHOW</a>类似。</p>
+<p>name: 运行时参数的名称。在<a target="_blank" href="http://www.postgres.cn/docs/10/runtime-config.html" rel="external nofollow noreferrer noopener">第 19 章</a>中记录了可用的参数。</p>
+<h3 id="获取时间线历史文件">获取时间线历史文件</h3>
+<blockquote>
+<p>TIMELINE_HISTORY tli</p>
+</blockquote>
+<p>请求服务器将时间线tli的历史文件发送过来。服务器将以一行组成的结果集作为答复，其中包含两个域：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性名</th>
+<th style="text-align:center">类型</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">filename</td>
+<td style="text-align:center">text</td>
+<td style="text-align:left">时间线历史文件的文件名，例如00000002.history。</td>
+</tr>
+<tr>
+<td style="text-align:center">content</td>
+<td style="text-align:center">bytea</td>
+<td style="text-align:left">时间线历史文件的内容。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="创建复制槽">创建复制槽</h3>
+<blockquote>
+<p PHYSICAL="" [="" RESERVE_WAL="" ]="" |="" LOGICAL="" output_plugin="" [="" EXPORT_SNAPSHOT="" |="" NOEXPORT_SNAPSHOT="" |="" USE_SNAPSHOT="" ]="">CREATE_REPLICATION_SLOT slot_name [ TEMPORARY ]</p>
+</blockquote>
+<p>创建一个物理的或者逻辑的复制槽。更多关于复制槽的内容请见 <a target="_blank" href="http://www.postgres.cn/docs/10/warm-standby.html#STREAMING-REPLICATION-SLOTS" rel="external nofollow noreferrer noopener">第 26.2.6 节</a>。</p>
+<p>请求参数说明：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">slot_name</td>
+<td style="text-align:left">要创建的槽的名称。必须是一个合法的复制槽名称（见 <a target="_blank" href="http://www.postgres.cn/docs/10/warm-standby.html#STREAMING-REPLICATION-SLOTS-MANIPULATION" rel="external nofollow noreferrer noopener">第 26.2.6.1 节</a>）。</td>
+</tr>
+<tr>
+<td style="text-align:center">output_plugin</td>
+<td style="text-align:left">被用于逻辑解码的输出插件的名称（见 <a target="_blank" href="http://www.postgres.cn/docs/10/logicaldecoding-output-plugin.html" rel="external nofollow noreferrer noopener">第 48.6 节</a>）。</td>
+</tr>
+<tr>
+<td style="text-align:center">TEMPORARY</td>
+<td style="text-align:left">声明该复制槽是临时的。出错或会话结束时，不保存临时槽并自动将其删除。</td>
+</tr>
+<tr>
+<td style="text-align:center">RESERVE_WAL</td>
+<td style="text-align:left">指定这个物理复制槽立即保留WAL。否则，只有来自流复制客户端的连接上才会保留WAL。</td>
+</tr>
+<tr>
+<td style="text-align:center">EXPORT_SNAPSHOT <br> NOEXPORT_SNAPSHOT <br> USE_SNAPSHOT</td>
+<td style="text-align:left">决定如何处理逻辑插槽初始化期间创建的快照。默认情况下， EXPORT_SNAPSHOT将导出快照以用于其他会话。该选项不能在事务中使用。 USE_SNAPSHOT将使用执行命令的当前事务的快照。 该选项必须在事务中使用，并且CREATE_REPLICATION_SLOT 必须是在该事务中运行的第一个命令。最后，NOEXPORT_SNAPSHOT 将正常使用快照进行逻辑解码，但不会对其执行任何操作。</td>
+</tr>
+</tbody>
+</table>
+<p>为了响应此命令，服务器将发送包含以下字段的单行结果集：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性名</th>
+<th style="text-align:center">类型</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">slot_name</td>
+<td style="text-align:center" rowspan="4">text</td>
+<td style="text-align:left">新创建的复制槽的名称。</td>
+</tr>
+<tr>
+<td style="text-align:center">consistent_point</td>
+<td style="text-align:left">插槽一致的WAL位置。这是从此复制插槽开始流式传输的最早位置。</td>
+</tr>
+<tr>
+<td style="text-align:center">snapshot_name</td>
+<td style="text-align:left">该命令导出的快照标识符。在此连接上执行新命令或复制连接关闭之前， 快照有效。如果创建的插槽是物理的，则为空。</td>
+</tr>
+<tr>
+<td style="text-align:center">output_plugin</td>
+<td style="text-align:left">新创建的复制插槽使用的输出插件的名称。如果创建的插槽是物理的，则为空。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="开始流复制">开始流复制</h3>
+<blockquote>
+<p>START_REPLICATION [ SLOT slot_name ] [ PHYSICAL ] XXX/XXX [ TIMELINE tli ]</p>
+</blockquote>
+<p>指示服务器开始启动流 WAL，从 WAL 位置 XXX/XXX 开始。如果TIMELINE选项被指定，流传送会在时间线 tli 上开始，否则会选择服务器的当前时间线。服务器可以回复一个错误，例如如果被请求的WAL节已经被回收了。如果成功，服务器将会响应一个 CopyBothResponse 消息，并且然后开始以流的方式把 WAL 传送给前端。</p>
+<p>如果通过 slot_name 提供了一个槽的名称，它将被更新复制进度，这样该服务器知道哪些 WAL 段以及哪些事务（如果 hot_standby_feedback 为打开）仍然被后备机所需要。</p>
+<p>如果客户端请求一个并非最新的时间线，但是属于服务器历史的一部分，服务器将会把该时间线上从请求点开始的所有 WAL 以流式传送，一直到服务器切换到另外一个时间线的点。如果客户端请求在一个老的时间线末尾进行流传送，服务器将在不进入 COPY 模式的情况下立即响应 CommandComplete。</p>
+<p>在流传送完一个非最新时间线上所有的 WAL 之后，服务器将会通过退出 COPY 模式来结束流。当客户端认识到这一点并也退出 COPY 模式时，服务器会发送一个包含一行两列的结果集，以指示在该服务器历史中的下一个时间线。第一列是下一个时间线的 ID（类型 int8 ），而第二列是发生切换的 WAL 位置（类型 text ）。通常，切换位置是被流传送的 WAL 的末尾，但是在很少的情况下服务器会从旧的时间线中发送一些 WAL，而该时间线是服务器本身在提示之前还没有重放的。最后，服务器发送 CommandComplete 消息，并且做好准备接受一个新的命令。</p>
+<p>WAL 数据以一系列 CopyData 消息的形式被发送（这允许其他信息穿插其中，特别是服务器可以在开始流传送后遇到失败时发送一个 ErrorResponse 消息）。</p>
+<h4 id="从服务器到客户端">从服务器到客户端</h4>
+<p>每个从服务器到客户端的 CopyData 消息承载了一个下列格式之一的消息：</p>
+<h5 id="XLogData-B">XLogData (B)</h5>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Byte1(‘w’)</td>
+<td style="text-align:left">标识该消息是WAL数据。</td>
+</tr>
+<tr>
+<td style="text-align:center" rowspan="3">Int64</td>
+<td style="text-align:left">在消息中 WAL 数据的起始点。</td>
+</tr>
+<tr>
+<td style="text-align:left">服务器上 WAL 的当前终点。</td>
+</tr>
+<tr>
+<td style="text-align:left">在传送时服务器的系统时钟，以从 2000-01-01 午夜开始的微秒计。</td>
+</tr>
+<tr>
+<td style="text-align:center">Byte n</td>
+<td style="text-align:left">WAL 数据流的一节。</td>
+</tr>
+</tbody>
+</table>
+<p>一个 WAL 记录绝不会被分割到两个 XLogData 消息。如果一个 WAL 记录跨越了一个 WAL 页面的边界，并且因此已经被使用连续的记录分割，它可以在页面边界被分割。换句话说，第一个主要WAL记录和它的后续记录可以在不同的 XLogData 消息中被发送。</p>
+<h5 id="主要存活消息-B">主要存活消息 (B)</h5>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Byte1(‘k’)</td>
+<td style="text-align:left">标识该消息是一个发送者存活消息。</td>
+</tr>
+<tr>
+<td style="text-align:center" rowspan="2">Int64</td>
+<td style="text-align:left">服务器上 WAL 的当前终点。</td>
+</tr>
+<tr>
+<td style="text-align:left">在传送时服务器的系统时钟，以从 2000-01-01 午夜开始的微秒计。</td>
+</tr>
+<tr>
+<td style="text-align:center">Byte1</td>
+<td style="text-align:left">1表示客户端应该尽快回复该消息，以避免连接超时。否则为0。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="从客户端到服务器">从客户端到服务器</h4>
+<p>接收进程可以在任何时候给发送者发送回复，回复可以使用下列消息格式之一（也在 CopData 消息中使用）：</p>
+<h5 id="后备机状态更新-F">后备机状态更新 (F)</h5>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Byte1(‘r’)</td>
+<td style="text-align:left">标识该消息是一个接收者状态更新。</td>
+</tr>
+<tr>
+<td style="text-align:center" rowspan="4">Int64</td>
+<td style="text-align:left">接收到并且写入到后备机磁盘的最后一个 WAL 比特的位置+1。</td>
+</tr>
+<tr>
+<td style="text-align:left">被刷入到后备机磁盘的最后一个 WAL 比特的位置+1。</td>
+</tr>
+<tr>
+<td style="text-align:left">被应用在后备机上的最后一个 WAL 比特的位置+1。</td>
+</tr>
+<tr>
+<td style="text-align:left">在传送时客户端的系统时钟，以从 2000-01-01 午夜开始的微秒计。</td>
+</tr>
+<tr>
+<td style="text-align:center">Byte1</td>
+<td style="text-align:left">如果为1，客户端要求服务器马上回复这个消息。这可以被用来 ping 服务器以测试连接是否仍然完好。</td>
+</tr>
+</tbody>
+</table>
+<h5 id="热备机反馈消息-F">热备机反馈消息 (F)</h5>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Byte1(‘h’)</td>
+<td style="text-align:left">标识该消息是一个热备机反馈消息。</td>
+</tr>
+<tr>
+<td style="text-align:center">Int64</td>
+<td style="text-align:left">在传送时客户端的系统时钟，以从 2000-01-01 午夜开始的微秒计。</td>
+</tr>
+<tr>
+<td style="text-align:center" rowspan="4">Int32</td>
+<td style="text-align:left">备用数据库的当前全局 xmin，不包括来自任何复制插槽的 catalog_xmin。 如果此值和以下 catalog_xmin 均为0，则将此视为热备机反馈将不再在此连接上发送的通知。 稍后的非零消息可以重新启动反馈机制。</td>
+</tr>
+<tr>
+<td style="text-align:left">备用服务器上全局 xmin xid 的时代。</td>
+</tr>
+<tr>
+<td style="text-align:left">备用数据库中任何复制插槽的最低 catalog_xmin。 如果备用数据库上不存在 catalog_xmin 或者热备份反馈被禁用，则设置为0。</td>
+</tr>
+<tr>
+<td style="text-align:left">备用服务器上 catalog_xmin xid 的时代。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="开始逻辑复制">开始逻辑复制</h3>
+<blockquote>
+<p>START_REPLICATION SLOT slot_name LOGICAL XXX/XXX [ ( option_name [ option_value ] [, …] ) ]</p>
+</blockquote>
+<p>指示服务器为逻辑复制开始流式传送 WAL，从 WAL 位置XXX/XXX开始。服务器可以回复一个错误，例如如果请求的 WAL 小节已经回环。如果成功，服务器会响应一个 CopyBothResponse 消息，并且接着开始流失传送 WAL 给前端。</p>
+<p>消息内部的消息与 START_REPLICATION … PHYSICAL 中记录的格式相同。</p>
+<p>与选中槽关联的输出插件被用来处理流的输出。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">SLOT slot_name</td>
+<td style="text-align:left">要从哪个槽流式传送改变。这个参数是必须的，并且必须对应于一个现有的用 LOGICAL 模式的CREATE_REPLICATION_SLOT 创建的逻辑复制槽。</td>
+</tr>
+<tr>
+<td style="text-align:center">XXX/XXX</td>
+<td style="text-align:left">要开始流传送的 WAL 位置。</td>
+</tr>
+<tr>
+<td style="text-align:center">option_name</td>
+<td style="text-align:left">一个传递给该槽的逻辑解码插件的选项的名称。</td>
+</tr>
+<tr>
+<td style="text-align:center">option_value</td>
+<td style="text-align:left">字符串常量形式的选项值，与前面指定的选项关联。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="删除一个复制槽">删除一个复制槽</h3>
+<blockquote>
+<p>DROP_REPLICATION_SLOT slot_name [ WAIT ]</p>
+</blockquote>
+<p>删除一个复制槽，释放任何保留的服务器端资源。 如果插槽是在 walsender 连接到的数据库以外的数据库中创建的逻辑插槽，则此命令将失败。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">slot_name</td>
+<td style="text-align:left">要删除的槽的名称。</td>
+</tr>
+<tr>
+<td style="text-align:center">WAIT</td>
+<td style="text-align:left">此选项会导致命令等待处于活动状态的插槽，直到它变为非活动状态， 而不是默认的引发错误行为。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="传送一个基础备份">传送一个基础备份</h3>
+<blockquote>
+<p>BASE_BACKUP [ LABEL ‘label’ ] [ PROGRESS ] [ FAST ] [ WAL ] [ NOWAIT ] [ MAX_RATE rate ] [ TABLESPACE_MAP ]</p>
+</blockquote>
+<p>指示服务器开始流传送一个基础备份。在备份开始之前系统将自动被置于备份模式，而在备份结束时会自动被退出备份模式。可以接受下列选项：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">LABEL ‘label’</td>
+<td style="text-align:left">设置备份的标签。如果没有指定，将会使用 base backup 作为标签。标签的引号规则和 standard_conforming_strings 开启时标准SQL字符串的一样。</td>
+</tr>
+<tr>
+<td style="text-align:center">PROGRESS</td>
+<td style="text-align:left">请求用以生成一个进度报告的信息。这将送回位于每个表空间头部的一个近似大小，它可以被用于计算流还有多久才能被完成。它通过在传输开始之前枚举所有文件大小来计算，并且可能会对性能产生一种负面影响 – 特别情况下它可能会在流传送第一个数据之前就耗费很长时间。因为数据库文件可能在备份期间改变，这个大小只是近似的并且可能在近似计算和发送真正的文件之间增长或者收缩。</td>
+</tr>
+<tr>
+<td style="text-align:center">FAST</td>
+<td style="text-align:left">请求一个快速检查点。</td>
+</tr>
+<tr>
+<td style="text-align:center">WAL</td>
+<td style="text-align:left">在备份中包含必需的 WAL 段。这将把开始和停止备份之间的所有文件包括在 base 目录 tar 文件中的 pg_wal 目录中。</td>
+</tr>
+<tr>
+<td style="text-align:center">NOWAIT</td>
+<td style="text-align:left">默认情况下，备份会等待直到最后一个要求的 WAL 段被归档，或者当日至归档被禁用时发出一个警告。指定 NOWAIT 会禁用等待和警告，而让客户端负责确保所要求的日志是可用的。</td>
+</tr>
+<tr>
+<td style="text-align:center">MAX_RATE rate</td>
+<td style="text-align:left">单位时间内从服务器传输到客户端的最大数据量限制。期望的单位是千字节每秒。如果指定了这个选项，值必须等于零或者位于 32 kB到 1 GB（包括）范围之间。如果 0 被传入或者没有指定该选项，对于传输将没有限制。</td>
+</tr>
+<tr>
+<td style="text-align:center">TABLESPACE_MAP</td>
+<td style="text-align:left">在名为 tablespace_map 的文件中包括有关 pg_tblspc 目录中存在的符号链接的信息。这个表空间映射文件包括了在目录 pg_tblspc 中存在的每一个符号链接的名字以及它的完整路径。</td>
+</tr>
+</tbody>
+</table>
+<p>当备份被启动，服务器将首先发送两个普通结果集，后面会跟着一个或多个 CopyResponse 结果。</p>
+<p>第一个普通结果集在一行两列中包含了备份的起始位置。第一列包含使用 XLogRecPtr 格式给出的开始位置，第二列包含相应的时间线 ID。</p>
+<p>第二个普通结果集中为每一个表空间都有一行。行中的域有：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性名</th>
+<th style="text-align:center">类型</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">spcoid</td>
+<td style="text-align:center">oid</td>
+<td style="text-align:left">表空间的 OID，如果是 base 目录则为空。</td>
+</tr>
+<tr>
+<td style="text-align:center">spclocation</td>
+<td style="text-align:center">text</td>
+<td style="text-align:left">表空间目录的完整路径，如果是 base 目录则为空。</td>
+</tr>
+<tr>
+<td style="text-align:center">size</td>
+<td style="text-align:center">int8</td>
+<td style="text-align:left">如果进度报告被请求，这里是表空间的近似大小，否则为空。</td>
+</tr>
+</tbody>
+</table>
+<p>在第二个普通结果集之后，一个或多个 CopyResponse 结果将被发送，一个用于主数据目录而对每一个除 pg_default 和 pg_global 之外的额外表空间也会有一个。CopyResponse 结果中的数据将会使一个 tar 格式（遵循POSIX 1003.1-2008标准中指定的“ustar交换格式”）的表空间内容转储，不过标准中定义的两个拖尾全0块将被忽略。在 tar 数据完成后，一个最终普通结果集将被发送，包含了备份的 WAL 结束位置，格式与起始位置相同。</p>
+<p>用于数据目录和每个表空间的 tar 归档将包含目录中的所有文件，不管它们是否为 PostgreSQL 文件或者是被加入的其他文件。唯一被排除的文件是：</p>
+<ul>
+<li>postmaster.pid</li>
+<li>postmaster.opts</li>
+</ul>
+<p>在 PostgreSQL 服务器运行期间创建的各种临时文件和目录， 例如任何以 pgsql_tmp 开头的文件或目录。</p>
+<p>pg_wal 及其子目录。如果备份运行时要求包括 WAL 文件，一个 pg_wal 的合成版本将被包括进来，但是只会包含那些备份工作必需的文件，而不是包含剩下的内容。</p>
+<p>pg_dynshmem、pg_notify、 pg_replslot、pg_serial、 pg_snapshots、pg_stat_tmp 和 pg_subtrans 被复制为一个空目录（即使它们是符号链接）。</p>
+<p>除常规文件和目录之外的其他文件，例如符号链接（除了上面列出的目录之外） 和特殊设备文件，会被跳过（pg_tblspc中的符号链接会被保留）。</p>
+<p>如果服务器上的底层文件系统支持，所有者、组合文件模式都会被设置。</p>
+<h2 id="结合-postgres-源码剖析流复制的流程">结合 postgres 源码剖析流复制的流程</h2>
+<p>流复制同步机制，我们有必要结合下图的流程以及源码，看一下这个过程中程序都做了哪些事情。</p>
+<p><img data-src="/images/20200713_PG%E6%B5%81%E5%A4%8D%E5%88%B6%E8%BF%87%E7%A8%8B.png" alt="PG流复制过程"></p>
+<h3 id="Standby-节点">Standby 节点</h3>
+<ol>
+<li>
+<p>由 <a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/postmaster/postmaster.c#L588" rel="external nofollow noreferrer noopener">PostmasterMain</a> 触发 <a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/postmaster/postmaster.c#L5568" rel="external nofollow noreferrer noopener">walreceiver</a> 任务：</p>
+ <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* MaybeStartWalReceiver</span></span><br><span class="line"><span class="comment">*        Start the WAL receiver process, if not running and our state allows.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* Note: if WalReceiverPID is already nonzero, it might seem that we should</span></span><br><span class="line"><span class="comment">* clear WalReceiverRequested.  However, there&#x27;s a race condition if the</span></span><br><span class="line"><span class="comment">* walreceiver terminates and the startup process immediately requests a new</span></span><br><span class="line"><span class="comment">* one: it&#x27;s quite possible to get the signal for the request before reaping</span></span><br><span class="line"><span class="comment">* the dead walreceiver process.  Better to risk launching an extra</span></span><br><span class="line"><span class="comment">* walreceiver than to miss launching one we need.  (The walreceiver code</span></span><br><span class="line"><span class="comment">* has logic to recognize that it should go away if not needed.)</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span></span><br><span class="line"><span class="title function_">MaybeStartWalReceiver</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (WalReceiverPID == <span class="number">0</span> &amp;&amp;</span><br><span class="line">        (pmState == PM_STARTUP || pmState == PM_RECOVERY ||</span><br><span class="line">        pmState == PM_HOT_STANDBY) &amp;&amp;</span><br><span class="line">        Shutdown &lt;= SmartShutdown)</span><br><span class="line">    &#123;</span><br><span class="line">        WalReceiverPID = StartWalReceiver();</span><br><span class="line">        <span class="keyword">if</span> (WalReceiverPID != <span class="number">0</span>)</span><br><span class="line">            WalReceiverRequested = <span class="literal">false</span>;</span><br><span class="line">        <span class="comment">/* else leave the flag set, so we&#x27;ll try again later */</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>通过 AuxiliaryProcessMain 创建 walreciver 子进程：</p>
+<ul>
+<li><a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/bootstrap/bootstrap.c#L445" rel="external nofollow noreferrer noopener">AuxiliaryProcessMain</a></li>
+<li><a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L166" rel="external nofollow noreferrer noopener">WalReceiverMain</a></li>
+</ul>
+</li>
+<li>
+<p>从 recovery.conf 读取参数，与 master 节点<a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L279" rel="external nofollow noreferrer noopener">建立连接</a>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Establish the connection to the primary for XLOG streaming */</span></span><br><span class="line">wrconn = walrcv_connect(conninfo, <span class="literal">false</span>, <span class="string">&quot;walreceiver&quot;</span>, &amp;err);</span><br><span class="line"><span class="keyword">if</span> (!wrconn)</span><br><span class="line">    ereport(ERROR,</span><br><span class="line">            (errmsg(<span class="string">&quot;could not connect to the primary server: %s&quot;</span>, err)));</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L300" rel="external nofollow noreferrer noopener">进入循坏，直到 postgres 被重启、关闭</a>；</p>
+</li>
+<li>
+<p><a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L312" rel="external nofollow noreferrer noopener">检查当前 master 节点是否合法</a></p>
+ <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Check that we&#x27;re connected to a valid server using the</span></span><br><span class="line"><span class="comment"> * IDENTIFY_SYSTEM replication command.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">primary_sysid = walrcv_identify_system(wrconn, &amp;primaryTLI,</span><br><span class="line">                                       &amp;server_version);</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><a href="(https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L329)">检查当前 standby 节点的时间线是否与 master 的节点一致</a></p>
+ <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* Confirm that the current timeline of the primary is the same or</span></span><br><span class="line"><span class="comment">* ahead of ours.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">if</span> (primaryTLI &lt; startpointTLI)</span><br><span class="line">    ereport(ERROR,</span><br><span class="line">            (errmsg(<span class="string">&quot;highest timeline %u of the primary is behind recovery timeline %u&quot;</span>,</span><br><span class="line">                    primaryTLI, startpointTLI)));</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L344" rel="external nofollow noreferrer noopener">从 master 节点拉取历史 wal 日志文件</a></p>
+ <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* Get any missing history files. We do this always, even when we&#x27;re</span></span><br><span class="line"><span class="comment">* not interested in that timeline, so that if we&#x27;re promoted to</span></span><br><span class="line"><span class="comment">* become the master later on, we don&#x27;t select the same timeline that</span></span><br><span class="line"><span class="comment">* was already used in the current master. This isn&#x27;t bullet-proof -</span></span><br><span class="line"><span class="comment">* you&#x27;ll need some external software to manage your cluster if you</span></span><br><span class="line"><span class="comment">* need to ensure that a unique timeline id is chosen in every case,</span></span><br><span class="line"><span class="comment">* but let&#x27;s avoid the confusion of timeline id collisions where we</span></span><br><span class="line"><span class="comment">* can.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">WalRcvFetchTimeLineHistoryFiles(startpointTLI, primaryTLI);</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L363" rel="external nofollow noreferrer noopener">开始接收流复制数据</a></p>
+ <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* Start streaming.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* We&#x27;ll try to start at the requested starting point and timeline,</span></span><br><span class="line"><span class="comment">* even if it&#x27;s different from the server&#x27;s latest timeline. In case</span></span><br><span class="line"><span class="comment">* we&#x27;ve already reached the end of the old timeline, the server will</span></span><br><span class="line"><span class="comment">* finish the streaming immediately, and we will go back to await</span></span><br><span class="line"><span class="comment">* orders from the startup process. If recovery_target_timeline is</span></span><br><span class="line"><span class="comment">* &#x27;latest&#x27;, the startup process will scan pg_wal and find the new</span></span><br><span class="line"><span class="comment">* history file, bump recovery target timeline, and ask us to restart</span></span><br><span class="line"><span class="comment">* on the new timeline.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">options.logical = <span class="literal">false</span>;</span><br><span class="line">options.startpoint = startpoint;</span><br><span class="line">options.slotname = slotname[<span class="number">0</span>] != <span class="string">&#x27;\0&#x27;</span> ? slotname : <span class="literal">NULL</span>;</span><br><span class="line">options.proto.physical.startpointTLI = startpointTLI;</span><br><span class="line">ThisTimeLineID = startpointTLI;</span><br><span class="line"><span class="keyword">if</span> (walrcv_startstreaming(wrconn, &amp;options))</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walreceiver.c#L386" rel="external nofollow noreferrer noopener">流复制将一直持续，直到出现异常或接收到退出指令</a></p>
+</li>
+</ol>
+<h3 id="master-节点">master 节点</h3>
+<ol>
+<li>
+<p>postmaster 随时监控当前 postgresql 状态，<a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/postmaster/postmaster.c#L2108" rel="external nofollow noreferrer noopener">当符合 postgres 的设置规则时，WalSender 将会被初始化</a>；</p>
+</li>
+<li>
+<p><a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/tcop/postgres.c#L3796" rel="external nofollow noreferrer noopener">初始化 WalSender</a></p>
+ <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Initialize walsender process before entering the main command loop */</span></span><br><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">InitWalSender</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    am_cascading_walsender = RecoveryInProgress();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Create a per-walsender data structure in shared memory */</span></span><br><span class="line">    InitWalSenderSlot();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Set up resource owner */</span></span><br><span class="line">    CurrentResourceOwner = ResourceOwnerCreate(<span class="literal">NULL</span>, <span class="string">&quot;walsender top-level resource owner&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    * Let postmaster know that we&#x27;re a WAL sender. Once we&#x27;ve declared us as</span></span><br><span class="line"><span class="comment">    * a WAL sender process, postmaster will let us outlive the bgwriter and</span></span><br><span class="line"><span class="comment">    * kill us last in the shutdown sequence, so we get a chance to stream all</span></span><br><span class="line"><span class="comment">    * remaining WAL at shutdown, including the shutdown checkpoint. Note that</span></span><br><span class="line"><span class="comment">    * there&#x27;s no going back, and we mustn&#x27;t write any WAL records after this.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    MarkPostmasterChildWalSender();</span><br><span class="line">    SendPostmasterSignal(PMSIGNAL_ADVANCE_STATE_MACHINE);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Initialize empty timestamp buffer for lag tracking. */</span></span><br><span class="line">    <span class="built_in">memset</span>(&amp;LagTracker, <span class="number">0</span>, <span class="keyword">sizeof</span>(LagTracker));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>根据《流复制协议》处理相关请求：</p>
+<ul>
+<li><a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walsender.c#L2198" rel="external nofollow noreferrer noopener">当无增删改操作时，WalSender 通过心跳保持对 standby 节点的通讯；</a></li>
+<li><a target="_blank" href="https://github.com/postgres/postgres/blob/REL_10_STABLE/src/backend/replication/walsender.c#L2503" rel="external nofollow noreferrer noopener">当有增删改操作时，WalSender 会及时把 Wal 数据传送到 standby 节点；</a></li>
+</ul>
+ <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* Send out the WAL in its normal physical/stored form.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* Read up to MAX_SEND_SIZE bytes of WAL that&#x27;s been flushed to disk,</span></span><br><span class="line"><span class="comment">* but not yet sent to the client, and buffer it in the libpq output</span></span><br><span class="line"><span class="comment">* buffer.</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* If there is no unsent WAL remaining, WalSndCaughtUp is set to true,</span></span><br><span class="line"><span class="comment">* otherwise WalSndCaughtUp is set to false.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">static</span> <span class="type">void</span></span><br><span class="line"><span class="title function_">XLogSendPhysical</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    XLogRecPtr    SendRqstPtr;</span><br><span class="line">    XLogRecPtr    startptr;</span><br><span class="line">    XLogRecPtr    endptr;</span><br><span class="line">    Size        nbytes;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="Reference">Reference</h2>
+<ul>
+<li><a target="_blank" href="http://www.postgres.cn/docs/10/protocol-replication.html" rel="external nofollow noreferrer noopener">流复制协议</a></li>
+<li><a target="_blank" href="http://www.postgres.cn/docs/10/runtime-config-replication.html" rel="external nofollow noreferrer noopener">复制相关服务器设置</a></li>
+<li><a target="_blank" href="http://www.postgres.cn/docs/10/warm-standby.html#STREAMING-REPLICATION-SLOTS" rel="external nofollow noreferrer noopener">复制槽</a></li>
+<li><a target="_blank" href="http://www.postgres.cn/docs/10/view-pg-replication-slots.html" rel="external nofollow noreferrer noopener">pg_replication_slots 视图</a></li>
+<li><a target="_blank" href="http://www.postgres.cn/docs/10/monitoring-stats.html#PG-STAT-ACTIVITY-VIEW" rel="external nofollow noreferrer noopener">pg_stat_activity 视图</a></li>
+<li><a target="_blank" href="http://www.postgres.cn/docs/10/monitoring-stats.html#PG-STAT-REPLICATION-VIEW" rel="external nofollow noreferrer noopener">pg_stat_replication 视图</a></li>
+<li><a target="_blank" href="http://www.postgres.cn/docs/10/monitoring-stats.html#PG-STAT-WAL-RECEIVER-VIEW" rel="external nofollow noreferrer noopener">pg_stat_wal_receiver 视图</a></li>
+<li><a target="_blank" href="http://mysql.taobao.org/monthly/2015/10/04/" rel="external nofollow noreferrer noopener">PgSQL · 特性分析 · PG主备流复制机制</a></li>
+<li><a target="_blank" href="http://mysql.taobao.org/monthly/2015/07/03/" rel="external nofollow noreferrer noopener">PgSQL · 特性分析 · 时间线解析</a></li>
+<li><a target="_blank" href="https://cloud.tencent.com/developer/article/1459771" rel="external nofollow noreferrer noopener">《PostgreSQL 指南：内幕探索》之基础备份与时间点恢复（下）</a></li>
+<li><a target="_blank" href="https://www.postgresql.org/docs/10/protocol-replication.html" rel="external nofollow noreferrer noopener">Streaming Replication Protocol</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PostgreSQL/" rel="tag"># PostgreSQL</a>
+              <a href="/tags/wal/" rel="tag"># wal</a>
+              <a href="/tags/pg10/" rel="tag"># pg10</a>
+              <a href="/tags/stolon/" rel="tag"># stolon</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/02/25/TheFirstPartOfMyEuropeanTripCzechRepublic/" rel="prev" title="欧洲之行第一篇——捷克">
+                  <i class="fa fa-angle-left"></i> 欧洲之行第一篇——捷克
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/09/09/helm%E4%BB%8E2.x%E5%8D%87%E7%BA%A7%E5%88%B03.x/" rel="next" title="helm从2.x升级到3.x">
+                  helm从2.x升级到3.x <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"6c1cd9e19c80ffe1420564ffee784c6a"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>

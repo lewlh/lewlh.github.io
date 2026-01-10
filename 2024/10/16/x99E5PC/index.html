@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="笔者手里有闲置的 DDR4 ECC 内存条，以及两块大容量的 SAS 硬盘，最近突发奇想打算组装一台 x99 平台的 NAS,用于家庭影音娱乐、相片视频数据的备份以及轻量的 DevOps。本文记录一下硬件选购的分析过程以及组装的过程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="X99 平台组装记录">
+<meta property="og:url" content="http://lewlh.github.io/2024/10/16/x99E5PC/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="笔者手里有闲置的 DDR4 ECC 内存条，以及两块大容量的 SAS 硬盘，最近突发奇想打算组装一台 x99 平台的 NAS,用于家庭影音娱乐、相片视频数据的备份以及轻量的 DevOps。本文记录一下硬件选购的分析过程以及组装的过程。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://lewlh.github.io/images/202501/%E9%B2%81%E5%A4%A7%E5%B8%88_%E6%A0%B8%E5%BF%83%E7%A1%AC%E4%BB%B6%E8%AF%84%E6%B5%8B.png">
+<meta property="og:image" content="http://lewlh.github.io/images/202501/%E9%B2%81%E5%A4%A7%E5%B8%88_%E6%A0%B8%E5%BF%83%E7%A1%AC%E4%BB%B6%E8%AF%84%E6%B5%8B.png">
+<meta property="og:image" content="http://lewlh.github.io/images/202501/GamePP_BenchMark.jpg">
+<meta property="og:image" content="http://lewlh.github.io/images/202501/CPU-Z.PNG">
+<meta property="og:image" content="http://lewlh.github.io/images/202501/GPU-Z.gif">
+<meta property="og:image" content="http://lewlh.github.io/images/202501/CinebenchR23_SingleCore_iShot_2025-01-18_18.27.49.png">
+<meta property="og:image" content="http://lewlh.github.io/images/202501/CinebenchR23_MutiCore_iShot_2025-01-18_18.27.29.png">
+<meta property="og:image" content="http://lewlh.github.io/images/202501/Geekbench-v6-cpu-9993019-2025-01-18-19_57_34.png">
+<meta property="og:image" content="http://lewlh.github.io/images/202501/Geekbench-v6-compute-3502892-2025-01-18-19_59_17-Metal.png">
+<meta property="og:image" content="http://lewlh.github.io/images/202501/Geekbench-v6-compute-3502977-2025-01-18-20_00_03-OpenCL.png">
+<meta property="article:published_time" content="2024-10-16T02:00:00.000Z">
+<meta property="article:modified_time" content="2025-02-16T03:27:02.393Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="RX580">
+<meta property="article:tag" content="x99">
+<meta property="article:tag" content="E5">
+<meta property="article:tag" content="华南金牌">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lewlh.github.io/images/202501/%E9%B2%81%E5%A4%A7%E5%B8%88_%E6%A0%B8%E5%BF%83%E7%A1%AC%E4%BB%B6%E8%AF%84%E6%B5%8B.png">
+
+
+<link rel="canonical" href="http://lewlh.github.io/2024/10/16/x99E5PC/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2024/10/16/x99E5PC/","path":"2024/10/16/x99E5PC/","title":"X99 平台组装记录"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>X99 平台组装记录 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">107</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">35</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#x99-%E4%B8%BB%E6%9D%BF%E5%88%86%E6%9E%90"><span class="nav-text">x99 主板分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#E5-CPU-%E5%88%86%E6%9E%90"><span class="nav-text">E5 CPU 分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%98%BE%E5%8D%A1"><span class="nav-text">显卡</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%90%8E%E7%9A%84%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE"><span class="nav-text">最后的主机配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8ESAS%E7%A1%AC%E7%9B%98%E9%97%AE%E9%A2%98"><span class="nav-text">关于SAS硬盘问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E5%AE%89%E8%A3%85%E9%BB%91%E8%8B%B9%E6%9E%9C"><span class="nav-text">关于安装黑苹果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95"><span class="nav-text">性能测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-text">References</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">107</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2024/10/16/x99E5PC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="X99 平台组装记录 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          X99 平台组装记录
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-10-16 10:00:00" itemprop="dateCreated datePublished" datetime="2024-10-16T10:00:00+08:00">2024-10-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-16 11:27:02" itemprop="dateModified" datetime="2025-02-16T11:27:02+08:00">2025-02-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>笔者手里有闲置的 DDR4 ECC 内存条，以及两块大容量的 SAS 硬盘，最近突发奇想打算组装一台 x99 平台的 NAS,用于家庭影音娱乐、相片视频数据的备份以及轻量的 DevOps。本文记录一下硬件选购的分析过程以及组装的过程。</p>
+<p><img data-src="/images/202501/%E9%B2%81%E5%A4%A7%E5%B8%88_%E6%A0%B8%E5%BF%83%E7%A1%AC%E4%BB%B6%E8%AF%84%E6%B5%8B.png" alt="鲁大师跑分"></p>
+<span id="more"></span>
+<hr>
+<h2 id="x99-主板分析">x99 主板分析</h2>
+<p>E5 洋垃圾 CPU 本身并不贵，组装成本的大头在主板以及内存，其他的配件基本上用啥平台成本都差不多。x99 主板主要就是华南金牌、精粤这两个品牌，综合网上的评论我觉得华南金牌的主板可能更适合我一些，因此搜集了这个品牌在售的几款主板作为比较：</p>
+<table>
+<thead>
+<tr>
+<th>主板型号</th>
+<th>芯片组</th>
+<th>内存支持</th>
+<th>内存标准</th>
+<th>PCI-E</th>
+<th>扩展接口</th>
+<th>备注信息</th>
+<th>黑苹果</th>
+<th>价格</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>华南金牌 X99-F8</td>
+<td rowspan="2">IntelC612</td>
+<td>DDR4/DDR4 ECC</td>
+<td>支持四通道 DDR4 2400/2133/1866MHz，最大支持 256GB</td>
+<td>2 个 PCIExpress3.0x16 插槽，1 个 PCIExpress3.0x4 插槽，2 个 PCIExpress3.0x1 插槽</td>
+<td>1 个 M.2 2280NVME PCIEX4 3.032Gbps，1 个 M.2 2280 NVME PCIEX4 2.0 20Gbps，1 个 M.2 WIFI （NGFF 协议）接口</td>
+<td><a target="_blank" href="http://www.huananzhi.com/more.php?lm=10&amp;id=305" rel="external nofollow noreferrer noopener">产品规格</a></td>
+<td><a target="_blank" href="https://github.com/luchina-gabriel/EFI-HUANANZHI-F8-GAMING-INTEL-XEON-E5-2699-V4-RX-570-8x32Gb-256GB-RAM-PUBLIC" rel="external nofollow noreferrer noopener">Hackintosh, Huananzhi F8 Gaming</a></td>
+<td>2024年10月新主板<a target="_blank" href="https://item.taobao.com/item.htm?id=584879880832&amp;pisk=f5Nkzm1K-mts1hxo5tc5KTJ6WhWxP3GIxkdKvXnF3moXwkh-9jJq-4xeT2Ry3-4_x0QCFbemxorm4k4CP2oUYkmLetCTPzGITGEh61U5TZNVokDyTqo4l2OeLTLJcnhITGIhrJtiPXZsxEjI-x7mJ2deakky3moj-4uUY0k202gITDJQpsRQfpNWrjnM2ND90ejYSczr4zU8gUkJFro0RyVxrrDUzwOeTS0oEWCw1_5ET8z8mAeljQ2QzRZI7u-PqqVuSW2a0wREx-yZIRrd8dmQkRDUBx-l4GJ2QKZBOq7Lgp9IUqgmXmWNcnzjuC1foZxulYujWhQcopT-UqgmEZbDqRkrlVI1.&amp;scene=taobao_shop&amp;skuId=5155043328483&amp;spm=a1z10.1-c-s.w17522917-24950991782.5.7e46768eluySuB" rel="external nofollow noreferrer noopener">581</a>，闲鱼二手300</td>
+</tr>
+<tr>
+<td>华南金牌 X99-TF</td>
+<td>4 个 DDR3+4 个 DDR4 内存插槽，支持服务器内存</td>
+<td>支持四通道 DDR3 1866/1600/1333MHz 规格内存，DDR4 2400/2133/1866MHz 规格内存，D3/D4 分别最大支持 128GB，不支持 D3/D4 同时使用（DDR3 内存需搭配支持志强 E5-2629 v3/ E5-2649 v3/E5-2669 v3/E5-2673 v3/ E5-2676 v3/E5-2678 v3/E5-2696 v3/E5-2666 v3/E5-2686v4/E5-2696v4）</td>
+<td>2 个 PCIExpress3.0x16 插槽，1 个 PCIExpress3.0x4 插槽，2 个 PCIExpress2.0x1 插槽</td>
+<td>1 个 M.2 2280 NVME PCIEX43.0 32Gbps，1 个 M.2 2280NVME PCIEX42.0 20Gbps，1 个 M.2WIFI（NGFF 协议）</td>
+<td><a target="_blank" href="http://www.huananzhi.com/more.php?lm=10&amp;id=306" rel="external nofollow noreferrer noopener">产品规格</a></td>
+<td><a target="_blank" href="https://github.com/KGDJudy/HUANNA-X99TF-OC-9.1-EFI?tab=readme-ov-file" rel="external nofollow noreferrer noopener">HUANNA-X99TF-OC-9.1-EFI</a></td>
+<td>2024年10月新主板<a target="_blank" href="https://item.taobao.com/item.htm?id=584879880832&amp;pisk=f5Nkzm1K-mts1hxo5tc5KTJ6WhWxP3GIxkdKvXnF3moXwkh-9jJq-4xeT2Ry3-4_x0QCFbemxorm4k4CP2oUYkmLetCTPzGITGEh61U5TZNVokDyTqo4l2OeLTLJcnhITGIhrJtiPXZsxEjI-x7mJ2deakky3moj-4uUY0k202gITDJQpsRQfpNWrjnM2ND90ejYSczr4zU8gUkJFro0RyVxrrDUzwOeTS0oEWCw1_5ET8z8mAeljQ2QzRZI7u-PqqVuSW2a0wREx-yZIRrd8dmQkRDUBx-l4GJ2QKZBOq7Lgp9IUqgmXmWNcnzjuC1foZxulYujWhQcopT-UqgmEZbDqRkrlVI1.&amp;scene=taobao_shop&amp;skuId=5155043328482&amp;spm=a1z10.1-c-s.w17522917-24950991782.5.7e46768eluySuB" rel="external nofollow noreferrer noopener">582</a></td>
+</tr>
+<tr>
+<td>华南金牌 X99-BD4</td>
+<td>Intel B/H/Q/Z</td>
+<td rowspan="2">DDR4/DDR4 ECC</td>
+<td>支持四通道 DDR4 2400/2133/1866MHz 规格内存，最大支持 128GB</td>
+<td>2 个 PCIExpress3.0x16 插槽，1 个 PCIExpress3.0x4 插槽，1 个 PCIExpress2.0x1 插槽</td>
+<td>1 个 M.2 22110NVME PCIEX4 3.032Gbps，1 个 M.2 2280 NGFF SATA3.06Gbps (使用时会占用一个 SATA3.0 接口信号)</td>
+<td><a target="_blank" href="http://www.huananzhi.com/more.php?lm=10&amp;id=314" rel="external nofollow noreferrer noopener">产品规格</a></td>
+<td rowspan="3">无</td>
+<td>T</td>
+</tr>
+<tr>
+<td>华南金牌 X99-PD4</td>
+<td rowspan="2">Intel P55/H55</td>
+<td>支持双通道 DDR4 2400/2133/1866MHz 规格内存（视 CPU 而定）最大支持 128GB</td>
+<td rowspan="2">2 个 PCI Express3.0 x16 插槽，1 个 PCI Express2.0 x1 插槽</td>
+<td rowspan="2">2 个 M.2 2280 NVME PCIE X4 3.0 32Gbps</td>
+<td><a target="_blank" href="http://www.huananzhi.com/more.php?lm=10&amp;id=869" rel="external nofollow noreferrer noopener">产品规格</a></td>
+<td>2024年10月新主板274</td>
+</tr>
+<tr>
+<td>华南金牌 X99-PD3</td>
+<td>DDR3/DDR3 ECC</td>
+<td>支持双通道 DDR3 1866/1600/1333MHz 规格内存（视 CPU 而定）最大支持 128GB</td>
+<td><a target="_blank" href="http://www.huananzhi.com/more.php?lm=10&amp;id=870" rel="external nofollow noreferrer noopener">产品规格</a></td>
+<td>2024年10月新主板<a target="_blank" href="https://item.taobao.com/item.htm?from=cart&amp;id=752134934675&amp;pisk=greSeAtbLye47JOz69Iq1dagNNkQVy6NdHiLjkpyvYH-RvZQXXpFZYlIdr34U4rre2MQAlhL82ryqS4aXLyPZvJIEvDd7NWNQ3qoKvCNSOwMqxnIXBBEvQdYqzuA1KXNQuqX40IaDOyz4eSqXBpLJbhxkcgx20h-yiMxAckpeXpJME3mvvHKw4hvMcnWeBh8JEpxAD9JpQ3-DIntfvn8JvKddBi9NDq5m7CGJsQG4u0XppejDw0aVN9Sb-m5nVqSlNQuhdcSWu3XpNkAjbuxf-QHz22bD8FgktJSdonQ5YFfkLaQ2zNt68BfDyZaPJGaztI8-YnL-f2FSL08vl2g_A6BAmN_DxsP2du_4VRBcfvIcVSfcBAhFOqIljFlCPc-m0jPciTxtbnmcmjfcBfKwmml5isXkW5..&amp;skuId=5187231545850&amp;spm=a1z0d.6639537%2F202410.item.d752134934675.5bfb7484eMt9qh" rel="external nofollow noreferrer noopener">278</a></td>
+</tr>
+</tbody>
+</table>
+<p>芯片组性能差异差异:</p>
+<ul>
+<li><a target="_blank" href="https://www.intel.cn/content/www/cn/zh/products/sku/75016/intel-h81-chipset/specifications.html?wapkw=H81" rel="external nofollow noreferrer noopener">H81</a></li>
+<li><a target="_blank" href="https://www.intel.cn/content/www/cn/zh/products/sku/75019/intel-b85-chipset/specifications.html?wapkw=B85" rel="external nofollow noreferrer noopener">B85</a></li>
+<li><a target="_blank" href="https://www.intel.cn/content/www/cn/zh/products/sku/75010/intel-q85-chipset/specifications.html?wapkw=Q85" rel="external nofollow noreferrer noopener">Q85</a></li>
+<li>[Q87]</li>
+<li><a target="_blank" href="https://www.intel.cn/content/www/cn/zh/products/sku/75004/intel-h87-chipset/specifications.html?wapkw=H87" rel="external nofollow noreferrer noopener">H87</a></li>
+<li><a target="_blank" href="https://www.intel.cn/content/www/cn/zh/products/sku/75013/intel-z87-chipset/specifications.html?wapkw=Z87" rel="external nofollow noreferrer noopener">Z87</a></li>
+<li><a target="_blank" href="https://www.intel.cn/content/www/cn/zh/products/sku/81759/intel-c612-chipset/specifications.html" rel="external nofollow noreferrer noopener">IntelC612</a></li>
+</ul>
+<p>以下是我选择主板的依据：</p>
+<ul>
+<li>我想要尝试黑苹果，因此最好网上有成功安装系统案例的主板；</li>
+<li>因为 E5 CPU 没有集成显卡，需要安装独立显卡；SAS 硬盘我需要单独买一个直通卡连接；另外我还需要安装无线网卡，因此 PCI-E 的插槽需要足够,且通道数需要足够，不要影响性能；</li>
+<li>尽可能地减低内存的成本，一是尝试先尝试闲置的 DDR4 ECC 内存是否可用，如不可用，再购买内存;</li>
+<li>需要支持安装 NVMe 存储;</li>
+<li>主板+处理器的成本需要控制在400元以内；</li>
+</ul>
+<p>最终，我把目标定在华南金牌 X99-TF 这款主板。它支持 DDR3/DDR4 内存，且可以使用 ECC 的服务器内存，便宜量大，另外这款主板有足够的 PCI-E 接口，满足我的需要。我计划在闲鱼上蹲一套二手的主板。</p>
+<h2 id="E5-CPU-分析">E5 CPU 分析</h2>
+<p>在我开始看 E5 处理器的这段时间，它的价格已经下来不少了，极具性价比。这些“洋垃圾”物理核足够多，就是单核性能由于架构的原因已经比十年后的处理器差不少了，在同代架构 CPU 里面只能尽量找主频足够高的型号。比较下来，我选择了 E5-2666 v3 这款处理器。对我而言，他的优点足够突出：</p>
+<ul>
+<li>足够便宜，淘宝二手才卖40元左右；</li>
+<li>在同代架构的型号里面，他的单核主频很高，达到 3.5GHz；</li>
+<li>它支持 DDR3/DDR4 ECC 内存，可以进一步压低整套机器的成本；</li>
+<li>由于是 v3，因此它可以打鸡血，将全核睿频拉到 3.5GHz，性能还能进一步提升；</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">CPU型号</th>
+<th style="text-align:center">物理内核</th>
+<th style="text-align:center">内存</th>
+<th style="text-align:center">TDP</th>
+<th style="text-align:center">基础频率</th>
+<th style="text-align:center">最高睿频息</th>
+<th style="text-align:center">全核睿频</th>
+<th style="text-align:center">Single Thread Rating</th>
+<th style="text-align:center">Multithread Rating</th>
+<th style="text-align:center">超频/鸡血</th>
+<th style="text-align:center">价格(2024Q4)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">E5-2696 v4</td>
+<td style="text-align:center">22</td>
+<td style="text-align:center">DDR3/DDR4</td>
+<td style="text-align:center">150W</td>
+<td style="text-align:center">2.2GHz</td>
+<td style="text-align:center">3.6GHz</td>
+<td style="text-align:center" rowspan="11">-</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2696+v4+%40+2.20GHz&amp;id=2750" rel="external nofollow noreferrer noopener">2141</a></td>
+<td style="text-align:center">24858</td>
+<td style="text-align:center" rowspan="11"></td>
+<td style="text-align:center"><a target="_blank" href="https://item.taobao.com/item.htm?id=684315543698&amp;ns=1&amp;pisk=gRCoh3Np-ni_fsMXArR7K8WYVE2YF4OBFMhpvBKU3n-jwp-LFMvhvi9FwQQRmHSOxeCR96XjtN_CwzOLPQ_WOBrTX5ChPaOQtMyn6_VVueQqLU8z6uQy94ZTX5F3UqR3qlIJt5bigFYwTUJeLKzDJeDy8MJEgZ-XReoy8bzcunt28UlrUjo2PeorTM8EuE8e-YkyY3k4gUt2zBRevgowYBJ1guNnthayk87MrLxNz37RlsywFY_WmOB1gUbDbakITX5DrL5prrJDIBWPyivOElclvaW1AFSr4uYcZNfhQizETHXVQdXNvykMAZBMLOpqqoKdBZCynGrxiM9hUORPtlVV4bDqQxsIOEzdgvMBUETDXnyacm5AiaH3ormllL8XWcU0ovgJUETDEr4mqOJylFE1.&amp;priceTId=2147bf7a17291429373481956e1c73&amp;skuId=5210221214661&amp;spm=a21n57.1.item.46.d636523cq8J3kt&amp;utparam=%7B%22aplus_abtest%22%3A%22911c7f73b69d7598b21ce770bb50a673%22%7D&amp;xxc=ad_ztc" rel="external nofollow noreferrer noopener">1070</a></td>
+</tr>
+<tr>
+<td style="text-align:center"><em><strong>Core i9-10900K</strong></em></td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">DDR4</td>
+<td style="text-align:center">125W</td>
+<td style="text-align:center">3.7GHz</td>
+<td style="text-align:center">5.3GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?id=3730&amp;cpu=Intel+Core+i9-10900K+%40+3.70GHz" rel="external nofollow noreferrer noopener">3127</a></td>
+<td style="text-align:center">22732</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">E5-2696 v3</td>
+<td style="text-align:center" rowspan="2">18</td>
+<td style="text-align:center" rowspan="2">DDR3/DDR4</td>
+<td style="text-align:center" rowspan="2">145W</td>
+<td style="text-align:center" rowspan="2">2.3GHz</td>
+<td style="text-align:center">3.6GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2696+v3+%40+2.30GHz&amp;id=2526" rel="external nofollow noreferrer noopener">2097</a></td>
+<td style="text-align:center">22140</td>
+</tr>
+<tr>
+<td style="text-align:center">E5-2686 v4</td>
+<td style="text-align:center">3.0GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2686+v4+%40+2.30GHz&amp;id=2870" rel="external nofollow noreferrer noopener">1801</a></td>
+<td style="text-align:center">20261</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">E5-2680 V3</td>
+<td style="text-align:center" rowspan="5">12</td>
+<td style="text-align:center">DDR4 1600/1866/2133</td>
+<td style="text-align:center" rowspan="3">120W</td>
+<td style="text-align:center" rowspan="2">2.5GHz</td>
+<td style="text-align:center">3.3GHz</td>
+</tr>
+<tr>
+<td style="text-align:center">E5-2678 v3</td>
+<td style="text-align:center" rowspan="4">DDR3/DDR4</td>
+<td style="text-align:center">3.1GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2678+v3+%40+2.50GHz&amp;id=2584" rel="external nofollow noreferrer noopener">1761</a></td>
+<td style="text-align:center">14726</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">E5-2676 V3</td>
+<td style="text-align:center" rowspan="2">2.4GHz</td>
+<td style="text-align:center">3.0GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2676+v3+%40+2.40GHz&amp;id=2643" rel="external nofollow noreferrer noopener">1636</a></td>
+<td style="text-align:center">13524</td>
+<td style="text-align:center"><a target="_blank" href="https://item.taobao.com/item.htm?from=cart&amp;id=587618923418&amp;pisk=gaorK1YSskcfW3-_h-EUQ1yfUSr8juA1TDNQKvD3F7VkwUU3KSkMe7TpyXuqtjU7ZDkdYJDn9LFBeEM-ekEH1CiefYH-sGYlNDzuor2InwblrhaDMOsH1Ct6YUX0YQRsNk8N5i2aIk2u-7bD3JwUE8c3ro40MJehZJjk3xVYiJb3E72ci8e1tgc3Etf0QJ5hEyVuno28iJq3xHHZo2-4Gzv1tabVhZS7A5DugMjNB8akpx_CjGX_FzNgoSS3lmyzz5Do2HrxcJuibzhMGaNo7RGaCbtc4fkoaV4iqsA430kZYRzciBeqoAhLIz5fkfDjC0UxYC5094wTm8u2KZVu-gof9-XSFD3PtwzuH-P63KlQyV2MoX-YywQLlBe41dM1JwUu1-P63H_dJr90359_B&amp;skuId=4958628425219&amp;spm=a1z0d.6639537%2F202410.item.d587618923418.61c67484kouDjY" rel="external nofollow noreferrer noopener">42</a></td>
+</tr>
+<tr>
+<td style="text-align:center">E5-2673 V3</td>
+<td style="text-align:center">110W</td>
+<td style="text-align:center">3.1GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2673+v3+%40+2.40GHz&amp;id=2606" rel="external nofollow noreferrer noopener">1739</a></td>
+<td style="text-align:center">14219</td>
+<td style="text-align:center"><a target="_blank" href="https://item.taobao.com/item.htm?from=cart&amp;id=587618923418&amp;pisk=gLmip3tYnW15FEbQGpr6oF7pSCYp5OZb7jIYMoF28WPIXdaYM22qMX9XClH4ijcLOj4XCSF4ijHqWpKJ2AM_colDw3KRi8wKFfXN7GJV88ekw-l_pYM_coRcpi8JqAGzuDy3Q-yeK-eAb1l47vWUCWyaQ-l4Tyyze1r40jJ3882lbiSN0wWU3W7NgGy4Y9yTHGS47iJ3YWw2vuCzgozSYCtcobqKqslTIPVrQ5ktdD7UlNMQtza-YRD3aAWf0io3IPmYIIsffouZBX4-SQjiMAuSG8lN_C2njYmmzXJV0S0Ezz0rMK7uGv3uu4UFsBFxyvna-bRdxjam74rZmQxF4dbFzwGfcJJxYZ_b7Jw3wW8yO6JiQk9vKpfidPyQe_pHKZ6T7Jw3Spvhs4zad8d5.&amp;skuId=4958628425218&amp;spm=a1z0d.6639537%2F202410.item.d587618923418.61c67484kouDjY" rel="external nofollow noreferrer noopener">42</a></td>
+</tr>
+<tr>
+<td style="text-align:center">E5-2669 v3</td>
+<td style="text-align:center">120W</td>
+<td style="text-align:center">2.3GHz</td>
+<td style="text-align:center">2.6GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2669+v3+%40+2.30GHz&amp;id=2700" rel="external nofollow noreferrer noopener">1502</a></td>
+<td style="text-align:center">16107</td>
+<td style="text-align:center" rowspan="3"></td>
+</tr>
+<tr>
+<td style="text-align:center"><em><strong>AMD Ryzen 5 4600H</strong></em></td>
+<td style="text-align:center">6</td>
+<td style="text-align:center" rowspan="2">DDR4</td>
+<td style="text-align:center" rowspan="2">45W</td>
+<td style="text-align:center">3.0GHz</td>
+<td style="text-align:center">4.0GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=AMD+Ryzen+5+4600H&amp;id=3708" rel="external nofollow noreferrer noopener">2434</a></td>
+<td style="text-align:center">14416</td>
+</tr>
+<tr>
+<td style="text-align:center"><em><strong>Core i7-10870H</strong></em></td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">2.2GHz</td>
+<td style="text-align:center">5.0GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Intel+Core+i7-10870H+%40+2.20GHz&amp;id=3856" rel="external nofollow noreferrer noopener">2662</a></td>
+<td style="text-align:center">14360</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>E5-2666 V3</strong></td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">DDR3/DDR4 最高2133</td>
+<td style="text-align:center">135W</td>
+<td style="text-align:center">2.9GHz</td>
+<td style="text-align:center">3.5GHz</td>
+<td style="text-align:center">3.2GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2666+v3+%40+2.90GHz&amp;id=2471" rel="external nofollow noreferrer noopener">1969</a></td>
+<td style="text-align:center">14277</td>
+<td style="text-align:center">全核3.5GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://item.taobao.com/item.htm?from=cart&amp;id=587618923418&amp;pisk=gLXxKKG87unxuPorQVNkscmHwtZlWOIqmZSIIFYm1aQR5NKiIGTMBNQOWEA_uKXOyKWliAY0udI1-dU3-J2h0iJ2Cy4hny6S5K-9fxtjS4gWxdt6332C0iJw500_t_sqWCzILjt65upWXhuXCI9sV0TyXngf5EOSPHKeCF_15QGWxhkslAtsVUTyvVgXfIi7FhKZCnM15LZJbHI4pEEXmACZ9Y9BLJcimmXJDILtIEkOFOkH6eG6rAH9kndxmiT-CA6Rasac0ee-PUj1Y1ORB4zkQgfdW1_7fATONHQph_USHd9XvZJfhz0vBLKe91Q0zATc9g_JtT0oKL6AktOJdg-lK9Lb42YpjjZ82flwG3z7ZcncjrT0u3L30elZ_Coy2eq8RflwGdtJ-o-j_fRaq&amp;skuId=5096242036805&amp;spm=a1z0d.6639537%2F202410.item.d587618923418.61c67484kouDjY" rel="external nofollow noreferrer noopener">41</a></td>
+</tr>
+<tr>
+<td style="text-align:center"><em><strong>Core i3-12100E</strong></em></td>
+<td style="text-align:center">4</td>
+<td style="text-align:center" rowspan="2">DDR4</td>
+<td style="text-align:center">60W</td>
+<td style="text-align:center">3.2GHz</td>
+<td style="text-align:center">4.2GHz</td>
+<td style="text-align:center" rowspan="4">-</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Intel+Core+i3-12100E&amp;id=5576" rel="external nofollow noreferrer noopener">3481</a></td>
+<td style="text-align:center">14250</td>
+</tr>
+<tr>
+<td style="text-align:center"><em><strong>Apple M1 8 Core</strong></em></td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">15.1W</td>
+<td style="text-align:center">3.2/2.1GHz</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Apple+M1+8+Core+3200+MHz&amp;id=4104" rel="external nofollow noreferrer noopener">3685</a></td>
+<td style="text-align:center">14152</td>
+</tr>
+<tr>
+<td style="text-align:center">E5-2649 v3</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center" rowspan="2">DDR3/DDR4</td>
+<td style="text-align:center">105W</td>
+<td style="text-align:center">2.3GHz</td>
+<td style="text-align:center">3.0GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2649+v3+%40+2.30GHz&amp;id=3194" rel="external nofollow noreferrer noopener">1674</a></td>
+</tr>
+<tr>
+<td style="text-align:center">E5-2629 v3</td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">85W</td>
+<td style="text-align:center">2.4GHz</td>
+<td style="text-align:center">2.6GHz</td>
+<td style="text-align:center"><a target="_blank" href="https://www.cpubenchmark.net/cpu.php?cpu=Intel+Xeon+E5-2629+v3+%40+2.40GHz&amp;id=2867" rel="external nofollow noreferrer noopener">1426</a></td>
+<td style="text-align:center">9139</td>
+</tr>
+</tbody>
+</table>
+<h2 id="显卡">显卡</h2>
+<p>随着挖矿、人工智能等需求的爆发式发展，最近几年消费级的 GPU 迭代明显变慢，黄仁勋、苏姿丰精准的刀法导致新品、二手卡的价格非常坚挺甚至上涨，苦了我们这些普通消费者。了解完整体的行情，我也给自己定了几点需求：</p>
+<ul>
+<li>价格足够低，因此只能买二手卡了；</li>
+<li>自己想试用一下黑苹果，因此只能选择 AMD 的显卡了；</li>
+<li>从大学毕业之后，我就没怎么玩过游戏，因此想买一张畅玩 1080p 的显卡，也给自己一个放松的机会；</li>
+<li>希望这个显卡能跑一下人工智能的应用，在家里跑一下模型推理；</li>
+</ul>
+<p>这些需求综合下来，只有多朝矿渣 AMD RX580 系列显卡了，因为这是我见过的，最接近我想要的显卡，而且价格也还可以接受。2024Q4 我在找淘宝、京东、闲鱼、拼多多电商平台 RX580 显卡，看看去哪里买，总体有以下几点值得一说:</p>
+<ul>
+<li>或许是由于首个国产3A大作《黑神话·悟空》带火了装机市场，整体二手显卡的价格比2023年都上涨了，RX580 系列的显卡价格，比之前上涨了接近 100 元，来到 380~400 元的价格区间；</li>
+<li>以卡诺基为代表的翻新卡，基本上都只销售残血版本的 RX580 2048SP，且散热风扇都是恒速转动的(少部分不是);</li>
+<li>以卡诺基为代表的翻新卡，基本上都会降频，跑分会比普通的二手卡低;</li>
+<li>卡诺基为代表的翻新卡，以及淘宝的二手卡，都声称提供二年的质保;</li>
+<li>如果要安装黑苹果，那么似乎只有 RX580 8GB 2304SP 版本的显卡是免驱的，其他型号的好像需要刷 BIOS 或者是改驱动，会比较麻烦；</li>
+</ul>
+<p>后来我选择在淘宝二手显卡店家“非凡电脑显卡”购买了一张二手显卡，用了一个月后显卡就掉驱动黑屏无法使用，不过店家也给我换了一张卡，这个后文展开说。</p>
+<h2 id="最后的主机配置">最后的主机配置</h2>
+<p>最后，我在闲鱼、淘宝和京东，凑齐了整机，配置如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">配件类型</th>
+<th style="text-align:center">型号</th>
+<th style="text-align:center">购买渠道</th>
+<th style="text-align:center">价格(2024Q4)</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">主板</td>
+<td style="text-align:center">华南金牌 X99-TF</td>
+<td style="text-align:center" rowspan="3">闲鱼</td>
+<td style="text-align:center">340</td>
+<td style="text-align:center">此价格包括CPU+散热器+顺丰邮费</td>
+</tr>
+<tr>
+<td style="text-align:center">CPU</td>
+</tr>
+<tr>
+<td style="text-align:center">CPU散热器</td>
+<td style="text-align:center">四热管+双利民风扇</td>
+</tr>
+<tr>
+<td style="text-align:center">内存</td>
+<td style="text-align:center">SAMSUNG DDR3 ECC 1866HZ  32G</td>
+<td style="text-align:center"><a target="_blank" href="https://item.taobao.com/item.htm?_u=n8646pv367d&amp;id=13978621463&amp;spm=a1z09.2.0.0.661b2e8dAESMVA&amp;skuId=5121897329385" rel="external nofollow noreferrer noopener">淘宝</a></td>
+<td style="text-align:center">55</td>
+<td style="text-align:center">主板到了之后尝试使用DDR4 ECC 64GB 的内存，但是主板不识别。后来就决定买DDR3 ECC服务器的内存，带散热马甲,后续又买了两条同型号内存。</td>
+</tr>
+<tr>
+<td style="text-align:center">显卡</td>
+<td style="text-align:center"><a target="_blank" href="https://www.gigabyte.com/tw/Graphics-Card/GV-RX580GAMING-8GD-rev-10-11-12#kf" rel="external nofollow noreferrer noopener">GIGABYTE Radeon™ RX 580 GAMING 8G</a></td>
+<td style="text-align:center"><a target="_blank" href="https://item.taobao.com/item.htm?_u=n8646pvbd9e&amp;id=700266366619&amp;pisk=gtwz1Lf7Sv4jUYyP-mDe3c6Ls9H-LYb1-JgIxkqnV40l906HLkriAgQd2So3RrId2YZn8yzjkpiCwwpUuzZgNbaQN2mnorqWF26-Tyr_Wy9Ce7iHLrZKtywUvpo3xyI-RgCb2uHKKN__LOZ825NAsWwrqqX0D0AH-sGkatr5cN_1C95kmv7P5zN7YkTmbcDnqXmomioIxL03-bXDmqnKxUmHEirmkqAHED03mqm-4UDHEvqmico6EBmnxxXmkDkHEX43mhVYiWWqlbjOF-zWJayraVqoudrYn04BwuuV2gw4g0uiCqJHK-ozcqjflLXZo7N3Fx2lo9H0XSao0AWeYmPamYmzgMAmrl0oEcFV7LH7bqk7UAX9r2NbbJoUpwB47u4zsf2kzgzpJmx7VJFy-BloDmu10ikgaJ1VEJ42KBdKGwnq5GZ69Bho5mu109Op9jsm0VsoY&amp;spm=a1z09.2.0.0.661b2e8dAESMVA&amp;sku_properties=30308%3A41420" rel="external nofollow noreferrer noopener">淘宝</a></td>
+<td style="text-align:center">386</td>
+<td style="text-align:center">这个卡用一个月后就坏了，我自费寄回给店家，店家发了一张讯景 <a target="_blank" href="https://www.techpowerup.com/gpu-specs/xfx-gts-rx-580-xxx-8-gb.b4480" rel="external nofollow noreferrer noopener">XFX GTS RX580 XXX 8GB 2304SP</a> 替换</td>
+</tr>
+<tr>
+<td style="text-align:center">NVMe</td>
+<td style="text-align:center">芯点子C700 1TB</td>
+<td style="text-align:center"><a target="_blank" href="https://item.jd.com/10121823829508.html" rel="external nofollow noreferrer noopener">京东</a></td>
+<td style="text-align:center">347</td>
+<td style="text-align:center">希捷联名，酷玩530平替,双十一送散热马甲</td>
+</tr>
+<tr>
+<td style="text-align:center">HDD</td>
+<td style="text-align:center">SEAGATE SAS 16TB * 2</td>
+<td style="text-align:center" colspan="2">-</td>
+</tr>
+<tr>
+<td style="text-align:center">SAS直通卡</td>
+<td style="text-align:center">浪潮2308 6G直通卡IT模式</td>
+<td style="text-align:center"><a target="_blank" href="https://item.taobao.com/item.htm?_u=n8646pve6e7&amp;id=772642815737&amp;pisk=gJ971SqXLep4opUDq4nVl1-I1YWQdeMZpkspjHezvTBROJKy5MyFTbjQdZttqalnZeOXJEfPyw5FdMTNo3yEq3oIdHKOy9RPzML2REVyzp7euvtM5_yyvprkiF-TULllLJ6lK93Z7Akaq3Xhp70uXD4uMMs-LuedJTXY7aZr6AkwqnZP2c-xQLkC4nsg9JLdwseAbZIRJJI-csINv9eR98FYkZjdp9IdySIAxM4L28LLkrICbJILp_eYkMIGpgLdy-nfxHqLOGF5x3iVYBzivJzC5ZwLpKsx-w-Sg8S6EgZG53_jWN9VVFb92ZwLpaSQiVxpJ2wFBCYXd1BEd-XyfIBAVIiLMaC6wCBJdVaJD1Ow6s9nI8x5saBfmpu0ewOv9L5lKz35cLt6dBsrbR764NPQc12CcNojcWVnrLTiBTLV-t5RmgmrcmaAt_IccimjcWchwijo5mibPvf..&amp;skuId=5391221020198&amp;spm=a1z09.2.0.0.661b2e8dAESMVA" rel="external nofollow noreferrer noopener">淘宝</a></td>
+<td style="text-align:center">47</td>
+<td style="text-align:center" rowspan="2"></td>
+</tr>
+<tr>
+<td style="text-align:center">SAS连接线</td>
+<td style="text-align:center">6G线 8087转1分4 SAS/SATA转接线（0.7m）大4pin供电</td>
+<td style="text-align:center"><a target="_blank" href="https://item.taobao.com/item.htm?_u=n8646pve6e7&amp;id=772642815737&amp;pisk=g44U1qjQn42_JBaFEf0y7j_8ma3KF2XfEzMSZ7VoOvDh2X_kz7PmN6BR9lluFRCR92NoU8ysBUG5vTLzQJN0ADw7AYcoIRVBRY_K48PbH8T5JkGkzRN-q8azwUluZ8CKF6I_9W3-rt6bzZNL9oZOmuarZhVg6blH-UjsSHkQTiXflZNNxX37staQAe_-gjTorDmkSFDtaYvot8mMSbHM-bYnZdfZwA0kqvcos5cotBv3EevijjlmZLmntdDiiAcnr42usHYQju7ZCDfARPyBe6TUixVnQUY2MvnHq8xW7F5ZtDHmjOYJybhEYxVnQtBOJ6izLDz18KhUjSuKT8QvJ2mzxo03zt7ESyyU-cykahu7854I68RDA5mufynYROYEooFIRu2GZUDzjbjzWLhMOWa8YLxrxfhZh15Zokz5bw4uQUxJ2c6-_x1bG3K-xxGZh1Rw23n1sfkf9wC..&amp;skuId=5484848971126&amp;spm=a1z09.2.0.0.661b2e8dAESMVA" rel="external nofollow noreferrer noopener">淘宝</a></td>
+<td style="text-align:center">41</td>
+</tr>
+<tr>
+<td style="text-align:center">无线网卡</td>
+<td style="text-align:center">BCM943602CS_3天线</td>
+<td style="text-align:center"><a target="_blank" href="https://item.taobao.com/item.htm?_u=n8646pva809&amp;id=569121658326&amp;pisk=geb41cZfKFXWY6_4IQYZzBaOxPLvbE2QIN96s1fMGKv0XIai715H1SeTMgRGCTFTME1MQOWWeVO_DR3NUt1hcn61cdAMETfjldavbO5CpOg_kiOi7T19jO_N6VRGsOFvCSE5MsL9SJwC7y1AMMs8xG_2sLYlwI0ioutm0z5bNJwQRPrmZFy4dtsXQFDkTBYMihAmr7R6sAmcIh0lZLd9sxAio75keLmioCvGZLAvgxYMiC4krCRZjm0Mn3mkeC8imKXGZHXOqGzyFnVLlaWjBXmf8pfDUV0E9QxmQ1ms82oHinvHqf3s5Cd20pfDUJe8kStN3n77uvdVq68vgOUKkExNmMYc7Jz2rZWVo3Wi_081u_bXwOlnc_xGVZKdl802-MCXlGXusVvNqCjP6AdoGs_O0AmwmQdyd7Py-i7_4rbGUVmtX3w9apNCOcn9mpOyd7lrXcK7ZQJQMrC..&amp;skuId=4369136840865&amp;spm=a1z09.2.0.0.661b2e8dAESMVA" rel="external nofollow noreferrer noopener">淘宝</a></td>
+<td style="text-align:center">87</td>
+<td style="text-align:center">2.4G 450Mbps/5G 1300Mbps/蓝牙4.0/支持黑苹果</td>
+</tr>
+<tr>
+<td style="text-align:center">电源</td>
+<td style="text-align:center">驿晨宇 玄武550v4</td>
+<td style="text-align:center"><a target="_blank" href="https://item.taobao.com/item.htm?_u=n8646pvd6a6&amp;id=700692686188&amp;pisk=goTu1agdttw_BtJTeK7SYWHB_nmvP7_B8pUdpwBE0tWjOuE-NM5etpYp2BWd-pvHKTIEFaLHnCOKNeh5z2feBKbpwTBpnXvJOyHSAaUUKLOZFQBKNeXFnLJhAb6dL9vpT3hxWVdWNw_eKA3tWrpxidpu46rrTs5NsjCrG3uebw_EBvqY8ggGRdORK2zz0sWft6rPap72g_1G865P8jXVt1ZUUp7EijfGOkzF8TPqu1W4U97FTqSVs_rFayzEiZWfOu7F8HK_Q97FfEk8FFrKQskBX_jlQQWywQY4uiqWgtDsBEx0JOAyAyzeo_jkRByWRU_e4QpcX3Dgrpdyfp1wU8kliUAM-hJqTyWH0hSMbphUj9OvjM-O08DAphdvzivZHrvCx3-NzeDiugzz0lrXdy1q9ErQAg5fiOQvajAin32mPjc0EIsPG1etijqQwg5figcmi8xN4s1rh&amp;spm=a1z09.2.0.0.661b2e8dAESMVA&amp;skuId=5446264631289" rel="external nofollow noreferrer noopener">淘宝</a></td>
+<td style="text-align:center">201</td>
+<td style="text-align:center">网红电源，实际支持700W额定输出功率，ATX3.0标准</td>
+</tr>
+<tr>
+<td style="text-align:center">机箱</td>
+<td style="text-align:center">TT 启航者S5</td>
+<td style="text-align:center">闲鱼</td>
+<td style="text-align:center">30</td>
+<td style="text-align:center">送了两个主机风扇</td>
+</tr>
+<tr>
+<td style="text-align:center">合计</td>
+<td style="text-align:center" colspan="2"></td>
+<td style="text-align:center">1534</td>
+</tr>
+</tbody>
+</table>
+<p>以上配置，没有像其他垃圾佬那样使用极低的价格采购配件，还是比较符合我自身的条件和需求的。</p>
+<h3 id="关于SAS硬盘问题">关于SAS硬盘问题</h3>
+<p>浪潮2308 6G直通卡IT模式在 Windows11 下可以免驱识别 Raid 卡以及两块硬盘，但是在黑苹果 Ventura 13.7.2 系统下无法识别，暂时未找到解决的办法。</p>
+<h3 id="关于安装黑苹果">关于安装黑苹果</h3>
+<p>博主已经将完整的 OpenCore EFI 文件提交到此项目下 <a target="_blank" href="https://github.com/lewlh/HUANANZHI-X99TF-OC-EFI" rel="external nofollow noreferrer noopener">HUANANZHI-X99-TF-OC-EFI</a>, 感兴趣的朋友可以查看。</p>
+<h2 id="性能测试">性能测试</h2>
+<p><img data-src="/images/202501/%E9%B2%81%E5%A4%A7%E5%B8%88_%E6%A0%B8%E5%BF%83%E7%A1%AC%E4%BB%B6%E8%AF%84%E6%B5%8B.png" alt="鲁大师跑分"></p>
+<p><img data-src="/images/202501/GamePP_BenchMark.jpg" alt="GamePP跑分"></p>
+<p><img data-src="/images/202501/CPU-Z.PNG" alt="CPU-Z跑分"></p>
+<p><img data-src="/images/202501/GPU-Z.gif" alt="GPU-Z参数"></p>
+<p><img data-src="/images/202501/CinebenchR23_SingleCore_iShot_2025-01-18_18.27.49.png" alt="CinebenchR23_SingleCore"></p>
+<p><img data-src="/images/202501/CinebenchR23_MutiCore_iShot_2025-01-18_18.27.29.png" alt="CinebenchR23_MutiCore"></p>
+<p><img data-src="/images/202501/Geekbench-v6-cpu-9993019-2025-01-18-19_57_34.png" alt="Geekbench-v6-cpu"></p>
+<p><img data-src="/images/202501/Geekbench-v6-compute-3502892-2025-01-18-19_59_17-Metal.png" alt="Geekbench-v6-Metal"></p>
+<p><img data-src="/images/202501/Geekbench-v6-compute-3502977-2025-01-18-20_00_03-OpenCL.png" alt="Geekbench-v6-OpenCL"></p>
+<h2 id="References">References</h2>
+<ul>
+<li>显卡
+<ul>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/XrNuVA6rNwLWUWFsCeS-kQ" rel="external nofollow noreferrer noopener">《二手显卡选购攻略 2024暑期版》</a></li>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/5ex6PChanZjAVyyzoGGsRQ" rel="external nofollow noreferrer noopener">《从入门到入土 AMD RX580北极星系列显卡二手淘金指南》</a></li>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/YC5nWaq44FlT5XUlghHgDA" rel="external nofollow noreferrer noopener">《垃圾佬的最爱显卡！矿界传奇但还能打，低预算玩黑猴游戏爱好者的首选显卡！》</a></li>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/K2zYq6Sotu0ZM1Q6404iKQ" rel="external nofollow noreferrer noopener">《妖卡拆解 旌宇RX5600 12G miniG用料浅析》</a></li>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/199v0nafx2rIH8z9L9eIyQ" rel="external nofollow noreferrer noopener">《妖卡再临 旌宇RX5600 miniG 12GB ITX显卡浅析》</a></li>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/V2JtuwLzqqADtIks7gDFaQ" rel="external nofollow noreferrer noopener">《苏氏遗孤 秽土转生 AMD RX5600 OEM 6GB显卡全解析》</a></li>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/bf2SmFOTctEYucEj8CU5tw" rel="external nofollow noreferrer noopener">《一帖搞定 二手显卡专用 测试数据全图》</a></li>
+<li><a target="_blank" href="https://post.smzdm.com/p/a60dg90n/" rel="external nofollow noreferrer noopener">《兄弟们我忍不住下山了，买了个2022年产的RX580》</a></li>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/ClegwqLHqSHDNOenXWHyxw" rel="external nofollow noreferrer noopener">《『攒机』电脑里的名堂 第3期 UEFI显卡故障玄学 解铃还须系铃人》</a></li>
+</ul>
+</li>
+<li>主板
+<ul>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/-5XWngv6zc4XpLriRh9l4Q" rel="external nofollow noreferrer noopener">《好价X99主板，90出头的四通道主板还要什么自行车！》</a></li>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/XUXN_evUaxfw4fVoKcK35w" rel="external nofollow noreferrer noopener">《垃圾佬E5洋垃圾绝配主板，可能是目前性价比最高的X99主板！》</a></li>
+</ul>
+</li>
+<li>处理器
+<ul>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/1kt75uZnO2Xz0HDZQ5Ie_Q" rel="external nofollow noreferrer noopener">《E5 系列真是 CPU 中的垃圾吗？E5 洋垃圾处理器还值得入手吗？》</a></li>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/yixsOM0q4ecWFx4JX4dQSw" rel="external nofollow noreferrer noopener">《垃圾佬为什么都爱用E5处理器？因为它是真便宜啊！不到10元拿下！》</a></li>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/YVk05KkAP9rOzuuJuseWlA" rel="external nofollow noreferrer noopener">《如何选购E5CPU,打造性价比装机》</a></li>
+<li><a target="_blank" href="https://mp.weixin.qq.com/s/ucEx3U42d_CdtrPU42CaEw" rel="external nofollow noreferrer noopener">《一代神U！人手一套，不到50元的真香处理器，鸡血后性能媲美十代i5！》</a></li>
+</ul>
+</li>
+<li>NVMe
+<ul>
+<li><a target="_blank" href="https://post.smzdm.com/p/ad9nxzzp/" rel="external nofollow noreferrer noopener">芯点子 C700 目前最便宜 7000m/s 固态硬盘简测</a></li>
+<li><a target="_blank" href="https://www.bilibili.com/opus/998865335593467907" rel="external nofollow noreferrer noopener">芯点子c700上手，感觉还行</a></li>
+<li><a target="_blank" href="https://www.bilibili.com/video/BV14z421r7wg/?vd_source=3ddb5800edba7dbb68fa507b3abf76b7" rel="external nofollow noreferrer noopener">芯点子C700 2T固态硬盘上手简评：希捷酷鱼530兄弟？</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/RX580/" rel="tag"># RX580</a>
+              <a href="/tags/x99/" rel="tag"># x99</a>
+              <a href="/tags/E5/" rel="tag"># E5</a>
+              <a href="/tags/%E5%8D%8E%E5%8D%97%E9%87%91%E7%89%8C/" rel="tag"># 华南金牌</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/01/15/AmdRx580AITest/" rel="prev" title="AMD RX580 AI部署记录">
+                  <i class="fa fa-angle-left"></i> AMD RX580 AI部署记录
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/07/22/2024LiberiaTravelNotes/" rel="next" title="利比里亚之旅">
+                  利比里亚之旅 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"b95c627ba75c70b94c38022823ef60b4"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>

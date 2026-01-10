@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="DeepseekR1 出圈，引起了我非常大的兴趣并想尝试用一下。首先想到的是 Ollama 进行部署，一开始我以为 Ollama 在 MacOS 下面应该是支持 AMD RX580 的显卡进行部署的，结果部署完发现并不能使用，在网上查了一圈，基本的结论是 Ollama 只支持 Metal3 的接口，Metal2 并不支持。所以除非我想办法在这张显卡上安装 MacOS15&#x2F;Sequoia 及以上版">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AMD RX580 AI部署记录:Ollama">
+<meta property="og:url" content="http://lewlh.github.io/2025/02/03/AmdRx580AITestOllama/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="DeepseekR1 出圈，引起了我非常大的兴趣并想尝试用一下。首先想到的是 Ollama 进行部署，一开始我以为 Ollama 在 MacOS 下面应该是支持 AMD RX580 的显卡进行部署的，结果部署完发现并不能使用，在网上查了一圈，基本的结论是 Ollama 只支持 Metal3 的接口，Metal2 并不支持。所以除非我想办法在这张显卡上安装 MacOS15&#x2F;Sequoia 及以上版">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://lewlh.github.io/images/202502/ollama.png">
+<meta property="og:image" content="http://lewlh.github.io/images/202502/Rx580-8GB_RunOllamaDeepseek-r1.7bOnWin11.jpg">
+<meta property="article:published_time" content="2025-02-03T10:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-02T15:53:34.464Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="RX580">
+<meta property="article:tag" content="AMD">
+<meta property="article:tag" content="Ollama">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lewlh.github.io/images/202502/ollama.png">
+
+
+<link rel="canonical" href="http://lewlh.github.io/2025/02/03/AmdRx580AITestOllama/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2025/02/03/AmdRx580AITestOllama/","path":"2025/02/03/AmdRx580AITestOllama/","title":"AMD RX580 AI部署记录:Ollama"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>AMD RX580 AI部署记录:Ollama | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">107</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">35</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8Win11%E9%83%A8%E7%BD%B2Ollama%E5%B9%B6%E8%B0%83%E7%94%A8RX580-8G%E6%98%BE%E5%8D%A1%E8%BF%9B%E8%A1%8C%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86"><span class="nav-text">在Win11部署Ollama并调用RX580-8G显卡进行大语言模型推理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8Cdeepseek-r1-7b"><span class="nav-text">运行deepseek-r1:7b</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E6%96%B9%E6%A1%88"><span class="nav-text">其它方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-text">References</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">107</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2025/02/03/AmdRx580AITestOllama/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="AMD RX580 AI部署记录:Ollama | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AMD RX580 AI部署记录:Ollama
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-02-03 18:00:00" itemprop="dateCreated datePublished" datetime="2025-02-03T18:00:00+08:00">2025-02-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-03-02 23:53:34" itemprop="dateModified" datetime="2025-03-02T23:53:34+08:00">2025-03-02</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img data-src="/images/202502/ollama.png" alt="Ollama"></p>
+<p>DeepseekR1 出圈，引起了我非常大的兴趣并想尝试用一下。首先想到的是 Ollama 进行部署，一开始我以为 Ollama 在 MacOS 下面应该是支持 AMD RX580 的显卡进行部署的，结果部署完发现并不能使用，在网上查了一圈，基本的结论是 Ollama 只支持 Metal3 的接口，Metal2 并不支持。所以除非我想办法在这张显卡上安装 MacOS15/Sequoia 及以上版本的系统，不然只能用 CPU 对大语言模型进行推理了。不过我也有新的发现<a target="_blank" href="https://www.bilibili.com/opus/923618797070319625?jump_opus=1" rel="external nofollow noreferrer noopener">AMD显卡全系列解锁Ollama支持，llama3运行更优雅！</a>，最近有大神魔改了 ROCm 的驱动，并成功在 windows 下面安装 ollama 并成功调用 AMD RX580 进行推理，真是枯木逢春啊！后面我也做了尝试，果然能用，不过速度相较于纯 E5-2666v3 推理，没有快很多。下面我介绍一下部署的过程。</p>
+<span id="more"></span>
+<hr>
+<h2 id="在Win11部署Ollama并调用RX580-8G显卡进行大语言模型推理">在Win11部署Ollama并调用RX580-8G显卡进行大语言模型推理</h2>
+<p>在 GitHub 上有一个 <a target="_blank" href="https://github.com/likelovewant/ollama-for-amd?tab=readme-ov-file" rel="external nofollow noreferrer noopener">ollama-for-amd</a> 项目，专门用来解决使用AMD显卡进行大语言模型推理的问题。综合该项目的描述，我按照以下步骤进行安装,安装的 ollama-for-amd 版本是 <a target="_blank" href="https://github.com/likelovewant/ollama-for-amd/releases/tag/v0.5.4" rel="external nofollow noreferrer noopener">v0.5.4</a>:</p>
+<ul>
+<li>安装 AMD HIP SDK for Windows，Windows 10 &amp; 11 -&gt; ROCm 5.7.1，下载链接<a target="_blank" href="https://www.amd.com/en/developer/resources/rocm-hub/eula/licenses.html?filename=AMD-Software-PRO-Edition-23.Q4-Win10-Win11-For-HIP.exe" rel="external nofollow noreferrer noopener">AMD-Software-PRO-Edition-23.Q4-Win10-Win11-For-HIP.exe</a></li>
+<li>安装 <a target="_blank" href="https://github.com/likelovewant/ollama-for-amd/releases/tag/v0.5.4" rel="external nofollow noreferrer noopener">v0.5.4</a> 的 <a target="_blank" href="https://github.com/likelovewant/ollama-for-amd/releases/download/v0.5.4/OllamaSetup.exe" rel="external nofollow noreferrer noopener">OllamaSetup.exe</a>;
+<ul>
+<li>此安装包是全量安装包，安装后可以在windows上设置自动启动，在系统右下角有小图标，方便管理以及查看日志。</li>
+</ul>
+</li>
+<li>通过 OllamaSetup.exe 完成 Ollama 安装后，需要替换部分二进制文件；在 <a target="_blank" href="https://github.com/likelovewant/ROCmLibs-for-gfx1103-AMD780M-APU" rel="external nofollow noreferrer noopener">ROCmLibs-for-gfx1103-AMD780M-APU</a> 项目中，下载需要替换的 ROCm 的相关二进制文件。我下载的是 <a target="_blank" href="https://github.com/likelovewant/ROCmLibs-for-gfx1103-AMD780M-APU/releases/tag/v0.5.7" rel="external nofollow noreferrer noopener">rocblas 3.1.0 for ROCm 5.7.0 ( for Windows)</a> 版本的 <a target="_blank" href="https://github.com/likelovewant/ROCmLibs-for-gfx1103-AMD780M-APU/releases/download/v0.5.7/rocblas.for.gfx803.override.with.vega10.7z" rel="external nofollow noreferrer noopener">rocblas.for.gfx803.override.with.vega10.7z</a>;
+<ul>
+<li>找到 Ollama 的安装目录，通常地址为 <code>C:\Users\$&#123;USER&#125;\AppData\Local\Programs\Ollama</code>,注意<code>$&#123;USER&#125;</code>是你实际的用户名；</li>
+<li>解压<strong>rocblas.for.gfx803.override.with.vega10.7z</strong>压缩文件，使用里面的 <code>rocblas.dll</code> 替换<code>C:\Users\$&#123;USER&#125;\AppData\Local\Programs\Ollama\lib\ollama\rocblas.dll</code>文件；</li>
+<li>解压<strong>rocblas.for.gfx803.override.with.vega10.7z</strong>压缩文件，使用里面的 <code>library</code> 文件夹，替换<code>C:\Users\$&#123;USER&#125;\AppData\Local\Programs\Ollama\lib\ollama\rocblas\library</code>文件夹；</li>
+</ul>
+</li>
+<li>至此，安装和修改过程结束，下面验证是否启用了GPU进行大语言模型的部署.打开 PowerShell 终端，执行 <code>ollama serve</code> 命令，如果能看到 <code>source=types.go:131 msg=&quot;inference compute&quot; id=0 library=rocm variant=&quot;&quot; compute=gfx803 driver=5.7 name=&quot;Radeon RX 580 Series&quot; total=&quot;8.0 GiB&quot; available=&quot;7.9 GiB&quot;</code> 的日志信息，基本可以确定 Ollama 可以使用 AMD 的 GPU 进行推理了，我这边的日志如下：</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">PS</span> C:\Users\test&gt; ollama serve</span><br><span class="line"><span class="number">2025</span>/<span class="number">02</span>/<span class="number">03</span> <span class="number">21</span>:<span class="number">59</span>:<span class="number">23</span> routes.go:<span class="number">1259</span>: INFO server config env=<span class="string">&quot;map[CUDA_VISIBLE_DEVICES: GPU_DEVICE_ORDINAL: HIP_VISIBLE_DEVICES: HSA_OVERRIDE_GFX_VERSION: HTTPS_PROXY: HTTP_PROXY: NO_PROXY: OLLAMA_DEBUG:false OLLAMA_FLASH_ATTENTION:false OLLAMA_GPU_OVERHEAD:0 OLLAMA_HOST:http://:11434 OLLAMA_INTEL_GPU:false OLLAMA_KEEP_ALIVE:5m0s OLLAMA_KV_CACHE_TYPE: OLLAMA_LLM_LIBRARY: OLLAMA_LOAD_TIMEOUT:5m0s OLLAMA_MAX_LOADED_MODELS:0 OLLAMA_MAX_QUEUE:512 OLLAMA_MODELS:C:\\Users\\lewlh\\.ollama\\models OLLAMA_MULTIUSER_CACHE:false OLLAMA_NOHISTORY:false OLLAMA_NOPRUNE:false OLLAMA_NUM_PARALLEL:0 OLLAMA_ORIGINS:[* http://localhost https://localhost http://localhost:* https://localhost:* http://127.0.0.1 https://127.0.0.1 http://127.0.0.1:* https://127.0.0.1:* http://0.0.0.0 https://0.0.0.0 http://0.0.0.0:* https://0.0.0.0:* app://* file://* tauri://* vscode-webview://*] OLLAMA_SCHED_SPREAD:false ROCR_VISIBLE_DEVICES:]&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T21</span>:<span class="number">59</span>:<span class="number">23.969</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=images.go:<span class="number">757</span> msg=<span class="string">&quot;total blobs: 13&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T21</span>:<span class="number">59</span>:<span class="number">23.973</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=images.go:<span class="number">764</span> msg=<span class="string">&quot;total unused blobs removed: 0&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T21</span>:<span class="number">59</span>:<span class="number">23.975</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=routes.go:<span class="number">1310</span> msg=<span class="string">&quot;Listening on [::]:11434 (version 0.5.4-1-g5c9deab)&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T21</span>:<span class="number">59</span>:<span class="number">23.977</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=routes.go:<span class="number">1339</span> msg=<span class="string">&quot;Dynamic LLM libraries&quot;</span> runners=<span class="string">&quot;[cpu_avx cpu_avx2 rocm_avx cpu]&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T21</span>:<span class="number">59</span>:<span class="number">23.977</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=gpu.go:<span class="number">226</span> msg=<span class="string">&quot;looking for compatible GPUs&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T21</span>:<span class="number">59</span>:<span class="number">23.977</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=gpu_windows.go:<span class="number">167</span> msg=packages count=<span class="number">1</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T21</span>:<span class="number">59</span>:<span class="number">23.977</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=gpu_windows.go:<span class="number">214</span> msg=<span class="string">&quot;&quot;</span> package=<span class="number">0</span> cores=<span class="number">10</span> efficiency=<span class="number">0</span> threads=<span class="number">20</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T21</span>:<span class="number">59</span>:<span class="number">24.592</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=types.go:<span class="number">131</span> msg=<span class="string">&quot;inference compute&quot;</span> id=<span class="number">0</span> library=rocm variant=<span class="string">&quot;&quot;</span> compute=gfx803 driver=<span class="number">5.7</span> name=<span class="string">&quot;Radeon RX 580 Series&quot;</span> total=<span class="string">&quot;8.0 GiB&quot;</span> available=<span class="string">&quot;7.9 GiB&quot;</span></span><br></pre></td></tr></table></figure>
+<h2 id="运行deepseek-r1-7b">运行deepseek-r1:7b</h2>
+<p>尝试在 AMD RX580 8G 运行 deepseek-r1:7b 大语言模型: <code>ollama run deepseek-r1:7b</code>,启动该模型的部分启动日志如下:</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><span class="line">[<span class="type">GIN</span>] <span class="number">2025</span>/<span class="number">02</span>/<span class="number">03</span> - <span class="number">22</span>:<span class="number">02</span>:<span class="number">45</span> | <span class="number">200</span> |            <span class="number">0</span>s |       <span class="number">127.0</span>.<span class="number">0.1</span> | HEAD     <span class="string">&quot;/&quot;</span></span><br><span class="line">[<span class="type">GIN</span>] <span class="number">2025</span>/<span class="number">02</span>/<span class="number">03</span> - <span class="number">22</span>:<span class="number">02</span>:<span class="number">45</span> | <span class="number">200</span> |     <span class="number">54.7458</span>ms |       <span class="number">127.0</span>.<span class="number">0.1</span> | POST     <span class="string">&quot;/api/show&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T22</span>:<span class="number">02</span>:<span class="number">46.336</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=sched.go:<span class="number">185</span> msg=<span class="string">&quot;one or more GPUs detected that are unable to accurately report free memory - disabling default concurrency&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T22</span>:<span class="number">02</span>:<span class="number">46.379</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=sched.go:<span class="number">714</span> msg=<span class="string">&quot;new model will fit in available VRAM in single GPU, loading&quot;</span> model=C:\Users\lewlh\.ollama\models\blobs\sha256<span class="literal">-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49</span> gpu=<span class="number">0</span> parallel=<span class="number">4</span> available=<span class="number">8455716864</span> required=<span class="string">&quot;5.6 GiB&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T22</span>:<span class="number">02</span>:<span class="number">46.930</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=server.go:<span class="number">104</span> msg=<span class="string">&quot;system memory&quot;</span> total=<span class="string">&quot;95.9 GiB&quot;</span> free=<span class="string">&quot;83.9 GiB&quot;</span> free_swap=<span class="string">&quot;106.4 GiB&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T22</span>:<span class="number">02</span>:<span class="number">46.931</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=memory.go:<span class="number">356</span> msg=<span class="string">&quot;offload to rocm&quot;</span> layers.requested=<span class="literal">-1</span> layers.model=<span class="number">29</span> layers.offload=<span class="number">29</span> layers.split=<span class="string">&quot;&quot;</span> memory.available=<span class="string">&quot;[7.9 GiB]&quot;</span> memory.gpu_overhead=<span class="string">&quot;0 B&quot;</span> memory.required.full=<span class="string">&quot;5.6 GiB&quot;</span> memory.required.partial=<span class="string">&quot;5.6 GiB&quot;</span> memory.required.kv=<span class="string">&quot;448.0 MiB&quot;</span> memory.required.allocations=<span class="string">&quot;[5.6 GiB]&quot;</span> memory.weights.total=<span class="string">&quot;4.1 GiB&quot;</span> memory.weights.repeating=<span class="string">&quot;3.7 GiB&quot;</span> memory.weights.nonrepeating=<span class="string">&quot;426.4 MiB&quot;</span> memory.graph.full=<span class="string">&quot;478.0 MiB&quot;</span> memory.graph.partial=<span class="string">&quot;730.4 MiB&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T22</span>:<span class="number">02</span>:<span class="number">46.947</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=server.go:<span class="number">376</span> msg=<span class="string">&quot;starting llama server&quot;</span> cmd=<span class="string">&quot;C:\\Users\\lewlh\\AppData\\Local\\Programs\\Ollama\\lib\\ollama\\runners\\rocm_avx\\ollama_llama_server.exe runner --model C:\\Users\\lewlh\\.ollama\\models\\blobs\\sha256-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49 --ctx-size 8192 --batch-size 512 --n-gpu-layers 29 --threads 10 --parallel 4 --port 65200&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T22</span>:<span class="number">02</span>:<span class="number">47.241</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=sched.go:<span class="number">449</span> msg=<span class="string">&quot;loaded runners&quot;</span> count=<span class="number">1</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T22</span>:<span class="number">02</span>:<span class="number">47.241</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=server.go:<span class="number">555</span> msg=<span class="string">&quot;waiting for llama runner to start responding&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T22</span>:<span class="number">02</span>:<span class="number">47.242</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=server.go:<span class="number">589</span> msg=<span class="string">&quot;waiting for server to become available&quot;</span> status=<span class="string">&quot;llm server error&quot;</span></span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T22</span>:<span class="number">02</span>:<span class="number">47.290</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=runner.go:<span class="number">938</span> msg=<span class="string">&quot;starting go runner&quot;</span></span><br><span class="line">ggml_cuda_init: GGML_CUDA_FORCE_MMQ:    no</span><br><span class="line">ggml_cuda_init: GGML_CUDA_FORCE_CUBLAS: no</span><br><span class="line">ggml_cuda_init: found <span class="number">1</span> ROCm devices:</span><br><span class="line">  Device <span class="number">0</span>: Radeon RX <span class="number">580</span> Series, compute capability <span class="number">8.0</span>, VMM: no</span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T22</span>:<span class="number">02</span>:<span class="number">48.293</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=runner.go:<span class="number">939</span> msg=system info=<span class="string">&quot;ROCm : NO_PEER_COPY = 1 | PEER_MAX_BATCH_SIZE = 128 | CPU : SSE3 = 1 | SSSE3 = 1 | AVX = 1 | LLAMAFILE = 1 | AARCH64_REPACK = 1 | cgo(gcc)&quot;</span> threads=<span class="number">10</span></span><br><span class="line">llama_load_model_from_file: <span class="keyword">using</span> device ROCm0 (Radeon RX 580 Series) - 8064 MiB free</span><br><span class="line">time=<span class="number">2025</span><span class="literal">-02-03T22</span>:<span class="number">02</span>:<span class="number">48.294</span>+<span class="number">08</span>:<span class="number">00</span> level=INFO source=.:<span class="number">0</span> msg=<span class="string">&quot;Server listening on 127.0.0.1:65200&quot;</span></span><br><span class="line">llama_model_loader: loaded meta <span class="keyword">data</span> with <span class="number">26</span> key<span class="literal">-value</span> pairs and <span class="number">339</span> tensors from C:\Users\lewlh\.ollama\models\blobs\sha256<span class="literal">-96c415656d377afbff962f6cdb2394ab092ccbcbaab4b82525bc4ca800fe8a49</span> (version GGUF V3 (latest))</span><br><span class="line">llama_model_loader: Dumping metadata keys/values. Note: KV overrides <span class="keyword">do</span> not apply <span class="keyword">in</span> this output.</span><br><span class="line">llama_model_loader: - kv   <span class="number">0</span>:                       general.architecture str              = qwen2</span><br><span class="line">llama_model_loader: - kv   <span class="number">1</span>:                               general.type str              = model</span><br><span class="line">llama_model_loader: - kv   <span class="number">2</span>:                               general.name str              = DeepSeek R1 Distill Qwen <span class="number">7</span>B</span><br><span class="line">llama_model_loader: - kv   <span class="number">3</span>:                           general.basename str              = DeepSeek<span class="literal">-R1-Distill-Qwen</span></span><br><span class="line">llama_model_loader: - kv   <span class="number">4</span>:                         general.size_label str              = <span class="number">7</span>B</span><br><span class="line">llama_model_loader: - kv   <span class="number">5</span>:                          qwen2.block_count u32              = <span class="number">28</span></span><br><span class="line">llama_model_loader: - kv   <span class="number">6</span>:                       qwen2.context_length u32              = <span class="number">131072</span></span><br><span class="line">llama_model_loader: - kv   <span class="number">7</span>:                     qwen2.embedding_length u32              = <span class="number">3584</span></span><br><span class="line">llama_model_loader: - kv   <span class="number">8</span>:                  qwen2.feed_forward_length u32              = <span class="number">18944</span></span><br><span class="line">llama_model_loader: - kv   <span class="number">9</span>:                 qwen2.attention.head_count u32              = <span class="number">28</span></span><br><span class="line">llama_model_loader: - kv  <span class="number">10</span>:              qwen2.attention.head_count_kv u32              = <span class="number">4</span></span><br><span class="line">llama_model_loader: - kv  <span class="number">11</span>:                       qwen2.rope.freq_base f32              = <span class="number">10000.000000</span></span><br><span class="line">llama_model_loader: - kv  <span class="number">12</span>:     qwen2.attention.layer_norm_rms_epsilon f32              = <span class="number">0.000001</span></span><br><span class="line">llama_model_loader: - kv  <span class="number">13</span>:                          general.file_type u32              = <span class="number">15</span></span><br><span class="line">llama_model_loader: - kv  <span class="number">14</span>:                       tokenizer.ggml.model str              = gpt2</span><br><span class="line">llama_model_loader: - kv  <span class="number">15</span>:                         tokenizer.ggml.pre str              = qwen2</span><br><span class="line">llama_model_loader: - kv  <span class="number">16</span>:                      tokenizer.ggml.tokens arr[<span class="type">str</span>,<span class="number">152064</span>]  = [<span class="string">&quot;!&quot;</span>, <span class="string">&quot;\&quot;</span><span class="string">&quot;, &quot;</span><span class="comment">#&quot;, &quot;$&quot;, &quot;%&quot;, &quot;&amp;&quot;, &quot;&#x27;&quot;, ...</span></span><br><span class="line"><span class="type">llama_model_loader</span>: - <span class="type">kv</span>  <span class="number">17</span>:                  <span class="type">tokenizer.ggml.token_type</span> <span class="type">arr</span>[<span class="type">i32</span>,<span class="number">152064</span>]  = [<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="type">...</span></span><br><span class="line"><span class="type">llama_model_loader</span>: - <span class="type">kv</span>  <span class="number">18</span>:                      <span class="type">tokenizer.ggml.merges</span> <span class="type">arr</span>[<span class="type">str</span>,<span class="number">151387</span>]  = [<span class="string">&quot;Ġ Ġ&quot;</span>, <span class="string">&quot;ĠĠ ĠĠ&quot;</span>, <span class="string">&quot;i n&quot;</span>, <span class="string">&quot;Ġ t&quot;</span>,<span class="type">...</span></span><br><span class="line"><span class="type">llama_model_loader</span>: - <span class="type">kv</span>  <span class="number">19</span>:                <span class="type">tokenizer.ggml.bos_token_id</span> <span class="type">u32</span>              = <span class="number">151646</span></span><br><span class="line"><span class="type">llama_model_loader</span>: - <span class="type">kv</span>  <span class="number">20</span>:                <span class="type">tokenizer.ggml.eos_token_id</span> <span class="type">u32</span>              = <span class="number">151643</span></span><br><span class="line"><span class="type">llama_model_loader</span>: - <span class="type">kv</span>  <span class="number">21</span>:            <span class="type">tokenizer.ggml.padding_token_id</span> <span class="type">u32</span>              = <span class="number">151643</span></span><br><span class="line"><span class="type">llama_model_loader</span>: - <span class="type">kv</span>  <span class="number">22</span>:               <span class="type">tokenizer.ggml.add_bos_token</span> <span class="built_in">bool</span>             = <span class="type">true</span></span><br><span class="line"><span class="type">llama_model_loader</span>: - <span class="type">kv</span>  <span class="number">23</span>:               <span class="type">tokenizer.ggml.add_eos_token</span> <span class="built_in">bool</span>             = <span class="type">false</span></span><br><span class="line"><span class="type">llama_model_loader</span>: - <span class="type">kv</span>  <span class="number">24</span>:                    <span class="type">tokenizer.chat_template</span> <span class="type">str</span>              = &#123;% <span class="type">if</span> <span class="type">not</span> <span class="type">add_generation_prompt</span> <span class="type">is</span> <span class="type">de...</span></span><br><span class="line"><span class="type">llama_model_loader</span>: - <span class="type">kv</span>  <span class="number">25</span>:               <span class="type">general.quantization_version</span> <span class="type">u32</span>              = <span class="number">2</span></span><br><span class="line"><span class="type">llama_model_loader</span>: - <span class="type">type</span>  <span class="type">f32</span>:  <span class="number">141</span> <span class="type">tensors</span></span><br><span class="line"><span class="type">llama_model_loader</span>: - <span class="type">type</span> <span class="type">q4_K</span>:  <span class="number">169</span> <span class="type">tensors</span></span><br><span class="line"><span class="type">llama_model_loader</span>: - <span class="type">type</span> <span class="type">q6_K</span>:   <span class="number">29</span> <span class="type">tensors</span></span><br><span class="line"><span class="type">time</span>=<span class="number">2025</span>-<span class="number">02</span>-<span class="number">03</span><span class="type">T22</span>:<span class="number">02</span>:<span class="number">48.497</span>+<span class="number">08</span>:<span class="number">00</span> <span class="type">level</span>=<span class="type">INFO</span> <span class="type">source</span>=<span class="type">server.go</span>:<span class="number">589</span> <span class="type">msg</span>=<span class="string">&quot;waiting for server to become available&quot;</span> <span class="type">status</span>=<span class="string">&quot;llm server loading model&quot;</span></span><br><span class="line"><span class="type">llm_load_vocab</span>: <span class="type">special_eos_id</span> <span class="type">is</span> <span class="type">not</span> <span class="type">in</span> <span class="type">special_eog_ids</span> - <span class="type">the</span> <span class="type">tokenizer</span> <span class="type">config</span> <span class="type">may</span> <span class="type">be</span> <span class="type">incorrect</span></span><br><span class="line"><span class="type">llm_load_vocab</span>: <span class="type">special</span> <span class="type">tokens</span> <span class="type">cache</span> <span class="type">size</span> = <span class="number">22</span></span><br><span class="line"><span class="type">llm_load_vocab</span>: <span class="type">token</span> <span class="type">to</span> <span class="type">piece</span> <span class="type">cache</span> <span class="type">size</span> = <span class="number">0.9310</span> <span class="type">MB</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">format</span>           = <span class="type">GGUF</span> <span class="type">V3</span> (<span class="type">latest</span>)</span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">arch</span>             = <span class="type">qwen2</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">vocab</span> <span class="type">type</span>       = <span class="type">BPE</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_vocab</span>          = <span class="number">152064</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_merges</span>         = <span class="number">151387</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">vocab_only</span>       = <span class="number">0</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_ctx_train</span>      = <span class="number">131072</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_embd</span>           = <span class="number">3584</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_layer</span>          = <span class="number">28</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_head</span>           = <span class="number">28</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_head_kv</span>        = <span class="number">4</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_rot</span>            = <span class="number">128</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_swa</span>            = <span class="number">0</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_embd_head_k</span>    = <span class="number">128</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_embd_head_v</span>    = <span class="number">128</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_gqa</span>            = <span class="number">7</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_embd_k_gqa</span>     = <span class="number">512</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_embd_v_gqa</span>     = <span class="number">512</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">f_norm_eps</span>       = <span class="number">0.0</span><span class="type">e</span>+<span class="number">00</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">f_norm_rms_eps</span>   = <span class="number">1.0</span><span class="type">e</span>-<span class="number">06</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">f_clamp_kqv</span>      = <span class="number">0.0</span><span class="type">e</span>+<span class="number">00</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">f_max_alibi_bias</span> = <span class="number">0.0</span><span class="type">e</span>+<span class="number">00</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">f_logit_scale</span>    = <span class="number">0.0</span><span class="type">e</span>+<span class="number">00</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_ff</span>             = <span class="number">18944</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_expert</span>         = <span class="number">0</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_expert_used</span>    = <span class="number">0</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">causal</span> <span class="type">attn</span>      = <span class="number">1</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">pooling</span> <span class="type">type</span>     = <span class="number">0</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">rope</span> <span class="type">type</span>        = <span class="number">2</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">rope</span> <span class="type">scaling</span>     = <span class="type">linear</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">freq_base_train</span>  = <span class="number">10000.0</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">freq_scale_train</span> = <span class="number">1</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">n_ctx_orig_yarn</span>  = <span class="number">131072</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">rope_finetuned</span>   = <span class="type">unknown</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">ssm_d_conv</span>       = <span class="number">0</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">ssm_d_inner</span>      = <span class="number">0</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">ssm_d_state</span>      = <span class="number">0</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">ssm_dt_rank</span>      = <span class="number">0</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">ssm_dt_b_c_rms</span>   = <span class="number">0</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">model</span> <span class="type">type</span>       = <span class="number">7</span><span class="type">B</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">model</span> <span class="type">ftype</span>      = <span class="type">Q4_K</span> - <span class="type">Medium</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">model</span> <span class="type">params</span>     = <span class="number">7.62</span> <span class="type">B</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">model</span> <span class="type">size</span>       = <span class="number">4.36</span> <span class="type">GiB</span> (<span class="number">4.91</span> <span class="type">BPW</span>)</span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">general.name</span>     = <span class="type">DeepSeek</span> <span class="type">R1</span> <span class="type">Distill</span> <span class="type">Qwen</span> <span class="number">7</span><span class="type">B</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">BOS</span> <span class="type">token</span>        = <span class="number">151646</span> <span class="string">&#x27;&lt;｜begin▁of▁sentence｜&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">EOS</span> <span class="type">token</span>        = <span class="number">151643</span> <span class="string">&#x27;&lt;｜end▁of▁sentence｜&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">EOT</span> <span class="type">token</span>        = <span class="number">151643</span> <span class="string">&#x27;&lt;｜end▁of▁sentence｜&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">PAD</span> <span class="type">token</span>        = <span class="number">151643</span> <span class="string">&#x27;&lt;｜end▁of▁sentence｜&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">LF</span> <span class="type">token</span>         = <span class="number">148848</span> <span class="string">&#x27;ÄĬ&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">FIM</span> <span class="type">PRE</span> <span class="type">token</span>    = <span class="number">151659</span> <span class="string">&#x27;&lt;|fim_prefix|&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">FIM</span> <span class="type">SUF</span> <span class="type">token</span>    = <span class="number">151661</span> <span class="string">&#x27;&lt;|fim_suffix|&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">FIM</span> <span class="type">MID</span> <span class="type">token</span>    = <span class="number">151660</span> <span class="string">&#x27;&lt;|fim_middle|&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">FIM</span> <span class="type">PAD</span> <span class="type">token</span>    = <span class="number">151662</span> <span class="string">&#x27;&lt;|fim_pad|&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">FIM</span> <span class="type">REP</span> <span class="type">token</span>    = <span class="number">151663</span> <span class="string">&#x27;&lt;|repo_name|&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">FIM</span> <span class="type">SEP</span> <span class="type">token</span>    = <span class="number">151664</span> <span class="string">&#x27;&lt;|file_sep|&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">EOG</span> <span class="type">token</span>        = <span class="number">151643</span> <span class="string">&#x27;&lt;｜end▁of▁sentence｜&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">EOG</span> <span class="type">token</span>        = <span class="number">151662</span> <span class="string">&#x27;&lt;|fim_pad|&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">EOG</span> <span class="type">token</span>        = <span class="number">151663</span> <span class="string">&#x27;&lt;|repo_name|&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">EOG</span> <span class="type">token</span>        = <span class="number">151664</span> <span class="string">&#x27;&lt;|file_sep|&gt;&#x27;</span></span><br><span class="line"><span class="type">llm_load_print_meta</span>: <span class="type">max</span> <span class="type">token</span> <span class="type">length</span> = <span class="number">256</span></span><br><span class="line"><span class="type">llm_load_tensors</span>: <span class="type">offloading</span> <span class="number">28</span> <span class="type">repeating</span> <span class="type">layers</span> <span class="type">to</span> <span class="type">GPU</span></span><br><span class="line"><span class="type">llm_load_tensors</span>: <span class="type">offloading</span> <span class="type">output</span> <span class="type">layer</span> <span class="type">to</span> <span class="type">GPU</span></span><br><span class="line"><span class="type">llm_load_tensors</span>: <span class="type">offloaded</span> <span class="number">29</span>/<span class="number">29</span> <span class="type">layers</span> <span class="type">to</span> <span class="type">GPU</span></span><br><span class="line"><span class="type">llm_load_tensors</span>:   <span class="type">CPU_Mapped</span> <span class="type">model</span> <span class="type">buffer</span> <span class="type">size</span> =   <span class="number">292.36</span> <span class="type">MiB</span></span><br><span class="line"><span class="type">llm_load_tensors</span>:        <span class="type">ROCm0</span> <span class="type">model</span> <span class="type">buffer</span> <span class="type">size</span> =  <span class="number">4168.09</span> <span class="type">MiB</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>: <span class="type">n_seq_max</span>     = <span class="number">4</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>: <span class="type">n_ctx</span>         = <span class="number">8192</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>: <span class="type">n_ctx_per_seq</span> = <span class="number">2048</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>: <span class="type">n_batch</span>       = <span class="number">2048</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>: <span class="type">n_ubatch</span>      = <span class="number">512</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>: <span class="type">flash_attn</span>    = <span class="number">0</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>: <span class="type">freq_base</span>     = <span class="number">10000.0</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>: <span class="type">freq_scale</span>    = <span class="number">1</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>: <span class="type">n_ctx_per_seq</span> (<span class="number">2048</span>) &lt; <span class="type">n_ctx_train</span> (<span class="number">131072</span>) -- <span class="type">the</span> <span class="type">full</span> <span class="type">capacity</span> <span class="type">of</span> <span class="type">the</span> <span class="type">model</span> <span class="type">will</span> <span class="type">not</span> <span class="type">be</span> <span class="type">utilized</span></span><br><span class="line"><span class="type">llama_kv_cache_init</span>:      <span class="type">ROCm0</span> <span class="type">KV</span> <span class="type">buffer</span> <span class="type">size</span> =   <span class="number">448.00</span> <span class="type">MiB</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>: <span class="type">KV</span> <span class="type">self</span> <span class="type">size</span>  =  <span class="number">448.00</span> <span class="type">MiB</span>, <span class="type">K</span> (<span class="type">f16</span>):  <span class="number">224.00</span> <span class="type">MiB</span>, <span class="type">V</span> (<span class="type">f16</span>):  <span class="number">224.00</span> <span class="type">MiB</span></span><br><span class="line"><span class="type">ggml_cuda_host_malloc</span>: <span class="type">failed</span> <span class="type">to</span> <span class="type">allocate</span> <span class="number">2.38</span> <span class="type">MiB</span> <span class="type">of</span> <span class="type">pinned</span> <span class="type">memory</span>: <span class="type">out</span> <span class="type">of</span> <span class="type">memory</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>:        <span class="type">CPU</span>  <span class="type">output</span> <span class="type">buffer</span> <span class="type">size</span> =     <span class="number">2.38</span> <span class="type">MiB</span></span><br><span class="line"><span class="type">ggml_cuda_host_malloc</span>: <span class="type">failed</span> <span class="type">to</span> <span class="type">allocate</span> <span class="number">23.01</span> <span class="type">MiB</span> <span class="type">of</span> <span class="type">pinned</span> <span class="type">memory</span>: <span class="type">out</span> <span class="type">of</span> <span class="type">memory</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>:      <span class="type">ROCm0</span> <span class="type">compute</span> <span class="type">buffer</span> <span class="type">size</span> =   <span class="number">492.00</span> <span class="type">MiB</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>:  <span class="type">ROCm_Host</span> <span class="type">compute</span> <span class="type">buffer</span> <span class="type">size</span> =    <span class="number">23.01</span> <span class="type">MiB</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>: <span class="type">graph</span> <span class="type">nodes</span>  = <span class="number">986</span></span><br><span class="line"><span class="type">llama_new_context_with_model</span>: <span class="type">graph</span> <span class="type">splits</span> = <span class="number">2</span></span><br><span class="line"><span class="type">time</span>=<span class="number">2025</span>-<span class="number">02</span>-<span class="number">03</span><span class="type">T22</span>:<span class="number">02</span>:<span class="number">53.003</span>+<span class="number">08</span>:<span class="number">00</span> <span class="type">level</span>=<span class="type">INFO</span> <span class="type">source</span>=<span class="type">server.go</span>:<span class="number">594</span> <span class="type">msg</span>=<span class="string">&quot;llama runner started in 5.76 seconds&quot;</span></span><br><span class="line">[<span class="type">GIN</span>] <span class="number">2025</span>/<span class="number">02</span>/<span class="number">03</span> - <span class="number">22</span>:<span class="number">02</span>:<span class="number">53</span> | <span class="number">200</span> |     <span class="number">7.268022</span><span class="type">s</span> |       <span class="number">127.0</span><span class="type">.0.1</span> | <span class="type">POST</span>     <span class="string">&quot;/api/generate&quot;</span></span><br></pre></td></tr></table></figure>
+<p>Deepseek-r1.7b模型推理的过程，GPU的使用率在90%以上，CPU占用在15%左右，推理的速度还可以：</p>
+<p><img data-src="/images/202502/Rx580-8GB_RunOllamaDeepseek-r1.7bOnWin11.jpg" alt="运行Deepseek-r1.7b的资源占用情况"></p>
+<p>推理的内容:</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; 老虎为什么可以在天上飞，不在地上走?</span><br><span class="line">&lt;think&gt;</span><br><span class="line">嗯，这个问题好像有点奇怪。“老虎为什么可以在天上飞，不在地上走？”听起来像是在问老虎有没有飞行的能力对吧？</span><br><span class="line">可是我已经知道老虎是生活在陆地上的大型猫科动物了。</span><br><span class="line"></span><br><span class="line">首先，我想确认一下，“飞”在这里具体指的是什么。如果老虎真的能飞起来，那和它在地面上行走有什么不同呢？</span><br><span class="line"></span><br><span class="line">我记得鸟儿是可以飞的，比如飞机机翼的设计就是模仿鸟类飞行时产生的升力。而蝙蝠也是靠超声波导航来飞行的。可是</span><br><span class="line">老虎完全不像这些动物一样有翅膀或者能够飞起来。</span><br><span class="line"></span><br><span class="line">接下来，我想了解一下老虎的身体构造。它们的肌肉非常发达，适合地面奔跑和跳跃，但翅膀却很小，不足以支持飞行。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">那么，为什么其他动物可以飞而老虎不行呢？这可能跟它们的进化有关吧。鸟类从远古时代的长毛兽演变而来，逐渐发展</span><br><span class="line">出适合飞行的身体结构。而老虎是较晚才适应陆地生活的，所以身体构造不太适合飞翔。</span><br><span class="line"></span><br><span class="line">另外，我还想到生物的适应性。大多数生物都是为了一定的生活方式而进化出来的。如果老虎想要学会飞，它可能需要改</span><br><span class="line">变很多生理结构，这在现实中是不现实的。</span><br><span class="line"></span><br><span class="line">此外，老虎主要生活在森林里，那里没有那么高的飞行需求。它们通过树上的栖息地和地面上的活动来满足自己的生活需</span><br><span class="line">求，不需要飞起来。</span><br><span class="line"></span><br><span class="line">还有，我想到如果老虎真的能够飞起来，那对它的生活方式会有很大的影响。比如，它可以更方便地捕捉猎物，或者在空</span><br><span class="line">中活动时避开危险。</span><br><span class="line"></span><br><span class="line">不过，我觉得这可能是一个误解，因为老虎并不是能飞的动物。它们的身体构造和进化都是为了陆地生活，而不是在天空</span><br><span class="line">中活动。</span><br><span class="line"></span><br><span class="line">最后，我总结一下：老虎无法飞起来是因为它没有适合飞行的身体结构，这也是鸟类和其他飞行动物进化出来的区别。</span><br><span class="line">&lt;/think&gt;</span><br><span class="line"></span><br><span class="line">**答案：**</span><br><span class="line"></span><br><span class="line">老虎是生活在陆地上的大型猫科动物，它们主要通过奔跑、跳跃等方式捕捉猎物。老虎的身体构造不适合在空中飞行，因</span><br><span class="line">此它们无法飞起来。</span><br><span class="line"></span><br><span class="line">总结来说：</span><br><span class="line"></span><br><span class="line"><span class="number">1</span>. **身体构造的限制**：老虎拥有发达的地面运动肌肉和骨骼结构，但翅膀小且不够强大来支持飞行。</span><br><span class="line"></span><br><span class="line"><span class="number">2</span>. **进化适应陆地生活**：老虎的生理结构是为陆地生活和快速奔跑而优化的，与飞行能力无关。</span><br><span class="line"></span><br><span class="line"><span class="number">3</span>. **缺乏飞行所需特征**：鸟类和飞行动物（如飞机机翼）拥有特定的身体构造以产生升力，而老虎不具备这些特征。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">因此，老虎无法在天空中飞而在地上行走。</span><br></pre></td></tr></table></figure>
+<h2 id="其它方案">其它方案</h2>
+<p>在B站我看到一个博主<a target="_blank" href="https://www.bilibili.com/video/BV1r7PpeeEBy/?spm_id_from=333.1007.tianma.2-2-5.click&amp;vd_source=3ddb5800edba7dbb68fa507b3abf76b7" rel="external nofollow noreferrer noopener">司波图</a>做的一期视频，介绍了另外两种方案：</p>
+<ul>
+<li>在linux系统下使用专门定制的<a target="_blank" href="https://hub.docker.com/r/mnccouk/ollama-gpu-rx58" rel="external nofollow noreferrer noopener">docker</a>镜像运行；</li>
+<li>在 windows 系统下使用 LM Studio,利用 vulkan 接口进行推理；</li>
+</ul>
+<p>这些方案我没有尝试过，有兴趣的同学可以尝试以下。</p>
+<h2 id="References">References</h2>
+<ul>
+<li><a target="_blank" href="https://github.com/likelovewant/ollama-for-amd?tab=readme-ov-file" rel="external nofollow noreferrer noopener">ollama-for-amd</a></li>
+<li><a target="_blank" href="https://github.com/likelovewant/ROCmLibs-for-gfx1103-AMD780M-APU" rel="external nofollow noreferrer noopener">ROCmLibs-for-gfx1103-AMD780M-APU</a></li>
+<li><a target="_blank" href="https://www.amd.com/en/developer/resources/rocm-hub/hip-sdk.html" rel="external nofollow noreferrer noopener">AMD HIP SDK for Windows</a></li>
+<li><a target="_blank" href="https://ollama.com/library/deepseek-r1" rel="external nofollow noreferrer noopener">OllamaLibraryDeepseekR1</a></li>
+<li><a target="_blank" href="https://phdluffy.com/2024/08/08/ollama-rx580-egpu-amd/" rel="external nofollow noreferrer noopener">Ollama终于用上我的显卡坞老古董RX580了</a></li>
+<li><a target="_blank" href="https://github.com/YellowRoseCx/koboldcpp-rocm" rel="external nofollow noreferrer noopener">koboldcpp-rocm</a></li>
+<li><a target="_blank" href="https://www.bilibili.com/opus/923618797070319625?jump_opus=1" rel="external nofollow noreferrer noopener">AMD显卡全系列解锁Ollama支持，llama3运行更优雅！</a></li>
+<li><a target="_blank" href="https://www.bilibili.com/opus/906747525555290131?spm_id_from=333.999.0.0" rel="external nofollow noreferrer noopener">让 AMD 780M 核显也用上 zluda 加速 AI</a></li>
+<li><a target="_blank" href="https://hub.docker.com/r/mnccouk/ollama-gpu-rx580" rel="external nofollow noreferrer noopener">mnccouk/ollama-gpu-rx580</a>: Linux 环境下的Docker运行镜像</li>
+<li><a target="_blank" href="https://www.bilibili.com/video/BV1r7PpeeEBy/?spm_id_from=333.1007.tianma.2-2-5.click&amp;vd_source=3ddb5800edba7dbb68fa507b3abf76b7" rel="external nofollow noreferrer noopener">【550元逆袭！魔改RX580竟能跑14B大模型？实测结果惊呆！】UNRAID部署Deepseek踩坑实录+隐藏彩蛋</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/RX580/" rel="tag"># RX580</a>
+              <a href="/tags/AMD/" rel="tag"># AMD</a>
+              <a href="/tags/Ollama/" rel="tag"># Ollama</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/02/15/RefinePowerShellTerminal/" rel="prev" title="像Oh-My-zsh那样使用PowerShell">
+                  <i class="fa fa-angle-left"></i> 像Oh-My-zsh那样使用PowerShell
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/01/22/2024summary/" rel="next" title="我的2024年度总结">
+                  我的2024年度总结 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"a28d98efde11ca4a63b985e9c0e7826a"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>

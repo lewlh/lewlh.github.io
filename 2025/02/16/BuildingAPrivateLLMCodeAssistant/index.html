@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="本门描述一个简单且闭环的构建私有LLM代码助手的方案。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="构建私有LLM代码助手">
+<meta property="og:url" content="http://lewlh.github.io/2025/02/16/BuildingAPrivateLLMCodeAssistant/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="本门描述一个简单且闭环的构建私有LLM代码助手的方案。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://lewlh.github.io/images/202502/CodellmSettingPage.jpg">
+<meta property="og:image" content="http://lewlh.github.io/images/202502/CodellmSetPrompt.jpg">
+<meta property="og:image" content="http://lewlh.github.io/images/202502/howToUseCodellm.jpg">
+<meta property="article:published_time" content="2025-02-16T04:00:53.000Z">
+<meta property="article:modified_time" content="2025-02-26T02:51:23.685Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="Ollama">
+<meta property="article:tag" content="PageAssist">
+<meta property="article:tag" content="CodeLLM">
+<meta property="article:tag" content="code2prompt">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lewlh.github.io/images/202502/CodellmSettingPage.jpg">
+
+
+<link rel="canonical" href="http://lewlh.github.io/2025/02/16/BuildingAPrivateLLMCodeAssistant/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2025/02/16/BuildingAPrivateLLMCodeAssistant/","path":"2025/02/16/BuildingAPrivateLLMCodeAssistant/","title":"构建私有LLM代码助手"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>构建私有LLM代码助手 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">107</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">35</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E4%BD%93%E6%80%9D%E8%B7%AF"><span class="nav-text">总体思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2Ollama"><span class="nav-text">部署Ollama</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85PageAssist"><span class="nav-text">安装PageAssist</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8VisualStudioCode%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8Codellm"><span class="nav-text">在VisualStudioCode安装使用Codellm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8code2prompt%E6%95%B4%E7%90%86%E9%A1%B9%E7%9B%AE%E6%BA%90%E7%A0%81%E5%B9%B6%E5%90%91LLM%E6%8F%90%E9%97%AE"><span class="nav-text">使用code2prompt整理项目源码并向LLM提问</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-text">References</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">107</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2025/02/16/BuildingAPrivateLLMCodeAssistant/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="构建私有LLM代码助手 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          构建私有LLM代码助手
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-02-16 12:00:53" itemprop="dateCreated datePublished" datetime="2025-02-16T12:00:53+08:00">2025-02-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-26 10:51:23" itemprop="dateModified" datetime="2025-02-26T10:51:23+08:00">2025-02-26</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>本门描述一个简单且闭环的构建私有LLM代码助手的方案。</p>
+<span id="more"></span>
+<hr>
+<p>作为程序员，使用LLM之后，确实大幅提升了解决问题的效率。各种免费的LLM服务某种程度上已经替代了搜索引擎，我通常使用问答的方式，很快就能找到问题的答案。但是，互联网上提供的免费LLM服务，我们提供问题上下文的时候，难免会提供具体的功能/业务信息，这里就设计到隐私/保密的问题。无论是国内的还是国外的LLM服务，在我看来都是不可信的，那么有些时候，一些敏感的代码，业务数据以及个人信息，我都会有意识的避免提交到问题的描述/上下文中。随着 Ollama 这些 LLM 基础设施的不断完善，使用个人/企业的服务器资源搭建私有的 LLM 已经非常便利，所以我也尝试构建私有LLM代码助手，本文作为此次构建的记录。</p>
+<h2 id="总体思路">总体思路</h2>
+<p>需求其实很明确，部署一个私有的无审查的 LLM 模型，同时使用开源的大预言模型 UI 工具用于日常的问题对话，在编码工具中安装可调用私有部署的LLM的插件，用于编码过程中的问题解答。另外，对于一些项目级的代码问题，我们需要将项目中的代码整理成一个文件，提交给大语言模型进行分析对话。根据我的调研，本次部署的程序分别有：</p>
+<ul>
+<li>Ollama：用于部署不同的大语言模型。</li>
+<li>PageAssist：是一款开源浏览器扩展程序，可为您的本地 AI 模型提供侧边栏和 Web UI。它允许您从任何网页与您的模型进行交互。</li>
+<li><a target="_blank" href="https://github.com/mufeedvh/code2prompt" rel="external nofollow noreferrer noopener">code2prompt</a>：是一个命令行工具 (CLI)，它可以将您的代码库转换为具有源树、提示模板和标记计数的单个 LLM 提示。</li>
+<li>CodeLLM：一个 Visual Studio Code 插件，扩展与大语言模型集成，提供离线和在线功能。它旨在简化直接在编辑器中生成代码或回答查询的过程。</li>
+</ul>
+<h2 id="部署Ollama">部署Ollama</h2>
+<p>Ollama 的出现极大地简化了 LLM 部署的流程，他提供的 Docker 部署方案，对于开发者而言基本上就是一行 docker 命令就把程序跑起来了。当然实际部署可能复杂一些，还需要考虑模型文件的管理,单个实例的负载以及服务伸缩等问题。我恰好有 kubernetes 集群以及一些闲置的 GTX1080Ti/RTX2080Ti 的显卡资源，因此我是使用 helm chart 进行 Ollama 部署的。该 <a target="_blank" href="https://github.com/lewlh/share/tree/main/helm-chart/ollama" rel="external nofollow noreferrer noopener">helm chart</a>，提供了以下功能：</p>
+<ul>
+<li>提供 autoscaling 功能，根据负载自动伸缩实例数量；</li>
+<li>提供 NodePort 类型的服务，方便在集群外访问；</li>
+<li>使用 <a target="_blank" href="https://www.envoyproxy.io/" rel="external nofollow noreferrer noopener">envoyproxy</a> 提供访问的负载均衡；</li>
+<li>通过本地化目录挂载的方式，将模型文件挂载到容器中，避免了模型文件的重复下载。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用 helm 安装 ollama 服务</span></span><br><span class="line">❯ helm upgrade --install ollama ollama</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 pod 状态</span></span><br><span class="line">❯ kubectl get pod | grep ollama        </span><br><span class="line">ollama-7b784f57c8-7rdrp                                    1/1     Running                 0                3m11s</span><br><span class="line">ollama-proxy-64465c96bf-bq5wl                              1/1     Running                 0                3m11s</span><br></pre></td></tr></table></figure>
+<p>启动成功后，通过 NodePort 的访问地址访问，可以看到 <code>Ollama is running</code>。</p>
+<h2 id="安装PageAssist">安装PageAssist</h2>
+<p>PageAssist 是一款浏览器扩展程序，Chrome 浏览器可以直接访问<a target="_blank" href="https://chromewebstore.google.com/detail/page-assist-%E6%9C%AC%E5%9C%B0-ai-%E6%A8%A1%E5%9E%8B%E7%9A%84-web/jfgfiigpkhlkbnfnbobbkinehhfdhndo" rel="external nofollow noreferrer noopener">chrome应用商店</a>安装。安装完成后，只需要简单配置，即可使用私有化部署的 Ollama 服务。</p>
+<ul>
+<li>打开浏览器扩展程序，点击 <code>PageAssist</code> 图标，进入插件页面；</li>
+<li>点击右上角齿轮状的设置按钮，进入设置页面；</li>
+<li>默认就进入 <strong>General Settings</strong> 页面：
+<ul>
+<li>点击 <strong>Speech Recognition Language</strong> 下拉框，选择 <code>中文（普通话 中国大陆）</code>；</li>
+<li>点击 <strong>Language</strong> 下拉框，选择 <code>简体中文</code>；设置完成后，插件的语言就变成简体中文了；</li>
+</ul>
+</li>
+<li>在左侧导航栏点击 <strong>Ollama设置</strong> 选项卡，进入配置 Ollama 页面；
+<ul>
+<li>设置 Ollama URL，将上一节通过 helm 安装的 ollama 服务 NodePort 的访问地址填入，并保存；</li>
+<li>点击左上角的 <strong>新聊天</strong> 按钮，出现一个新的聊天窗口，窗口中如果显示 <code>Ollama正在运行</code> 的提示窗口，说明配置成功。</li>
+</ul>
+</li>
+</ul>
+<p>至此，我们就可以在浏览器中使用私有化部署的LLM服务了。PageAssist 具体的使用方式，如如何选择不同的模型，如何设置 prompt，请读者自行在互联网上查找、尝试，本文不再展开。</p>
+<h2 id="在VisualStudioCode安装使用Codellm">在VisualStudioCode安装使用Codellm</h2>
+<p>在VsCode的应用商店中搜索 Codellm,选择<code>Codellm: Use Ollama and OpenAI to write code</code>插件并安装。安装完成后，进入该插件的设置页面:</p>
+<p><img data-src="/images/202502/CodellmSettingPage.jpg" alt="Codellm setting page"></p>
+<ul>
+<li><strong>Codellm:Provider</strong>：选择 <code>ollama</code>；</li>
+<li><strong>Codellm:Ollama:Url</strong>：填写之前部署的 ollama 服务的 NodePort 访问地址；</li>
+<li><strong>Codellm:Prompt Prefix:…</strong>：将默认英文的 prompt 修改为中文，用于提示模型生成代码的中文上下文：<br>
+<img data-src="/images/202502/CodellmSetPrompt.jpg" alt="set chinese prompt"></li>
+</ul>
+<p>至此，设置完成。使用就很简单了，一种是直接在左侧导航栏选择 Codellm，在对话模式中进行问答，另外一种方式是，在编辑器中选择相关的代码右键，在右键的菜单中会出现 Codellm 的相关功能,点击之后会在对话框中出现选择的代码，并进行代码解析、注释生成、寻找代码bug等动作：</p>
+<p><img data-src="/images/202502/howToUseCodellm.jpg" alt="how to use Codellm"></p>
+<h2 id="使用code2prompt整理项目源码并向LLM提问">使用code2prompt整理项目源码并向LLM提问</h2>
+<p>在<a href="#%E5%9C%A8VisualStudioCode%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8Codellm">在VisualStudioCode安装使用Codellm</a>章节中介绍了使用Codellm的方法，但是我们可以发现，这种工具只能对某一段代码进行提问。当我们需要对整个项目的代码进行提问时，代码分布在不同的文件夹，源码文件中，逐个文件打开并复制代码到LLM的对话框中，显然是一种非常低效的方法。我在 github 中找到这个开源的项目：<a target="_blank" href="https://github.com/mufeedvh/code2prompt" rel="external nofollow noreferrer noopener">code2prompt</a>，它提供命令行的方式将一个代码项目的代码整合成一个 prompt 文件，并输出这个 prompt 需要消耗的 token 数量，以帮助我们判断这个 prompt 是否适合提交到对应的 LLM 模型。该软件安装的过程，请参考官网的<a target="_blank" href="https://github.com/mufeedvh/code2prompt?tab=readme-ov-file#installation" rel="external nofollow noreferrer noopener">Installation</a>自行安装。</p>
+<p>接下来，我演示以下如何使用此命令行工具，就以<a target="_blank" href="https://github.com/mufeedvh/code2prompt" rel="external nofollow noreferrer noopener">code2prompt</a>本身为例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"> lewlh@DESKTOP ~/workspace/code2prompt &gt; tree</span><br><span class="line">.</span><br><span class="line">├── Cargo.lock</span><br><span class="line">├── Cargo.toml</span><br><span class="line">├── LICENSE</span><br><span class="line">├── README.md</span><br><span class="line">├── README_ES.md</span><br><span class="line">├── build.rs</span><br><span class="line">├── docs</span><br><span class="line">│   ├── book.toml</span><br><span class="line">│   └── src</span><br><span class="line">│       ├── SUMMARY.md</span><br><span class="line">│       ├── assets</span><br><span class="line">│       │   └── filter.png</span><br><span class="line">│       │   ├── glob_patterns.md</span><br><span class="line">│       │   └── tokenizers.md</span><br><span class="line">│       ├── how_to</span><br><span class="line">│       │   ├── exclude_files_from_tree.md</span><br><span class="line">│       │   ├── filter_files.md</span><br><span class="line">│       │   ├── install.md</span><br><span class="line">│       │   └── save_generated_prompt.md</span><br><span class="line">│       ├── introduction.md</span><br><span class="line">│       ├── references</span><br><span class="line">│       │   ├── command_line_options.md</span><br><span class="line">│       │   └── default_template.md</span><br><span class="line">│       └── tutorials</span><br><span class="line">│           ├── getting_started.md</span><br><span class="line">│           ├── templates.md</span><br><span class="line">│           ├── use_filter.md</span><br><span class="line">│           ├── using_glob_pattern_tool.md</span><br><span class="line">│           └── using_templates.md</span><br><span class="line">├── pyproject.toml</span><br><span class="line">├── python-sdk</span><br><span class="line">│   ├── README.md</span><br><span class="line">│   ├── __init__.py</span><br><span class="line">│   ├── code2prompt</span><br><span class="line">│   │   ├── __init__.py</span><br><span class="line">│   │   └── code2prompt.py</span><br><span class="line">│   ├── examples</span><br><span class="line">│   │   └── basic_usage.py</span><br><span class="line">│   └── setup.py</span><br><span class="line">├── src</span><br><span class="line">│   ├── clipboard.rs</span><br><span class="line">│   ├── default_template.hbs</span><br><span class="line">│   ├── filter.rs</span><br><span class="line">│   ├── git.rs</span><br><span class="line">│   ├── lib.rs</span><br><span class="line">│   ├── main.rs</span><br><span class="line">│   ├── path.rs</span><br><span class="line">│   ├── python.rs</span><br><span class="line">│   ├── sort.rs</span><br><span class="line">│   ├── template.rs</span><br><span class="line">│   ├── token.rs</span><br><span class="line">│   └── util.rs</span><br><span class="line">├── templates</span><br><span class="line">│   ├── binary-exploitation-ctf-solver.hbs</span><br><span class="line">│   ├── claude-xml.hbs</span><br><span class="line">│   ├── clean-up-code.hbs</span><br><span class="line">│   ├── cryptography-ctf-solver.hbs</span><br><span class="line">│   ├── document-the-code.hbs</span><br><span class="line">│   ├── find-security-vulnerabilities.hbs</span><br><span class="line">│   ├── fix-bugs.hbs</span><br><span class="line">│   ├── improve-performance.hbs</span><br><span class="line">│   ├── refactor.hbs</span><br><span class="line">│   ├── reverse-engineering-ctf-solver.hbs</span><br><span class="line">│   ├── web-ctf-solver.hbs</span><br><span class="line">│   ├── write-git-commit.hbs</span><br><span class="line">│   ├── write-github-pull-request.hbs</span><br><span class="line">│   └── write-github-readme.hbs</span><br><span class="line">└── tests</span><br><span class="line">    ├── clipboard_test.rs</span><br><span class="line">    ├── filter_test.rs</span><br><span class="line">    ├── git_test.rs</span><br><span class="line">    ├── integration_test.rs</span><br><span class="line">    ├── sort_test.rs</span><br><span class="line">    ├── template_test.rs</span><br><span class="line">    └── util_test.rs</span><br><span class="line"></span><br><span class="line">13 directories, 65 files</span><br></pre></td></tr></table></figure>
+<ul>
+<li>由于此项目用 Rust 编写，因此我尝试学习 <code>src</code> 文件夹下面的 *.rs 文件；</li>
+<li>在此项目下执行 <code>code2prompt --tokens --output=code2prompt.txt src</code><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">lewlh@LWHM-DESKTOP  ~/workspace/code2prompt   main  code2prompt --tokens --output=code2prompt.txt src</span><br><span class="line">▹▹▹▹▸ Done!</span><br><span class="line">[i] Token count: 12289, Model info: ChatGPT models, text-embedding-ada-002</span><br><span class="line">[✓] Copied to clipboard successfully.</span><br><span class="line">[✓] Prompt written to file: code2prompt.txt</span><br></pre></td></tr></table></figure>
+</li>
+<li>命令执行完成后，我们可以看到这个 prompt 需要消耗的 token 数量，以及生成了一个<code>code2prompt.txt</code>文件,且这个文件的内容已经默认复制到粘贴板中了；</li>
+<li>利用<code>code2prompt.txt</code>的内容，我们可以直接复制到 LLM 对话框内进行对话了；</li>
+<li>由于<code>code2prompt.txt</code>是根据LLM的规范进行整理生成的，一般大语言模型能很好地理解代码的整体情况，帮助我们更快地分析定位问题，找到我们想要的答案；</li>
+</ul>
+<h2 id="总结">总结</h2>
+<p>本文提供的一个简单但闭环的构建私有LLM代码助手的方案，我认为足以应付90%个人以及小团队的编码开发问答需求，部署以及上手难度都可控。要是你有更好的方案，欢迎留言讨论交流。</p>
+<h2 id="References">References</h2>
+<ul>
+<li><a target="_blank" href="https://hub.docker.com/r/ollama/ollama" rel="external nofollow noreferrer noopener">Ollama Docker image</a></li>
+<li><a target="_blank" href="https://github.com/n4ze3m/page-assist" rel="external nofollow noreferrer noopener">page-assist</a></li>
+<li><a target="_blank" href="https://marketplace.visualstudio.com/items?itemName=ekbanasolutions.codellm" rel="external nofollow noreferrer noopener">Codellm: Use Ollama and OpenAI to write code</a></li>
+<li><a target="_blank" href="https://github.com/lewlh/share/tree/main/helm-chart/ollama" rel="external nofollow noreferrer noopener">Helm Chart Of Ollama</a></li>
+<li><a target="_blank" href="https://github.com/mufeedvh/code2prompt" rel="external nofollow noreferrer noopener">code2prompt</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Ollama/" rel="tag"># Ollama</a>
+              <a href="/tags/PageAssist/" rel="tag"># PageAssist</a>
+              <a href="/tags/CodeLLM/" rel="tag"># CodeLLM</a>
+              <a href="/tags/code2prompt/" rel="tag"># code2prompt</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/02/25/LearnLLMByChattingWithLLM/" rel="prev" title="利用大语言模型学习LLM">
+                  <i class="fa fa-angle-left"></i> 利用大语言模型学习LLM
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/02/15/RefinePowerShellTerminal/" rel="next" title="像Oh-My-zsh那样使用PowerShell">
+                  像Oh-My-zsh那样使用PowerShell <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"6ded678b342d66746cb307d126958cd6"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>
