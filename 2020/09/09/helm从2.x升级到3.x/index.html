@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="我们使用了 kubeasz 初始化了一套 Kubernetes 集群，基本上按照该指南执行相关步骤，安装上了相关组件，其中包括 helm。后续使用我们发现该 ansible 脚本安装的是 helm 2.x 版本，这时 helm 3.x 已经正式上线了。为了日后学习、使用方便，我决定将 helm 升级。本文将记录升级的过程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="helm从2.x升级到3.x">
+<meta property="og:url" content="http://lewlh.github.io/2020/09/09/helm%E4%BB%8E2.x%E5%8D%87%E7%BA%A7%E5%88%B03.x/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="我们使用了 kubeasz 初始化了一套 Kubernetes 集群，基本上按照该指南执行相关步骤，安装上了相关组件，其中包括 helm。后续使用我们发现该 ansible 脚本安装的是 helm 2.x 版本，这时 helm 3.x 已经正式上线了。为了日后学习、使用方便，我决定将 helm 升级。本文将记录升级的过程。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://helm.sh/img/helm.svg">
+<meta property="article:published_time" content="2020-09-09T11:29:48.000Z">
+<meta property="article:modified_time" content="2025-02-16T03:27:02.392Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="helm">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="Kubernetes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://helm.sh/img/helm.svg">
+
+
+<link rel="canonical" href="http://lewlh.github.io/2020/09/09/helm%E4%BB%8E2.x%E5%8D%87%E7%BA%A7%E5%88%B03.x/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2020/09/09/helm%E4%BB%8E2.x%E5%8D%87%E7%BA%A7%E5%88%B03.x/","path":"2020/09/09/helm从2.x升级到3.x/","title":"helm从2.x升级到3.x"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>helm从2.x升级到3.x | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">107</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">35</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%8A%B6"><span class="nav-text">原状</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-helm-3-x"><span class="nav-text">安装 helm 3.x</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Helm-V2-%E8%BF%81%E7%A7%BB%E5%88%B0-V3"><span class="nav-text">Helm V2 迁移到 V3</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-helm-2to3-%E6%8F%92%E4%BB%B6"><span class="nav-text">安装 helm-2to3 插件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%81%E7%A7%BB"><span class="nav-text">迁移</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%81%E7%A7%BB-configuration"><span class="nav-text">迁移 configuration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%81%E7%A7%BB-release"><span class="nav-text">迁移 release</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%85%E7%90%86-Helm-V2-%E7%9B%B8%E5%85%B3%E6%95%B0%E6%8D%AE"><span class="nav-text">清理 Helm V2 相关数据</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">107</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2020/09/09/helm%E4%BB%8E2.x%E5%8D%87%E7%BA%A7%E5%88%B03.x/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="helm从2.x升级到3.x | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          helm从2.x升级到3.x
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-09-09 19:29:48" itemprop="dateCreated datePublished" datetime="2020-09-09T19:29:48+08:00">2020-09-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-16 11:27:02" itemprop="dateModified" datetime="2025-02-16T11:27:02+08:00">2025-02-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img data-src="https://helm.sh/img/helm.svg" alt="helm"></p>
+<p>我们使用了 <a target="_blank" href="https://github.com/easzlab/kubeasz" rel="external nofollow noreferrer noopener">kubeasz</a> 初始化了一套 Kubernetes 集群，基本上按照该<a target="_blank" href="https://github.com/easzlab/kubeasz/blob/master/docs/setup/00-planning_and_overall_intro.md" rel="external nofollow noreferrer noopener">指南</a>执行相关步骤，安装上了相关组件，其中包括 helm。后续使用我们发现该 ansible 脚本安装的是 helm 2.x 版本，这时 helm 3.x 已经正式上线了。为了日后学习、使用方便，我决定将 helm 升级。本文将记录升级的过程。</p>
+<span id="more"></span>
+<h2 id="原状">原状</h2>
+<ol>
+<li>
+<p>系统是 debian 10：</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@debian  /home/debian/helm  <span class="built_in">uname</span> -a</span><br><span class="line">Linux debian 4.19.0-10-amd64 <span class="comment">#1 SMP Debian 4.19.132-1 (2020-07-24) x86_64 GNU/Linux</span></span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>helm 的版本是 v2.14.1：</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@debian  /home/debian/helm  helm version</span><br><span class="line">Client: &amp;version.Version&#123;SemVer:<span class="string">&quot;v2.14.1&quot;</span>, GitCommit:<span class="string">&quot;5270352a09c7e8b6e8c9593002a73535276507c0&quot;</span>, GitTreeState:<span class="string">&quot;clean&quot;</span>&#125;</span><br><span class="line">Server: &amp;version.Version&#123;SemVer:<span class="string">&quot;v2.14.3&quot;</span>, GitCommit:<span class="string">&quot;0e7f3b6637f7af8fcfddb3d2941fcc7cbebb0085&quot;</span>, GitTreeState:<span class="string">&quot;clean&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="安装-helm-3-x">安装 helm 3.x</h2>
+<p>使用<a target="_blank" href="https://helm.sh/docs/intro/install/" rel="external nofollow noreferrer noopener">官网安装教程</a>提供的安装步骤:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># From Apt (Debian/Ubuntu)</span></span><br><span class="line"><span class="comment"># Members of the Helm community have contributed a Helm package for Apt. This package is generally up to date.</span></span><br><span class="line">curl https://baltocdn.com/helm/signing.asc | <span class="built_in">sudo</span> apt-key add -</span><br><span class="line"><span class="built_in">sudo</span> apt-get install apt-transport-https --<span class="built_in">yes</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;deb https://baltocdn.com/helm/stable/debian/ all main&quot;</span> | <span class="built_in">sudo</span> <span class="built_in">tee</span> /etc/apt/sources.list.d/helm-stable-debian.list</span><br><span class="line"><span class="built_in">sudo</span> apt-get update</span><br><span class="line"><span class="built_in">sudo</span> apt-get install helm</span><br></pre></td></tr></table></figure>
+<p>安装完成后，使用 oh-my-zsh 的服务器，helm 命令依然是 2.x 版本，也无法识别 helm3 命令，但是使用 bash 的服务器无此问题。修改 <code>~/.zshrc</code> 文件，让使用 oh-my-zsh 的服务器使用 helm3：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> <span class="string">&quot;alias helm3=&#x27;/usr/bin/helm&#x27;&quot;</span> &gt;&gt; &lt;sub&gt;/.zshrc &amp;&amp; <span class="built_in">source</span> &lt;/sub&gt;/.zshrc</span><br><span class="line"></span><br><span class="line">$ helm3 version</span><br><span class="line">version.BuildInfo&#123;Version:<span class="string">&quot;v3.3.1&quot;</span>, GitCommit:<span class="string">&quot;249e5215cde0c3fa72e27eb7a30e8d55c9696144&quot;</span>, GitTreeState:<span class="string">&quot;clean&quot;</span>, GoVersion:<span class="string">&quot;go1.14.7&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">$ helm version</span><br><span class="line">Client: &amp;version.Version&#123;SemVer:<span class="string">&quot;v2.14.1&quot;</span>, GitCommit:<span class="string">&quot;5270352a09c7e8b6e8c9593002a73535276507c0&quot;</span>, GitTreeState:<span class="string">&quot;clean&quot;</span>&#125;</span><br><span class="line">could not <span class="built_in">read</span> x509 key pair (cert: <span class="string">&quot;/home/debian/.helm/cert.pem&quot;</span>, key: <span class="string">&quot;/home/debian/.helm/key.pem&quot;</span>): can<span class="string">&#x27;t load key pair from cert /home/debian/.helm/cert.pem and key /home/debian/.helm/key.pem: open /home/debian/.helm/cert.pem: no such file or directory</span></span><br></pre></td></tr></table></figure>
+<h2 id="Helm-V2-迁移到-V3">Helm V2 迁移到 V3</h2>
+<h3 id="安装-helm-2to3-插件">安装 helm-2to3 插件</h3>
+<p>安装插件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">helm3 plugin install https://github.com/helm/helm-2to3</span><br></pre></td></tr></table></figure>
+<p>确认是否安装成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">$ helm3 plugin list</span><br><span class="line">NAME    VERSION DESCRIPTION</span><br><span class="line">2to3    0.6.0   migrate and cleanup Helm v2 configuration and releases in-place to Helm v3</span><br><span class="line"></span><br><span class="line">$ helm3 2to3</span><br><span class="line">Migrate and Cleanup Helm v2 configuration and releases in-place to Helm v3</span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line">  2to3 [<span class="built_in">command</span>]</span><br><span class="line"></span><br><span class="line">Available Commands:</span><br><span class="line">  cleanup     cleanup Helm v2 configuration, release data and Tiller deployment</span><br><span class="line">  convert     migrate Helm v2 release in-place to Helm v3</span><br><span class="line">  <span class="built_in">help</span>        Help about any <span class="built_in">command</span></span><br><span class="line">  move        migrate Helm v2 configuration in-place to Helm v3</span><br><span class="line"></span><br><span class="line">Flags:</span><br><span class="line">  -h, --<span class="built_in">help</span>   <span class="built_in">help</span> <span class="keyword">for</span> 2to3</span><br><span class="line"></span><br><span class="line">Use <span class="string">&quot;2to3 [command] --help&quot;</span> <span class="keyword">for</span> more information about a <span class="built_in">command</span>.</span><br></pre></td></tr></table></figure>
+<h3 id="迁移">迁移</h3>
+<h4 id="迁移-configuration">迁移 configuration</h4>
+<p>查看帮助信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ helm3 2to3 move config -h</span><br><span class="line">migrate Helm v2 configuration in-place to Helm v3</span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line">  2to3 move config [flags]</span><br><span class="line"></span><br><span class="line">Flags:</span><br><span class="line">      --dry-run   simulate a <span class="built_in">command</span></span><br><span class="line">  -h, --<span class="built_in">help</span>      <span class="built_in">help</span> <span class="keyword">for</span> move</span><br></pre></td></tr></table></figure>
+<p>执行迁移：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ helm3 2to3 move config</span><br><span class="line">2020/09/10 11:09:20 WARNING: Helm v3 configuration may be overwritten during this operation.</span><br><span class="line">2020/09/10 11:09:20</span><br><span class="line">[Move Config/confirm] Are you sure you want to move the v2 configuration? [y/N]: y</span><br><span class="line">2020/09/10 11:09:23</span><br><span class="line">Helm v2 configuration will be moved to Helm v3 configuration.</span><br><span class="line">2020/09/10 11:09:23 [Helm 2] Home directory: /root/.helm</span><br><span class="line">2020/09/10 11:09:23 [Helm 3] Config directory: /root/.config/helm</span><br><span class="line">2020/09/10 11:09:23 [Helm 3] Data directory: /root/.local/share/helm</span><br><span class="line">2020/09/10 11:09:23 [Helm 3] Cache directory: /root/.cache/helm</span><br><span class="line">2020/09/10 11:09:23 [Helm 3] Create config folder <span class="string">&quot;/root/.config/helm&quot;</span> .</span><br><span class="line">2020/09/10 11:09:23 [Helm 3] Config folder <span class="string">&quot;/root/.config/helm&quot;</span> created.</span><br><span class="line">2020/09/10 11:09:23 [Helm 2] repositories file <span class="string">&quot;/root/.helm/repository/repositories.yaml&quot;</span> will copy to [Helm 3] config folder <span class="string">&quot;/root/.config/helm/repositories.yaml&quot;</span> .</span><br><span class="line">2020/09/10 11:09:23 [Helm 2] repositories file <span class="string">&quot;/root/.helm/repository/repositories.yaml&quot;</span> copied successfully to [Helm 3] config folder <span class="string">&quot;/root/.config/helm/repositories.yaml&quot;</span> .</span><br><span class="line">2020/09/10 11:09:23 [Helm 3] Create cache folder <span class="string">&quot;/root/.cache/helm&quot;</span> .</span><br><span class="line">2020/09/10 11:09:23 [Helm 3] cache folder <span class="string">&quot;/root/.cache/helm&quot;</span> created.</span><br><span class="line">2020/09/10 11:09:23 [Helm 3] Create data folder <span class="string">&quot;/root/.local/share/helm&quot;</span> .</span><br><span class="line">2020/09/10 11:09:23 [Helm 3] data folder <span class="string">&quot;/root/.local/share/helm&quot;</span> created.</span><br><span class="line">2020/09/10 11:09:23 [Helm 2] starters <span class="string">&quot;/root/.helm/starters&quot;</span> will copy to [Helm 3] data folder <span class="string">&quot;/root/.local/share/helm/starters&quot;</span> .</span><br><span class="line">2020/09/10 11:09:23 [Helm 2] starters <span class="string">&quot;/root/.helm/starters&quot;</span> copied successfully to [Helm 3] data folder <span class="string">&quot;/root/.local/share/helm/starters&quot;</span> .</span><br><span class="line">2020/09/10 11:09:23 Helm v2 configuration was moved successfully to Helm v3 configuration.</span><br></pre></td></tr></table></figure>
+<h4 id="迁移-release">迁移 release</h4>
+<p>可以使用 2to3 插件的 convert 指令迁移 helm2 的 release， 通过 <code>helm3 2to3 convert --help</code> 获取该指令的说明：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ helm3 2to3 convert --<span class="built_in">help</span></span><br><span class="line">migrate Helm v2 release in-place to Helm v3</span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line">  2to3 convert [flags] RELEASE</span><br><span class="line"></span><br><span class="line">Flags:</span><br><span class="line">      --delete-v2-releases         v2 release versions are deleted after migration. By default, the v2 release versions are retained</span><br><span class="line">      --dry-run                    simulate a <span class="built_in">command</span></span><br><span class="line">  -h, --<span class="built_in">help</span>                       <span class="built_in">help</span> <span class="keyword">for</span> convert</span><br><span class="line">      --kube-context string        name of the kubeconfig context to use</span><br><span class="line">      --kubeconfig string          path to the kubeconfig file</span><br><span class="line">  -l, --label string               label to <span class="keyword">select</span> Tiller resources by (default <span class="string">&quot;OWNER=TILLER&quot;</span>)</span><br><span class="line">  -s, --release-storage string     v2 release storage <span class="built_in">type</span>/object. It can be <span class="string">&#x27;secrets&#x27;</span> or <span class="string">&#x27;configmaps&#x27;</span>. This is only used with the <span class="string">&#x27;tiller-out-cluster&#x27;</span> flag (default <span class="string">&quot;secrets&quot;</span>)</span><br><span class="line">      --release-versions-max int   <span class="built_in">limit</span> the maximum number of versions converted per release. Use 0 <span class="keyword">for</span> no <span class="built_in">limit</span> (default 10)</span><br><span class="line">  -t, --tiller-ns string           namespace of Tiller (default <span class="string">&quot;kube-system&quot;</span>)</span><br><span class="line">      --tiller-out-cluster         when  Tiller is not running <span class="keyword">in</span> the cluster e.g. Tillerless</span><br></pre></td></tr></table></figure>
+<p>helm2 中已经存在的 release</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ helm list</span><br><span class="line">NAME                            REVISION        UPDATED                         STATUS          CHART                   APP VERSION     NAMESPACE</span><br><span class="line">gitlab-runner                   2               Thu Aug 20 19:51:54 2020        DEPLOYED        gitlab-runner-0.13.1    12.7.1          frontend</span><br><span class="line">gitlab-runner-moqi-id           1               Fri Aug 21 00:27:28 2020        DEPLOYED        gitlab-runner-0.13.1    12.7.1          frontend</span><br><span class="line">gitlab-runner-moqi-id-website   2               Fri Aug 21 19:18:24 2020        DEPLOYED        gitlab-runner-0.13.1    12.7.1          frontend</span><br><span class="line">moqi-id-docs                    1               Fri Aug 21 20:45:53 2020        DEPLOYED        gitlab-runner-0.13.1    12.7.1          frontend</span><br><span class="line">moqi-id-website                 1               Fri Aug 21 19:31:06 2020        DEPLOYED        gitlab-runner-0.13.1    12.7.1          frontend</span><br></pre></td></tr></table></figure>
+<p>helm3 中已经存在的 release</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ helm3 list -A</span><br><span class="line">NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION</span><br></pre></td></tr></table></figure>
+<p>选一个用 <code>--dry-run</code> 试下效果:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ helm3 2to3 convert gitlab-runner --dry-run</span><br><span class="line">2020/09/10 14:03:48 NOTE: This is <span class="keyword">in</span> dry-run mode, the following actions will not be executed.</span><br><span class="line">2020/09/10 14:03:48 Run without --dry-run to take the actions described below:</span><br><span class="line">2020/09/10 14:03:48</span><br><span class="line">2020/09/10 14:03:48 Release <span class="string">&quot;gitlab-runner&quot;</span> will be converted from Helm v2 to Helm v3.</span><br><span class="line">2020/09/10 14:03:48 [Helm 3] Release <span class="string">&quot;gitlab-runner&quot;</span> will be created.</span><br><span class="line">2020/09/10 14:03:48 [Helm 3] ReleaseVersion <span class="string">&quot;gitlab-runner.v1&quot;</span> will be created.</span><br><span class="line">2020/09/10 14:03:48 [Helm 3] ReleaseVersion <span class="string">&quot;gitlab-runner.v2&quot;</span> will be created.</span><br></pre></td></tr></table></figure>
+<p>没有报错，去掉 --dry-run 执行迁移:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ helm3 2to3 convert gitlab-runner</span><br><span class="line">2020/09/10 14:10:31 Release <span class="string">&quot;gitlab-runner&quot;</span> will be converted from Helm v2 to Helm v3.</span><br><span class="line">2020/09/10 14:10:31 [Helm 3] Release <span class="string">&quot;gitlab-runner&quot;</span> will be created.</span><br><span class="line">2020/09/10 14:10:32 [Helm 3] ReleaseVersion <span class="string">&quot;gitlab-runner.v1&quot;</span> will be created.</span><br><span class="line">2020/09/10 14:10:32 [Helm 3] ReleaseVersion <span class="string">&quot;gitlab-runner.v1&quot;</span> created.</span><br><span class="line">2020/09/10 14:10:32 [Helm 3] ReleaseVersion <span class="string">&quot;gitlab-runner.v2&quot;</span> will be created.</span><br><span class="line">2020/09/10 14:10:32 [Helm 3] ReleaseVersion <span class="string">&quot;gitlab-runner.v2&quot;</span> created.</span><br><span class="line">2020/09/10 14:10:32 [Helm 3] Release <span class="string">&quot;gitlab-runner&quot;</span> created.</span><br><span class="line">2020/09/10 14:10:32 Release <span class="string">&quot;gitlab-runner&quot;</span> was converted successfully from Helm v2 to Helm v3.</span><br><span class="line">2020/09/10 14:10:32 Note: The v2 release information still remains and should be removed to avoid conflicts with the migrated v3 release.</span><br><span class="line">2020/09/10 14:10:32 v2 release information should only be removed using `helm 2to3` cleanup and when all releases have been migrated over.</span><br></pre></td></tr></table></figure>
+<p>迁移之后，查看迁移结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ helm3 list -A</span><br><span class="line">NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                   APP VERSION</span><br><span class="line">gitlab-runner   frontend        2               2020-08-20 11:51:54.75041113 +0000 UTC  deployed        gitlab-runner-0.13.1    12.7.1</span><br></pre></td></tr></table></figure>
+<h3 id="清理-Helm-V2-相关数据">清理 Helm V2 相关数据</h3>
+<p>官方文档表示，该步骤不是必须的，但却是强烈推荐的。</p>
+<p>helm-2to3 提供了清理的命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">helm3 2to3 cleanup -h</span></span><br><span class="line">cleanup Helm v2 configuration, release data and Tiller deployment</span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line">  2to3 cleanup [flags]</span><br><span class="line"></span><br><span class="line">Flags:</span><br><span class="line">      --config-cleanup           if set, configuration cleanup performed</span><br><span class="line">      --dry-run                  simulate a command</span><br><span class="line">  -h, --help                     help for cleanup</span><br><span class="line">  -l, --label string             label to select Tiller resources by (default &quot;OWNER=TILLER&quot;)</span><br><span class="line">      --release-cleanup          if set, release data cleanup performed</span><br><span class="line">  -s, --release-storage string   v2 release storage type/object. It can be &#x27;secrets&#x27; or &#x27;configmaps&#x27;. This is only used with the &#x27;tiller-out-cluster&#x27; flag (default &quot;secrets&quot;)</span><br><span class="line">      --tiller-cleanup           if set, Tiller cleanup performed</span><br><span class="line">  -t, --tiller-ns string         namespace of Tiller (default &quot;kube-system&quot;)</span><br><span class="line">      --tiller-out-cluster       when  Tiller is not running in the cluster e.g. Tillerless</span><br></pre></td></tr></table></figure>
+<p>该命令将会清理以下数据：</p>
+<ul>
+<li>helm2 的配置文件 Configuration (Helm home directory)</li>
+<li>v2 的发版数据 v2 release data</li>
+<li>Tiller deployment</li>
+</ul>
+<p>使用 --dry-run 查看执行该命令会执行哪些操作：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">helm3 2to3 cleanup --dry-run</span></span><br><span class="line">2020/09/10 14:50:57 NOTE: This is in dry-run mode, the following actions will not be executed.</span><br><span class="line">2020/09/10 14:50:57 Run without --dry-run to take the actions described below:</span><br><span class="line">2020/09/10 14:50:57</span><br><span class="line">WARNING: &quot;Helm v2 Configuration&quot; &quot;Release Data&quot; &quot;Tiller&quot; will be removed.</span><br><span class="line">This will clean up all releases managed by Helm v2. It will not be possible to restore them if you haven&#x27;t made a backup of the releases.</span><br><span class="line">Helm v2 may not be usable afterwards.</span><br><span class="line"></span><br><span class="line">[Cleanup/confirm] Are you sure you want to cleanup Helm v2 data? [y/N]: y</span><br><span class="line">2020/09/10 14:51:17</span><br><span class="line">Helm v2 data will be cleaned up.</span><br><span class="line">2020/09/10 14:51:17 [Helm 2] Releases will be deleted.</span><br><span class="line">2020/09/10 14:51:18 [Helm 2] ReleaseVersion &quot;gitlab-runner-moqi-id-website.v1&quot; will be deleted.</span><br><span class="line">2020/09/10 14:51:18 [Helm 2] ReleaseVersion &quot;moqi-id-website.v1&quot; will be deleted.</span><br><span class="line">2020/09/10 14:51:18 [Helm 2] ReleaseVersion &quot;gitlab-runner-moqi-id.v1&quot; will be deleted.</span><br><span class="line">2020/09/10 14:51:18 [Helm 2] ReleaseVersion &quot;gitlab-runner.v1&quot; will be deleted.</span><br><span class="line">2020/09/10 14:51:18 [Helm 2] ReleaseVersion &quot;hello-world.v1&quot; will be deleted.</span><br><span class="line">2020/09/10 14:51:18 [Helm 2] ReleaseVersion &quot;moqi-id-docs.v1&quot; will be deleted.</span><br><span class="line">2020/09/10 14:51:18 [Helm 2] ReleaseVersion &quot;gitlab-runner.v2&quot; will be deleted.</span><br><span class="line">2020/09/10 14:51:18 [Helm 2] ReleaseVersion &quot;gitlab-runner-moqi-id-website.v2&quot; will be deleted.</span><br><span class="line">2020/09/10 14:51:18 [Helm 2] Tiller in &quot;kube-system&quot; namespace will be removed.</span><br><span class="line">2020/09/10 14:51:18 [Helm 2] Home folder &quot;/home/debian/.helm&quot; will be deleted.</span><br></pre></td></tr></table></figure>
+<p>如果确认没有问题，可以正式执行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">helm3 2to3 cleanup</span></span><br><span class="line">WARNING: &quot;Helm v2 Configuration&quot; &quot;Release Data&quot; &quot;Tiller&quot; will be removed.</span><br><span class="line">This will clean up all releases managed by Helm v2. It will not be possible to restore them if you haven&#x27;t made a backup of the releases.</span><br><span class="line">Helm v2 may not be usable afterwards.</span><br><span class="line"></span><br><span class="line">[Cleanup/confirm] Are you sure you want to cleanup Helm v2 data? [y/N]: y</span><br><span class="line">2020/09/10 14:54:59</span><br><span class="line">Helm v2 data will be cleaned up.</span><br><span class="line">2020/09/10 14:54:59 [Helm 2] Releases will be deleted.</span><br><span class="line">2020/09/10 14:55:00 [Helm 2] ReleaseVersion &quot;gitlab-runner-moqi-id-website.v1&quot; will be deleted.</span><br><span class="line">2020/09/10 14:55:00 [Helm 2] ReleaseVersion &quot;gitlab-runner-moqi-id-website.v1&quot; deleted.</span><br><span class="line">2020/09/10 14:55:00 [Helm 2] ReleaseVersion &quot;moqi-id-website.v1&quot; will be deleted.</span><br><span class="line">2020/09/10 14:55:01 [Helm 2] ReleaseVersion &quot;moqi-id-website.v1&quot; deleted.</span><br><span class="line">2020/09/10 14:55:01 [Helm 2] ReleaseVersion &quot;gitlab-runner-moqi-id.v1&quot; will be deleted.</span><br><span class="line">2020/09/10 14:55:01 [Helm 2] ReleaseVersion &quot;gitlab-runner-moqi-id.v1&quot; deleted.</span><br><span class="line">2020/09/10 14:55:01 [Helm 2] ReleaseVersion &quot;gitlab-runner.v1&quot; will be deleted.</span><br><span class="line">2020/09/10 14:55:02 [Helm 2] ReleaseVersion &quot;gitlab-runner.v1&quot; deleted.</span><br><span class="line">2020/09/10 14:55:02 [Helm 2] ReleaseVersion &quot;hello-world.v1&quot; will be deleted.</span><br><span class="line">2020/09/10 14:55:02 [Helm 2] ReleaseVersion &quot;hello-world.v1&quot; deleted.</span><br><span class="line">2020/09/10 14:55:02 [Helm 2] ReleaseVersion &quot;moqi-id-docs.v1&quot; will be deleted.</span><br><span class="line">2020/09/10 14:55:03 [Helm 2] ReleaseVersion &quot;moqi-id-docs.v1&quot; deleted.</span><br><span class="line">2020/09/10 14:55:03 [Helm 2] ReleaseVersion &quot;gitlab-runner.v2&quot; will be deleted.</span><br><span class="line">2020/09/10 14:55:03 [Helm 2] ReleaseVersion &quot;gitlab-runner.v2&quot; deleted.</span><br><span class="line">2020/09/10 14:55:03 [Helm 2] ReleaseVersion &quot;gitlab-runner-moqi-id-website.v2&quot; will be deleted.</span><br><span class="line">2020/09/10 14:55:04 [Helm 2] ReleaseVersion &quot;gitlab-runner-moqi-id-website.v2&quot; deleted.</span><br><span class="line">2020/09/10 14:55:04 [Helm 2] Releases deleted.</span><br><span class="line">2020/09/10 14:55:04 [Helm 2] Tiller in &quot;kube-system&quot; namespace will be removed.</span><br><span class="line">2020/09/10 14:55:04 [Helm 2] Tiller &quot;deploy&quot; in &quot;kube-system&quot; namespace will be removed.</span><br><span class="line">2020/09/10 14:55:05 [Helm 2] Tiller &quot;deploy&quot; in &quot;kube-system&quot; namespace was removed successfully.</span><br><span class="line">2020/09/10 14:55:05 [Helm 2] Tiller &quot;service&quot; in &quot;kube-system&quot; namespace will be removed.</span><br><span class="line">2020/09/10 14:55:06 [Helm 2] Tiller &quot;service&quot; in &quot;kube-system&quot; namespace was removed successfully.</span><br><span class="line">2020/09/10 14:55:06 [Helm 2] Tiller in &quot;kube-system&quot; namespace was removed.</span><br><span class="line">2020/09/10 14:55:06 [Helm 2] Home folder &quot;/home/debian/.helm&quot; will be deleted.</span><br><span class="line">2020/09/10 14:55:06 [Helm 2] Home folder &quot;/home/debian/.helm&quot; deleted.</span><br><span class="line">2020/09/10 14:55:06 Helm v2 data was cleaned up successfully.</span><br></pre></td></tr></table></figure>
+<p><strong>Reference</strong>：<a target="_blank" href="https://helm.sh/blog/migrate-from-helm-v2-to-helm-v3/" rel="external nofollow noreferrer noopener">How to migrate from Helm v2 to Helm v3</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/helm/" rel="tag"># helm</a>
+              <a href="/tags/k8s/" rel="tag"># k8s</a>
+              <a href="/tags/Kubernetes/" rel="tag"># Kubernetes</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/09/22/%E6%B5%81%E5%A4%8D%E5%88%B6%E5%8D%8F%E8%AE%AE%E8%B5%B0%E8%AF%BB/" rel="prev" title="流复制协议走读">
+                  <i class="fa fa-angle-left"></i> 流复制协议走读
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/08/08/Hexo-Next%E6%94%AF%E6%8C%81LaTeX/" rel="next" title="Hexo+Next支持LaTeX">
+                  Hexo+Next支持LaTeX <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"4dbadab3568a50a2814041f1af18ade4"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="ClickHouse 是由俄罗斯的 Yandex 开发的列式数据库管理系统，专为OLAP（在线分析处理）设计，主要用于高性能的数据分析。ClickHouse 有以下的优势：  性能优势：  高速查询：ClickHouse以其快速的查询性能著称，能够在秒级别处理TB级别的数据。 实时数据插入和查询：支持高吞吐量的数据插入和实时分析。   易用性：  SQL支持：兼容SQL查询语言，使用户可以轻松上">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ClickHouse 为何如此之快">
+<meta property="og:url" content="http://lewlh.github.io/2024/05/24/WhyIsClickHouseSoFast/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="ClickHouse 是由俄罗斯的 Yandex 开发的列式数据库管理系统，专为OLAP（在线分析处理）设计，主要用于高性能的数据分析。ClickHouse 有以下的优势：  性能优势：  高速查询：ClickHouse以其快速的查询性能著称，能够在秒级别处理TB级别的数据。 实时数据插入和查询：支持高吞吐量的数据插入和实时分析。   易用性：  SQL支持：兼容SQL查询语言，使用户可以轻松上">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://lewlh.github.io/images/ClickHouse.png">
+<meta property="article:published_time" content="2024-05-24T04:23:38.000Z">
+<meta property="article:modified_time" content="2025-02-16T03:27:02.391Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="clickhouse">
+<meta property="article:tag" content="Multi-Master">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lewlh.github.io/images/ClickHouse.png">
+
+
+<link rel="canonical" href="http://lewlh.github.io/2024/05/24/WhyIsClickHouseSoFast/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2024/05/24/WhyIsClickHouseSoFast/","path":"2024/05/24/WhyIsClickHouseSoFast/","title":"ClickHouse 为何如此之快"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>ClickHouse 为何如此之快 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">107</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">35</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ClickHouse-%E4%B8%BA%E4%BD%95%E5%A6%82%E6%AD%A4%E4%B9%8B%E5%BF%AB%EF%BC%9F"><span class="nav-text">ClickHouse 为何如此之快？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9D%80%E7%9C%BC%E7%A1%AC%E4%BB%B6%EF%BC%8C%E5%85%88%E6%83%B3%E5%90%8E%E5%81%9A"><span class="nav-text">着眼硬件，先想后做</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E5%9C%A8%E5%89%8D%EF%BC%8C%E6%8A%BD%E8%B1%A1%E5%9C%A8%E5%90%8E"><span class="nav-text">算法在前，抽象在后</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8B%87%E4%BA%8E%E5%B0%9D%E9%B2%9C%EF%BC%8C%E4%B8%8D%E8%A1%8C%E5%B0%B1%E6%8D%A2"><span class="nav-text">勇于尝鲜，不行就换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E5%AE%9A%E5%9C%BA%E6%99%AF%EF%BC%8C%E7%89%B9%E6%AE%8A%E4%BC%98%E5%8C%96"><span class="nav-text">特定场景，特殊优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%81%E7%BB%AD%E6%B5%8B%E8%AF%95%EF%BC%8C%E6%8C%81%E7%BB%AD%E6%94%B9%E8%BF%9B"><span class="nav-text">持续测试，持续改进</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E5%88%86%E6%9E%90"><span class="nav-text">技术分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%97%E5%BC%8F%E5%AD%98%E5%82%A8%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%8E%8B%E7%BC%A9"><span class="nav-text">列式存储与数据压缩</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%97%E5%BC%8F%E5%AD%98%E5%82%A8%EF%BC%8C%E4%B8%8E%E8%A1%8C%E5%BC%8F%E5%AD%98%E5%82%A8%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-text">列式存储，与行式存储的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ClickHouse-%E6%95%B0%E6%8D%AE%E5%8E%8B%E7%BC%A9%E6%8A%80%E6%9C%AF"><span class="nav-text">ClickHouse 数据压缩技术</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E5%8C%96%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E"><span class="nav-text">向量化执行引擎</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#SIMD-%E4%BB%8B%E7%BB%8D"><span class="nav-text">SIMD 介绍</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E6%A0%B7%E5%8C%96%E7%9A%84%E8%A1%A8%E5%BC%95%E6%93%8E"><span class="nav-text">多样化的表引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F"><span class="nav-text">多线程与分布式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E4%B8%BB%E6%9E%B6%E6%9E%84"><span class="nav-text">多主架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87%E4%B8%8E%E5%88%86%E5%B8%83%E5%BC%8F%E6%9F%A5%E8%AF%A2"><span class="nav-text">数据分片与分布式查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87%EF%BC%88Sharding%EF%BC%89"><span class="nav-text">数据分片（Sharding）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E6%9F%A5%E8%AF%A2%EF%BC%88Distributed-Query%EF%BC%89"><span class="nav-text">分布式查询（Distributed Query）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-text">Reference</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">107</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2024/05/24/WhyIsClickHouseSoFast/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="ClickHouse 为何如此之快 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ClickHouse 为何如此之快
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-05-24 12:23:38" itemprop="dateCreated datePublished" datetime="2024-05-24T12:23:38+08:00">2024-05-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-16 11:27:02" itemprop="dateModified" datetime="2025-02-16T11:27:02+08:00">2025-02-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img data-src="/images/ClickHouse.png" alt="ClickHouse"></p>
+<p>ClickHouse 是由俄罗斯的 Yandex 开发的列式数据库管理系统，专为OLAP（在线分析处理）设计，主要用于高性能的数据分析。ClickHouse 有以下的优势：</p>
+<ul>
+<li>性能优势：
+<ul>
+<li>高速查询：ClickHouse以其快速的查询性能著称，能够在秒级别处理TB级别的数据。</li>
+<li>实时数据插入和查询：支持高吞吐量的数据插入和实时分析。</li>
+</ul>
+</li>
+<li>易用性：
+<ul>
+<li>SQL支持：兼容SQL查询语言，使用户可以轻松上手。</li>
+<li>开源：作为开源项目，ClickHouse得到了广泛的社区支持和不断的改进。</li>
+<li>可扩展性：支持水平扩展，能够处理大量数据和高并发查询。</li>
+</ul>
+</li>
+<li>项目开源：
+<ul>
+<li>开源意味着任何人都可以查看和修改 ClickHouse 的源代码。这使得来自世界各地的开发者可以参与到 ClickHouse 的开发中，并贡献他们自己的代码和想法。这可以帮助 ClickHouse 更快地发展，并使其功能更加丰富。</li>
+<li>公司可以免费使用和修改 ClickHouse，而无需支付许可费用。这可以降低公司的成本，并使其更容易采用 ClickHouse。</li>
+<li>开源使得其他公司和个人可以构建基于 ClickHouse 的新产品和服务。这可以促进创新并导致新的和令人兴奋的使用 ClickHouse 的方式。</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+<hr>
+<h2 id="ClickHouse-为何如此之快？">ClickHouse 为何如此之快？</h2>
+<blockquote>
+<p>此章节内容来源于《ClickHouse 原理解析与应用实践》一书。</p>
+</blockquote>
+<p>很多用户心中一直会有这样的疑问，为什么 ClickHouse 这么快？前面的介绍对这个问题已经做出了科学合理的解释。比方说，因为 ClickHouse 是列式存储数据库，所以快；也因为 ClickHouse 使用了向量化引擎，所以快。这些解释都站得住脚，但是依然不能消除全部的疑问。因为这些技术并不是秘密，世面上有很多数据库同样使用了这些技术，但是依然没有 ClickHouse 这么快。所以我想从另外一个角度来探讨一番 ClickHouse 的秘诀到底是什么。</p>
+<p>首先向各位读者抛出一个疑问：在设计软件架构的时候，做设计的原则应该是自顶向下地去设计，还是应该自下而上地去设计呢？在传统观念中，或者说在我的观念中，自然是自顶向下的设计，通常我们都被教导要做好顶层设计。而 ClickHouse 的设计则采用了自下而上的方式。ClickHouse 的原型系统早在 2008 年就诞生了，在诞生之初它并没有宏伟的规划。相反它的目的很单纯，就是希望能以最快的速度进行 GROUP BY 查询和过滤。他们是如何实践自下而上设计的呢？</p>
+<h3 id="着眼硬件，先想后做">着眼硬件，先想后做</h3>
+<p>首先从硬件功能层面着手设计，在设计伊始就至少需要想清楚如下几个问题。</p>
+<ul>
+<li>我们将要使用的硬件水平是怎样的？包括 CPU、内存、硬盘、网络等。</li>
+<li>在这样的硬件上，我们需要达到怎样的性能？包括延迟、吞吐量等。</li>
+<li>我们准备使用怎样的数据结构？包括 String、HashTable、Vector 等。</li>
+<li>选择的这些数据结构，在我们的硬件上会如何工作？</li>
+</ul>
+<p>如果能想清楚上面这些问题，那么在动手实现功能之前，就已经能够计算出粗略的性能了。所以，基于将硬件功效最大化的目的，ClickHouse 会在内存中进行 GROUP BY，并且使用 HashTable 装载数据。与此同时，他们非常在意 CPU L3 级别的缓存，因为一次 L3 的缓存失效会带来 70～100ns 的延迟。这意味着在单核 CPU 上，它会浪费 4000 万次 / 秒的运算；而在一个 32 线程的 CPU 上，则可能会浪费 5 亿次 / 秒的运算。所以别小看这些细节，一点一滴地将它们累加起来，数据是非常可观的。正因为注意了这些细节，所以 ClickHouse 在基准查询中能做到 1.75 亿次 / 秒的数据扫描性能。</p>
+<h3 id="算法在前，抽象在后">算法在前，抽象在后</h3>
+<p>常有人念叨：“有时候，选择比努力更重要。” 确实，路线选错了再努力也是白搭。在 ClickHouse 的底层实现中，经常会面对一些重复的场景，例如字符串子串查询、数组排序、使用 HashTable 等。如何才能实现性能的最大化呢？算法的选择是重中之重。以字符串为例，有一本专门讲解字符串搜索的书，名为 “Handbook of Exact String Matching Algorithms”，列举了 35 种常见的字符串搜索算法。各位猜一猜 ClickHouse 使用了其中的哪一种？答案是一种都没有。这是为什么呢？因为性能不够快。在字符串搜索方面，针对不同的场景，ClickHouse 最终选择了这些算法：对于常量，使用 Volnitsky 算法；对于非常量，使用 CPU 的向量化执行 SIMD，暴力优化；正则匹配使用 re2 和 hyperscan 算法。性能是算法选择的首要考量指标。</p>
+<h3 id="勇于尝鲜，不行就换">勇于尝鲜，不行就换</h3>
+<p>除了字符串之外，其余的场景也与它类似，ClickHouse 会使用最合适、最快的算法。如果世面上出现了号称性能强大的新算法，ClickHouse 团队会立即将其纳入并进行验证。如果效果不错，就保留使用；如果性能不尽人意，就将其抛弃。</p>
+<h3 id="特定场景，特殊优化">特定场景，特殊优化</h3>
+<p>针对同一个场景的不同状况，选择使用不同的实现方式，尽可能将性能最大化。关于这一点，其实在前面介绍字符串查询时，针对不同场景选择不同算法的思路就有体现了。类似的例子还有很多，例如去重计数 uniqCombined 函数，会根据数据量的不同选择不同的算法：当数据量较小的时候，会选择 Array 保存；当数据量中等的时候，会选择 HashSet；而当数据量很大的时候，则使用 HyperLogLog 算法。</p>
+<p>对于数据结构比较清晰的场景，会通过代码生成技术实现循环展开，以减少循环次数。接着就是大家熟知的大杀器 —— 向量化执行了。SIMD 被广泛地应用于文本转换、数据过滤、数据解压和 JSON 转换等场景。相较于单纯地使用 CPU，利用寄存器暴力优化也算是一种降维打击了。</p>
+<h3 id="持续测试，持续改进">持续测试，持续改进</h3>
+<p>如果只是单纯地在上述细节上下功夫，还不足以构建出如此强大的 ClickHouse，还需要拥有一个能够持续验证、持续改进的机制。由于 Yandex 的天然优势，ClickHouse 经常会使用真实的数据进行测试，这一点很好地保证了测试场景的真实性。与此同时，ClickHouse 也是我见过的发版速度最快的开源软件了，差不多每个月都能发布一个版本。没有一个可靠的持续集成环境，这一点是做不到的。正因为拥有这样的发版频率，ClickHouse 才能够快速迭代、快速改进。</p>
+<p>所以 ClickHouse 的黑魔法并不是一项单一的技术，而是一种自底向上的、追求极致性能的设计思路。这就是它如此之快的秘诀。</p>
+<h2 id="技术分析">技术分析</h2>
+<p>要做出一个高性能的服务系统，需要充分利用、压榨硬件的性能，一般会从以下维度下手设计：</p>
+<ul>
+<li>CPU 性能优化：
+<ul>
+<li>并行计算：利用多核处理器的优势，实现任务的并行处理。</li>
+<li>算法优化：选择最优算法，减少计算时间，例如使用快速排序代替冒泡排序。</li>
+<li>代码优化：优化代码逻辑，减少不必要的循环和条件判断，使用高效的数据结构。</li>
+</ul>
+</li>
+<li>内存管理：
+<ul>
+<li>内存分配：合理分配内存，避免内存碎片化。</li>
+<li>缓存利用：使用缓存来存储频繁访问的数据，减少对主存的访问。</li>
+<li>内存池：使用内存池来管理内存，减少内存分配和释放的开销。</li>
+</ul>
+</li>
+<li>存储性能：
+<ul>
+<li>SSD 使用：使用固态硬盘 (SSD) 代替机械硬盘 (HDD)，提高 I/O 性能。</li>
+<li>RAID 配置：合理配置磁盘阵列 (RAID)，提高数据读写速度和数据安全性。</li>
+<li>数据压缩：对存储的数据进行压缩，减少存储空间的需求，加快读写速度。</li>
+</ul>
+</li>
+<li>I/O 优化：
+<ul>
+<li>异步 I/O：使用异步 I/O 操作，避免阻塞 CPU 等待 I/O 操作完成。</li>
+<li>缓冲处理：使用缓冲区来减少 I/O 操作的次数。</li>
+<li>数据预取：预测将要访问的数据，并提前加载到内存中。</li>
+</ul>
+</li>
+<li>网络性能：
+<ul>
+<li>网络优化：使用高速网络接口，如 10Gbps 以太网。</li>
+<li>数据压缩：通过网络传输的数据进行压缩，减少传输时间。</li>
+<li>负载均衡：通过网络负载均衡分散请求，提高网络吞吐量。</li>
+</ul>
+</li>
+<li>资源调度：
+<ul>
+<li>任务调度：合理调度任务，确保 CPU、内存和存储资源的高效利用。</li>
+<li>优先级管理：根据任务的重要性设置优先级，确保关键任务的资源需求。</li>
+</ul>
+</li>
+<li>硬件特性利用：
+<ul>
+<li>SIMD 指令集：利用 SIMD 指令集进行数据并行处理。</li>
+<li>GPU 加速：对于图形和计算密集型任务，使用 GPU 进行加速。</li>
+</ul>
+</li>
+</ul>
+<p>在2020年，ClickHouse 已经为 Yandex.Metrica 存储了超过20万亿行的数据，90%的自定义查询能够在1秒内返回，其集群规模也超过了400台服务器，平均一台服务器需要处理500亿行数据，数据规模庞大，充分利用不同存储介质的读取速度，通过算法、工程方式提高数据的命中率，是非常考验项目创立者系统设计的功力。</p>
+<pre><code class="highlight mermaid">graph TD
+    CPU[CPU_Register Capacity:1000B Speed:300ps] --&gt; L1[L1_Cache Capacity:64KB Speed:1ns]
+    L1 --&gt; L2[L2_Cache Capacity:256KB Speed:10ns]
+    L2 --&gt; L3[L3_Cache Capacity:4~256MB Speed:20ns]
+    L3 --&gt; Memory[Memory Capacity:8~512GB Speed:100ns]
+    Memory --&gt; NVMe[NVMe Capacity:4~20TB Speed:7000MB/s]
+    NVMe --&gt; SSD[SSD Capacity:4~20TB Speed:500MB/s]
+    SSD --&gt; HDD[HDD Capacity:4~20TB Speed:100MB/s]</code></pre>
+<p align="center">不同存储介质下的速度. </p>
+<p>本文作为一篇相对入门的介绍性技术文章，不追求全面剖析 ClickHouse 的技术细节，而是提出几个重点的技术特性，让读者粗浅地感受到 ClickHouse 的技术亮点，知道为什么 ClickHouse 如此之快，就算完成任务了。</p>
+<h3 id="列式存储与数据压缩">列式存储与数据压缩</h3>
+<p>列式存储和数据压缩，对于一款高性能数据库来说是必不可少的特性。一个非常流行的观点认为，如果你想让查询变得更快，最简单且有效的方法是减少数据扫描范围和数据传输时的大小，而列式存储和数据压缩就可以帮助我们实现上述两点。列式存储和数据压缩通常是伴生的，因为一般来说列式存储是数据压缩的前提。</p>
+<p>按列存储与按行存储相比，前者可以有效减少查询时所需扫描的数据量。按列存储相比按行存储的另一个优势是对数据压缩的友好性。</p>
+<p>数据中的重复项越多，则压缩率越高；压缩率越高，则数据体量越小；而数据体量越小，则数据在网络中的传输越快，对网络带宽和磁盘 IO 的压力也就越小。既然如此，那怎样的数据最可能具备重复的特性呢？答案是属于同一个列字段的数据，因为它们拥有相同的数据类型和现实语义，重复项的可能性自然就更高。</p>
+<p>ClickHouse 就是一款使用列式存储的数据库，数据按列进行组织，属于同一列的数据会被保存在一起，列与列之间也会由不同的文件分别保存（这里主要指 MergeTree 表引擎）。数据默认使用 LZ4 算法压缩，在 Yandex.Metrica 的生产环境中，数据总体的压缩比可以达到 8:1（未压缩前 17PB，压缩后 2PB）。 列式存储除了降低 IO 和存储的压力之外，还为向量化执行做好了铺垫。</p>
+<h4 id="列式存储，与行式存储的区别">列式存储，与行式存储的区别</h4>
+<p>列式存储（Columnar Storage）和行式存储（Row-oriented Storage）是两种不同的数据存储方式，它们在数据库和数据仓库系统中非常常见。这两种存储方式各有优缺点，适用于不同的场景。</p>
+<ul>
+<li>列式存储更适合分析型查询和大数据集，因为它可以减少 I/O 操作并提高压缩效率。</li>
+<li>行式存储更适合事务型工作负载和需要频繁更新的场景，因为它可以快速访问和修改整行数据。</li>
+</ul>
+<p>选择哪种存储方式取决于应用的具体需求和数据的使用模式。在实际应用中，一些数据库系统支持混合存储模式，可以根据查询类型自动选择最合适的存储方式。</p>
+<h5 id="行式存储（Row-oriented-Storage）">行式存储（Row-oriented Storage）</h5>
+<p>想象一个书架，书架的每一层代表数据库中的一行数据。每一层上的书籍代表该行中的各个列值。当你需要读取一行数据时，你只需要从书架上取出一个层级，就可以一次性获取整行的所有数据。这种方式适合需要快速访问整行数据的场景。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+--------+--------+--------+--------+--------+</span><br><span class="line">| Row ID | Column1| Column2| Column3| Column4|</span><br><span class="line">+--------+--------+--------+--------+--------+</span><br><span class="line">|   1    |   A    |   B    |   C    |   D    |</span><br><span class="line">+--------+--------+--------+--------+--------+</span><br><span class="line">|   2    |   E    |   F    |   G    |   H    |</span><br><span class="line">+--------+--------+--------+--------+--------+</span><br><span class="line">|   ...  |   ...  |   ...  |   ...  |   ...  |</span><br><span class="line">+--------+--------+--------+--------+--------+</span><br></pre></td></tr></table></figure>
+<pre><code class="highlight mermaid">graph TD
+    A[Row 1] --&gt; B[Column 1]
+    A --&gt; C[Column 2]
+    A --&gt; D[Column 3]
+    A --&gt; E[Column 4]
+    A --&gt; F[Row ID]
+
+    G[Row 2] --&gt; H[Column 1]
+    G --&gt; I[Column 2]
+    G --&gt; J[Column 3]
+    G --&gt; K[Column 4]
+    G --&gt; L[Row ID]
+
+    ... --&gt; ...[Column 1]
+    ... --&gt; ...[Column 2]
+    ... --&gt; ...[Column 3]
+    ... --&gt; ...[Column 4]
+    ... --&gt; ...[Row ID]</code></pre>
+<p align="center">图表展示了数据是如何按行组织的，每一行都包含了所有列的信息. </p>
+<ul>
+<li>数据组织：在行式存储中，数据是按行存储的。每行的数据连续存储，包括所有列。</li>
+<li>查询效率：行式存储在执行涉及多列或全表扫描的查询时效率较高，因为可以一次性读取整行数据。</li>
+<li>压缩：行式存储的压缩效率通常不如列式存储，因为数据的类型是混合存储的，不利于压缩算法的优化。</li>
+<li>事务处理：行式存储更适合处理事务型工作负载，例如在线事务处理（OLTP）系统，因为数据是按行组织的，便于进行行级别的锁定和更新。</li>
+<li>更新和插入：行式存储在更新和插入数据时通常更高效，因为数据是连续存储的，不需要进行大量的数据移动。</li>
+</ul>
+<h5 id="列式存储（Columnar-Storage）">列式存储（Columnar Storage）</h5>
+<p>现在想象一个图书馆，图书馆中的每个书架代表一个列。每个书架上的书籍按照行的顺序排列，代表不同的数据行。当你需要查询某个列的所有数据时，你只需要访问对应的书架，而不需要移动其他列的数据。这种方式适合于只需要访问少数几个列的场景。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+--------+--------+--------+--------+--------+</span><br><span class="line">| Column1| Column2| Column3| Column4| Row ID |</span><br><span class="line">+--------+--------+--------+--------+--------+</span><br><span class="line">|   A    |   B    |   C    |   D    |   1    |</span><br><span class="line">+--------+--------+--------+--------+--------+</span><br><span class="line">|   E    |   F    |   G    |   H    |   2    |</span><br><span class="line">+--------+--------+--------+--------+--------+</span><br><span class="line">|   ...  |   ...  |   ...  |   ...  |   ...  |</span><br><span class="line">+--------+--------+--------+--------+--------+</span><br></pre></td></tr></table></figure>
+<pre><code class="highlight mermaid">graph TD
+    A[Column 1] --&gt;|Row 1| B[Value A]
+    A --&gt;|Row 2| C[Value E]
+    A --&gt;|...| D[...]
+
+    E[Column 2] --&gt;|Row 1| F[Value B]
+    E --&gt;|Row 2| G[Value F]
+    E --&gt;|...| H[...]
+
+    I[Column 3] --&gt;|Row 1| J[Value C]
+    I --&gt;|Row 2| K[Value G]
+    I --&gt;|...| L[...]
+
+    Q[Row ID] --&gt;|Row 1| R[1]
+    Q --&gt;|Row 2| S[2]
+    Q --&gt;|...| T[...]</code></pre>
+<p align="center">图表展示了数据是如何按列组织的，每一列都包含了所有行的数据。</p>
+<p>在这个图像化表示中，列式存储将相同类型的数据（同一列）存储在一起，这有助于提高压缩率和查询效率，尤其是在处理大型数据集时。</p>
+<ul>
+<li>数据组织：在列式存储中，数据是按列存储的。这意味着所有相同列的数据都存储在一起，而不是按行组织。</li>
+<li>查询效率：列式存储对于执行涉及少数列的查询非常高效，因为只有需要的列会被读取，减少了 I/O 操作。</li>
+<li>压缩：由于相同类型的数据存储在一起，列式存储可以更有效地进行压缩，从而减少存储空间和提高查询性能。</li>
+<li>分析查询：列式存储非常适合分析型查询，特别是当需要对数据进行聚合和排序操作时。</li>
+<li>更新和插入：列式存储在更新和插入数据时可能不如行式存储高效，因为数据不是按行组织，可能需要更多的重排和数据移动。</li>
+</ul>
+<h4 id="ClickHouse-数据压缩技术">ClickHouse 数据压缩技术</h4>
+<p>ClickHouse 是一个高性能的列式数据库管理系统，它在数据压缩方面具有一些独到之处，这些特点帮助它在减少存储空间和提高查询性能方面表现出色。以下是 ClickHouse 在数据压缩方面的几个关键特点：</p>
+<ul>
+<li>多种压缩算法：ClickHouse 提供了多种压缩算法，包括 LZ4 和 ZSTD（Zstandard）。LZ4 是一种无损压缩算法，它提供了较高的压缩速度和较低的解压缩速度，适用于大多数场景，可以在不影响查询性能的情况下显著减少存储空间。ZSTD 则提供了更高的压缩比，适用于对存储空间有严格要求的场景，但解压缩速度较慢。</li>
+<li>数据编码技术：除了压缩算法，ClickHouse 还使用了数据编码技术，如 Delta 和 Gorilla。Delta 编码通过存储相邻数据之间的差值来减少数据大小，适用于具有连续值或递增值的数据，如时间序列数据。Gorilla 编码则是一种专为时间序列数据设计的编码技术，通过存储相邻数据之间的 XOR 值来实现更高的压缩比。</li>
+<li>配置灵活性：ClickHouse 允许用户通过修改配置文件来配置压缩算法和数据编码，提供了高度的自定义性。用户可以根据数据的特点和查询需求，选择最合适的压缩和编码方法。
+<ul>
+<li>通过配置文件自定义压缩算法。</li>
+<li>在创建表时指定压缩算法。</li>
+</ul>
+</li>
+<li>压缩字典技术：ClickHouse 还支持压缩字典技术，这种技术针对列中有较少不同值的情况，通过使用整数来表示不同的值，并使用字典将原始值映射到新的整数值，从而减小存储空间。</li>
+<li>性能优化：在热数据请求下，LZ4 由于其较快的解压缩速度，会提供更快的执行效率，尽管这可能以牺牲一些压缩率为代价。</li>
+<li>内置实用工具：ClickHouse 内置了多种实用工具来帮助管理和优化数据压缩，使得用户可以更容易地选择合适的压缩算法以获得最佳性能。</li>
+</ul>
+<p>综上所述，ClickHouse 在数据压缩方面的独特之处在于其提供的多种压缩算法、数据编码技术、配置灵活性、压缩字典技术以及性能优化，这些都使得 ClickHouse 在处理大规模数据和高并发查询时表现出色。</p>
+<h5 id="通过配置文件自定义压缩算法">通过配置文件自定义压缩算法</h5>
+<ul>
+<li>
+<p>打开配置文件：通常，ClickHouse 的配置文件名为 config.xml，位于 ClickHouse 的安装目录下。</p>
+</li>
+<li>
+<p>编辑压缩设置：在 <code>&lt;clickhouse&gt;</code> 标签内，找到或创建一个名为 <code>&lt;compression&gt;</code> 的节。在这个节中，可以定义不同的压缩算法和设置。</p>
+</li>
+<li>
+<p>定义压缩案例：在 <code>&lt;compression&gt;</code> 节中，定义一个名为 <code>&lt;case&gt;</code> 的子节，其中包含压缩算法和数据编码的设置。例如：</p>
+  <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">compression</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">case</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">min_part_size</span>&gt;</span>10000000000<span class="tag">&lt;/<span class="name">min_part_size</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">min_part_size_ratio</span>&gt;</span>0.01<span class="tag">&lt;/<span class="name">min_part_size_ratio</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">method</span>&gt;</span>zstd<span class="tag">&lt;/<span class="name">method</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">level</span>&gt;</span>1<span class="tag">&lt;/<span class="name">level</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">case</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">compression</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在这个示例中，我们指定了 ZSTD 压缩算法，并设置了压缩级别为 1。<code>&lt;min_part_size&gt;</code> 和 <code>&lt;min_part_size_ratio&gt;</code> 用于定义启用压缩的数据部分的最小大小。</p>
+</li>
+<li>
+<p>保存并重启服务：保存 config.xml 文件的更改，并重启 ClickHouse 服务以使更改生效。</p>
+</li>
+</ul>
+<h5 id="在创建表时指定压缩算法">在创建表时指定压缩算法</h5>
+<ul>
+<li>
+<p>创建表：在创建表的 SQL 语句中，可以使用 CODEC 子句为特定的列指定压缩算法。</p>
+</li>
+<li>
+<p>指定压缩算法：例如，为 event_date 列指定 Delta 编码和 LZ4 压缩算法，为 event_type 列指定 ZSTD 压缩算法，可以这样写：</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> encoded_data (</span><br><span class="line">    event_date <span class="type">Date</span> CODEC(Delta, LZ4),</span><br><span class="line">    event_type String CODEC(ZSTD),</span><br><span class="line">    <span class="keyword">value</span> UInt32</span><br><span class="line">) ENGINE <span class="operator">=</span> MergeTree()</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> event_date;</span><br></pre></td></tr></table></figure>
+<p>在这个示例中，event_date 列使用了 Delta 编码和 LZ4 压缩，而 event_type 列使用了 ZSTD 压缩。</p>
+</li>
+</ul>
+<h3 id="向量化执行引擎">向量化执行引擎</h3>
+<p>ClickHouse 是一个高性能的列式数据库管理系统，它在 SIMD（Single Instruction Multiple Data，单指令多数据）方面有一些显著的特点，这些特点使得 ClickHouse 在处理大量数据时能够实现高效的并行计算。以下是 ClickHouse 在 SIMD 方面的主要特点：</p>
+<ul>
+<li>向量化执行引擎：ClickHouse 实现了向量化执行引擎，这是其优于许多其他 OLAP 产品的一个重要因素。向量化执行引擎可以在支持列存的基础上，通过批量处理模式来大幅减少函数调用开销，降低指令和数据的 Cache Miss，提升 CPU 的利用效率。</li>
+<li>利用 SIMD 指令集：ClickHouse 能够利用 CPU 的 SIMD 指令集来进一步加速执行效率。SIMD 允许单个指令同时处理多个数据，这意味着 ClickHouse 可以并行处理大量数据，从而加快数据的处理速度。</li>
+<li>减少函数调用开销：通过向量化执行，ClickHouse 能够减少对函数的调用次数，因为可以一次性处理多个数据项，而不是逐行处理。</li>
+<li>降低 Cache Miss：向量化执行有助于提高数据的局部性，从而降低 Cache Miss 率，提高内存访问效率。</li>
+<li>硬件特性利用：ClickHouse 的列式存储格式和向量化执行引擎的设计，使得它能够更好地利用 CPU 的硬件特性，如 SIMD，将所有数据加载到 CPU 的缓存中，提高缓存命中率，提升效率。</li>
+<li>多种 SIMD 指令集支持：ClickHouse 支持多种 SIMD 指令集，包括 SSE2、SSE4、AVX2 和 AVX-512，这些指令集能够处理不同数量的数据，从而提供不同程度的性能提升。</li>
+<li>代码优化：ClickHouse 的代码中有许多针对 SIMD 优化的部分，例如在处理数组过滤、数组除法、计算字节数组尾部零的数量等操作时，都利用了 SIMD 指令集来加速处理。</li>
+<li>未来趋势：尽管 SIMD 曾经是提升性能的重要手段，但未来的 CPU 设计可能会更侧重于多核处理器，而 SIMD 单元可能会逐渐减少，这可能会影响到 SIMD 在未来的性能提升潜力。</li>
+</ul>
+<p>总的来说，ClickHouse 在 SIMD 方面的特点是其高性能的关键因素之一，它通过向量化执行引擎和对 CPU SIMD 指令集的深入利用，实现了对大量数据的快速并行处理。</p>
+<h4 id="SIMD-介绍">SIMD 介绍</h4>
+<p>为了浅显易懂地解释 SIMD 执行的过程，我们可以通过一个简单的加法例子来说明。</p>
+<h5 id="标量（Scalar）执行过程">标量（Scalar）执行过程</h5>
+<p>在没有使用 SIMD 的情况下，CPU 执行加法操作是逐个处理数据的，这种方式称为标量（Scalar）执行。假设我们有四个整数需要相加：A、B、C、D。</p>
+<ul>
+<li>取第一个数：CPU 取出 A。</li>
+<li>执行加法：将 A 与 B 相加，得到结果 E。</li>
+<li>存储结果：将 E 存储起来。</li>
+<li>取第二个数：CPU 取出 C。</li>
+<li>再次执行加法：将 C 与 D 相加，得到结果 F。</li>
+<li>存储结果：将 F 存储起来。</li>
+</ul>
+<p>这个过程需要多次 CPU 周期，每次只能处理两个数的加法。</p>
+<h5 id="SIMD-执行过程">SIMD 执行过程</h5>
+<p>现在，让我们看看使用 SIMD 指令集时，这个过程是如何改变的。</p>
+<ul>
+<li>加载数据：CPU 一次性加载 A、B、C、D 这四个数到 SIMD 寄存器中。SIMD 寄存器比普通的标量寄存器宽，可以同时存储多个数据。</li>
+<li>执行 SIMD 加法指令：CPU 发出一个加法指令，这个指令会同时作用于 SIMD 寄存器中的所有数据。在这个例子中，就是将 A 与 B、C 与 D 分别相加。</li>
+<li>得到结果：由于是并行处理，CPU 在单个指令周期内就得到了两个加法的结果，即 E 和 F。</li>
+<li>存储结果：将 E 和 F 存储到内存中。</li>
+</ul>
+<h5 id="ClickHouse-SIMD-并行处理概念图">ClickHouse SIMD 并行处理概念图</h5>
+<p>如果我们将这个过程可视化，标量执行看起来像这样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A + B -&gt; E</span><br><span class="line">C + D -&gt; F</span><br></pre></td></tr></table></figure>
+<p>而 SIMD 执行看起来像这样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[A, C] + [B, D] -&gt; [E, F]</span><br></pre></td></tr></table></figure>
+<pre><code class="highlight mermaid">graph LR
+A[数据请求] --&gt; B(ClickHouse查询引擎)
+B --&gt; C[SIMD优化的数据处理]
+C --&gt;|数据1,2,3,4...| D[并行处理单元1]
+C --&gt;|数据5,6,7,8...| E[并行处理单元2]
+C --&gt;|数据9,10,11,12...| F[并行处理单元N]
+D --&gt; G[结果合并]
+E --&gt; G
+F --&gt; G
+G --&gt; H[最终结果]</code></pre>
+<p>说明：</p>
+<ul>
+<li>数据请求：用户或应用程序向 ClickHouse 发出的查询请求。</li>
+<li>ClickHouse 查询引擎：负责解析查询请求并生成执行计划。</li>
+<li>SIMD 优化的数据处理：ClickHouse 的查询引擎利用 SIMD 指令集来并行处理数据。</li>
+<li>并行处理单元：每个并行处理单元可以同时处理多个数据项，这是 SIMD 优化的结果。</li>
+<li>结果合并：各个并行处理单元的结果被合并，以生成最终的查询结果。</li>
+</ul>
+<p>请注意，这个图是一个高层次的简化表示，实际上 ClickHouse 的 SIMD 优化会在更细粒度的层面上工作，例如在单个 CPU 核心的指令级别。SIMD 优化通常涉及到具体的 CPU 指令，如 SSE（Streaming SIMD Extensions）或 AVX（Advanced Vector Extensions），这些指令能够一次性处理多个数据点，从而提高性能。</p>
+<p>通过这个例子，你可以看到 SIMD 的主要优势在于它能够用单个指令同时处理多个数据，这样可以显著减少所需的 CPU 周期数，提高处理速度。这种并行处理能力在处理大量数据时尤其有用，比如在数据库查询、图像处理、科学计算等领域。</p>
+<h3 id="多样化的表引擎">多样化的表引擎</h3>
+<p>ClickHouse 支持多种表引擎（Table Engines），每种表引擎都有其特定的用途和优化，以适应不同的数据处理场景。以下是 ClickHouse 支持的一些主要表引擎及其特点：</p>
+<ul>
+<li>默认的 MergeTree 家族：
+<ul>
+<li>MergeTree：这是最基本的引擎，适用于插入大块数据后进行大规模查询的场景。</li>
+<li>ReplacingMergeTree：类似于 MergeTree，但具有版本控制，可以替换重复的行。</li>
+<li>SummingMergeTree：在合并阶段，可以对数值类型列进行求和。</li>
+<li>AggregatingMergeTree：用于实时聚合数据。</li>
+<li>CollapsingMergeTree：用于在合并阶段折叠具有相同主键的行。</li>
+<li>VersionedCollapsingMergeTree：结合了 CollapsingMergeTree 和 ReplacingMergeTree 的功能。</li>
+</ul>
+</li>
+<li>内存中的表引擎：
+<ul>
+<li>Memory：将所有数据存储在 RAM 中，提供最快的读取速度，但数据在服务器重启后会丢失。</li>
+</ul>
+</li>
+<li>适用于小数据量存储的引擎：
+<ul>
+<li>TinyLog：用于存储小量数据，优化写入性能。</li>
+<li>StripeLog：类似于 TinyLog，但使用更大的块进行写入。</li>
+</ul>
+</li>
+<li>支持 SQL 接口的引擎：
+<ul>
+<li>MaterializedView：不是物理存储数据的表，而是根据查询结果动态生成的视图。</li>
+</ul>
+</li>
+<li>分布式表引擎：
+<ul>
+<li>Distributed：允许在多个服务器上进行查询和数据复制。</li>
+</ul>
+</li>
+<li>支持数据复制的引擎：
+<ul>
+<li>ReplicatedMergeTree：支持数据的自动复制，提高数据的可靠性和容错性。</li>
+</ul>
+</li>
+<li>支持外部数据源的引擎：
+<ul>
+<li>Kafka：允许直接从 Kafka 主题读取和写入数据。</li>
+<li>HDFS：用于与 Hadoop 文件系统交互。</li>
+<li>JDBC：允许通过 JDBC 连接读取和写入外部数据库。</li>
+</ul>
+</li>
+<li>特殊用途的表引擎：
+<ul>
+<li>File：允许直接读取本地文件系统中的数据。</li>
+<li>Null：不存储任何数据，用于测试和调试。</li>
+</ul>
+</li>
+<li>混合表引擎：
+<ul>
+<li>Join：用于实现高效的表连接操作。</li>
+</ul>
+</li>
+</ul>
+<p>ClickHouse 的表引擎设计非常灵活，可以根据数据的写入模式、查询模式、数据的实时性要求、数据的可靠性要求等不同需求选择合适的表引擎。这种多样性使得 ClickHouse 能够适应从实时分析到复杂事务处理等多种不同的应用场景。</p>
+<h3 id="多线程与分布式">多线程与分布式</h3>
+<p>ClickHouse 几乎具备现代化高性能数据库的所有典型特征，对于可以提升性能的手段可谓是一一用尽，对于多线程和分布式这类被广泛使用的技术，自然更是不在话下。</p>
+<p>如果说向量化执行是通过数据级并行的方式提升了性能，那么多线程处理就是通过线程级并行的方式实现了性能的提升。相比基于底层硬件实现的向量化执行 SIMD，线程级并行通常由更高层次的软件层面控制。现代计算机系统早已普及了多处理器架构，所以现今市面上的服务器都具备良好的多核心多线程处理能力。由于 SIMD 不适合用于带有较多分支判断的场景，ClickHouse 也大量使用了多线程技术以实现提速，以此和向量化执行形成互补。</p>
+<p>如果一个篮子装不下所有的鸡蛋，那么就多用几个篮子来装，这就是分布式设计中分而治之的基本思想。同理，如果一台服务器性能吃紧，那么就利用多台服务的资源协同处理。为了实现这一目标，首先需要在数据层面实现数据的分布式。因为在分布式领域，存在一条金科玉律 —— 计算移动比数据移动更加划算。在各服务器之间，通过网络传输数据的成本是高昂的，所以相比移动数据，更为聪明的做法是预先将数据分布到各台服务器，将数据的计算查询直接下推到数据所在的服务器。 ClickHouse 在数据存取方面，既支持分区（纵向扩展，利用多线程原理），也支持分片（横向扩展，利用分布式原理），可以说是将多线程和分布式的技术应用到了极致。</p>
+<p>ClickHouse 多线程架构图:ClickHouse 可以利用多线程来并行处理数据查询，提高查询效率。每个线程可以独立地执行数据读取操作，然后将结果合并后返回给用户。</p>
+<pre><code class="highlight mermaid">graph LR
+A[数据查询请求] --&gt; B[ClickHouse查询引擎]
+B --&gt; C[线程1]
+B --&gt; D[线程2]
+B --&gt; E[线程3]
+C --&gt; F[数据读取]
+D --&gt; G[数据读取]
+E --&gt; H[数据读取]
+F --&gt; I[数据合并]
+G --&gt; I
+H --&gt; I
+I --&gt; J[结果返回]</code></pre>
+<p>ClickHouse 分布式架构图:ClickHouse 的分布式架构允许数据分布在多个节点上，通过协调节点来管理这些数据分片。每个数据分片可以分布在不同的数据节点上，从而实现数据的水平扩展和负载均衡。</p>
+<pre><code class="highlight mermaid">graph TD
+A[客户端] --&gt; B[ClickHouse协调节点]
+B --&gt; C[数据分片1]
+B --&gt; D[数据分片2]
+B --&gt; E[数据分片3]
+C --&gt; F[数据节点1]
+D --&gt; G[数据节点2]
+E --&gt; H[数据节点3]
+F --&gt; I[数据存储]
+G --&gt; I
+H --&gt; I
+I --&gt; J[数据查询]</code></pre>
+<h3 id="多主架构">多主架构</h3>
+<p>HDFS、Spark、HBase 和 Elasticsearch 这类分布式系统，都采用了 Master-Slave 主从架构，由一个管控节点作为 Leader 统筹全局。而 ClickHouse 则采用 Multi-Master 多主架构，集群中的每个节点角色对等，客户端访问任意一个节点都能得到相同的效果。这种多主的架构有许多优势，例如对等的角色使系统架构变得更加简单，不用再区分主控节点、数据节点和计算节点，集群中的所有节点功能相同。所以它天然规避了单点故障的问题，非常适合用于多数据中心、异地多活的场景。</p>
+<p>ClickHouse Multi-Master 多主架构图:</p>
+<pre><code class="highlight mermaid">graph TD
+A[客户端1] --&gt; B[ClickHouse节点1]
+A[客户端2] --&gt; C[ClickHouse节点2]
+A[客户端N] --&gt; D[ClickHouse节点N]
+B --&gt; E[数据同步]
+C --&gt; E
+D --&gt; E
+E --&gt; F[所有节点同步]
+B --&gt; F
+C --&gt; F
+D --&gt; F
+</code></pre>
+<h3 id="数据分片与分布式查询">数据分片与分布式查询</h3>
+<p>数据分片是将数据进行横向切分，这是一种在面对海量数据的场景下，解决存储和查询瓶颈的有效手段，是一种分治思想的体现。ClickHouse 支持分片，而分片则依赖集群。每个集群由 1 到多个分片组成，而每个分片则对应了 ClickHouse 的 1 个服务节点。分片的数量上限取决于节点数量（1 个分片只能对应 1 个服务节点）。<br>
+ClickHouse 并不像其他分布式系统那样，拥有高度自动化的分片功能。ClickHouse 提供了本地表（Local Table）与分布式表（Distributed Table）的概念。一张本地表等同于一份数据的分片。而分布式表本身不存储任何数据，它是本地表的访问代理，其作用类似分库中间件。借助分布式表，能够代理访问多个数据分片，从而实现分布式查询。</p>
+<p>这种设计类似数据库的分库和分表，十分灵活。例如在业务系统上线的初期，数据体量并不高，此时数据表并不需要多个分片。所以使用单个节点的本地表（单个数据分片）即可满足业务需求，待到业务增长、数据量增大的时候，再通过新增数据分片的方式分流数据，并通过分布式表实现分布式查询。这就好比一辆手动挡赛车，它将所有的选择权都交到了使用者的手中。</p>
+<p>通过数据分片和分布式查询，ClickHouse 能够有效地扩展处理能力和提高查询性能。这些机制使得 ClickHouse 特别适用于大规模数据分析和高吞吐量查询场景。下面简单介绍这两个技术的原理。</p>
+<h4 id="数据分片（Sharding）">数据分片（Sharding）</h4>
+<p>数据分片是将数据分割成更小的部分，每部分存储在不同的服务器（节点）上。这种方式可以水平扩展存储和计算能力，提高系统的吞吐量和查询性能。</p>
+<h5 id="数据分片示例">数据分片示例</h5>
+<p>假设有一张包含用户活动日志的表，将其按照用户 ID 进行分片。每个分片包含特定用户 ID 范围内的数据。</p>
+<pre><code class="highlight mermaid">graph LR
+  A((User Activity Table)) --&gt; B[Shard 1: UserID 1-1000]
+  A((User Activity Table)) --&gt; C[Shard 2: UserID 1001-2000]
+  A((User Activity Table)) --&gt; D[Shard 3: UserID 2001-3000]
+  A((User Activity Table)) --&gt; E[Shard 4: UserID 3001-4000]</code></pre>
+<h5 id="数据写入与分片">数据写入与分片</h5>
+<p>数据写入时，按照分片键（例如 UserID）将数据分布到不同的节点。</p>
+<pre><code class="highlight mermaid">graph LR
+  WriteData[Write Data] --&gt; F
+  F((Distributed Table)) --&gt; G[Shard 1: UserID 1-1000]
+  F --&gt; H[Shard 2: UserID 1001-2000]
+  F --&gt; I[Shard 3: UserID 2001-3000]
+  F --&gt; J[Shard 4: UserID 3001-4000]
+</code></pre>
+<h4 id="分布式查询（Distributed-Query）">分布式查询（Distributed Query）</h4>
+<p>分布式查询是指将查询任务分发到多个节点并行执行，然后汇总各节点的结果。ClickHouse 使用分布式表（Distributed Table）来实现这一功能。</p>
+<h5 id="分布式查询示例">分布式查询示例</h5>
+<p>假设有一张分布式用户活动日志表，包含多个分片。当执行一个查询时，查询任务会被分发到各个分片节点，最后汇总结果。</p>
+<pre><code class="highlight mermaid">graph TD
+  F((Distributed Table))
+  F --&gt; G[Shard 1]
+  F --&gt; H[Shard 2]
+  F --&gt; I[Shard 3]
+  F --&gt; J[Shard 4]
+  G --&gt; K&#123;Query Result&#125;
+  H --&gt; K&#123;Query Result&#125;
+  I --&gt; K&#123;Query Result&#125;
+  J --&gt; K&#123;Query Result&#125;
+  K --&gt; L[Aggregated Result]</code></pre>
+<h5 id="分布式查询处理">分布式查询处理</h5>
+<p>查询请求发送到分布式表，然后分发到各个分片节点并行执行查询任务，最后汇总结果返回给客户端。</p>
+<pre><code class="highlight mermaid">sequenceDiagram
+  participant Client
+  participant DistributedTable
+  participant Shard1
+  participant Shard2
+  participant Shard3
+  participant Shard4
+
+  Client-&gt;&gt;DistributedTable: Send Query
+  DistributedTable-&gt;&gt;Shard1: Forward Query
+  DistributedTable-&gt;&gt;Shard2: Forward Query
+  DistributedTable-&gt;&gt;Shard3: Forward Query
+  DistributedTable-&gt;&gt;Shard4: Forward Query
+
+  Shard1-&gt;&gt;DistributedTable: Return Partial Result
+  Shard2-&gt;&gt;DistributedTable: Return Partial Result
+  Shard3-&gt;&gt;DistributedTable: Return Partial Result
+  Shard4-&gt;&gt;DistributedTable: Return Partial Result
+
+  DistributedTable-&gt;&gt;Client: Return Aggregated Result
+</code></pre>
+<h2 id="Reference">Reference</h2>
+<ul>
+<li>《ClickHouse 原理解析与应用实践》(朱凯)</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/clickhouse/" rel="tag"># clickhouse</a>
+              <a href="/tags/Multi-Master/" rel="tag"># Multi-Master</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/05/30/MyScaleDBDockerCompose/" rel="prev" title="MyScaleDB 集群使用模式入门">
+                  <i class="fa fa-angle-left"></i> MyScaleDB 集群使用模式入门
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2024/04/30/MyScaleDBResetIndexGranularityToImprovePerformence/" rel="next" title="通过修改 IndexGranularity 提升 MyScaleDB 的搜索性能">
+                  通过修改 IndexGranularity 提升 MyScaleDB 的搜索性能 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"f53b01166c65e49f43cff9e0ba629018"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>

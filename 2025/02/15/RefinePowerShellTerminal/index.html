@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="最近经常使用 PowerShell 安装一些开源的项目，拉代码，安装依赖，一些命令需要来回复制，效率非常底下，非常想念在类unix系统下面那些好用的命令行工具，如 oh-my-zsh。网上搜了一下，意外发现 PowerShell 下面也有类似的工具名叫oh-my-posh，感觉还挺不错。故把安装的过程记录一下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="像Oh-My-zsh那样使用PowerShell">
+<meta property="og:url" content="http://lewlh.github.io/2025/02/15/RefinePowerShellTerminal/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="最近经常使用 PowerShell 安装一些开源的项目，拉代码，安装依赖，一些命令需要来回复制，效率非常底下，非常想念在类unix系统下面那些好用的命令行工具，如 oh-my-zsh。网上搜了一下，意外发现 PowerShell 下面也有类似的工具名叫oh-my-posh，感觉还挺不错。故把安装的过程记录一下。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://lewlh.github.io/images/202502/ohmyposh.png">
+<meta property="og:image" content="http://lewlh.github.io/images/202502/windowTerminalSetFont.jpg">
+<meta property="og:image" content="http://lewlh.github.io/images/202502/ohmyposhTerminal.png">
+<meta property="article:published_time" content="2025-02-15T02:16:29.000Z">
+<meta property="article:modified_time" content="2025-02-16T03:27:02.385Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="Oh My Posh">
+<meta property="article:tag" content="PowerShellGet">
+<meta property="article:tag" content="PSReadLine">
+<meta property="article:tag" content="posh-git">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lewlh.github.io/images/202502/ohmyposh.png">
+
+
+<link rel="canonical" href="http://lewlh.github.io/2025/02/15/RefinePowerShellTerminal/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2025/02/15/RefinePowerShellTerminal/","path":"2025/02/15/RefinePowerShellTerminal/","title":"像Oh-My-zsh那样使用PowerShell"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>像Oh-My-zsh那样使用PowerShell | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">107</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">35</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E6%8C%87%E5%8D%97"><span class="nav-text">安装指南</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E4%BD%93%E5%AE%89%E8%A3%85"><span class="nav-text">字体安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8WinGet%E5%AE%89%E8%A3%85PowerShell"><span class="nav-text">使用WinGet安装PowerShell</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85PowerShellGet"><span class="nav-text">安装PowerShellGet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85oh-my-posh"><span class="nav-text">安装oh-my-posh</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85posh-git"><span class="nav-text">安装posh-git</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85PSReadLine"><span class="nav-text">安装PSReadLine</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%BE%91oh-my-posh%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-text">编辑oh-my-posh配置文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-text">References</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">107</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2025/02/15/RefinePowerShellTerminal/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="像Oh-My-zsh那样使用PowerShell | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          像Oh-My-zsh那样使用PowerShell
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-02-15 10:16:29" itemprop="dateCreated datePublished" datetime="2025-02-15T10:16:29+08:00">2025-02-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-16 11:27:02" itemprop="dateModified" datetime="2025-02-16T11:27:02+08:00">2025-02-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img data-src="/images/202502/ohmyposh.png" alt="oh-my-posh"></p>
+<p>最近经常使用 PowerShell 安装一些开源的项目，拉代码，安装依赖，一些命令需要来回复制，效率非常底下，非常想念在类unix系统下面那些好用的命令行工具，如 <a target="_blank" href="https://ohmyz.sh/" rel="external nofollow noreferrer noopener">oh-my-zsh</a>。网上搜了一下，意外发现 PowerShell 下面也有类似的工具名叫<a target="_blank" href="https://ohmyposh.dev/" rel="external nofollow noreferrer noopener">oh-my-posh</a>，感觉还挺不错。故把安装的过程记录一下。</p>
+<span id="more"></span>
+<hr>
+<p>综合互联网其他网友的方案，为实现像 oh-my-zsh 那样使用 PowerShell，需要安装以下软件：</p>
+<ul>
+<li><a target="_blank" href="https://apps.microsoft.com/detail/9n0dx20hk701?rtc=1&amp;hl=zh-CN&amp;gl=CN" rel="external nofollow noreferrer noopener">Windows Terminal</a>，在 win11 中系统已经安装好了；</li>
+<li>安装 <a target="_blank" href="https://www.nerdfonts.com/font-downloads" rel="external nofollow noreferrer noopener">Nerd font</a> 字体，其中 <a target="_blank" href="https://objects.githubusercontent.com/github-production-release-asset-2e65be/27574418/c5dcd41c-e372-414f-b240-099b4f02dc38?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=releaseassetproduction%2F20250215%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Date=20250215T141643Z&amp;X-Amz-Expires=300&amp;X-Amz-Signature=a78b9cdaf82c6a6e0b3e19e85ca35dc85d84519ec297d07e43f89c806f659b4d&amp;X-Amz-SignedHeaders=host&amp;response-content-disposition=attachment%3B%20filename%3DCascadiaCode.zip&amp;response-content-type=application%2Foctet-stream" rel="external nofollow noreferrer noopener">CaskaydiaCove Nerd Font</a> 字体在自述中提到 <code> Info: A fun, new monospaced font that includes programming ligatures and is designed to enhance the modern look and feel of the Windows Terminal</code> 声称在 Windows Terminal 有专门的适配字体monospaced font，因此我选择使用它；</li>
+<li><a target="_blank" href="https://github.com/PowerShell/PowerShell" rel="external nofollow noreferrer noopener">PowerShell 7</a></li>
+<li><a target="_blank" href="https://github.com/PowerShell/PowerShellGet" rel="external nofollow noreferrer noopener">PowerShellGet</a> 是 Windows 平台上的包管理器，主要用于管理 PowerShell 模块，但也支持其他类型的包。</li>
+<li><a target="_blank" href="https://ohmyposh.dev/" rel="external nofollow noreferrer noopener">Oh My Posh</a>是一款用于美化和定制终端提示符的工具。它可以在各种操作系统和终端中使用，包括 Windows、macOS 和 Linux。通过 Oh-my-posh，你可以轻松地更改终端提示符的外观，添加各种有用的信息，例如当前目录、Git 分支、电池状态等。</li>
+<li><a target="_blank" href="https://github.com/dahlbyk/posh-git" rel="external nofollow noreferrer noopener">posh-git</a>是一款用于 Windows 系统的 PowerShell 扩展模块，它主要为 Git 提供了更加丰富且人性化的命令行界面体验。</li>
+<li><a target="_blank" href="https://github.com/PowerShell/PSReadLine" rel="external nofollow noreferrer noopener">PSReadLine</a>用于增强命令行编辑体验的模块，提供语法高亮/命令预测/历史记录管理以及提供了丰富的快捷键和编辑命令。</li>
+</ul>
+<h2 id="安装指南">安装指南</h2>
+<h3 id="字体安装">字体安装</h3>
+<p>下载好字体安装压缩包，解压后安装 mono 字体：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">    目录: C:\Users\lewlh\Downloads\share\CascadiaCode</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Mode                 LastWriteTime         Length Name</span><br><span class="line"><span class="literal">----</span>                 <span class="literal">-------------</span>         <span class="literal">------</span> <span class="literal">----</span></span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2756920</span> CaskaydiaCoveNerdFont<span class="literal">-Bold</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2606596</span> CaskaydiaCoveNerdFont<span class="literal">-BoldItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2758276</span> CaskaydiaCoveNerdFont<span class="literal">-ExtraLight</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2606992</span> CaskaydiaCoveNerdFont<span class="literal">-ExtraLightItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2605352</span> CaskaydiaCoveNerdFont<span class="literal">-Italic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2759040</span> CaskaydiaCoveNerdFont<span class="literal">-Light</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2608868</span> CaskaydiaCoveNerdFont<span class="literal">-LightItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2755216</span> CaskaydiaCoveNerdFont<span class="literal">-Regular</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2756324</span> CaskaydiaCoveNerdFont<span class="literal">-SemiBold</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2606140</span> CaskaydiaCoveNerdFont<span class="literal">-SemiBoldItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2757672</span> CaskaydiaCoveNerdFont<span class="literal">-SemiLight</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2607848</span> CaskaydiaCoveNerdFont<span class="literal">-SemiLightItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2668696</span> CaskaydiaCoveNerdFontMono<span class="literal">-Bold</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2520856</span> CaskaydiaCoveNerdFontMono<span class="literal">-BoldItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2670056</span> CaskaydiaCoveNerdFontMono<span class="literal">-ExtraLight</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2521248</span> CaskaydiaCoveNerdFontMono<span class="literal">-ExtraLightItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2519608</span> CaskaydiaCoveNerdFontMono<span class="literal">-Italic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2670816</span> CaskaydiaCoveNerdFontMono<span class="literal">-Light</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2523124</span> CaskaydiaCoveNerdFontMono<span class="literal">-LightItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2666992</span> CaskaydiaCoveNerdFontMono<span class="literal">-Regular</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2668100</span> CaskaydiaCoveNerdFontMono<span class="literal">-SemiBold</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2520400</span> CaskaydiaCoveNerdFontMono<span class="literal">-SemiBoldItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2669448</span> CaskaydiaCoveNerdFontMono<span class="literal">-SemiLight</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2522104</span> CaskaydiaCoveNerdFontMono<span class="literal">-SemiLightItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2756696</span> CaskaydiaCoveNerdFontPropo<span class="literal">-Bold</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2606372</span> CaskaydiaCoveNerdFontPropo<span class="literal">-BoldItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2758052</span> CaskaydiaCoveNerdFontPropo<span class="literal">-ExtraLight</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2606768</span> CaskaydiaCoveNerdFontPropo<span class="literal">-ExtraLightItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2605128</span> CaskaydiaCoveNerdFontPropo<span class="literal">-Italic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2758816</span> CaskaydiaCoveNerdFontPropo<span class="literal">-Light</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2608644</span> CaskaydiaCoveNerdFontPropo<span class="literal">-LightItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2754992</span> CaskaydiaCoveNerdFontPropo<span class="literal">-Regular</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2756100</span> CaskaydiaCoveNerdFontPropo<span class="literal">-SemiBold</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2605916</span> CaskaydiaCoveNerdFontPropo<span class="literal">-SemiBoldItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2757448</span> CaskaydiaCoveNerdFontPropo<span class="literal">-SemiLight</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>        <span class="number">2607624</span> CaskaydiaCoveNerdFontPropo<span class="literal">-SemiLightItalic</span>.ttf</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>           <span class="number">4395</span> LICENSE</span><br><span class="line"><span class="literal">-a----</span>         <span class="number">2025</span>/<span class="number">2</span>/<span class="number">15</span>     <span class="number">22</span>:<span class="number">19</span>           <span class="number">3610</span> README.md</span><br></pre></td></tr></table></figure>
+<p>直击点击字体文件即可安装，安装完字体后，在 WindowsTerminal 中设置字体：打开Windows Terminal 设置项 -&gt; 默认值 -&gt; 外观 -&gt; 字体 -&gt; 选择 <em>CaskaydiaCove Nerd Font Mono</em>  -&gt; 点击保存：</p>
+<p><img data-src="/images/202502/windowTerminalSetFont.jpg" alt="SetFont"></p>
+<h3 id="使用WinGet安装PowerShell">使用WinGet安装PowerShell</h3>
+<p>使用 WindowsTerminal 打开 Windows PowerShell 窗口，执行以下命令安装 PowerShell：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">winget install <span class="literal">--id</span> Microsoft.PowerShell <span class="literal">--source</span> winget</span><br></pre></td></tr></table></figure>
+<p>安装完成后，WindowsTerminal 将会增加一个新的启动项 <strong>PowerShell</strong>，该项目与 <strong>Windows PowerShell</strong> 是不一样的，后续都需要通过 <strong>PowerShell</strong> 使用 PowerShell 7。</p>
+<h3 id="安装PowerShellGet">安装PowerShellGet</h3>
+<p>以系统管理员权限打开<strong>PowerShell</strong>终端，执行以下命令：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Install-Module</span> <span class="literal">-Name</span> PowerShellGet <span class="literal">-Force</span></span><br></pre></td></tr></table></figure>
+<h3 id="安装oh-my-posh">安装oh-my-posh</h3>
+<p>以系统管理员权限打开<strong>PowerShell</strong>终端，执行以下命令：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">winget install JanDeDobbeleer.OhMyPosh <span class="literal">-s</span> winget</span><br><span class="line">已找到 <span class="built_in">Oh</span> My Posh [<span class="type">JanDeDobbeleer.OhMyPosh</span>] 版本 <span class="number">24.19</span>.<span class="number">0</span></span><br><span class="line">此应用程序由其所有者授权给你。</span><br><span class="line">Microsoft 对第三方程序包概不负责，也不向第三方程序包授予任何许可证。</span><br><span class="line">正在下载 https://github.com/JanDeDobbeleer/<span class="built_in">oh</span><span class="literal">-my-posh</span>/releases/download/v24.<span class="number">19.0</span>/<span class="built_in">install-x64</span>.msi</span><br><span class="line">  ██████████████████████████████  <span class="number">5.68</span> MB / <span class="number">5.68</span> MB</span><br><span class="line">已成功验证安装程序哈希</span><br><span class="line">正在启动程序包安装...</span><br><span class="line">已成功安装</span><br></pre></td></tr></table></figure>
+<h3 id="安装posh-git">安装posh-git</h3>
+<p>以系统管理员权限打开<strong>PowerShell</strong>终端，执行以下命令：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PowerShellGet\<span class="built_in">Install-Module</span> posh<span class="literal">-git</span> <span class="literal">-Scope</span> CurrentUser <span class="literal">-Force</span></span><br></pre></td></tr></table></figure>
+<h3 id="安装PSReadLine">安装PSReadLine</h3>
+<p>以系统管理员权限打开<strong>PowerShell</strong>终端，执行以下命令：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Install-Module</span> PSReadLine <span class="literal">-Force</span></span><br></pre></td></tr></table></figure>
+<h3 id="编辑oh-my-posh配置文件">编辑oh-my-posh配置文件</h3>
+<p>打开<strong>PowerShell</strong>终端，执行以下命令编辑配置文件 <code>code $PROFILE</code>：</p>
+<figure class="highlight ps1"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Set-PSReadLineKeyHandler</span> <span class="literal">-Key</span> Tab <span class="literal">-Function</span> MenuComplete <span class="comment">#Tab键会出现自动补全菜单</span></span><br><span class="line"><span class="built_in">Set-PSReadlineKeyHandler</span> <span class="literal">-Key</span> UpArrow <span class="literal">-Function</span> HistorySearchBackward</span><br><span class="line"><span class="built_in">Set-PSReadlineKeyHandler</span> <span class="literal">-Key</span> DownArrow <span class="literal">-Function</span> HistorySearchForward <span class="comment">#上下方向键箭头，搜索历史中进行自动补全</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">oh</span><span class="literal">-my-posh</span> init pwsh <span class="literal">--config</span> <span class="string">&quot;<span class="variable">$env:POSH_THEMES_PATH</span>/jandedobbeleer.omp.json&quot;</span> | <span class="built_in">Invoke-Expression</span></span><br><span class="line"><span class="built_in">Import-Module</span> posh<span class="literal">-git</span> <span class="comment"># git的自动补全</span></span><br></pre></td></tr></table></figure>
+<p>保存修改，重新打开一个新的<strong>PowerShell</strong>终端，将会看到以下效果：</p>
+<p><img data-src="/images/202502/ohmyposhTerminal.png" alt="oh-my-posh-terminal"></p>
+<h2 id="References">References</h2>
+<ul>
+<li><a target="_blank" href="https://juejin.cn/post/7139514254801141791" rel="external nofollow noreferrer noopener">让Powershell拥有和zsh一样的自动补全，大幅提升Windows的开发体验，保姆级教程</a></li>
+<li><a target="_blank" href="https://blog.unclezs.com/pages/9b6e12/#%E7%AE%80%E4%BB%8B" rel="external nofollow noreferrer noopener">打造好用的PowerShell媲美oh-my-zsh</a></li>
+<li><a target="_blank" href="https://learn.microsoft.com/zh-cn/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.5" rel="external nofollow noreferrer noopener">使用 WinGet 安装 PowerShell（建议）</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Oh-My-Posh/" rel="tag"># Oh My Posh</a>
+              <a href="/tags/PowerShellGet/" rel="tag"># PowerShellGet</a>
+              <a href="/tags/PSReadLine/" rel="tag"># PSReadLine</a>
+              <a href="/tags/posh-git/" rel="tag"># posh-git</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/02/16/BuildingAPrivateLLMCodeAssistant/" rel="prev" title="构建私有LLM代码助手">
+                  <i class="fa fa-angle-left"></i> 构建私有LLM代码助手
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/02/03/AmdRx580AITestOllama/" rel="next" title="AMD RX580 AI部署记录:Ollama">
+                  AMD RX580 AI部署记录:Ollama <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"6e3b3cb2c134444ac192050f9890e3a2"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>

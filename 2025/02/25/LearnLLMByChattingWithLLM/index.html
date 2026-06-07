@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="虽然我不是算法工程师，但我一直对大语言模型（LLM）及其背后的 Transformer 模型充满好奇。过去，我只是零星地读过网上一些入门文章，结果常常看得云里雾里。最近，我下定决心要弄懂这个席卷技术圈的模型的奥秘，于是开启了一段充满挑战又兴奋的学习之旅。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用大语言模型学习LLM">
+<meta property="og:url" content="http://lewlh.github.io/2025/02/25/LearnLLMByChattingWithLLM/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="虽然我不是算法工程师，但我一直对大语言模型（LLM）及其背后的 Transformer 模型充满好奇。过去，我只是零星地读过网上一些入门文章，结果常常看得云里雾里。最近，我下定决心要弄懂这个席卷技术圈的模型的奥秘，于是开启了一段充满挑战又兴奋的学习之旅。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://lewlh.github.io/images/202502/%E8%B1%86%E5%8C%85%E6%96%87%E7%94%9F%E5%9B%BE.png">
+<meta property="article:published_time" content="2025-02-25T07:01:17.000Z">
+<meta property="article:modified_time" content="2025-02-26T09:51:50.890Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="Grok3">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="Transformer">
+<meta property="article:tag" content="Llama3">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lewlh.github.io/images/202502/%E8%B1%86%E5%8C%85%E6%96%87%E7%94%9F%E5%9B%BE.png">
+
+
+<link rel="canonical" href="http://lewlh.github.io/2025/02/25/LearnLLMByChattingWithLLM/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2025/02/25/LearnLLMByChattingWithLLM/","path":"2025/02/25/LearnLLMByChattingWithLLM/","title":"利用大语言模型学习LLM"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>利用大语言模型学习LLM | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">107</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">35</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%91%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AD%96%E7%95%A5%EF%BC%9A%E4%BB%8E%E8%BF%B7%E9%9B%BE%E4%B8%AD%E6%89%BE%E8%B7%AF"><span class="nav-text">我的学习策略：从迷雾中找路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8EGrok3%E5%AF%B9%E8%AF%9D%E7%9A%84%E6%84%9F%E5%8F%97"><span class="nav-text">与Grok3对话的感受</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-text">References</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">107</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2025/02/25/LearnLLMByChattingWithLLM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="利用大语言模型学习LLM | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          利用大语言模型学习LLM
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-02-25 15:01:17" itemprop="dateCreated datePublished" datetime="2025-02-25T15:01:17+08:00">2025-02-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-26 17:51:50" itemprop="dateModified" datetime="2025-02-26T17:51:50+08:00">2025-02-26</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img data-src="/images/202502/%E8%B1%86%E5%8C%85%E6%96%87%E7%94%9F%E5%9B%BE.png" alt="豆包生成的图"></p>
+<p>虽然我不是算法工程师，但我一直对大语言模型（LLM）及其背后的 Transformer 模型充满好奇。过去，我只是零星地读过网上一些入门文章，结果常常看得云里雾里。最近，我下定决心要弄懂这个席卷技术圈的模型的奥秘，于是开启了一段充满挑战又兴奋的学习之旅。</p>
+<span id="more"></span>
+<hr>
+<h2 id="我的学习策略：从迷雾中找路">我的学习策略：从迷雾中找路</h2>
+<p>每个人的学习目标和基础都不尽相同。教科书、教程、论文往往针对特定读者群体设计，很难完美契合每个人的知识储备和能力。结果就是，学习过程中总会遇到各种疑惑，陡峭的学习曲线让人望而生畏，甚至半途而废。为了应对这些挑战，我为自己量身定制了以下学习方法：</p>
+<ul>
+<li>明确目标，聚焦重点：我的目标是搞清楚 Transformer 模型的基本原理，并深入阅读开源的 LLaMA 3 模型源码，弄懂代码层面的运行机制。根据这个目标，我对知识点进行取舍，避免陷入无关细节。</li>
+<li>浅尝辄止，建立框架：先快速浏览网上的文章、博客和教程，对 Transformer 有一个粗浅印象，在脑海中勾勒出基本概念，记住关键术语，识别核心结构。</li>
+<li>带着问题前行：不管理解得对不对，先让自己产生疑问，提出假设。这种“主动困惑”能驱动我深入探索。</li>
+<li>借助免费大模型当老师：我把大语言模型当作私人导师，让它一对一解答我的问题，提供示例，帮助我澄清误解、巩固理解。</li>
+<li>从理论到实践：在掌握 Transformer 基础后，我开始阅读 LLaMA 3 的源码，遇到疑问再请教大模型，逐步打通理论与代码的连接。</li>
+</ul>
+<p>按照这个思路，我正式踏上了学习之路。我选择 Grok 3 作为我的“专属老师”，因为它免费且能力出色；代码答疑则用 MarsCode+VSCode 配合完成。实践下来，效果出乎意料的好。最让我兴奋的时刻是，在与 Grok 3 的对话中，我突然醍醐灌顶——我终于明白了 Transformer 的注意力机制，搞清楚了 Q、K、V 矩阵的含义！更震撼的是，这些简单的矩阵运算最终展现出惊艳的理解、生成和推理能力。这种“智能的涌现”让我叹为观止，仿佛亲手打开了潘多拉魔盒，实在是太神奇了！</p>
+<h2 id="与Grok3对话的感受">与Grok3对话的感受</h2>
+<p>我的学习之旅恰逢大语言模型的热潮，Deepseek R1、GPT-4o 和 Grok 3 相继发布。基于评测和网友反馈，我最终选定了 Grok 3 作为我的“导师”。这里分享一段对话记录：<a target="_blank" href="https://x.com/i/grok/share/f2eEFotDzy7CXVmIhfVcdwlbE" rel="external nofollow noreferrer noopener">理解和微调大语言模型原理</a>,并谈谈我的使用感受：</p>
+<ul>
+<li>
+<p>贴合需求的“因材施教”：我给 Grok 3 的提示是：<code>假设你是一个算法老师，我是一个程序开发者，有一定的开发经验，但大学数学基本忘光了。我想从零开始理解 Transformer 和 LLaMA 3 的原理，知道如何微调模型，以便更好地用 LLM 开发软件。</code>在十几轮对话中，它始终扮演好老师角色，给出的内容恰到好处，匹配我的水平，让我能快速抓住重点。</p>
+</li>
+<li>
+<p>超强记忆与计算力：Grok 3 支持超长的 token，从未在对话中“失忆”，计算能力也很惊人，应对复杂问题游刃有余。</p>
+</li>
+<li>
+<p>小瑕疵：计算失误：不过，它并非完美无缺。比如在讲解矩阵计算时，我发现了一个错误：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">X = [[0.1, 0.2],  # 猫</span><br><span class="line">   [0.3, 0.4],  # 吃</span><br><span class="line">   [0.5, 0.6]]  # 鱼</span><br><span class="line">W<span class="emphasis">_K = [[0.2, 0.1], [0.4, 0.3]]</span></span><br><span class="line"><span class="emphasis">K = X × W_</span>K</span><br><span class="line">K = [[0.1, 0.08],   # 猫的 K</span><br><span class="line"><span class="code">    [0.22, 0.18],  # 吃的 K</span></span><br><span class="line"><span class="code">    [0.34, 0.28]]  # 鱼的 K</span></span><br><span class="line"><span class="code">我怎么验证下来你给的 K  算错了呢？</span></span><br></pre></td></tr></table></figure>
+<p>这个失误让我意识到，Grok 3 的推理和计算能力仍有缺陷，它的答案需要我进一步验证。这也让我反思，大语言模型目前仍只是“助手”，无法完全承担责任或赢得人类的全盘信任。</p>
+</li>
+</ul>
+<p>尽管如此，Grok 3 的强大依然让我叹服。它不仅让我切身感受到大语言模型的魅力，还引发了我对职业发展和下一代教育的深深不安——这些，或许是另一个值得探讨的话题了。</p>
+<h2 id="References">References</h2>
+<ul>
+<li><a target="_blank" href="https://x.com/i/grok/share/f2eEFotDzy7CXVmIhfVcdwlbE" rel="external nofollow noreferrer noopener">Grok3聊天对话：理解和微调大语言模型原理</a></li>
+<li><a target="_blank" href="https://github.com/meta-llama/llama3" rel="external nofollow noreferrer noopener">llama3</a></li>
+<li><a target="_blank" href="https://github.com/ZJU-LLMs/Foundations-of-LLMs/tree/main" rel="external nofollow noreferrer noopener">《大模型基础》</a></li>
+<li><a target="_blank" href="https://zhuanlan.zhihu.com/p/636784644" rel="external nofollow noreferrer noopener">LLaMA 3/2/1模型结构总览</a></li>
+<li><a target="_blank" href="https://wdndev.github.io/llm_interview_note/#/" rel="external nofollow noreferrer noopener">LLMs 相关知识及面试题</a></li>
+<li><a target="_blank" href="https://github.com/wdndev/tiny-llm-zh" rel="external nofollow noreferrer noopener">Tiny LLM zh</a></li>
+<li><a target="_blank" href="https://github.com/jingyaogong/minimind" rel="external nofollow noreferrer noopener">2小时完全从0训练26M的小参数GPT！</a></li>
+<li><a target="_blank" href="https://github.com/MLEveryday/practicalAI-cn" rel="external nofollow noreferrer noopener">AI实战-practicalAI 中文版</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Grok3/" rel="tag"># Grok3</a>
+              <a href="/tags/LLM/" rel="tag"># LLM</a>
+              <a href="/tags/Transformer/" rel="tag"># Transformer</a>
+              <a href="/tags/Llama3/" rel="tag"># Llama3</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/02/26/AmdRx580AITestComfyuiZluda/" rel="prev" title="AMD RX580 AI部署记录:ComfyUI+Flux">
+                  <i class="fa fa-angle-left"></i> AMD RX580 AI部署记录:ComfyUI+Flux
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/02/16/BuildingAPrivateLLMCodeAssistant/" rel="next" title="构建私有LLM代码助手">
+                  构建私有LLM代码助手 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"dc814444a9d8fe93e539e211274619e5"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>

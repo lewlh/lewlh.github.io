@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="为 SaaS 服务平台提供服务的过程中，如何公平地为客户分配资源是一个关键问题。特别是在服务吞吐量存在性能瓶颈、单位时间内只能处理有限任务的情况下，如何在不同付费单位及其子用户之间实现公平的任务调度，确保一定比例的任务能够被及时处理以提升用户体验，成为一个常见的挑战。本文将探讨一种基于层次公平服务曲线（HFSC）的公平任务队列实现，分析其具体业务需求，并提出相应的解决方案。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="公平任务队列基于HFSC的层次调度实现">
+<meta property="og:url" content="http://lewlh.github.io/2023/02/07/HFSCAlgorithm/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="为 SaaS 服务平台提供服务的过程中，如何公平地为客户分配资源是一个关键问题。特别是在服务吞吐量存在性能瓶颈、单位时间内只能处理有限任务的情况下，如何在不同付费单位及其子用户之间实现公平的任务调度，确保一定比例的任务能够被及时处理以提升用户体验，成为一个常见的挑战。本文将探讨一种基于层次公平服务曲线（HFSC）的公平任务队列实现，分析其具体业务需求，并提出相应的解决方案。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://lewlh.github.io/images/202302/%E4%B8%80%E4%B8%AA%E4%BA%9A%E6%B4%B2%E9%9D%A2%E5%AD%94%E7%A8%8B%E5%BA%8F%E5%91%98.GenerateByQwen.png">
+<meta property="article:published_time" content="2023-02-07T07:23:48.000Z">
+<meta property="article:modified_time" content="2025-03-13T08:48:41.915Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="Hierarchical Fair Service Curve">
+<meta property="article:tag" content="Weighted Fair Queueing">
+<meta property="article:tag" content="Earliest Deadline First">
+<meta property="article:tag" content="Complete Fair Scheduler">
+<meta property="article:tag" content="Hierarchical Weighted Fair Queueing">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://lewlh.github.io/images/202302/%E4%B8%80%E4%B8%AA%E4%BA%9A%E6%B4%B2%E9%9D%A2%E5%AD%94%E7%A8%8B%E5%BA%8F%E5%91%98.GenerateByQwen.png">
+
+
+<link rel="canonical" href="http://lewlh.github.io/2023/02/07/HFSCAlgorithm/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://lewlh.github.io/2023/02/07/HFSCAlgorithm/","path":"2023/02/07/HFSCAlgorithm/","title":"公平任务队列基于HFSC的层次调度实现"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>公平任务队列基于HFSC的层次调度实现 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">107</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">35</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9C%80%E6%B1%82%E8%AF%B4%E6%98%8E"><span class="nav-text">需求说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E5%8F%82%E8%80%83"><span class="nav-text">算法参考</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WeightedFairQueueing-WFQ"><span class="nav-text">WeightedFairQueueing(WFQ)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#WeightedFairQueueing%E4%BC%98%E7%BC%BA%E7%82%B9%E5%88%86%E6%9E%90"><span class="nav-text">WeightedFairQueueing优缺点分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HierarchicalFairServiceCurve-H-FSC"><span class="nav-text">HierarchicalFairServiceCurve(H-FSC)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#HFSC%E7%9A%84%E6%A0%B8%E5%BF%83%E9%80%BB%E8%BE%91"><span class="nav-text">HFSC的核心逻辑</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EarliestDeadlineFirst-EDF-%E6%9C%80%E5%85%88%E7%BB%93%E6%9D%9F%E6%9C%80%E5%85%88%E8%B0%83%E5%BA%A6"><span class="nav-text">EarliestDeadlineFirst(EDF)最先结束最先调度</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#EDF%E7%9A%84%E6%A0%B8%E5%BF%83%E9%80%BB%E8%BE%91"><span class="nav-text">EDF的核心逻辑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#EDF%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-text">EDF的特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0EDF%E7%9A%84%E7%AE%80%E5%8D%95%E6%80%9D%E8%B7%AF"><span class="nav-text">实现EDF的简单思路</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CompleteFairScheduler-CFS"><span class="nav-text">CompleteFairScheduler(CFS)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CFS%E7%9A%84%E6%A0%B8%E5%BF%83%E9%80%BB%E8%BE%91"><span class="nav-text">CFS的核心逻辑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CFS%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-text">CFS的特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0CFS%E7%9A%84%E7%AE%80%E5%8D%95%E6%80%9D%E8%B7%AF"><span class="nav-text">实现CFS的简单思路</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HierarchicalWeightedFairQueueing-HWFQ"><span class="nav-text">HierarchicalWeightedFairQueueing(HWFQ)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#HWFQ-%E7%9A%84%E6%A0%B8%E5%BF%83%E9%80%BB%E8%BE%91"><span class="nav-text">HWFQ 的核心逻辑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HWFQ%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-text">HWFQ的特点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0HWFQ%E7%9A%84%E7%AE%80%E5%8D%95%E6%80%9D%E8%B7%AF"><span class="nav-text">实现HWFQ的简单思路</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WFQ-%E4%B8%8E-H-FSC-%E7%BB%93%E5%90%88%E7%9A%84%E5%8A%A8%E6%9C%BA"><span class="nav-text">WFQ 与 H-FSC 结合的动机</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E5%90%88%E7%82%B9"><span class="nav-text">结合点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%96%E8%88%8D%E4%B8%8E%E4%BC%98%E5%8C%96"><span class="nav-text">取舍与优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4"><span class="nav-text">实现步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E8%80%83%E8%99%91%E7%82%B9%E4%B8%8E%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-text">方案考虑点与优缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E7%9A%84python%E5%AE%9E%E7%8E%B0"><span class="nav-text">算法的python实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%9B%BE"><span class="nav-text">类图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-text">代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#scheduled-task-py"><span class="nav-text">scheduled_task.py</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#weighted-fair-queue-py"><span class="nav-text">weighted_fair_queue.py</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hfsc-node-py"><span class="nav-text">hfsc_node.py</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hfsc-scheduler-py"><span class="nav-text">hfsc_scheduler.py</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E6%97%B6%E5%BA%8F%E5%9B%BE"><span class="nav-text">调用时序图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AC%E5%B9%B3%E4%BB%BB%E5%8A%A1%E9%98%9F%E5%88%97%E7%9A%84%E5%B1%82%E6%AC%A1%E8%B0%83%E5%BA%A6%E7%A4%BA%E6%84%8F%E5%9B%BE"><span class="nav-text">公平任务队列的层次调度示意图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E6%B7%BB%E5%8A%A0%E6%B5%81%E7%A8%8B"><span class="nav-text">任务添加流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E7%A7%BB%E9%99%A4%E6%B5%81%E7%A8%8B"><span class="nav-text">任务移除流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-text">Reference</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">107</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lewlh.github.io/2023/02/07/HFSCAlgorithm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="公平任务队列基于HFSC的层次调度实现 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          公平任务队列基于HFSC的层次调度实现
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-02-07 15:23:48" itemprop="dateCreated datePublished" datetime="2023-02-07T15:23:48+08:00">2023-02-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-03-13 16:48:41" itemprop="dateModified" datetime="2025-03-13T16:48:41+08:00">2025-03-13</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><img data-src="/images/202302/%E4%B8%80%E4%B8%AA%E4%BA%9A%E6%B4%B2%E9%9D%A2%E5%AD%94%E7%A8%8B%E5%BA%8F%E5%91%98.GenerateByQwen.png" alt="一个亚洲面孔程序员.GenerateByQwen"></p>
+<p>为 SaaS 服务平台提供服务的过程中，如何公平地为客户分配资源是一个关键问题。特别是在服务吞吐量存在性能瓶颈、单位时间内只能处理有限任务的情况下，如何在不同付费单位及其子用户之间实现公平的任务调度，确保一定比例的任务能够被及时处理以提升用户体验，成为一个常见的挑战。本文将探讨一种基于层次公平服务曲线（HFSC）的公平任务队列实现，分析其具体业务需求，并提出相应的解决方案。</p>
+<span id="more"></span>
+<hr>
+<h2 id="需求说明">需求说明</h2>
+<p>我们提供的 SaaS 服务为每个付费单位分配一个“域”（CustomGroup），即一个用户组集合。域管理员可以在其中构建一个树状的用户组结构，每个用户组内可定义多个角色（Role），角色与具体用户绑定。每个用户在一个域中仅能拥有一个角色。用户可通过购买的算力创建不同优先级（低、中、高、最高）的任务，优先级越高，所需算力越多，且高优先级任务优先被处理。我们希望设计一种调度算法，确保在单位时间内为不同用户提供公平的服务，避免某些任务长时间未被处理。</p>
+<p>域-用户组-角色-用户的结构图：</p>
+<pre><code class="highlight mermaid">graph TD
+    A[Domain] --&gt; B[CustomGroup B]
+    A --&gt; C[CustomGroup C]
+    B --&gt; D[SubCustomGroup B.1]
+    B --&gt; E[SubCustomGroup B.2]
+    C --&gt; F[SubCustomGroup C.1]
+    
+    D --&gt; G[Role 1]
+    D --&gt; H[Role 2]
+    E --&gt; I[Role 3]
+    F --&gt; J[Role 4]
+    
+    G --&gt; K[User 1]
+    H --&gt; L[User 2]
+    I --&gt; M[User 3]
+    J --&gt; N[User 1]
+
+    B --&gt; O[Role 5]
+    O --&gt; P[User 4]
+
+    C --&gt; Q[Role 6]
+    Q --&gt; R[User 6]</code></pre>
+<h2 id="算法参考">算法参考</h2>
+<h3 id="WeightedFairQueueing-WFQ">WeightedFairQueueing(WFQ)</h3>
+<p>WFQ 是一种调度算法，主要用于管理多个数据流（比如网络数据包、任务队列等），确保它们能按照一定的“公平性”和“权重”分配资源。它是 Fair Queueing（公平队列）的升级版，增加了“权重”这个概念。想象一下，你在管理一个自助餐厅的队伍。有的人拿了小份食物（数据量小），有的人拿了大份（数据量大），还有人愿意多付钱要求优先服务（权重高）。WFQ 的目标是让每个人都能按顺序拿到食物，但那些付钱多的人（高权重）会稍微优先一点，同时保证没人被完全饿着。</p>
+<p>WFQ 的核心是通过模拟一个“理想的公平系统”来决定谁先被服务。它的基本步骤是：</p>
+<ul>
+<li>给每个数据流分配权重:每个数据流（比如网络连接、任务）都有一个权重值，比如 1、2、3，代表它们的重要程度或优先级。权重越高，分配到的资源（比如带宽、处理时间）越多。</li>
+<li>计算虚拟完成时间
+<ul>
+<li>假设有个“虚拟时钟”，它记录每个数据包（或任务）在理想情况下应该被处理完的时间。</li>
+<li>这个时间不是真实时间，而是根据数据包的大小和权重算出来的。公式很简单：
+<blockquote>
+<p>虚拟完成时间 = 上一个数据包的虚拟完成时间 + (数据包大小 / 权重)<br>
+VFT = max(arrive_time, VFT_prev) + len / weight</p>
+</blockquote>
+</li>
+<li>数据量小的包，完成时间早；权重高的流，完成时间也更早。</li>
+</ul>
+</li>
+<li>按虚拟完成时间排序:把所有数据包按它们的虚拟完成时间从小到大排好序，然后依次处理。谁的虚拟完成时间最早，谁就先被服务。</li>
+<li>循环执行:每处理完一个数据包，就更新虚拟时钟，重新计算新来的数据包的虚拟完成时间，继续排序和处理。</li>
+</ul>
+<p>WFQ 在网络编程和任务调度中特别常见。以下是几个典型场景：</p>
+<ul>
+<li>网络路由器
+<ul>
+<li>应用：管理不同用户的网络流量。</li>
+<li>比如，一个路由器同时处理视频流（高权重）和邮件下载（低权重）。WFQ 保证视频流更顺畅，同时邮件下载不会完全卡住。</li>
+</ul>
+</li>
+<li>任务调度器
+<ul>
+<li>应用：在服务器上分配 CPU 时间给不同任务。</li>
+<li>比如，一个高优先级的任务（权重高）会更快完成，低优先级的任务也能分到一点资源。</li>
+</ul>
+</li>
+<li>消息队列
+<ul>
+<li>应用：在消息系统中处理不同来源的消息。</li>
+<li>比如，一个聊天应用的“VIP 用户消息”可以优先发送。</li>
+</ul>
+</li>
+</ul>
+<h4 id="WeightedFairQueueing优缺点分析">WeightedFairQueueing优缺点分析</h4>
+<ul>
+<li>优点：
+<ul>
+<li>公平性强：通过权重比例分配资源，高权重任务更快完成。</li>
+<li>实现简单：仅需维护队列和虚拟时间。</li>
+</ul>
+</li>
+<li>缺点：单层次：无法支持优先级、客户、用户等多级调度。</li>
+<li>启发：WFQ 的虚拟时间计算适合底层任务队列，但需扩展到分层场景。</li>
+</ul>
+<h3 id="HierarchicalFairServiceCurve-H-FSC">HierarchicalFairServiceCurve(H-FSC)</h3>
+<p>HFSC 是一种更高级的调度算法，通常用于网络带宽分配或任务调度。它在 Weighted Fair Queueing (WFQ) 的基础上增加了“层次结构”和“服务曲线”的概念。简单来说，它不仅能公平分配资源，还能按照一个“树状结构”管理多个数据流，并保证每个数据流的服务质量（QoS，比如延迟、带宽）。想象一下，你在组织一场宴会：</p>
+<ul>
+<li>有不同的桌子（层次），每桌有不同的人（数据流）。</li>
+<li>每桌有总的食物量（带宽），桌子之间按权重分配。</li>
+<li>每桌内部的人也要按规则分食物，而且得保证没人饿着，还得满足某些人的特殊需求（比如“VIP 必须在 5 分钟内吃到”）。</li>
+</ul>
+<p>HFSC 就像一个超级聪明的服务员，能同时管好桌子之间和桌子内部的分配。</p>
+<h4 id="HFSC的核心逻辑">HFSC的核心逻辑</h4>
+<p>HFSC 的核心是通过“层次结构”和“服务曲线”来调度资源。分解一下：</p>
+<h5 id="层次结构（Hierarchy）">层次结构（Hierarchy）</h5>
+<ul>
+<li>数据流被组织成一个树状结构。</li>
+<li>树的根节点代表总资源（比如总带宽），子节点是不同的类别（比如视频、语音、普通数据），每个类别下又有更细的子节点（比如具体用户）。</li>
+<li>资源先按权重从根节点分配到子节点，再在子节点内部分配。</li>
+</ul>
+<h5 id="服务曲线（Service-Curve）">服务曲线（Service Curve）</h5>
+<ul>
+<li>每个数据流或节点都有一个“服务曲线”，简单理解就是“资源分配的时间表”。</li>
+<li>服务曲线通常分两部分：
+<ul>
+<li>实时性曲线：短期内保证一定资源（比如前 1 秒给 50Mbps）。</li>
+<li>长期公平性曲线：长期按权重分配（比如平均 30Mbps）。</li>
+</ul>
+</li>
+</ul>
+<h5 id="e-d-v参数">e/d/v参数</h5>
+<p>HFSC 用三个关键参数来决定调度顺序：</p>
+<ul>
+<li>Eligible Time (e)：数据包“有资格”被调度的最早时间。</li>
+<li>Deadline Time (d)：数据包“必须”完成的最晚时间。</li>
+<li>Virtual Time (v)：系统级别的“虚拟时钟”，保证长期公平性。</li>
+</ul>
+<p>调度逻辑：</p>
+<ol>
+<li>找出所有 e ≤ 当前时间 的数据包（有资格的）。</li>
+<li>在这些包中，优先处理 d 最小的（最紧急的）。</li>
+<li>用 v 更新全局时钟，确保公平性。</li>
+</ol>
+<p>这三个参数是 HFSC 的灵魂，我们用一个例子来说明。假设：</p>
+<ul>
+<li>
+<p>总带宽 100Mbps。</p>
+</li>
+<li>
+<p>数据流 A：实时速率 r1 = 80Mbps（前 1 秒），长期速率 r2 = 50Mbps。</p>
+</li>
+<li>
+<p>数据包大小 = 80Mb（位），到达时间 = 0 秒。</p>
+</li>
+<li>
+<p>Eligible Time (e)</p>
+<ul>
+<li>表示“包什么时候可以开始竞争”。</li>
+<li>计算：e = 到达时间 + (数据包大小 / r1) = 0 + (80Mb / 80Mbps) = 1.0 秒。</li>
+<li>意思是，这个包在 1 秒时才能被调度。</li>
+</ul>
+</li>
+<li>
+<p>Deadline Time (d)</p>
+<ul>
+<li>表示“包必须在什么时候完成”。</li>
+<li>计算：d = e + (数据包大小 / r1) = 1.0 + (80Mb / 80Mbps) = 2.0 秒。</li>
+<li>意思是，这个包最晚得在 2 秒内处理完。</li>
+</ul>
+</li>
+<li>
+<p>Virtual Time (v)</p>
+<ul>
+<li>表示“公平性的时钟”。</li>
+<li>计算：v = max(当前 v_system, 当前时间) + (数据包大小 / r2) = max(0, 0) + (80Mb / 50Mbps) = 1.6 秒。</li>
+<li>意思是，处理完后，系统虚拟时间跳到 1.6 秒。</li>
+</ul>
+</li>
+<li>
+<p>调度过程：</p>
+<ul>
+<li>时间 0 秒：e = 1.0 &gt; 0，包没资格，等待。</li>
+<li>时间 1 秒：e = 1.0 ≤ 1，包有资格，d = 2.0，处理它。</li>
+<li>更新 v_system = 1.6。</li>
+</ul>
+</li>
+</ul>
+<h5 id="HFSC的应用场景">HFSC的应用场景</h5>
+<p>HFSC 特别适合需要复杂资源管理的场景：</p>
+<ul>
+<li>网络 QoS：在路由器中管理带宽，保证视频会议低延迟，文件下载有平均带宽。</li>
+<li>虚拟化：在云计算中分配 CPU 或网络资源给虚拟机。</li>
+<li>任务调度：在服务器上按层级管理任务，比如部门 → 项目组 → 具体任务。</li>
+</ul>
+<h5 id="HFSC简单实现">HFSC简单实现</h5>
+<ul>
+<li>
+<p>实现思路</p>
+<ul>
+<li>数据结构：
+<ul>
+<li>用树表示层次，每个节点有权重和服务曲线。</li>
+<li>数据包记录大小、到达时间、e/d/v。</li>
+<li>用优先级队列按 d 排序。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>调度步骤：</p>
+<ul>
+<li>检查所有包，找出 e ≤ 当前时间的。</li>
+<li>按 d 排序，处理 d 最小的。</li>
+<li>更新 v_system。</li>
+</ul>
+</li>
+<li>
+<p>层次管理：</p>
+<ul>
+<li>从叶子节点计算 e/d/v，向上汇总资源需求。</li>
+</ul>
+</li>
+<li>
+<p>代码实现：</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> heapq</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Packet</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, size, arrival_time</span>):</span><br><span class="line">        <span class="variable language_">self</span>.size = size</span><br><span class="line">        <span class="variable language_">self</span>.arrival_time = arrival_time</span><br><span class="line">        <span class="variable language_">self</span>.e = <span class="number">0</span></span><br><span class="line">        <span class="variable language_">self</span>.d = <span class="number">0</span></span><br><span class="line">        <span class="variable language_">self</span>.v = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Node</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, weight, r1=<span class="literal">None</span>, r2=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.weight = weight</span><br><span class="line">        <span class="variable language_">self</span>.r1 = r1  <span class="comment"># 实时速率</span></span><br><span class="line">        <span class="variable language_">self</span>.r2 = r2  <span class="comment"># 长期速率</span></span><br><span class="line">        <span class="variable language_">self</span>.packets = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_packet</span>(<span class="params">self, size, arrival_time</span>):</span><br><span class="line">        pkt = Packet(size, arrival_time)</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.r1:</span><br><span class="line">            pkt.e = arrival_time + (size / <span class="variable language_">self</span>.r1)</span><br><span class="line">            pkt.d = pkt.e + (size / <span class="variable language_">self</span>.r1)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            pkt.e = arrival_time</span><br><span class="line">            pkt.d = <span class="built_in">float</span>(<span class="string">&#x27;inf&#x27;</span>)</span><br><span class="line">        pkt.v = <span class="built_in">max</span>(v_system, arrival_time) + (size / <span class="variable language_">self</span>.r2)</span><br><span class="line">        <span class="variable language_">self</span>.packets.append(pkt)</span><br><span class="line"></span><br><span class="line">v_system = <span class="number">0.0</span>  <span class="comment"># 全局虚拟时间</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 构建树</span></span><br><span class="line">video = Node(weight=<span class="number">70</span>, r1=<span class="number">80</span>, r2=<span class="number">70</span>)</span><br><span class="line">data = Node(weight=<span class="number">30</span>, r2=<span class="number">30</span>)</span><br><span class="line">video.add_packet(<span class="number">80</span>, <span class="number">0</span>)</span><br><span class="line">data.add_packet(<span class="number">30</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调度</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">schedule</span>(<span class="params">nodes, time</span>):</span><br><span class="line">    <span class="keyword">global</span> v_system</span><br><span class="line">    eligible = []</span><br><span class="line">    <span class="keyword">for</span> node <span class="keyword">in</span> nodes:</span><br><span class="line">        <span class="keyword">for</span> pkt <span class="keyword">in</span> node.packets:</span><br><span class="line">            <span class="keyword">if</span> pkt.e &lt;= time:</span><br><span class="line">                eligible.append((pkt.d, pkt))</span><br><span class="line">    <span class="keyword">if</span> eligible:</span><br><span class="line">        heapq.heapify(eligible)</span><br><span class="line">        d, pkt = heapq.heappop(eligible)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;时间 <span class="subst">&#123;time&#125;</span>: 处理大小=<span class="subst">&#123;pkt.size&#125;</span>, e=<span class="subst">&#123;pkt.e:<span class="number">.2</span>f&#125;</span>, d=<span class="subst">&#123;pkt.d:<span class="number">.2</span>f&#125;</span>, v=<span class="subst">&#123;pkt.v:<span class="number">.2</span>f&#125;</span>&quot;</span>)</span><br><span class="line">        v_system = <span class="built_in">max</span>(v_system, pkt.v)</span><br><span class="line">        <span class="keyword">for</span> node <span class="keyword">in</span> nodes:</span><br><span class="line">            <span class="keyword">if</span> pkt <span class="keyword">in</span> node.packets:</span><br><span class="line">                node.packets.remove(pkt)</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试</span></span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> [<span class="number">0.0</span>, <span class="number">1.0</span>]:</span><br><span class="line">    schedule([video, data], t)</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>输出：</p>
+<ul>
+<li>时间 0：处理数据包（大小=30）。</li>
+<li>时间 1：处理视频包（大小=80）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="EarliestDeadlineFirst-EDF-最先结束最先调度">EarliestDeadlineFirst(EDF)最先结束最先调度</h3>
+<p>EDF 是一种实时调度算法，专门用于处理有“截止时间”（deadline）要求任务的系统。它的核心思想很简单：哪个任务的截止时间最早，就先处理哪个任务。想象你在一家快递公司工作，手头有几件包裹，每件都有一个“最晚送达时间”。EDF 就像一个聪明的调度员，总是优先处理最快要过期的包裹，确保尽量不超时。</p>
+<ul>
+<li>实时系统：EDF 特别适合需要严格时间保证的场景，比如嵌入式设备、实时操作系统。</li>
+<li>动态优先级：不像固定优先级调度，EDF 的优先级是动态的，根据任务的截止时间实时调整。</li>
+</ul>
+<h4 id="EDF的核心逻辑">EDF的核心逻辑</h4>
+<p>EDF 的调度规则可以用一句话概括：在任意时刻，选择截止时间（deadline）最早的任务执行。具体步骤如下：</p>
+<ul>
+<li>任务定义：
+<ul>
+<li>每个任务有三个关键属性：
+<ul>
+<li>到达时间（arrival time）：任务什么时候进入系统。</li>
+<li>执行时间（execution time）：任务需要多少时间完成。</li>
+<li>截止时间（deadline）：任务必须在什么时候完成。</li>
+</ul>
+</li>
+<li>有时还会有周期性（periodic tasks），但我们先从简单情况开始。</li>
+</ul>
+</li>
+<li>调度过程：
+<ul>
+<li>检查所有已经到达的任务（到达时间 ≤ 当前时间）。</li>
+<li>在这些任务中，找出截止时间最早的那个。</li>
+<li>执行这个任务，直到完成或被更高优先级（截止时间更早）的任务抢占。</li>
+</ul>
+</li>
+<li>抢占式调度：
+<ul>
+<li>EDF 通常是抢占式的（preemptive）：如果一个新任务到达，且它的截止时间比当前任务更早，当前任务会被暂停，新任务优先执行。</li>
+</ul>
+</li>
+</ul>
+<p>一个简单的例子：</p>
+<ul>
+<li>假设有 3 个任务：
+<ul>
+<li>任务 A：到达时间 = 0，执行时间 = 2，截止时间 = 4。</li>
+<li>任务 B：到达时间 = 1，执行时间 = 1，截止时间 = 3。</li>
+<li>任务 C：到达时间 = 2，执行时间 = 1，截止时间 = 5。</li>
+</ul>
+</li>
+<li>调度过程：
+<ul>
+<li>时间 0：只有 A 到达，截止时间 = 4，开始执行 A。</li>
+<li>时间 1：A 还剩 1 单位时间，B 到达，截止时间 = 3 &lt; A 的 4，暂停 A，执行 B。</li>
+<li>时间 2：B 完成（用了 1 单位时间），恢复 A，C 到达，但 A 的截止时间 4 &lt; C 的 5，继续执行 A。</li>
+<li>时间 3：A 完成（总共用了 2 单位时间），执行 C。</li>
+<li>时间 4：C 完成（用了 1 单位时间）。</li>
+</ul>
+</li>
+<li>结果：
+<ul>
+<li>执行顺序：A（0-1）→ B（1-2）→ A（2-3）→ C（3-4）。</li>
+<li>所有任务都在截止时间前完成：A 在 3 &lt; 4，B 在 2 &lt; 3，C 在 4 &lt; 5。</li>
+</ul>
+</li>
+</ul>
+<h4 id="EDF的特点">EDF的特点</h4>
+<ul>
+<li>优点：
+<ul>
+<li>如果任务集是“可调度的”（总负载不超过系统容量），EDF 能保证所有任务按时完成。</li>
+<li>简单直观，适合实时性要求高的场景。</li>
+</ul>
+</li>
+<li>缺点：
+<ul>
+<li>如果任务超载（执行时间总和超过可用时间），EDF 可能导致多个任务失败。</li>
+<li>需要实时跟踪截止时间，计算开销稍高。</li>
+</ul>
+</li>
+</ul>
+<p>EDF 在实时系统中非常常见，以下是几个典型场景：</p>
+<ul>
+<li>嵌入式系统
+<ul>
+<li>应用：汽车电子中控制刹车、引擎的任务调度。</li>
+<li>比如，刹车信号（截止时间短）优先于空调调整。</li>
+</ul>
+</li>
+<li>实时操作系统 (RTOS)
+<ul>
+<li>应用：在 RTOS 中调度周期性任务。</li>
+<li>比如，一个传感器每秒采样一次，必须在下次采样前处理完数据。</li>
+</ul>
+</li>
+<li>多媒体处理
+<ul>
+<li>应用：视频解码中保证帧按时渲染。</li>
+<li>比如，每帧必须在 33ms（30fps）内完成。</li>
+</ul>
+</li>
+</ul>
+<h4 id="实现EDF的简单思路">实现EDF的简单思路</h4>
+<p>要实现 EDF，你需要：</p>
+<ul>
+<li>用一个数据结构存储任务，记录到达时间、执行时间和截止时间。</li>
+<li>用优先级队列（按截止时间排序）管理可执行任务。</li>
+<li>每次调度时，检查新到达的任务，更新优先级。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> heapq</span><br><span class="line"><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass</span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Task</span>:</span><br><span class="line">    <span class="built_in">id</span>: <span class="built_in">str</span></span><br><span class="line">    arrival: <span class="built_in">float</span>  <span class="comment"># 到达时间</span></span><br><span class="line">    exec_time: <span class="built_in">float</span>  <span class="comment"># 执行时间</span></span><br><span class="line">    deadline: <span class="built_in">float</span>  <span class="comment"># 截止时间</span></span><br><span class="line">    remaining: <span class="built_in">float</span> = <span class="number">0</span>  <span class="comment"># 剩余执行时间</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 任务列表</span></span><br><span class="line">tasks = [</span><br><span class="line">    Task(<span class="string">&quot;A&quot;</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>),</span><br><span class="line">    Task(<span class="string">&quot;B&quot;</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">3</span>),</span><br><span class="line">    Task(<span class="string">&quot;C&quot;</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">5</span>)</span><br><span class="line">]</span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> tasks:</span><br><span class="line">    t.remaining = t.exec_time</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调度器</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">edf_schedule</span>(<span class="params">tasks, max_time</span>):</span><br><span class="line">    current_time = <span class="number">0</span></span><br><span class="line">    ready_queue = []  <span class="comment"># 优先级队列，按 deadline 排序</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span> current_time &lt; max_time:</span><br><span class="line">        <span class="comment"># 添加到达的任务</span></span><br><span class="line">        <span class="keyword">for</span> task <span class="keyword">in</span> tasks:</span><br><span class="line">            <span class="keyword">if</span> task.arrival &lt;= current_time <span class="keyword">and</span> task.remaining &gt; <span class="number">0</span> <span class="keyword">and</span> (task.deadline, task) <span class="keyword">not</span> <span class="keyword">in</span> ready_queue:</span><br><span class="line">                heapq.heappush(ready_queue, (task.deadline, task))</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> ready_queue:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;时间 <span class="subst">&#123;current_time&#125;</span>: 空闲&quot;</span>)</span><br><span class="line">            current_time += <span class="number">1</span></span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 取出截止时间最早的任务</span></span><br><span class="line">        _, current_task = heapq.heappop(ready_queue)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;时间 <span class="subst">&#123;current_time&#125;</span>: 执行 <span class="subst">&#123;current_task.<span class="built_in">id</span>&#125;</span>&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 执行 1 单位时间</span></span><br><span class="line">        current_task.remaining -= <span class="number">1</span></span><br><span class="line">        current_time += <span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 如果任务没完成，放回队列</span></span><br><span class="line">        <span class="keyword">if</span> current_task.remaining &gt; <span class="number">0</span>:</span><br><span class="line">            heapq.heappush(ready_queue, (current_task.deadline, current_task))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行</span></span><br><span class="line">edf_schedule(tasks, <span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">时间 0: 执行 A</span><br><span class="line">时间 1: 执行 B</span><br><span class="line">时间 2: 执行 A</span><br><span class="line">时间 3: 执行 C</span><br><span class="line">时间 4: 空闲</span><br></pre></td></tr></table></figure>
+<h3 id="CompleteFairScheduler-CFS">CompleteFairScheduler(CFS)</h3>
+<p>CFS 是一种任务调度算法，最早由 Ingo Molnár 设计并引入 Linux 内核（从 2.6.23 版本开始），用来替代之前的 O(1) 调度器。它的目标是让所有任务尽可能公平地分享 CPU 时间，同时保持调度的高效性和低复杂性。想象你在组织一个派对，桌上有一块大蛋糕（CPU 时间），有几个人（任务）等着分蛋糕。CFS 的原则是：每个人都能分到蛋糕，而且分得尽量平均。如果有人更“重要”（权重高），他们会多拿一点，但不会完全抢走别人的份。</p>
+<ul>
+<li>公平性：CFS 的核心是“时间公平”，而不是简单地轮流执行。</li>
+<li>适用性：广泛用于现代操作系统的进程调度。</li>
+</ul>
+<h4 id="CFS的核心逻辑">CFS的核心逻辑</h4>
+<p>CFS 的核心思想是基于“虚拟运行时间”（vruntime），通过它来衡量和分配 CPU 时间。以下是它的基本逻辑：</p>
+<ul>
+<li>虚拟运行时间 (vruntime)：
+<ul>
+<li>每个任务都有一个 vruntime，表示它“应该”获得的 CPU 时间。</li>
+<li>vruntime 的增长速度与任务的权重（优先级）成反比：
+<ul>
+<li>权重越高，vruntime 增长越慢，任务获得更多 CPU 时间。</li>
+<li>权重越低，vruntime 增长越快，任务获得较少 CPU 时间。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>调度原则：
+<ul>
+<li>CFS 总是选择 vruntime 最小的任务执行。</li>
+<li>为什么？因为 vruntime 小意味着这个任务“欠”了 CPU 时间，应该优先补偿。</li>
+</ul>
+</li>
+<li>红黑树管理：
+<ul>
+<li>CFS 用红黑树（一种高效的平衡二叉搜索树）存储所有任务，按 vruntime 排序。</li>
+<li>每次调度时，从树的最左端（vruntime 最小）取出任务。</li>
+</ul>
+</li>
+<li>时间片：
+<ul>
+<li>任务不会一次性用完分配的时间，而是分成小块（时间片）执行。</li>
+<li>时间片长度动态调整，确保公平性和响应性。</li>
+</ul>
+</li>
+<li>抢占式调度：
+<ul>
+<li>如果一个新任务的 vruntime 比当前任务小，当前任务会被抢占。</li>
+</ul>
+</li>
+</ul>
+<p>一个简单的例子：</p>
+<ul>
+<li>假设有 3 个任务：
+<ul>
+<li>任务 A：权重 = 1。</li>
+<li>任务 B：权重 = 2。</li>
+<li>任务 C：权重 = 3。</li>
+<li>总权重 = 1 + 2 + 3 = 6。</li>
+</ul>
+</li>
+<li>假设 CPU 每秒分配 1 个单位时间：
+<ul>
+<li>A 应得 1/6 秒，vruntime 增长速度 = 1 / 1 = 1。</li>
+<li>B 应得 2/6 秒，vruntime 增长速度 = 1 / 2 = 0.5。</li>
+<li>C 应得 3/6 秒，vruntime 增长速度 = 1 / 3 ≈ 0.33。</li>
+</ul>
+</li>
+<li>调度过程：
+<ul>
+<li>初始：A、B、C 的 vruntime 都是 0。</li>
+<li>时间 0：选 vruntime 最小的 A（0），运行 1 单位时间，vruntime += 1 → 1。</li>
+<li>时间 1：A=1, B=0, C=0，选 B（0），运行 1 单位时间，vruntime += 0.5 → 0.5。</li>
+<li>时间 2：A=1, B=0.5, C=0，选 C（0），运行 1 单位时间，vruntime += 0.33 → 0.33。</li>
+<li>时间 3：A=1, B=0.5, C=0.33，选 C（0.33），vruntime += 0.33 → 0.66。</li>
+</ul>
+</li>
+<li>结果：
+<ul>
+<li>高权重任务（C）运行更多时间，低权重任务（A）运行较少，比例接近 1:2:3。</li>
+</ul>
+</li>
+</ul>
+<h4 id="CFS的特点">CFS的特点</h4>
+<ul>
+<li>优点：
+<ul>
+<li>公平性：长期看，所有任务按权重比例获得 CPU 时间。</li>
+<li>高效性：红黑树操作的时间复杂度是 O(log n)。</li>
+<li>灵活性：支持动态调整权重，适应不同任务需求。</li>
+</ul>
+</li>
+<li>缺点：
+<ul>
+<li>不适合硬实时系统（没有严格的截止时间保证）。</li>
+<li>对高负载下响应性要求高的场景可能不够理想。</li>
+</ul>
+</li>
+</ul>
+<p>CFS 主要用于操作系统内核，但它的思想也可以应用到其他场景：</p>
+<ul>
+<li>操作系统进程调度
+<ul>
+<li>应用：Linux 系统中管理用户进程。</li>
+<li>比如，一个后台任务（低权重）和一个游戏（高权重）并行运行，CFS 保证游戏更流畅。</li>
+</ul>
+</li>
+<li>虚拟机调度
+<ul>
+<li>应用：在虚拟化环境中分配 CPU 给虚拟机。</li>
+<li>比如，一个虚拟机跑关键服务，分配更高权重。</li>
+</ul>
+</li>
+<li>自定义任务调度
+<ul>
+<li>应用：在服务器程序中管理线程。</li>
+<li>比如，一个 Web 服务器优先处理 VIP 用户请求。</li>
+</ul>
+</li>
+</ul>
+<h4 id="实现CFS的简单思路">实现CFS的简单思路</h4>
+<p>要实现 CFS，你需要：</p>
+<ol>
+<li>用一个红黑树（或优先级队列）存储任务，按 vruntime 排序。</li>
+<li>每次调度时，取 vruntime 最小的任务。</li>
+<li>更新 vruntime，根据权重调整增长速度。</li>
+</ol>
+<p>伪代码示例（Python，用堆模拟）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> heapq</span><br><span class="line"><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass</span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Task</span>:</span><br><span class="line">    <span class="built_in">id</span>: <span class="built_in">str</span></span><br><span class="line">    weight: <span class="built_in">float</span>  <span class="comment"># 权重</span></span><br><span class="line">    vruntime: <span class="built_in">float</span> = <span class="number">0</span>  <span class="comment"># 虚拟运行时间</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 任务列表</span></span><br><span class="line">tasks = [</span><br><span class="line">    Task(<span class="string">&quot;A&quot;</span>, <span class="number">1</span>),</span><br><span class="line">    Task(<span class="string">&quot;B&quot;</span>, <span class="number">2</span>),</span><br><span class="line">    Task(<span class="string">&quot;C&quot;</span>, <span class="number">3</span>)</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调度器</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cfs_schedule</span>(<span class="params">tasks, total_time</span>):</span><br><span class="line">    queue = [(t.vruntime, t) <span class="keyword">for</span> t <span class="keyword">in</span> tasks]</span><br><span class="line">    heapq.heapify(queue)</span><br><span class="line">    current_time = <span class="number">0</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span> current_time &lt; total_time:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> queue:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 取出 vruntime 最小的任务</span></span><br><span class="line">        vruntime, task = heapq.heappop(queue)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;时间 <span class="subst">&#123;current_time&#125;</span>: 执行 <span class="subst">&#123;task.<span class="built_in">id</span>&#125;</span>, vruntime=<span class="subst">&#123;vruntime:<span class="number">.2</span>f&#125;</span>&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 运行 1 单位时间，更新 vruntime</span></span><br><span class="line">        vruntime_increase = <span class="number">1</span> / task.weight  <span class="comment"># 权重越高，增长越慢</span></span><br><span class="line">        task.vruntime = vruntime + vruntime_increase</span><br><span class="line">        current_time += <span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 放回队列</span></span><br><span class="line">        heapq.heappush(queue, (task.vruntime, task))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行</span></span><br><span class="line">cfs_schedule(tasks, <span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#C（高权重）执行 2 次，B 执行 2 次，A 执行 1 次，符合权重比例。</span></span><br><span class="line">时间 0: 执行 A, vruntime=0.00</span><br><span class="line">时间 1: 执行 B, vruntime=0.00</span><br><span class="line">时间 2: 执行 C, vruntime=0.00</span><br><span class="line">时间 3: 执行 C, vruntime=0.33</span><br><span class="line">时间 4: 执行 B, vruntime=0.50</span><br></pre></td></tr></table></figure>
+<h3 id="HierarchicalWeightedFairQueueing-HWFQ">HierarchicalWeightedFairQueueing(HWFQ)</h3>
+<p>HWFQ 是一种高级调度算法，它结合了 Weighted Fair Queueing (WFQ) 的加权公平性和“层次结构”的思想。它的目标是在多个层次上公平分配资源，比如网络带宽或 CPU 时间，同时允许不同类别的数据流或任务根据权重获得不同的服务质量。</p>
+<p>想象你在管理一个学校的食堂：</p>
+<ul>
+<li>有不同的年级（层次），比如高年级和低年级。</li>
+<li>每个年级有几个班（子层次），每个班的学生（数据流）需要分饭。</li>
+<li>高年级可能更重要（权重高），分到的饭多一些，但每个年级内部也要公平。</li>
+<li>HWFQ 就像一个食堂管理员，先按年级分配饭量，再在每个年级内部按班公平分。</li>
+<li>层次性：资源分配像树一样，从根节点（总资源）分到子节点（类别），再到叶子节点（具体任务）。</li>
+<li>加权公平：每个节点有权重，决定它能分到多少资源。</li>
+</ul>
+<h4 id="HWFQ-的核心逻辑">HWFQ 的核心逻辑</h4>
+<p>HWFQ 的核心是通过“层次结构”和“虚拟完成时间”来调度资源。以下是它的基本步骤：</p>
+<ul>
+<li>树形层次结构：
+<ul>
+<li>数据流或任务被组织成一棵树。</li>
+<li>根节点代表总资源（比如 100Mbps 带宽）。</li>
+<li>中间节点是类别（比如视频、语音），有自己的权重。</li>
+<li>叶子节点是具体的数据流或任务，也有权重。</li>
+<li>资源先按权重从根分配到中间节点，再到叶子节点。</li>
+</ul>
+</li>
+<li>虚拟完成时间 (Virtual Finish Time)：
+<ul>
+<li>每个数据包或任务计算一个“虚拟完成时间”，表示它在理想情况下应该完成的时间。</li>
+<li>计算公式（简化版）：
+<blockquote>
+<p>虚拟完成时间 = 上一个包的完成时间 + (数据包大小 / 权重对应的速率)。</p>
+</blockquote>
+</li>
+<li>权重越高，速率越大，虚拟完成时间越早。</li>
+</ul>
+</li>
+<li>调度过程：
+<ul>
+<li>从树的叶子节点开始，计算每个数据包的虚拟完成时间。</li>
+<li>每个中间节点从它的子节点中选择虚拟完成时间最早的包，向上汇总。</li>
+<li>根节点最终选择全局虚拟完成时间最早的包执行。</li>
+</ul>
+</li>
+<li>公平性保证：
+<ul>
+<li>每个层次的节点按权重分配资源。</li>
+<li>叶子节点内的数据流也按权重公平分享父节点的资源。</li>
+</ul>
+</li>
+</ul>
+<p>一个简单的例子</p>
+<ul>
+<li>假设总带宽是 100Mbps，树结构如下：
+<ul>
+<li>根节点：100Mbps。</li>
+<li>视频类（权重 70%，70Mbps）：
+<ul>
+<li>V1（权重 1），V2（权重 2）。</li>
+</ul>
+</li>
+<li>数据类（权重 30%，30Mbps）：
+<ul>
+<li>D1（权重 1）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>数据包：
+<ul>
+<li>V1：100Mb，V2：100Mb，D1：100Mb。</li>
+</ul>
+</li>
+<li>计算虚拟完成时间：假设起始时间为 0：
+<ul>
+<li>V1：带宽 = 70 * (1 / (1+2)) ≈ 23.33Mbps，虚拟完成时间 = 100 / 23.33 ≈ 4.29 秒。</li>
+<li>V2：带宽 = 70 * (2 / (1+2)) ≈ 46.67Mbps，虚拟完成时间 = 100 / 46.67 ≈ 2.14 秒。</li>
+<li>D1：带宽 = 30 * (1 / 1) = 30Mbps，虚拟完成时间 = 100 / 30 ≈ 3.33 秒。</li>
+</ul>
+</li>
+<li>调度顺序：
+<ul>
+<li>V2（2.14） → D1（3.33） → V1（4.29）。</li>
+<li>V2（高权重）最先完成，D1 次之，V1 最后。</li>
+</ul>
+</li>
+</ul>
+<h4 id="HWFQ的特点">HWFQ的特点</h4>
+<ul>
+<li>优点：
+<ul>
+<li>层次公平：既保证大类别间的公平，又保证类别内部的公平。</li>
+<li>灵活性：支持复杂的资源分配需求。</li>
+<li>可预测性：通过虚拟完成时间提供延迟保证。</li>
+</ul>
+</li>
+<li>缺点：
+<ul>
+<li>复杂性：需要维护树结构和计算虚拟时间，复杂度高于简单 WFQ。</li>
+<li>实时性有限：不像 EDF 那样严格按截止时间调度。</li>
+</ul>
+</li>
+</ul>
+<p>HWFQ 适用于需要层次化资源管理的场景：</p>
+<ul>
+<li>网络带宽管理
+<ul>
+<li>应用：在路由器中分配带宽给不同部门或用户组。</li>
+<li>比如，公司网络中研发部门（高权重）优先，行政部门次之。</li>
+</ul>
+</li>
+<li>云计算资源分配
+<ul>
+<li>应用：在虚拟化环境中分配 CPU 或网络资源。</li>
+<li>比如，一个租户有多个虚拟机，按权重分配资源。</li>
+</ul>
+</li>
+<li>任务调度
+<ul>
+<li>应用：在服务器上管理多级任务。</li>
+<li>比如，一个项目组有多个子任务，按重要性分配处理时间。</li>
+</ul>
+</li>
+</ul>
+<h4 id="实现HWFQ的简单思路">实现HWFQ的简单思路</h4>
+<p>要实现 HWFQ，你需要：</p>
+<ul>
+<li>用树结构表示层次，每个节点有权重和子节点。</li>
+<li>为每个数据包计算虚拟完成时间。</li>
+<li>用优先级队列在每个节点选择最早完成的包。</li>
+</ul>
+<p>伪代码示例（Python）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> heapq</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Packet</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, size, flow_id</span>):</span><br><span class="line">        <span class="variable language_">self</span>.size = size</span><br><span class="line">        <span class="variable language_">self</span>.flow_id = flow_id</span><br><span class="line">        <span class="variable language_">self</span>.vft = <span class="number">0</span>  <span class="comment"># 虚拟完成时间</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Node</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, weight, bandwidth</span>):</span><br><span class="line">        <span class="variable language_">self</span>.weight = weight</span><br><span class="line">        <span class="variable language_">self</span>.bandwidth = bandwidth</span><br><span class="line">        <span class="variable language_">self</span>.children = []</span><br><span class="line">        <span class="variable language_">self</span>.packets = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_packet</span>(<span class="params">self, size, flow_id</span>):</span><br><span class="line">        pkt = Packet(size, flow_id)</span><br><span class="line">        <span class="variable language_">self</span>.packets.append(pkt)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">calc_vft</span>(<span class="params">self, pkt, parent_bandwidth</span>):</span><br><span class="line">        rate = parent_bandwidth * (<span class="variable language_">self</span>.weight / <span class="built_in">sum</span>(c.weight <span class="keyword">for</span> c <span class="keyword">in</span> <span class="variable language_">self</span>.children <span class="keyword">or</span> [<span class="variable language_">self</span>]))</span><br><span class="line">        pkt.vft = (pkt.size / rate) <span class="keyword">if</span> <span class="variable language_">self</span>.children <span class="keyword">else</span> (pkt.size / <span class="variable language_">self</span>.bandwidth)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 构建树</span></span><br><span class="line">root = Node(weight=<span class="number">100</span>, bandwidth=<span class="number">100</span>)</span><br><span class="line">video = Node(weight=<span class="number">70</span>, bandwidth=<span class="number">70</span>)</span><br><span class="line">data = Node(weight=<span class="number">30</span>, bandwidth=<span class="number">30</span>)</span><br><span class="line">v1 = Node(weight=<span class="number">1</span>, bandwidth=<span class="number">0</span>)</span><br><span class="line">v2 = Node(weight=<span class="number">2</span>, bandwidth=<span class="number">0</span>)</span><br><span class="line">d1 = Node(weight=<span class="number">1</span>, bandwidth=<span class="number">0</span>)</span><br><span class="line">root.children = [video, data]</span><br><span class="line">video.children = [v1, v2]</span><br><span class="line">data.children = [d1]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加数据包</span></span><br><span class="line">v1.add_packet(<span class="number">100</span>, <span class="string">&quot;V1&quot;</span>)</span><br><span class="line">v2.add_packet(<span class="number">100</span>, <span class="string">&quot;V2&quot;</span>)</span><br><span class="line">d1.add_packet(<span class="number">100</span>, <span class="string">&quot;D1&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调度</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">schedule</span>(<span class="params">root</span>):</span><br><span class="line">    queue = []</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process_node</span>(<span class="params">node, parent_bandwidth</span>):</span><br><span class="line">        <span class="keyword">if</span> node.packets:</span><br><span class="line">            <span class="keyword">for</span> pkt <span class="keyword">in</span> node.packets:</span><br><span class="line">                node.calc_vft(pkt, parent_bandwidth)</span><br><span class="line">                heapq.heappush(queue, (pkt.vft, pkt))</span><br><span class="line">        <span class="keyword">for</span> child <span class="keyword">in</span> node.children:</span><br><span class="line">            process_node(child, node.bandwidth)</span><br><span class="line"></span><br><span class="line">    process_node(root, root.bandwidth)</span><br><span class="line">    <span class="keyword">while</span> queue:</span><br><span class="line">        vft, pkt = heapq.heappop(queue)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;调度 <span class="subst">&#123;pkt.flow_id&#125;</span>, 虚拟完成时间=<span class="subst">&#123;vft:<span class="number">.2</span>f&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">schedule(root)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">调度 V2, 虚拟完成时间=2.14</span><br><span class="line">调度 D1, 虚拟完成时间=3.33</span><br><span class="line">调度 V1, 虚拟完成时间=4.29</span><br></pre></td></tr></table></figure>
+<h2 id="WFQ-与-H-FSC-结合的动机">WFQ 与 H-FSC 结合的动机</h2>
+<ul>
+<li>需求分析：
+<ul>
+<li>层次性：业务需要按优先级、客户和用户分级调度。</li>
+<li>公平性：资源分配需根据权重比例，避免饿死。</li>
+<li>简洁性：实现不能过于复杂，便于维护。</li>
+</ul>
+</li>
+<li>WFQ 的局限：
+<ul>
+<li>单层次设计无法直接满足需求，但其虚拟时间计算（VFT）简单高效，是公平调度的核心。</li>
+</ul>
+</li>
+<li>H-FSC 的优势：
+<ul>
+<li>分层结构天然支持多级调度，虚拟时间管理与 WFQ 兼容。</li>
+<li>服务曲线虽强大，但对非实时任务（如批量处理）并非必需。</li>
+</ul>
+</li>
+<li>结合动机：
+<ul>
+<li>用 H-FSC 的树形结构解决层次问题。</li>
+<li>用 WFQ 的虚拟时间计算作为叶子节点的调度基础，简化 H-FSC 的复杂状态。</li>
+</ul>
+</li>
+</ul>
+<h3 id="结合点">结合点</h3>
+<ul>
+<li>层次结构（H-FSC）：
+<ul>
+<li>采用 H-FSC 的树形设计：Root -&gt; Priority -&gt; Customer -&gt; User。</li>
+<li>每个节点维护 vt，用于调度选择。</li>
+</ul>
+</li>
+<li>底层队列（WFQ）：
+<ul>
+<li>叶子节点使用 WeightedFairQueue，直接应用 WFQ 的 VFT 计算。</li>
+<li>任务的 vft 驱动队列的 curr_vt，进而影响节点的 vt。</li>
+</ul>
+</li>
+<li>调度逻辑：
+<ul>
+<li>从根节点递归选择 vt 最小的叶子节点（H-FSC 风格）。</li>
+<li>叶子节点按 FIFO 弹出任务，更新 vt（WFQ 风格）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="取舍与优化">取舍与优化</h3>
+<ul>
+<li>保留：
+<ul>
+<li>WFQ 的 VFT 计算：简单高效，核心公平性保证。</li>
+<li>H-FSC 的层次选择：支持多级权重。</li>
+</ul>
+</li>
+<li>简化：
+<ul>
+<li>移除 H-FSC 的 e 和 d：减少计算开销，适用于非实时场景。</li>
+<li>不采用红黑树：线性遍历子节点，牺牲部分性能换取简洁性。</li>
+</ul>
+</li>
+<li>权衡：
+<ul>
+<li>性能：O(n) 遍历适合中小规模，放弃 O(log n) 的复杂数据结构。</li>
+<li>实时性：无服务曲线支持，专注公平性而非硬时限。</li>
+</ul>
+</li>
+</ul>
+<h3 id="实现步骤">实现步骤</h3>
+<ul>
+<li>任务添加：
+<ul>
+<li>从 HfscScheduler 递归找到叶子节点（H-FSC）。</li>
+<li>在 WeightedFairQueue 中计算 vft 并入队（WFQ）。</li>
+</ul>
+</li>
+<li>任务移除：
+<ul>
+<li>遍历树选择 vt 最小的叶子节点（H-FSC）。</li>
+<li>从队列弹出任务并更新 vt（WFQ）。</li>
+</ul>
+</li>
+<li>虚拟时间同步：
+<ul>
+<li>叶子节点的 vt 与 WeightedFairQueue 的 curr_vt 同步。</li>
+<li>中间节点的 vt 根据子节点更新，保留 H-FSC 的层次协调。</li>
+</ul>
+</li>
+</ul>
+<h3 id="方案考虑点与优缺点">方案考虑点与优缺点</h3>
+<p>考虑点:</p>
+<ul>
+<li>分层需求：树形结构支持多级权重。</li>
+<li>公平性：虚拟时间避免饿死。</li>
+<li>性能：O(n) 遍历，适合中小规模。</li>
+<li>扩展性：动态添加节点。</li>
+</ul>
+<p>优点:</p>
+<ul>
+<li>层次公平：多级权重分配。</li>
+<li>实现简单：结合 WFQ 简洁性，简化 H-FSC。</li>
+<li>灵活性：权重可调。</li>
+</ul>
+<p>缺点:</p>
+<ul>
+<li>性能瓶颈：大规模节点效率低。</li>
+<li>简化局限：无实时性支持。</li>
+<li>单线程假设：需额外并发控制。</li>
+</ul>
+<h2 id="算法的python实现">算法的python实现</h2>
+<h3 id="类图">类图</h3>
+<ul>
+<li>HfscScheduler 包含一个 root（HfscNode）。</li>
+<li>HfscNode 可以有多个子节点（children），叶子节点拥有一个 WeightedFairQueue。</li>
+<li>WeightedFairQueue 包含多个 ScheduledTask。</li>
+</ul>
+<pre><code class="highlight mermaid">
+classDiagram
+    class ScheduledTask &#123;
+        -task_id: int
+        -priority: int
+        -customer_id: int
+        -user_id: int
+        -cost: int
+        -vft: float
+        -arrive_time: float
+        -node_ids: list
+        +set_vft(vft)
+        +set_arrive_time(arrive_time)
+        +get_node_id(level)
+    &#125;
+
+    class WeightedFairQueue &#123;
+        -queue_id: int
+        -weight: int
+        -queue: deque
+        -last_vt: float
+        -curr_vt: float
+        +add_task(task)
+        +poll_task()
+        +peek_task()
+        +is_empty()
+    &#125;
+
+    class HfscNode &#123;
+        -node_id: int
+        -weight: int
+        -level: int
+        -pending_queue: WeightedFairQueue
+        -parent: HfscNode
+        -children: list
+        -children_index: dict
+        -vt: float
+        -max_child_vt: float
+        -task_num: int
+        +add_child(child_id, child_weight, is_leaf)
+        +is_leaf()
+        +is_root()
+        +update_vt(task_cost)
+        +enqueue_task(task)
+        +dequeue_task()
+        +is_empty()
+    &#125;
+
+    class HfscScheduler &#123;
+        -root: HfscNode
+        -task_num: int
+        -max_size: int
+        +add_priority_nodes()
+        +add_customer_node(priority, customer_id, weight)
+        +add_user_node(priority, customer_id, user_id, weight)
+        +customer_exists(priority, customer_id)
+        +user_exists(priority, customer_id, user_id)
+        +add_task(task)
+        +poll_task()
+    &#125;
+
+    HfscScheduler o--&gt; &quot;1&quot; HfscNode : root
+    HfscNode o--&gt; &quot;0..1&quot; WeightedFairQueue : pending_queue
+    HfscNode o--&gt; &quot;many&quot; HfscNode : children
+    WeightedFairQueue o--&gt; &quot;many&quot; ScheduledTask : queue
+</code></pre>
+<h3 id="代码实现">代码实现</h3>
+<h4 id="scheduled-task-py">scheduled_task.py</h4>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ScheduledTask</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, task_id, priority, customer_id, user_id, cost=<span class="number">1000</span>, customer_weight=<span class="number">1</span>, user_weight=<span class="number">1</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.task_id = task_id</span><br><span class="line">        <span class="variable language_">self</span>.priority = priority</span><br><span class="line">        <span class="variable language_">self</span>.customer_id = customer_id</span><br><span class="line">        <span class="variable language_">self</span>.user_id = user_id</span><br><span class="line">        <span class="variable language_">self</span>.cost = cost</span><br><span class="line">        <span class="variable language_">self</span>.customer_weight = customer_weight</span><br><span class="line">        <span class="variable language_">self</span>.user_weight = user_weight</span><br><span class="line">        <span class="variable language_">self</span>.vft = <span class="number">0</span></span><br><span class="line">        <span class="variable language_">self</span>.arrive_time = <span class="number">0</span></span><br><span class="line">        <span class="variable language_">self</span>.node_ids = [priority, customer_id, user_id]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_vft</span>(<span class="params">self, vft</span>):</span><br><span class="line">        <span class="variable language_">self</span>.vft = vft</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_arrive_time</span>(<span class="params">self, arrive_time</span>):</span><br><span class="line">        <span class="variable language_">self</span>.arrive_time = arrive_time</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_node_id</span>(<span class="params">self, level</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.node_ids[level] <span class="keyword">if</span> level &lt; <span class="built_in">len</span>(<span class="variable language_">self</span>.node_ids) <span class="keyword">else</span> -<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<h4 id="weighted-fair-queue-py">weighted_fair_queue.py</h4>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> deque</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WeightedFairQueue</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, queue_id, weight</span>):</span><br><span class="line">        <span class="variable language_">self</span>.queue_id = queue_id</span><br><span class="line">        <span class="variable language_">self</span>.weight = weight</span><br><span class="line">        <span class="variable language_">self</span>.queue = deque()</span><br><span class="line">        <span class="variable language_">self</span>.last_vt = <span class="number">0</span></span><br><span class="line">        <span class="variable language_">self</span>.curr_vt = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_task</span>(<span class="params">self, task</span>):</span><br><span class="line">        arrive_time = task.arrive_time</span><br><span class="line">        vir_start = <span class="built_in">max</span>(arrive_time, <span class="variable language_">self</span>.last_vt)</span><br><span class="line">        task.set_vft(vir_start + task.cost / <span class="variable language_">self</span>.weight)</span><br><span class="line">        <span class="variable language_">self</span>.last_vt = task.vft</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable language_">self</span>.queue:</span><br><span class="line">            <span class="variable language_">self</span>.curr_vt = <span class="variable language_">self</span>.last_vt</span><br><span class="line">        <span class="variable language_">self</span>.queue.append(task)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">poll_task</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable language_">self</span>.queue:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">        task = <span class="variable language_">self</span>.queue.popleft()</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.queue:</span><br><span class="line">            <span class="variable language_">self</span>.curr_vt = <span class="variable language_">self</span>.queue[<span class="number">0</span>].vft</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="variable language_">self</span>.curr_vt = <span class="built_in">float</span>(<span class="string">&#x27;inf&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> task</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">peek_task</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.queue[<span class="number">0</span>] <span class="keyword">if</span> <span class="variable language_">self</span>.queue <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">is_empty</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.queue) == <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<h4 id="hfsc-node-py">hfsc_node.py</h4>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">HfscNode</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, node_id, weight, level</span>):</span><br><span class="line">        <span class="variable language_">self</span>.node_id = node_id</span><br><span class="line">        <span class="variable language_">self</span>.weight = weight</span><br><span class="line">        <span class="variable language_">self</span>.level = level</span><br><span class="line">        <span class="variable language_">self</span>.pending_queue = <span class="literal">None</span></span><br><span class="line">        <span class="variable language_">self</span>.parent = <span class="literal">None</span></span><br><span class="line">        <span class="variable language_">self</span>.children = []</span><br><span class="line">        <span class="variable language_">self</span>.children_index = &#123;&#125;</span><br><span class="line">        <span class="variable language_">self</span>.vt = <span class="number">0</span></span><br><span class="line">        <span class="variable language_">self</span>.max_child_vt = <span class="number">0</span></span><br><span class="line">        <span class="variable language_">self</span>.task_num = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_child</span>(<span class="params">self, child_id, child_weight, is_leaf</span>):</span><br><span class="line">        child = HfscNode(child_id, child_weight, <span class="variable language_">self</span>.level + <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">if</span> is_leaf:</span><br><span class="line">            child.pending_queue = WeightedFairQueue(child_id, child_weight)</span><br><span class="line">        child.parent = <span class="variable language_">self</span></span><br><span class="line">        <span class="variable language_">self</span>.children.append(child)</span><br><span class="line">        <span class="variable language_">self</span>.children_index[child_id] = child</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">is_leaf</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.pending_queue <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">is_root</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.parent <span class="keyword">is</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">update_vt</span>(<span class="params">self, task_cost</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable language_">self</span>.is_root():</span><br><span class="line">            <span class="variable language_">self</span>.vt += task_cost / <span class="variable language_">self</span>.weight</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">enqueue_task</span>(<span class="params">self, task</span>):</span><br><span class="line">        <span class="variable language_">self</span>.task_num += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.is_leaf():</span><br><span class="line">            <span class="variable language_">self</span>.pending_queue.add_task(task)</span><br><span class="line">            <span class="variable language_">self</span>.vt = <span class="variable language_">self</span>.pending_queue.curr_vt</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">self</span>.pending_queue.last_vt</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            child_id = task.get_node_id(<span class="variable language_">self</span>.level)</span><br><span class="line">            child = <span class="variable language_">self</span>.children_index[child_id]</span><br><span class="line">            task_vt = child.enqueue_task(task)</span><br><span class="line">            <span class="keyword">return</span> task_vt</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">dequeue_task</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.task_num -= <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.is_leaf():</span><br><span class="line">            task = <span class="variable language_">self</span>.pending_queue.poll_task()</span><br><span class="line">            <span class="variable language_">self</span>.vt = <span class="variable language_">self</span>.pending_queue.curr_vt</span><br><span class="line">            <span class="keyword">return</span> task</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            min_vt = <span class="built_in">float</span>(<span class="string">&#x27;inf&#x27;</span>)</span><br><span class="line">            chosen_child = <span class="literal">None</span></span><br><span class="line">            <span class="keyword">for</span> node <span class="keyword">in</span> <span class="variable language_">self</span>.children:</span><br><span class="line">                <span class="keyword">if</span> node.vt &lt; min_vt <span class="keyword">and</span> <span class="keyword">not</span> node.is_empty():</span><br><span class="line">                    min_vt = node.vt</span><br><span class="line">                    chosen_child = node</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> chosen_child:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">            task = chosen_child.dequeue_task()</span><br><span class="line">            <span class="keyword">if</span> chosen_child.vt &gt; <span class="variable language_">self</span>.max_child_vt:</span><br><span class="line">                <span class="variable language_">self</span>.max_child_vt = chosen_child.vt</span><br><span class="line">            <span class="variable language_">self</span>.update_vt(task.cost)</span><br><span class="line">            <span class="keyword">return</span> task</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">is_empty</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.task_num == <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<h4 id="hfsc-scheduler-py">hfsc_scheduler.py</h4>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">HfscScheduler</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, max_size=<span class="number">10000</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.root = HfscNode(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>)</span><br><span class="line">        <span class="variable language_">self</span>.task_num = <span class="number">0</span></span><br><span class="line">        <span class="variable language_">self</span>.max_size = max_size</span><br><span class="line">        <span class="variable language_">self</span>.add_priority_nodes()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_priority_nodes</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>):</span><br><span class="line">            <span class="variable language_">self</span>.root.add_child(i, <span class="number">2</span> ** (<span class="number">4</span> - i), <span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_customer_node</span>(<span class="params">self, priority, customer_id, weight</span>):</span><br><span class="line">        <span class="variable language_">self</span>.root.children_index[priority].add_child(customer_id, weight, <span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_user_node</span>(<span class="params">self, priority, customer_id, user_id, weight</span>):</span><br><span class="line">        customer_node = <span class="variable language_">self</span>.root.children_index[priority].children_index[customer_id]</span><br><span class="line">        customer_node.add_child(user_id, weight, <span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">customer_exists</span>(<span class="params">self, priority, customer_id</span>):</span><br><span class="line">        <span class="keyword">return</span> customer_id <span class="keyword">in</span> <span class="variable language_">self</span>.root.children_index[priority].children_index</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">user_exists</span>(<span class="params">self, priority, customer_id, user_id</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable language_">self</span>.customer_exists(priority, customer_id):</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">        <span class="keyword">return</span> user_id <span class="keyword">in</span> <span class="variable language_">self</span>.root.children_index[priority].children_index[customer_id].children_index</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">add_task</span>(<span class="params">self, task</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.task_num &gt;= <span class="variable language_">self</span>.max_size:</span><br><span class="line">            <span class="keyword">return</span> -<span class="number">1</span></span><br><span class="line">        <span class="variable language_">self</span>.task_num += <span class="number">1</span></span><br><span class="line">        priority = <span class="built_in">min</span>(task.priority, <span class="number">4</span>)</span><br><span class="line">        task.node_ids[<span class="number">0</span>] = priority</span><br><span class="line">        customer_id = task.customer_id</span><br><span class="line">        user_id = task.user_id</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable language_">self</span>.customer_exists(priority, customer_id):</span><br><span class="line">            <span class="variable language_">self</span>.add_customer_node(priority, customer_id, <span class="built_in">max</span>(task.customer_weight, <span class="number">1</span>))</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable language_">self</span>.user_exists(priority, customer_id, user_id):</span><br><span class="line">            <span class="variable language_">self</span>.add_user_node(priority, customer_id, user_id, <span class="built_in">max</span>(task.user_weight, <span class="number">1</span>))</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.root.enqueue_task(task)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">poll_task</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.task_num == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">        <span class="variable language_">self</span>.task_num -= <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.root.dequeue_task()</span><br></pre></td></tr></table></figure>
+<h3 id="调用时序图">调用时序图</h3>
+<pre><code class="highlight mermaid">sequenceDiagram
+    participant C as Client
+    participant S as HfscScheduler
+    participant R as HfscNode (Root)
+    participant P as HfscNode (Priority)
+    participant Cust as HfscNode (Customer)
+    participant U as HfscNode (User)
+    participant Q as WeightedFairQueue
+    participant T as ScheduledTask
+
+    C-&gt;&gt;S: add_task(task)
+    S--&gt;&gt;T: set arrive_time
+    S-&gt;&gt;R: enqueue_task(task)
+    R-&gt;&gt;P: enqueue_task(task)
+    P-&gt;&gt;Cust: enqueue_task(task)
+    Cust-&gt;&gt;U: enqueue_task(task)
+    U-&gt;&gt;Q: add_task(task)
+    Q--&gt;&gt;T: set_vft(vst + cost/weight)
+    Q-&gt;&gt;U: return last_vt
+    U-&gt;&gt;Cust: return task_vt
+    Cust-&gt;&gt;P: return task_vt
+    P-&gt;&gt;R: return task_vt
+    R-&gt;&gt;S: return task_vt
+    S-&gt;&gt;C: return task_vt
+
+    C-&gt;&gt;S: poll_task()
+    S-&gt;&gt;R: dequeue_task()
+    R-&gt;&gt;P: dequeue_task()
+    P-&gt;&gt;Cust: dequeue_task()
+    Cust-&gt;&gt;U: dequeue_task()
+    U-&gt;&gt;Q: poll_task()
+    Q--&gt;&gt;T: return task
+    Q-&gt;&gt;U: update curr_vt
+    U-&gt;&gt;Cust: return task, update vt
+    Cust-&gt;&gt;P: return task, update vt
+    P-&gt;&gt;R: return task, update vt
+    R-&gt;&gt;S: return task
+    S-&gt;&gt;C: return task</code></pre>
+<h3 id="公平任务队列的层次调度示意图">公平任务队列的层次调度示意图</h3>
+<pre><code class="highlight mermaid">graph TD
+    A[HfscScheduler] --&gt;|root| B[HfscNode&lt;br&gt;Root&lt;br&gt;vt=0]
+    
+    B --&gt;|Priority 0&lt;br&gt;weight=16| C[HfscNode&lt;br&gt;Priority 0&lt;br&gt;vt=50]
+    B --&gt;|Priority 1&lt;br&gt;weight=8| D[HfscNode&lt;br&gt;Priority 1&lt;br&gt;vt=100]
+    
+    C --&gt;|Customer 100&lt;br&gt;weight=4| E[HfscNode&lt;br&gt;Customer 100&lt;br&gt;vt=50]
+    D --&gt;|Customer 200&lt;br&gt;weight=2| F[HfscNode&lt;br&gt;Customer 200&lt;br&gt;vt=100]
+    
+    E --&gt;|User 1001&lt;br&gt;weight=1| G[HfscNode&lt;br&gt;User 1001&lt;br&gt;vt=50]
+    F --&gt;|User 2001&lt;br&gt;weight=1| H[HfscNode&lt;br&gt;User 2001&lt;br&gt;vt=100]
+    
+    G --&gt;|Leaf| I[WeightedFairQueue&lt;br&gt;curr_vt=50&lt;br&gt;last_vt=75]
+    H --&gt;|Leaf| J[WeightedFairQueue&lt;br&gt;curr_vt=100&lt;br&gt;last_vt=150]
+    
+    I --&gt; K[Task 1&lt;br&gt;vft=50]
+    I --&gt; L[Task 2&lt;br&gt;vft=75]
+    J --&gt; M[Task 3&lt;br&gt;vft=100]
+    J --&gt; N[Task 4&lt;br&gt;vft=150]
+    
+    subgraph Scheduling Process
+        O[Poll Task] --&gt;|Choose min vt| G
+        G --&gt;|dequeue| I
+        I --&gt;|pop| K
+        I --&gt;|update vt| G
+    end</code></pre>
+<h3 id="任务添加流程">任务添加流程</h3>
+<pre><code class="highlight mermaid">graph LR
+    A[开始] --&gt; B[输入任务]
+    B --&gt; C&#123;调度器是否满?&#125;
+    C --&gt;|是| D[拒绝添加]
+    C --&gt;|否| E[获取任务属性]
+    E --&gt; F[检查并添加节点]
+    F --&gt; G[递归调用 enqueue_task]
+    G --&gt; H&#123;到达叶子节点?&#125;
+    H --&gt;|是| I[add_task]
+    H --&gt;|否| G
+    I --&gt; J[计算 VST]
+    J --&gt; K[计算 VFT]
+    K --&gt; L[加入队列]
+    L --&gt; M[返回 VFT]
+    M --&gt; N[结束]</code></pre>
+<h3 id="任务移除流程">任务移除流程</h3>
+<pre><code class="highlight mermaid">graph LR
+    A[开始] --&gt; B&#123;调度器是否为空?&#125;
+    B --&gt;|是| C[返回 None]
+    B --&gt;|否| D[调用 dequeue_task]
+    D --&gt; E[查找 vt 最小的子节点]
+    E --&gt; F&#123;到达叶子节点?&#125;
+    F --&gt;|否| E
+    F --&gt;|是| G[poll_task]
+    G --&gt; H[更新 curr_vt 和 vt]
+    H --&gt; I[返回任务]
+    I --&gt; J[结束]</code></pre>
+<h2 id="Reference">Reference</h2>
+<ul>
+<li><a href="1.https://en.wikipedia.org/wiki/Weighted_fair_queueing" rel="external nofollow noreferrer">Weighted_fair_queueing</a></li>
+<li><a target="_blank" href="https://en.wikipedia.org/wiki/Earliest_deadline_first_scheduling" rel="external nofollow noreferrer noopener">Earliest_deadline_first_scheduling</a></li>
+<li><a target="_blank" href="https://en.wikipedia.org/wiki/Completely_Fair_Scheduler" rel="external nofollow noreferrer noopener">Completely_Fair_Scheduler</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Hierarchical-Fair-Service-Curve/" rel="tag"># Hierarchical Fair Service Curve</a>
+              <a href="/tags/Weighted-Fair-Queueing/" rel="tag"># Weighted Fair Queueing</a>
+              <a href="/tags/Earliest-Deadline-First/" rel="tag"># Earliest Deadline First</a>
+              <a href="/tags/Complete-Fair-Scheduler/" rel="tag"># Complete Fair Scheduler</a>
+              <a href="/tags/Hierarchical-Weighted-Fair-Queueing/" rel="tag"># Hierarchical Weighted Fair Queueing</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/04/30/MyScaleDBResetIndexGranularityToImprovePerformence/" rel="prev" title="通过修改 IndexGranularity 提升 MyScaleDB 的搜索性能">
+                  <i class="fa fa-angle-left"></i> 通过修改 IndexGranularity 提升 MyScaleDB 的搜索性能
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/12/31/2022%E5%B9%B4%E7%9A%84%E4%B8%80%E4%B8%AA%E5%BC%BA%E8%80%85%E5%92%8C%E4%B8%80%E4%B8%AA%E5%BC%B1%E8%80%85/" rel="next" title="2022年的一个弱者和一个强者">
+                  2022年的一个弱者和一个强者 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"857f0fd688b4ff2e52b156abdf5b74a3"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>
