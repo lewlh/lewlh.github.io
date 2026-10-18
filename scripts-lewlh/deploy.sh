@@ -12,7 +12,10 @@ CONTAINER_NAME=lewlh-hexo-next
 docker stop ${CONTAINER_NAME} || true
 docker rm ${CONTAINER_NAME} || true
 
-docker run --restart=unless-stopped --name ${CONTAINER_NAME} \
+# NOTE: 本地容器部署已废弃（改用 GitHub Actions）。保留此脚本仅供本地构建参考。
+# 不要使用 --restart=unless-stopped：一旦构建失败会导致容器无限重启，
+# 每次重启都会 force push 并触发一次 GitHub Pages 构建，形成死循环。
+docker run --rm --name ${CONTAINER_NAME} \
        -w /hexo \
        -v ${BLOG_PATH}/scaffolds:/hexo/scaffolds \
        -v ${BLOG_PATH}/source:/hexo/source \
