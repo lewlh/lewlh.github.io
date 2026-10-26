@@ -112,14 +112,6 @@ pdfjs-document-properties-size-kb = { NUMBER($kb, maximumSignificantDigits: 3) }
 #   $mb (Number) - the PDF file size in megabytes
 #   $b (Number) - the PDF file size in bytes
 pdfjs-document-properties-size-mb = { NUMBER($mb, maximumSignificantDigits: 3) } MB ({ $b } byte)
-# Variables:
-#   $size_kb (Number) - the PDF file size in kilobytes
-#   $size_b (Number) - the PDF file size in bytes
-pdfjs-document-properties-kb = { $size_kb } KB ({ $size_b } byte)
-# Variables:
-#   $size_mb (Number) - the PDF file size in megabytes
-#   $size_b (Number) - the PDF file size in bytes
-pdfjs-document-properties-mb = { $size_mb } MB ({ $size_b } byte)
 pdfjs-document-properties-title = Judul:
 pdfjs-document-properties-author = Penyusun:
 pdfjs-document-properties-subject = Subjek:
@@ -129,10 +121,6 @@ pdfjs-document-properties-modification-date = Tanggal Dimodifikasi:
 # Variables:
 #   $dateObj (Date) - the creation/modification date and time of the PDF file
 pdfjs-document-properties-date-time-string = { DATETIME($dateObj, dateStyle: "short", timeStyle: "medium") }
-# Variables:
-#   $date (Date) - the creation/modification date of the PDF file
-#   $time (Time) - the creation/modification time of the PDF file
-pdfjs-document-properties-date-string = { $date }, { $time }
 pdfjs-document-properties-creator = Pembuat:
 pdfjs-document-properties-producer = Pemroduksi PDF:
 pdfjs-document-properties-version = Versi PDF:
@@ -178,23 +166,6 @@ pdfjs-printing-not-ready = Peringatan: Berkas PDF masih belum dimuat secara leng
 
 ## Tooltips and alt text for side panel toolbar buttons
 
-pdfjs-toggle-sidebar-button =
-    .title = Aktif/Nonaktifkan Bilah Samping
-pdfjs-toggle-sidebar-notification-button =
-    .title = Aktif/Nonaktifkan Bilah Samping (dokumen berisi kerangka/lampiran/lapisan)
-pdfjs-toggle-sidebar-button-label = Aktif/Nonaktifkan Bilah Samping
-pdfjs-document-outline-button =
-    .title = Tampilkan Kerangka Dokumen (klik ganda untuk membentangkan/menciutkan semua item)
-pdfjs-document-outline-button-label = Kerangka Dokumen
-pdfjs-attachments-button =
-    .title = Tampilkan Lampiran
-pdfjs-attachments-button-label = Lampiran
-pdfjs-layers-button =
-    .title = Tampilkan Lapisan (klik ganda untuk mengatur ulang semua lapisan ke keadaan baku)
-pdfjs-layers-button-label = Lapisan
-pdfjs-thumbs-button =
-    .title = Tampilkan Miniatur
-pdfjs-thumbs-button-label = Miniatur
 pdfjs-current-outline-item-button =
     .title = Cari Butir Ikhtisar Saat Ini
 pdfjs-current-outline-item-button-label = Butir Ikhtisar Saat Ini
@@ -207,18 +178,14 @@ pdfjs-additional-layers = Lapisan Tambahan
 
 # Variables:
 #   $page (Number) - the page number
-pdfjs-thumb-page-title =
-    .title = Laman { $page }
-# Variables:
-#   $page (Number) - the page number
 pdfjs-thumb-page-canvas =
     .aria-label = Miniatur Laman { $page }
 
 ## Find panel button title and messages
 
 pdfjs-find-input =
-    .title = Temukan
     .placeholder = Temukan di dokumen…
+    .title = Temukan
 pdfjs-find-previous-button =
     .title = Temukan kata sebelumnya
 pdfjs-find-previous-button-label = Sebelumnya
@@ -267,10 +234,6 @@ pdfjs-rendering-error = Galat terjadi saat merender laman.
 
 ## Annotations
 
-# Variables:
-#   $date (Date) - the modification date of the annotation
-#   $time (Time) - the modification time of the annotation
-pdfjs-annotation-date-string = { $date }, { $time }
 # .alt: This is used as a tooltip.
 # Variables:
 #   $type (String) - an annotation type from a list defined in the PDF spec
@@ -294,9 +257,13 @@ pdfjs-web-fonts-disabled = Font web dinonaktifkan: tidak dapat menggunakan font 
 
 pdfjs-editor-free-text-button =
     .title = Teks
+pdfjs-editor-color-picker-free-text-input =
+    .title = Ubah warna teks
 pdfjs-editor-free-text-button-label = Teks
 pdfjs-editor-ink-button =
     .title = Gambar
+pdfjs-editor-color-picker-ink-input =
+    .title = Ubah warna gambar
 pdfjs-editor-ink-button-label = Gambar
 pdfjs-editor-stamp-button =
     .title = Tambah atau edit gambar
@@ -305,9 +272,13 @@ pdfjs-editor-highlight-button =
     .title = Sorot
 pdfjs-editor-highlight-button-label = Sorot
 pdfjs-highlight-floating-button1 =
-    .title = Sorot
     .aria-label = Sorot
+    .title = Sorot
 pdfjs-highlight-floating-button-label = Sorot
+pdfjs-comment-floating-button =
+    .aria-label = Komentar
+    .title = Komentar
+pdfjs-comment-floating-button-label = Komentar
 pdfjs-editor-signature-button =
     .title = Tambahkan tanda tangan
 pdfjs-editor-signature-button-label = Tambahkan tanda tangan
@@ -370,20 +341,12 @@ pdfjs-editor-add-saved-signature-button =
 pdfjs-free-text2 =
     .aria-label = Editor Teks
     .default-content = Mulai mengetik…
-pdfjs-free-text =
-    .aria-label = Editor Teks
-pdfjs-free-text-default-content = Mulai mengetik…
-pdfjs-ink =
-    .aria-label = Editor Gambar
-pdfjs-ink-canvas =
-    .aria-label = Gambar yang dibuat pengguna
 
 ## Alt-text dialog
 
 pdfjs-editor-alt-text-button-label = Teks alternatif
 pdfjs-editor-alt-text-edit-button =
     .aria-label = Edit teks alternatif
-pdfjs-editor-alt-text-edit-button-label = Edit teks alternatif
 pdfjs-editor-alt-text-dialog-label = Pilih opsi
 pdfjs-editor-alt-text-dialog-description = Teks alternatif membantu ketika orang tidak dapat melihat gambar atau ketika tidak termuat.
 pdfjs-editor-alt-text-add-description-label = Tambahkan deskripsi
@@ -403,14 +366,6 @@ pdfjs-editor-alt-text-button =
 ## Editor resizers
 ## This is used in an aria label to help to understand the role of the resizer.
 
-pdfjs-editor-resizer-label-top-left = Pojok kiri atas — ubah ukuran
-pdfjs-editor-resizer-label-top-middle = Tengah atas — ubah ukuran
-pdfjs-editor-resizer-label-top-right = Pojok kanan atas — ubah ukuran
-pdfjs-editor-resizer-label-middle-right = Kanan tengah — ubah ukuran
-pdfjs-editor-resizer-label-bottom-right = Pojok kanan bawah — ubah ukuran
-pdfjs-editor-resizer-label-bottom-middle = Tengah bawah — ubah ukuran
-pdfjs-editor-resizer-label-bottom-left = Pojok kiri bawah — ubah ukuran
-pdfjs-editor-resizer-label-middle-left = Kiri tengah — ubah ukuran
 pdfjs-editor-resizer-top-left =
     .aria-label = Pojok kiri atas — ubah ukuran
 pdfjs-editor-resizer-top-middle =
@@ -504,17 +459,18 @@ pdfjs-editor-alt-text-settings-dialog-label = Pengaturan teks alternatif gambar
 pdfjs-editor-alt-text-settings-automatic-title = Teks alternatif otomatis
 pdfjs-editor-alt-text-settings-create-model-button-label = Buat teks alternatif secara otomatis
 pdfjs-editor-alt-text-settings-create-model-description = Menyarankan deskripsi untuk membantu orang yang tidak dapat melihat gambar atau ketika gambar tidak termuat.
-# Variables:
-#   $totalSize (Number) - the total size (in MB) of the AI model.
-pdfjs-editor-alt-text-settings-download-model-label = Model AI teks alternatif ({ $totalSize } MB)
-pdfjs-editor-alt-text-settings-ai-model-description = Berjalan secara lokal di perangkat Anda sehingga data Anda tetap pribadi. Diperlukan untuk teks alternatif otomatis.
-pdfjs-editor-alt-text-settings-delete-model-button = Hapus
-pdfjs-editor-alt-text-settings-download-model-button = Unduh
-pdfjs-editor-alt-text-settings-downloading-model-button = Mengunduh…
 pdfjs-editor-alt-text-settings-editor-title = Editor teks alternatif
 pdfjs-editor-alt-text-settings-show-dialog-button-label = Tampilkan editor teks alternatif segera saat menambahkan gambar
 pdfjs-editor-alt-text-settings-show-dialog-description = Membantu Anda memastikan semua gambar Anda memiliki teks alternatif.
 pdfjs-editor-alt-text-settings-close-button = Tutup
+
+## Accessibility labels (announced by screen readers) for objects added to the editor.
+
+pdfjs-editor-highlight-added-alert = Sorotan ditambahkan
+pdfjs-editor-freetext-added-alert = Teks ditambahkan
+pdfjs-editor-ink-added-alert = Gambar ditambahkan
+pdfjs-editor-stamp-added-alert = Citra ditambahkan
+pdfjs-editor-signature-added-alert = Tanda tangan ditambahkan
 
 ## "Annotations removed" bar
 
@@ -580,6 +536,8 @@ pdfjs-editor-add-signature-save-checkbox = Simpan tanda tangan
 pdfjs-editor-add-signature-save-warning-message = Anda telah mencapai batas 5 tanda tangan tersimpan. Hapus untuk menyimpan lebih banyak.
 pdfjs-editor-add-signature-image-upload-error-title = Tidak dapat mengunggah gambar
 pdfjs-editor-add-signature-image-upload-error-description = Periksa sambungan jaringan Anda atau coba gambar lain.
+pdfjs-editor-add-signature-image-no-data-error-title = Tak bisa mengonversi citra ini menjadi tanda tangan
+pdfjs-editor-add-signature-image-no-data-error-description = Coba unggah gambar lain.
 pdfjs-editor-add-signature-error-close-button = Tutup
 
 ## Dialog buttons

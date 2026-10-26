@@ -71,36 +71,16 @@ pdfjs-document-properties-button =
 pdfjs-document-properties-button-label = Dokumenteienskappe…
 pdfjs-document-properties-file-name = Lêernaam:
 pdfjs-document-properties-file-size = Lêergrootte:
-# Variables:
-#   $size_kb (Number) - the PDF file size in kilobytes
-#   $size_b (Number) - the PDF file size in bytes
-pdfjs-document-properties-kb = { $size_kb } kG ({ $size_b } grepe)
-# Variables:
-#   $size_mb (Number) - the PDF file size in megabytes
-#   $size_b (Number) - the PDF file size in bytes
-pdfjs-document-properties-mb = { $size_mb } MG ({ $size_b } grepe)
 pdfjs-document-properties-title = Titel:
 pdfjs-document-properties-author = Outeur:
 pdfjs-document-properties-subject = Onderwerp:
 pdfjs-document-properties-keywords = Sleutelwoorde:
 pdfjs-document-properties-creation-date = Skeppingsdatum:
 pdfjs-document-properties-modification-date = Wysigingsdatum:
-# Variables:
-#   $date (Date) - the creation/modification date of the PDF file
-#   $time (Time) - the creation/modification time of the PDF file
-pdfjs-document-properties-date-string = { $date }, { $time }
 pdfjs-document-properties-creator = Skepper:
 pdfjs-document-properties-producer = PDF-vervaardiger:
 pdfjs-document-properties-version = PDF-weergawe:
 pdfjs-document-properties-page-count = Aantal bladsye:
-
-## Variables:
-##   $width (Number) - the width of the (current) page
-##   $height (Number) - the height of the (current) page
-##   $unit (String) - the unit of measurement of the (current) page
-##   $name (String) - the name of the (current) page
-##   $orientation (String) - the orientation of the (current) page
-
 
 ##
 
@@ -118,18 +98,6 @@ pdfjs-printing-not-ready = Waarskuwing: Die PDF is nog nie volledig gelaai vir d
 
 ## Tooltips and alt text for side panel toolbar buttons
 
-pdfjs-toggle-sidebar-button =
-    .title = Sypaneel aan/af
-pdfjs-toggle-sidebar-button-label = Sypaneel aan/af
-pdfjs-document-outline-button =
-    .title = Wys dokumentskema (dubbelklik om alle items oop/toe te vou)
-pdfjs-document-outline-button-label = Dokumentoorsig
-pdfjs-attachments-button =
-    .title = Wys aanhegsels
-pdfjs-attachments-button-label = Aanhegsels
-pdfjs-thumbs-button =
-    .title = Wys duimnaels
-pdfjs-thumbs-button-label = Duimnaels
 pdfjs-findbar-button =
     .title = Soek in dokument
 pdfjs-findbar-button-label = Vind
@@ -138,18 +106,14 @@ pdfjs-findbar-button-label = Vind
 
 # Variables:
 #   $page (Number) - the page number
-pdfjs-thumb-page-title =
-    .title = Bladsy { $page }
-# Variables:
-#   $page (Number) - the page number
 pdfjs-thumb-page-canvas =
     .aria-label = Duimnael van bladsy { $page }
 
 ## Find panel button title and messages
 
 pdfjs-find-input =
-    .title = Vind
     .placeholder = Soek in dokument…
+    .title = Vind
 pdfjs-find-previous-button =
     .title = Vind die vorige voorkoms van die frase
 pdfjs-find-previous-button-label = Vorige
@@ -171,9 +135,6 @@ pdfjs-page-scale-actual = Werklike grootte
 # Variables:
 #   $scale (Number) - percent value for page scale
 pdfjs-page-scale-percent = { $scale }%
-
-## PDF page
-
 
 ## Loading indicator messages
 
@@ -200,63 +161,3 @@ pdfjs-password-invalid = Ongeldige wagwoord. Probeer gerus weer.
 pdfjs-password-ok-button = OK
 pdfjs-password-cancel-button = Kanselleer
 pdfjs-web-fonts-disabled = Webfonte is gedeaktiveer: kan nie PDF-fonte wat ingebed is, gebruik nie.
-
-## Editing
-
-
-## Default editor aria labels
-
-
-## Remove button for the various kind of editor.
-
-
-##
-
-
-## Alt-text dialog
-
-
-## Editor resizers
-## This is used in an aria label to help to understand the role of the resizer.
-
-
-## Color picker
-
-
-## Show all highlights
-## This is a toggle button to show/hide all the highlights.
-
-
-## New alt-text dialog
-## Group note for entire feature: Alternative text (alt text) helps when people can't see the image. This feature includes a tool to create alt text automatically using an AI model that works locally on the user's device to preserve privacy.
-
-
-## Image alt-text settings
-
-
-## "Annotations removed" bar
-
-
-## Add a signature dialog
-
-
-## Tab names
-
-
-## Tab panels
-
-
-## Controls
-
-
-## Dialog buttons
-
-
-## Main menu for adding/removing signatures
-
-
-## Editor toolbar
-
-
-## Edit signature description dialog
-
