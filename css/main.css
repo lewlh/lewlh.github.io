@@ -1391,7 +1391,7 @@ pre code {
   vertical-align: middle;
 }
 .links-of-author a::before {
-  background: #e0958a;
+  background: #900;
   display: inline-block;
   margin-right: 3px;
   transform: translateY(-2px);
@@ -2825,4 +2825,74 @@ header.header {
 }
 .sub-menu .menu-item {
   display: inline-block;
+}
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+@supports (overflow-x: clip) {
+  html,
+  body {
+    overflow-x: clip;
+  }
+}
+.main-inner,
+.post-block,
+.post-body {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+}
+.katex-display {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.5em 0;
+  margin: 1em 0;
+}
+.katex-display::-webkit-scrollbar {
+  height: 4px;
+}
+.katex-display::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 2px;
+}
+.katex {
+  max-width: 100%;
+  text-rendering: auto;
+}
+figure.highlight {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+figure.highlight table {
+  margin: 0;
+  width: auto;
+  max-width: 100%;
+}
+figure.highlight .code pre {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+pre {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.table-container,
+.post-body table {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.post-body {
+  overflow-wrap: break-word;
+  overflow-wrap: break-word;
 }

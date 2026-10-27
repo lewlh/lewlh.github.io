@@ -39,7 +39,7 @@
 <meta property="og:description" content="最近研读了发表在《Machine Intelligence Research》(MIR) 上的最新长视频理解论文《Training-free Dense Video Captioning with Large-scale Pretrained Models》（提出 FreeDVC 框架）。 对于从事后端或 AI 基础设施开发的软件工程师来说，视频理解一直是一个“门槛极高”的重算法领域：传统的密集视">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-10-27T02:15:00.000Z">
-<meta property="article:modified_time" content="2026-10-27T04:23:32.129Z">
+<meta property="article:modified_time" content="2026-10-27T05:21:38.519Z">
 <meta property="article:author" content="豪豪">
 <meta property="article:tag" content="FreeDVC">
 <meta property="article:tag" content="向量数据库">
@@ -236,7 +236,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-10-27 10:15:00 / 修改时间：12:23:32" itemprop="dateCreated datePublished" datetime="2026-10-27T10:15:00+08:00">2026-10-27</time>
+      <time title="创建时间：2026-10-27 10:15:00 / 修改时间：13:21:38" itemprop="dateCreated datePublished" datetime="2026-10-27T10:15:00+08:00">2026-10-27</time>
     </span>
 
   
@@ -300,7 +300,7 @@
 </ul>
 <hr>
 <h2 id="02-FreeDVC-的破局之道：积木式多大模型协同流水线">02. FreeDVC 的破局之道：积木式多大模型协同流水线</h2>
-<p>FreeDVC 没有试图设计一套极其复杂的单体端到端网络，而是采用了**“解耦分工、各司其职”**的模块化设计。整套框架分为三个核心模块：</p>
+<p>FreeDVC 没有试图设计一套极其复杂的单体端到端网络，而是采用了 <strong>“解耦分工、各司其职”</strong> 的模块化设计。整套框架分为三个核心模块：</p>
 <pre><code class="highlight mermaid">flowchart LR
     A[&quot;长视频 (画面 + 语音)&quot;] --&gt; B[&quot;模块 1: 镜头切分与初稿&lt;br/&gt;TransNet + VLM&quot;]
     A --&gt; C[&quot;模块 2: 语音转写与融合&lt;br/&gt;Whisper + LLM&quot;]
@@ -325,7 +325,7 @@
 <h3 id="3-图文检索对齐模块（Caption-Retrieval-Alignment-Module）">3. 图文检索对齐模块（Caption Retrieval Alignment Module）</h3>
 <p>这是整套流水线最精妙的 <strong>“防幻觉质检员”</strong>。</p>
 <ul>
-<li><strong>痛点</strong>：视频常有**“音画不同步”**——比如博主在 00:30 说“接下来我们热锅倒油”，但其实在 00:45 手才碰到油壶。如果 LLM 盲目相信语音，生成的字幕和时间戳就会错位（产生伪事件）。</li>
+<li><strong>痛点</strong>：视频常有 <strong>“音画不同步”</strong> ——比如博主在 00:30 说“接下来我们热锅倒油”，但其实在 00:45 手才碰到油壶。如果 LLM 盲目相信语音，生成的字幕和时间戳就会错位（产生伪事件）。</li>
 <li><strong>做法</strong>：引入图文特征对齐模型（如 <code>CLIP</code>），计算 LLM 生成的事件解说词向量与对应视频帧图像向量的余弦相似度：
 <ul>
 <li><strong>低置信度过滤</strong>：如果整段画面的相似度低于阈值（说明博主纯在闲聊，画面上完全没发生这回事），直接过滤淘汰。</li>
