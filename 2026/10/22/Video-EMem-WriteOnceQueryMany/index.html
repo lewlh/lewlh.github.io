@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在多模态长视频大模型领域，我们通常会面临一个非常棘手的矛盾：视频太长，上下文塞不下；即便勉强塞进去，每次提问都要重复扫描整部视频，算力和显存开销高得令人无法接受。 近期由**浙江大学与微软亚洲研究院（MSRA）**团队联合发布了一篇非常亮眼的前沿工作——《Write Once, Query Many: Evolving Compact Reusable Memory for Long Videos">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】长视频大模型的“读写分离”革命：解析 Video-EMem 与自进化架构 VideoEvoHarness">
+<meta property="og:url" content="https://lewlh.github.io/2026/10/22/Video-EMem-WriteOnceQueryMany/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在多模态长视频大模型领域，我们通常会面临一个非常棘手的矛盾：视频太长，上下文塞不下；即便勉强塞进去，每次提问都要重复扫描整部视频，算力和显存开销高得令人无法接受。 近期由**浙江大学与微软亚洲研究院（MSRA）**团队联合发布了一篇非常亮眼的前沿工作——《Write Once, Query Many: Evolving Compact Reusable Memory for Long Videos">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-22T07:08:00.000Z">
+<meta property="article:modified_time" content="2026-10-27T07:15:11.618Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="MyScaleDB">
+<meta property="article:tag" content="Video LLM">
+<meta property="article:tag" content="Video-EMem">
+<meta property="article:tag" content="VideoEvoHarness">
+<meta property="article:tag" content="向量数据库">
+<meta property="article:tag" content="智能体自进化">
+<meta property="article:tag" content="系统工程">
+<meta property="article:tag" content="视频大模型">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/2026/10/22/Video-EMem-WriteOnceQueryMany/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/2026/10/22/Video-EMem-WriteOnceQueryMany/","path":"2026/10/22/Video-EMem-WriteOnceQueryMany/","title":"【论文分享】长视频大模型的“读写分离”革命：解析 Video-EMem 与自进化架构 VideoEvoHarness"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】长视频大模型的“读写分离”革命：解析 Video-EMem 与自进化架构 VideoEvoHarness | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">139</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">44</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%A1%8C%E4%B8%9A%E7%97%9B%E7%82%B9%EF%BC%9A%E4%BC%A0%E7%BB%9F%E9%95%BF%E8%A7%86%E9%A2%91%E9%97%AE%E7%AD%94%E7%9A%84%E7%AE%97%E5%8A%9B%E6%B3%A5%E6%BD%AD"><span class="nav-text">01. 行业痛点：传统长视频问答的算力泥潭</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%9A%B4%E5%8A%9B%E6%8A%BD%E5%B8%A7%E8%BE%93%E5%85%A5%EF%BC%88Dense-Frame-Input%EF%BC%89"><span class="nav-text">1. 暴力抽帧输入（Dense Frame Input）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BC%A0%E7%BB%9F%E6%99%BA%E8%83%BD%E4%BD%93%E6%A3%80%E7%B4%A2%EF%BC%88Agentic-Search%EF%BC%89"><span class="nav-text">2. 传统智能体检索（Agentic Search）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%EF%BC%9ACQRS-%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E4%B8%8E-Memory-%E5%AD%98%E5%82%A8%E6%A8%A1%E5%9E%8B"><span class="nav-text">02. 系统设计：CQRS 读写分离与 Memory 存储模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Memory-%E4%B8%8D%E6%98%AF%E6%AD%BB%E6%9D%BF%E7%9A%84%E8%A1%A8%E6%A0%BC%EF%BC%8C%E8%80%8C%E6%98%AF%E2%80%9C%E6%97%B6%E9%97%B4%E9%94%9A%E5%AE%9A%E7%9A%84%E6%84%9F%E7%9F%A5%E8%A7%82%E5%AF%9F%E2%80%9D"><span class="nav-text">Memory 不是死板的表格，而是“时间锚定的感知观察”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6%E5%89%96%E6%9E%90%EF%BC%9AWriter-%E6%80%8E%E4%B9%88%E5%86%99%EF%BC%9FReader-%E6%80%8E%E4%B9%88%E6%9F%A5%EF%BC%9F"><span class="nav-text">03. 核心机制剖析：Writer 怎么写？Reader 怎么查？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Reader-%E7%BB%9D%E4%B8%8D%E6%98%AF%E6%8A%8A%E6%95%B4%E4%B8%AA-Memory-%E5%A1%9E%E8%BF%9B-Prompt"><span class="nav-text">1. Reader 绝不是把整个 Memory 塞进 Prompt</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%8F%AC%E5%9B%9E%E7%8E%87%E7%94%9F%E5%91%BD%E7%BA%BF%EF%BC%9AWriter-%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E4%B8%8D%E6%BC%8F%E6%8E%89%E7%BB%86%E8%8A%82%EF%BC%9F"><span class="nav-text">2. 召回率生命线：Writer 如何保证不漏掉细节？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E7%81%B5%E9%AD%82%E6%9C%BA%E5%88%B6%EF%BC%9AVideoEvoHarness-%E4%B8%8E%E8%A7%A3%E8%80%A6%E8%87%AA%E8%BF%9B%E5%8C%96"><span class="nav-text">04. 灵魂机制：VideoEvoHarness 与解耦自进化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%A8%A1%E5%9E%8B%E6%9D%83%E9%87%8D%E5%AE%8C%E5%85%A8%E5%86%BB%E7%BB%93%EF%BC%88Frozen%EF%BC%89"><span class="nav-text">1. 模型权重完全冻结（Frozen）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%A7%A3%E8%80%A6%E7%9A%84%E5%8F%8D%E9%A6%88%E5%9B%9E%E8%B7%AF%EF%BC%88Decoupled-Feedback-Loops%EF%BC%89"><span class="nav-text">2. 解耦的反馈回路（Decoupled Feedback Loops）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Coding-Agent-%E7%9A%84%E8%87%AA%E5%8A%A8%E5%8F%98%E5%BC%82%E4%B8%8E%E5%9B%9E%E6%BB%9A"><span class="nav-text">3. Coding Agent 的自动变异与回滚</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E5%AE%9E%E9%AA%8C%E6%95%B0%E6%8D%AE%EF%BC%9A%E5%8F%8D%E8%B6%85%E2%80%9C%E6%9A%B4%E5%8A%9B%E5%96%82-2048-%E5%B8%A7%E2%80%9D%E7%9A%84%E6%83%8A%E4%BA%BA%E7%BB%93%E6%9E%9C"><span class="nav-text">05. 实验数据：反超“暴力喂 2048 帧”的惊人结果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E6%B7%B1%E5%BA%A6%E6%80%9D%E8%BE%A8%EF%BC%9A%E5%AD%A6%E6%9C%AF%E5%8E%9F%E5%9E%8B%E8%B5%B0%E5%90%91%E5%B7%A5%E4%B8%9A%E8%90%BD%E5%9C%B0%E7%9A%84%E5%B7%A5%E7%A8%8B%E6%94%B9%E9%80%A0"><span class="nav-text">06. 深度思辨：学术原型走向工业落地的工程改造</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%BE%A8-1%EF%BC%9ACoding-Agent-%E7%BA%BF%E4%B8%8A%E8%BF%90%E8%A1%8C%E6%97%B6%E7%BB%9D%E5%AF%B9%E4%B8%8D%E8%83%BD%E5%8A%A8%E6%80%81%E5%86%99%E4%BB%A3%E7%A0%81"><span class="nav-text">思辨 1：Coding Agent 线上运行时绝对不能动态写代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%BE%A8-2%EF%BC%9A%E7%BC%BA%E5%A4%B1-Embedding-%E7%8E%AF%E8%8A%82%EF%BC%9F%E5%BC%95%E5%85%A5-MyScaleDB-%E5%8D%87%E7%BA%A7%E4%B8%BA%E6%B5%B7%E9%87%8F%E6%B2%89%E7%9D%A1%E8%A7%86%E9%A2%91%E6%A3%80%E7%B4%A2"><span class="nav-text">思辨 2：缺失 Embedding 环节？引入 MyScaleDB 升级为海量沉睡视频检索</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%95%86%E4%B8%9A%E7%BA%A7%E5%A4%9A%E6%A8%A1%E6%80%81-Video-RAG-%E8%90%BD%E5%9C%B0%E6%9E%B6%E6%9E%84"><span class="nav-text">商业级多模态 Video RAG 落地架构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Coding-Agent-%E5%9C%A8%E6%AD%A4%E6%9E%B6%E6%9E%84%E4%B8%8B%E7%9A%84%E8%BF%9B%E5%8C%96%E6%96%B9%E5%90%91"><span class="nav-text">Coding Agent 在此架构下的进化方向</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E6%80%BB%E7%BB%93%E4%B8%8E%E5%B1%95%E6%9C%9B"><span class="nav-text">07. 总结与展望</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">44</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">139</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/22/Video-EMem-WriteOnceQueryMany/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】长视频大模型的“读写分离”革命：解析 Video-EMem 与自进化架构 VideoEvoHarness | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】长视频大模型的“读写分离”革命：解析 Video-EMem 与自进化架构 VideoEvoHarness
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-22 15:08:00" itemprop="dateCreated datePublished" datetime="2026-10-22T15:08:00+08:00">2026-10-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-10-27 15:15:11" itemprop="dateModified" datetime="2026-10-27T15:15:11+08:00">2026-10-27</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>13 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在多模态长视频大模型领域，我们通常会面临一个非常棘手的矛盾：<strong>视频太长，上下文塞不下；即便勉强塞进去，每次提问都要重复扫描整部视频，算力和显存开销高得令人无法接受。</strong></p>
+<p>近期由**浙江大学与微软亚洲研究院（MSRA）**团队联合发布了一篇非常亮眼的前沿工作——《Write Once, Query Many: Evolving Compact Reusable Memory for Long Videos》（引入了 <strong>Video-EMem</strong> 体系），并在开源社区提供了配套的自进化脚手架框架 <strong>VideoEvoHarness</strong>。</p>
+<p>这篇论文最吸引人的地方在于，它并没有一味追求把模型参数堆得更大，而是从<strong>经典软件架构的“读写分离（CQRS）”思想</strong>切入，提出了极具工程智慧的解决思路：</p>
+<blockquote>
+<p><strong>“一次写入，多次查询（Write Once, Query Many）：长视频只做一次轻量化感知编译，提炼为体积削减 99.86% 的多尺度记忆；后续面对成百上千个未知问题，AI 绝不再去碰原视频，只凭精炼记忆秒级作答；更妙的是，整套记笔记与查笔记的 Python 策略代码，还能通过内置的 Coding Agent 自我演变进化！”</strong></p>
+</blockquote>
+<p>在这篇博客中，我们不仅会深入拆解 Video-EMem 的核心架构、双轨生成与召回率保障机制，还会结合工程师视角的深度思辨，探讨<strong>为什么学术界的自进化沙箱在生产线上不能直接动态跑</strong>，以及<strong>如何通过补齐 Embedding 环节结合 MyScaleDB 向量数据库，将这一单视频方案推向海量工业级沉睡视频流的检索实战</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Write Once, Query Many: Evolving Compact Reusable Memory for Long Videos<br>
+<strong>作者团队</strong>：Kerui Chen, Jinglu Wang, Yun Wang, Xinjiang Wang, Yan Lu (浙江大学, 微软亚洲研究院 MSRA)<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2610.24537" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2610.24537</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" href="https://arxiv.org/html/2610.24537" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2610.24537</a><br>
+<strong>开源代码库</strong>：<a target="_blank" href="https://github.com/lewlh/VideoEvoHarness" rel="external nofollow noreferrer noopener">https://github.com/lewlh/VideoEvoHarness</a> (原版仓库: <a target="_blank" href="https://github.com/Wei-Xin-Xu/VideoEvoHarness" rel="external nofollow noreferrer noopener">Wei-Xin-Xu/VideoEvoHarness</a>)</p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-行业痛点：传统长视频问答的算力泥潭">01. 行业痛点：传统长视频问答的算力泥潭</h2>
+<p>在让多模态大模型（MLLM）理解 1~2 小时长视频时，主流方案主要有两条路，但都在工程落地上面临严峻挑战：</p>
+<h3 id="1-暴力抽帧输入（Dense-Frame-Input）">1. 暴力抽帧输入（Dense Frame Input）</h3>
+<ul>
+<li><strong>做法</strong>：不管三七二十一，把视频抽出 1024 或 2048 帧，全部塞进模型的超长上下文窗口（Context Window）。</li>
+<li><strong>代价</strong>：
+<ol>
+<li>显存开销与 Token 成本极其昂贵；</li>
+<li>触发严重的 <strong>Lost-in-the-middle（中间遗忘效应）</strong>，几千张图片输入后，模型极易产生注意力涣散，关键线索被海量冗余帧淹没。</li>
+</ol>
+</li>
+</ul>
+<h3 id="2-传统智能体检索（Agentic-Search）">2. 传统智能体检索（Agentic Search）</h3>
+<ul>
+<li><strong>做法</strong>：让 AI 像看录像带一样，根据当前提问反复倒带、跳转播放、放大细节。</li>
+<li><strong>代价</strong>：用户问第 1 个问题，跑了 60 秒的视频推理；用户问第 2 个问题，<strong>又要把整套视频检索流水线重新跑一遍</strong>！计算成本随提问次数线性叠加，线上 QPS 根本做不高。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">【传统模式：提问绑定计算】</span><br><span class="line">用户问第 1 题 ──▶ 重新加载数万帧视频 ──▶ GPU满载运算 ──▶ 耗时 40s</span><br><span class="line">用户问第 2 题 ──▶ 又把数万帧重新扫一遍 ──▶ GPU再次满载 ──▶ 耗时 40s (成本无法摊薄)</span><br><span class="line"></span><br><span class="line">【Video-EMem 模式：读写分离】</span><br><span class="line">视频接入 ──▶ Writer 一次性写入 ──▶ 生成轻量级 Memory (体积减少 99.86%)</span><br><span class="line">用户问 N 次 ──▶ Reader 直接查轻量 Memory ──▶ 秒级回答、开销忽略不计</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="02-系统设计：CQRS-读写分离与-Memory-存储模型">02. 系统设计：CQRS 读写分离与 Memory 存储模型</h2>
+<p>Video-EMem 的核心架构将“<strong>感知录入</strong>”与“<strong>问答检索</strong>”彻底解耦：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────────────────────────────────────┐</span><br><span class="line">│               离线阶段: Writer Pipeline        │</span><br><span class="line">│   (仅执行一次，提取时序因果并压缩 99.86% 存储)   │</span><br><span class="line">└──────────────────────┬───────────────────────┘</span><br><span class="line">                       │</span><br><span class="line">                       ▼</span><br><span class="line">            ┌──────────────────────┐</span><br><span class="line">            │     Memory Store     │</span><br><span class="line">            │ (时间锚定多尺度图文索引) │</span><br><span class="line">            └──────────┬───────────┘</span><br><span class="line">                       │ 只读访问</span><br><span class="line">                       ▼</span><br><span class="line">┌──────────────────────────────────────────────┐</span><br><span class="line">│               在线阶段: Reader Pipeline        │</span><br><span class="line">│    (支持无限次并发查询，两阶段定位秒级出答案)     │</span><br><span class="line">└──────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+<h3 id="Memory-不是死板的表格，而是“时间锚定的感知观察”">Memory 不是死板的表格，而是“时间锚定的感知观察”</h3>
+<p>在 Memory 存储层，论文摒弃了容易受限的硬编码关系表，设计了一种**“自由文本（Free-form Text）+ 稀疏关键帧（Sparse Keyframes）”**的多尺度混合存储模型：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;video_id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vid_2026_demo&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;metadata&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;duration_sec&quot;</span><span class="punctuation">:</span> <span class="number">7200</span><span class="punctuation">,</span> <span class="attr">&quot;compression_ratio&quot;</span><span class="punctuation">:</span> <span class="string">&quot;99.86%&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;timeline_observations&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;scale&quot;</span><span class="punctuation">:</span> <span class="string">&quot;coarse&quot;</span><span class="punctuation">,</span> <span class="comment">// 宏观粗粒度（长跨度主线叙事）</span></span><br><span class="line">      <span class="attr">&quot;start_time&quot;</span><span class="punctuation">:</span> <span class="number">0.0</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;end_time&quot;</span><span class="punctuation">:</span> <span class="number">600.0</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;semantic_summary&quot;</span><span class="punctuation">:</span> <span class="string">&quot;团队在会议室讨论第三季度预算方案，张总指出供应链成本过高。&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;scale&quot;</span><span class="punctuation">:</span> <span class="string">&quot;fine&quot;</span><span class="punctuation">,</span> <span class="comment">// 微观细粒度（关键事件切片）</span></span><br><span class="line">      <span class="attr">&quot;start_time&quot;</span><span class="punctuation">:</span> <span class="number">142.5</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;end_time&quot;</span><span class="punctuation">:</span> <span class="number">155.0</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;semantic_summary&quot;</span><span class="punctuation">:</span> <span class="string">&quot;李工走到白板前画了一张架构图，右下角标出了核心服务器 IP 列表。&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;sparse_keyframes&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;timestamp&quot;</span><span class="punctuation">:</span> <span class="number">148.0</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;image_ref&quot;</span><span class="punctuation">:</span> <span class="string">&quot;storage/keyframes/vid_demo_f4275.jpg&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;salient_entities&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;白板&quot;</span><span class="punctuation">,</span> <span class="string">&quot;架构图&quot;</span><span class="punctuation">,</span> <span class="string">&quot;文字表格&quot;</span><span class="punctuation">]</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>为什么能缩小 99.86%？</strong> 绝大部分平缓没有信息增量的视频帧被自然语言以极高密度概括；只有在检测到<strong>显著场景切换</strong>或<strong>高密度微观视觉细节</strong>时，系统才保留一张稀疏关键帧。</li>
+</ul>
+<hr>
+<h2 id="03-核心机制剖析：Writer-怎么写？Reader-怎么查？">03. 核心机制剖析：Writer 怎么写？Reader 怎么查？</h2>
+<h3 id="1-Reader-绝不是把整个-Memory-塞进-Prompt">1. Reader 绝不是把整个 Memory 塞进 Prompt</h3>
+<p>很多初读者容易产生误解，以为问答时是把上述整份 JSON 当成 Prompt 输入给大模型。<strong>这是完全错误的！</strong><br>
+若视频长达数小时，整份 JSON 依然很长。Reader 实际上是一个<strong>两阶段的查字典流水线</strong>：</p>
+<ol>
+<li><strong>证据定位（Evidence Localization）</strong>：先查粗粒度目录，将提问范围锁定在特定的局部时间区间，再从细粒度记录中精准抽出 <strong>2~3 条相关描述</strong> 与 <strong>1~2 张目标关键帧</strong>；</li>
+<li><strong>证据利用与推理（Evidence Utilization）</strong>：最终进入大模型 Prompt 的，<strong>仅仅是被精准切片出来的几行证据和目标图片</strong>。</li>
+</ol>
+<p>因此，每次问答所消耗的上下文极短，几乎不产生多余的 Token 浪费，保证了毫秒级至秒级的响应。</p>
+<h3 id="2-召回率生命线：Writer-如何保证不漏掉细节？">2. 召回率生命线：Writer 如何保证不漏掉细节？</h3>
+<p>在完全未知用户未来会提什么问题的前提下，如果 Writer 漏记了关键信息，后续搜索召回率（Recall）必定为 0。Video-EMem 通过四大手段兜底：</p>
+<ul>
+<li><strong>多尺度重叠切片（Overlapping Multi-scale）</strong>：微观时间窗之间保留时序重叠，防止关键动作正好在切片边界处被生硬切断；</li>
+<li><strong>双轨分离感知</strong>：<strong>Text-Writer</strong> 负责用自然语言搭建因果与语义骨架，<strong>Image-Writer</strong> 基于视觉显著性抽取稀疏代表帧锚定视觉实体；</li>
+<li><strong>Consolidation 融合去重</strong>：利用 LLM 算子进行时序事件对齐、代词消歧与重叠去噪，保证高信噪比；</li>
+<li><strong>Free-form Text 开放性</strong>：拒绝死板的 Schema，任何微小细节（如“远处有狗叫”、“桌角有半杯水”）都能被自由文本自然记录。</li>
+</ul>
+<hr>
+<h2 id="04-灵魂机制：VideoEvoHarness-与解耦自进化">04. 灵魂机制：VideoEvoHarness 与解耦自进化</h2>
+<p>为什么这篇论文能引起开源社区的巨大反响？因为它的核心不是手工调出来的死板 Prompt，而是引入了 <strong>VideoEvoHarness 自进化治理框架</strong>。</p>
+<h3 id="1-模型权重完全冻结（Frozen）">1. 模型权重完全冻结（Frozen）</h3>
+<p>重新微调千亿多模态模型成本过高，且容易导致通用能力遗忘。VideoEvoHarness 的核心哲学是：<strong>模型权重不动，只让外部编排算子的代码与 Prompt 自我重构！</strong></p>
+<h3 id="2-解耦的反馈回路（Decoupled-Feedback-Loops）">2. 解耦的反馈回路（Decoupled Feedback Loops）</h3>
+<p><strong>严禁使用具体的业务问答题去指导 Writer 记笔记！</strong> 否则 Writer 会严重过拟合测试集。论文设计了两个完全独立的诊断机制：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">【Writer 诊断: 独立于具体问答】</span><br><span class="line"> ├── Source Coverage (覆盖度): 原视频有场景突变/剧烈动作，Memory 里是否漏记？</span><br><span class="line"> └── Source Fidelity (保真度): Memory 里写的文字，反向比对视频帧是否出现模型幻觉？</span><br><span class="line"></span><br><span class="line">【Reader 诊断: 业务问答驱动】</span><br><span class="line"> ├── 定位错误 (Localization Failure): 找错了时间范围，没捞出正确证据切片。</span><br><span class="line"> └── 利用错误 (Utilization Failure): 证据捞对了，但最后 MLLM 推理答错了。</span><br></pre></td></tr></table></figure>
+<h3 id="3-Coding-Agent-的自动变异与回滚">3. Coding Agent 的自动变异与回滚</h3>
+<p>当诊断器跑出问题后，内置的 <strong>Coding Agent</strong> 介入：</p>
+<ol>
+<li>自动修改 Python 算子中的参数、时序切分步长或 Prompt 模板；</li>
+<li>在验证集上自动运行回归测试（Regression Test）；</li>
+<li><strong>指标提升则合并保存 Checkpoint，指标劣化则自动触发 Rollback（回滚）</strong>，若陷入瓶颈则注入探索突变。</li>
+</ol>
+<hr>
+<h2 id="05-实验数据：反超“暴力喂-2048-帧”的惊人结果">05. 实验数据：反超“暴力喂 2048 帧”的惊人结果</h2>
+<p>在权威长视频评测集 <strong>EgoSchema</strong> 和 <strong>LongVideoBench</strong> 上，论文基于 <strong>Qwen3-VL-30B</strong> 等基础模型进行了严格测试：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">评测维度</th>
+<th style="text-align:left">传统暴力抽帧 (Dense Frames)</th>
+<th style="text-align:left">智能体重复搜索 (Video-Agent)</th>
+<th style="text-align:left">Video-EMem (本文方案)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>物理存储占用</strong></td>
+<td style="text-align:left" colspan="2">几 GB ~ 几十 GB (原视频)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>单次查询延迟</strong></td>
+<td style="text-align:left">高 (输入大量 Token)</td>
+<td style="text-align:left">极高 (40s ~ 120s 重复搜索)</td>
+<td style="text-align:left"><strong>极低 (秒级快速检索)</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>问答准确率</strong></td>
+<td style="text-align:left">容易受噪点干扰出现中间遗忘</td>
+<td style="text-align:left">较高但极其耗时</td>
+<td style="text-align:left"><strong>最高 (超越直接喂 2048 帧原图)</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>关键实验结论</strong>：为什么给的信息少了，准确率反而更高？<br>
+因为喂给大模型几千张图片会导致注意力严重分散；而 Video-EMem 经过 Reader 精准过滤后，只把最关键的 1~2 张图和精准切片送给回答模型，模型注意力高度集中，推理表现反而大幅提升！</p>
+</blockquote>
+<hr>
+<h2 id="06-深度思辨：学术原型走向工业落地的工程改造">06. 深度思辨：学术原型走向工业落地的工程改造</h2>
+<p>虽然论文与开源项目展现了惊艳的架构设计，但从软件工程落地角度审视，原设计仍存在两大“现实鸿沟”。在我们的交流中，推导出了两项关键的工业化改造方案：</p>
+<h3 id="思辨-1：Coding-Agent-线上运行时绝对不能动态写代码">思辨 1：Coding Agent 线上运行时绝对不能动态写代码</h3>
+<p>在实际生产系统中，如果让 Agent 在线上针对每个传入视频动态写代码并运行，会带来<strong>远程代码执行（RCE）安全漏洞、系统非确定性、以及无法排查运维 Bug</strong> 的灾难。</p>
+<ul>
+<li><strong>工业化定位</strong>：<strong>Coding Agent 只能充当“离线编译器 / 自动化超参优化器”</strong>。</li>
+<li><strong>工程最佳实践</strong>：在离线研发期，给 Agent 50~100 个典型样本视频，让它在沙箱中演进迭代出最佳的 Python 策略代码；一旦指标收敛，<strong>将最优代码固化并打包成标准的 Docker 镜像上线部署</strong>。线上生产只跑确定性、高吞吐的只读流水线。</li>
+</ul>
+<h3 id="思辨-2：缺失-Embedding-环节？引入-MyScaleDB-升级为海量沉睡视频检索">思辨 2：缺失 Embedding 环节？引入 MyScaleDB 升级为海量沉睡视频检索</h3>
+<p>原论文的视角局限于“单视频内的 JSON 推理”。但在现实工业场景（如智慧城市、海量监控视频、全量会议归档）中，我们需要在<strong>成千上万个沉睡视频流</strong>中跨视频秒级检索。</p>
+<p>如果让大模型去读十万份 JSON，系统依然会瘫痪。<strong>缺失 Embedding 环节，是学术原型跨越到海量检索的最大断层！</strong></p>
+<h4 id="商业级多模态-Video-RAG-落地架构">商业级多模态 Video RAG 落地架构</h4>
+<p>我们可以对开源项目 <code>VideoEvoHarness</code> 进行工程升级，结合 <strong>MyScaleDB 向量关系型数据库</strong>，打造海量视频检索底座：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[海量视频流批量接入]</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">[固化的高效 Writer 流水线]</span><br><span class="line">   ├── Text-Writer 生成多尺度结构化事件</span><br><span class="line">   └── Image-Writer 抽取微观高质关键帧</span><br><span class="line">        │</span><br><span class="line">        ▼ (⚡ 工业级改造: 引入 Dual-Embedding 算子)</span><br><span class="line">   ├── 文本 Dense Vector (BGE / Qwen-Embedding)</span><br><span class="line">   └── 图像 Dense Vector (SigLIP / CLIP)</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">[写入 MyScaleDB 数据库]</span><br><span class="line">   ├── 结构化字段: video_id, camera_id, start_time, end_time (SQL 时空过滤)</span><br><span class="line">   ├── 密集向量字段: text_vector, image_vector (高维 ANN 向量搜索)</span><br><span class="line">   └── 关键帧路径: s3://bucket/keyframe.jpg</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">[在线查询: SQL + Vector 混合检索]</span><br><span class="line">   SELECT video_id, start_time, end_time, keyframe_url, summary</span><br><span class="line">   FROM video_events</span><br><span class="line">   WHERE camera_id = &#x27;cam_01&#x27; AND event_time &gt;= &#x27;2026-10-20&#x27;</span><br><span class="line">   ORDER BY distance(event_embedding, :query_vec) ASC</span><br><span class="line">   LIMIT 10;</span><br><span class="line">        │</span><br><span class="line">        ▼</span><br><span class="line">[Reader 算子做时序聚类与 MLLM 最终核验] ──▶ 秒级精准定位目标视频与答案</span><br></pre></td></tr></table></figure>
+<h4 id="Coding-Agent-在此架构下的进化方向">Coding Agent 在此架构下的进化方向</h4>
+<p>在新的架构下，基础数据库驱动和 Embedding 模型是固定的安全底座，而 Coding Agent 的自进化能力被释放到了极具价值的算法策略层：</p>
+<ol>
+<li><strong>Query Expansion &amp; Rewriting</strong>：如何将用户口语化的模糊查询改写为高质量检索向量；</li>
+<li><strong>混合检索加权调优</strong>：动态探索文本向量与关键帧图像向量的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi></mrow><annotation encoding="application/x-tex">\alpha</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span></span></span></span> 混合权重与 Top-K 截断；</li>
+<li><strong>时序聚类重排（Temporal Re-ranking）</strong>：自动编写算法将检索出的相邻片段聚类合并，消除冗余；</li>
+<li><strong>评估指标升级</strong>：以 <strong>Recall@K</strong> 和 <strong>MRR</strong> 为导向驱动 Agent 持续优化检索代码。</li>
+</ol>
+<hr>
+<h2 id="07-总结与展望">07. 总结与展望</h2>
+<p>这篇论文与其配套的 <code>VideoEvoHarness</code> 框架，为长视频理解与多模态智能体演进提供了极具启发性的思路：</p>
+<ol>
+<li><strong>架构层面</strong>：用 <strong>“读写分离（CQRS）”</strong> 的软件工程思想破解了长视频多模态计算的算力难题；</li>
+<li><strong>算法层面</strong>：用 <strong>“多尺度图文混合记忆 + 独立于提问的 Coverage/Fidelity 诊断”</strong> 牢牢守住了搜索召回率底线；</li>
+<li><strong>系统层面</strong>：用 <strong>“代码化策略 + Coding Agent 闭环演进”</strong> 替代了传统脆弱的手工调参。</li>
+</ol>
+<p>将这套优雅的视频紧凑表征方案，与工业级的向量数据库（如 MyScaleDB）相结合，从“单视频问答”演进到“海量沉睡视频库的毫秒级多模态检索”，将是未来视频 AI 落地中最具商业潜力的技术方向之一。非常推荐各位对视频大模型、Agent 架构和向量数据库感兴趣的工程师深入研读与实践！</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 向量数据库</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 视频大模型</a>
+              <a href="/tags/Video-LLM/" rel="tag"># Video LLM</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%B7%A5%E7%A8%8B/" rel="tag"># 系统工程</a>
+              <a href="/tags/MyScaleDB/" rel="tag"># MyScaleDB</a>
+              <a href="/tags/Video-EMem/" rel="tag"># Video-EMem</a>
+              <a href="/tags/VideoEvoHarness/" rel="tag"># VideoEvoHarness</a>
+              <a href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93%E8%87%AA%E8%BF%9B%E5%8C%96/" rel="tag"># 智能体自进化</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/" rel="prev" title="【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training)">
+                  <i class="fa fa-angle-left"></i> 【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/14/ClipModelsResearch/" rel="next" title="CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告">
+                  CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">191k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">11:34</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"32cb12d9aa90f884c30f229323df5aa9"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>
