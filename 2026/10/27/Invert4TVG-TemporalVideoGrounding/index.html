@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在多模态视频理解领域，时序视频定位（Temporal Video Grounding, TVG） 是一个非常经典但也极具挑战的刚需场景：输入一段动辄数分钟乃至数小时的未剪辑长视频，并附带一句自然语言（如 “找到男主角打翻水杯的瞬间”），算法需要精确输出事件发生的起止时间戳（Start &amp; End Timestamps）。 随着 Qwen2.5-VL 等开源多模态大模型与 DeepSeek-">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】长视频定位别做“猜时间题的做题家”：ICLR 2026 华南理工&amp;字节跳动 Invert4TVG 论文解析">
+<meta property="og:url" content="https://lewlh.github.io/2026/10/27/Invert4TVG-TemporalVideoGrounding/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在多模态视频理解领域，时序视频定位（Temporal Video Grounding, TVG） 是一个非常经典但也极具挑战的刚需场景：输入一段动辄数分钟乃至数小时的未剪辑长视频，并附带一句自然语言（如 “找到男主角打翻水杯的瞬间”），算法需要精确输出事件发生的起止时间戳（Start &amp; End Timestamps）。 随着 Qwen2.5-VL 等开源多模态大模型与 DeepSeek-">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-27T02:55:00.000Z">
+<meta property="article:modified_time" content="2026-10-27T03:02:47.184Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="GRPO">
+<meta property="article:tag" content="Invert4TVG">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="强化学习">
+<meta property="article:tag" content="时序视频定位">
+<meta property="article:tag" content="视频理解">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/2026/10/27/Invert4TVG-TemporalVideoGrounding/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/2026/10/27/Invert4TVG-TemporalVideoGrounding/","path":"2026/10/27/Invert4TVG-TemporalVideoGrounding/","title":"【论文分享】长视频定位别做“猜时间题的做题家”：ICLR 2026 华南理工&字节跳动 Invert4TVG 论文解析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】长视频定位别做“猜时间题的做题家”：ICLR 2026 华南理工&字节跳动 Invert4TVG 论文解析 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">126</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">40</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%A1%8C%E4%B8%9A%E7%97%9B%E7%82%B9%EF%BC%9A%E7%BA%AF%E7%B2%B9%E5%88%B7%E6%8C%87%E6%A0%87%E5%BC%95%E5%8F%91%E7%9A%84%E2%80%9C%E5%8A%A8%E4%BD%9C%E8%AE%A4%E7%9F%A5%E9%80%80%E5%8C%96%E2%80%9D"><span class="nav-text">01. 行业痛点：纯粹刷指标引发的“动作认知退化”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-Invert4TVG-%E6%A0%B8%E5%BF%83%E7%A0%B4%E5%B1%80%E7%82%B9%EF%BC%9A%E5%B7%A7%E5%A6%99%E7%9A%84%E2%80%9C%E9%80%86%E5%90%91%E4%BB%BB%E5%8A%A1%E5%88%B6%E8%A1%A1%E2%80%9D"><span class="nav-text">02. Invert4TVG 核心破局点：巧妙的“逆向任务制衡”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E8%AE%AD%E7%BB%83%E6%9C%BA%E5%88%B6%EF%BC%9A%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%EF%BC%88GRPO%EF%BC%89%E4%B8%8E%E6%A6%82%E7%8E%87%E6%8A%BD%E6%A0%B7"><span class="nav-text">03. 训练机制：强化学习（GRPO）与概率抽样</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E5%AE%9E%E9%AA%8C%E6%88%90%E6%9E%9C%E4%B8%8E%E4%B8%A4%E5%A4%A7%E5%8F%8D%E7%9B%B4%E8%A7%89%E5%8F%91%E7%8E%B0"><span class="nav-text">04. 实验成果与两大反直觉发现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%A5%E8%8B%9B%E6%8C%87%E6%A0%87%E5%A4%A7%E5%B9%85%E6%8F%90%E5%8D%87"><span class="nav-text">1. 严苛指标大幅提升</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%8F%8D%E7%9B%B4%E8%A7%89%E5%8F%91%E7%8E%B0%EF%BC%9A%E7%AE%80%E5%8D%95%E2%80%9C%E4%BA%8C%E5%85%83%E5%A5%96%E5%8A%B1%EF%BC%880-1%EF%BC%89%E2%80%9D%E8%83%9C%E8%BF%87%E5%A4%8D%E6%9D%82%E7%9A%84%E8%BF%9E%E7%BB%AD%E7%9B%B8%E4%BC%BC%E5%BA%A6%E6%89%93%E5%88%86"><span class="nav-text">2. 反直觉发现：简单“二元奖励（0&#x2F;1）”胜过复杂的连续相似度打分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%8D%93%E8%B6%8A%E7%9A%84%E9%9B%B6%E6%A0%B7%E6%9C%AC%E8%B7%A8%E5%9C%BA%E6%99%AF%E6%B3%9B%E5%8C%96%EF%BC%88Zero-Shot%EF%BC%89"><span class="nav-text">3. 卓越的零样本跨场景泛化（Zero-Shot）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E7%AE%97%E5%8A%9B%E6%88%90%E6%9C%AC%E6%A0%B8%E7%AE%97%E4%B8%8E%E6%98%BE%E5%AD%98%E5%BC%80%E9%94%80%E5%89%96%E6%9E%90"><span class="nav-text">05. 算力成本核算与显存开销剖析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%AE%BA%E6%96%87%E5%9F%BA%E7%BA%BF%E7%A1%AC%E4%BB%B6%E9%85%8D%E7%BD%AE%E4%B8%8E%E8%B4%A6%E6%9C%AC"><span class="nav-text">1. 论文基线硬件配置与账本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%A7%86%E9%A2%91%E5%A4%9A%E6%A8%A1%E6%80%81%E6%A8%A1%E5%9E%8B%E5%90%8E%E8%AE%AD%E7%BB%83%E7%9A%84%E6%98%BE%E5%AD%98%E7%89%B9%E6%80%A7"><span class="nav-text">2. 视频多模态模型后训练的显存特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E6%80%BB%E7%BB%93%E4%B8%8E%E5%90%AF%E7%A4%BA"><span class="nav-text">06. 总结与启示</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">126</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/27/Invert4TVG-TemporalVideoGrounding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】长视频定位别做“猜时间题的做题家”：ICLR 2026 华南理工&amp;字节跳动 Invert4TVG 论文解析 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】长视频定位别做“猜时间题的做题家”：ICLR 2026 华南理工&字节跳动 Invert4TVG 论文解析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-10-27 10:55:00 / 修改时间：11:02:47" itemprop="dateCreated datePublished" datetime="2026-10-27T10:55:00+08:00">2026-10-27</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>9 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在多模态视频理解领域，<strong>时序视频定位（Temporal Video Grounding, TVG）</strong> 是一个非常经典但也极具挑战的刚需场景：输入一段动辄数分钟乃至数小时的未剪辑长视频，并附带一句自然语言（如 <strong>“找到男主角打翻水杯的瞬间”</strong>），算法需要精确输出事件发生的<strong>起止时间戳（Start &amp; End Timestamps）</strong>。</p>
+<p>随着 Qwen2.5-VL 等开源多模态大模型与 DeepSeek-R1 式强化学习（RL）的爆火，近期行业主流纷纷采用强化学习直接优化时间重叠度（IoU）奖励。然而，华南理工大学与字节跳动团队在被 <strong>ICLR 2026</strong> 录用的前沿论文《Invert4TVG》中揭示了一个被大众忽视的致命陷阱——<strong>纯粹刷时间指标会让大模型退化成“不辨动作的应试做题家”</strong>。</p>
+<p>本文从系统架构、工程落地与实操成本等视角，对这篇论文的核心突破与工业思考进行系统梳理。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Invert4TVG: A Temporal Video Grounding Framework with Inversion Tasks Preserving Action Understanding Ability<br>
+<strong>作者团队</strong>：华南理工大学 (SCUT)、字节跳动 (ByteDance)、广东省人工智能与数字经济实验室 (SZ)<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2508.07388" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2508.07388</a><br>
+<strong>收录会议</strong>：ICLR 2026</p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-行业痛点：纯粹刷指标引发的“动作认知退化”">01. 行业痛点：纯粹刷指标引发的“动作认知退化”</h2>
+<p>在传统时序定位训练中，大家普遍遵循单向逻辑：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>视频</mtext><mo>+</mo><mtext>文字描述</mtext><mo>⟶</mo><mtext>预测起止时间戳 </mtext><mo stretchy="false">[</mo><msub><mi>τ</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>τ</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">\text{视频} + \text{文字描述} \longrightarrow \text{预测起止时间戳 } [\tau_{start}, \tau_{end}]
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord text"><span class="mord cjk_fallback">视频</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6943em;vertical-align:-0.011em;"></span><span class="mord text"><span class="mord cjk_fallback">文字描述</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">⟶</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord cjk_fallback">预测起止时间戳</span><span class="mord"> </span></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.1132em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1132em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span></span></p>
+<p>只要模型框选的时间范围与真实标签有较高重合（即高 <strong>IoU / 交并比</strong>），强化学习或损失函数就会给予高分奖励。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">【传统正向单向训练的“应试陷阱”】</span><br><span class="line">用户 Query: &quot;小明在厨房切土豆&quot; </span><br><span class="line">   │</span><br><span class="line">   ▼ </span><br><span class="line">大模型输入整段长视频 ──► 盲目拟合时间边界 (只盯&quot;土豆&quot;等静态词与时间尺子)</span><br><span class="line">   │</span><br><span class="line">   ▼</span><br><span class="line">输出 [00:12, 00:18] (获得高 IoU 奖励！)</span><br><span class="line">   │</span><br><span class="line">   ✘ 严重代价：模型底层根本不在乎人是在&quot;切&quot;还是&quot;削&quot;还是&quot;洗&quot;，动作语义理解能力发生灾难性退化！</span><br></pre></td></tr></table></figure>
+<p>团队通过细致的评测发现：</p>
+<ol>
+<li><strong>舍本逐末的做题家</strong>：模型为了迎合极度苛刻的时间边界，将大量表征容量分配给了时间刻度推演，反而<strong>对画面动作本身的语义理解能力大幅下降</strong>（动作分类、动词填空能力明显退化）。</li>
+<li><strong>缺乏泛化韧性</strong>：一旦脱离训练集的特定场景，面对动作相似但意图不同的干扰项（例如把“切菜”认成“洗菜”），模型就因为没有真正看懂动作而彻底抓瞎。</li>
+</ol>
+<hr>
+<h2 id="02-Invert4TVG-核心破局点：巧妙的“逆向任务制衡”">02. Invert4TVG 核心破局点：巧妙的“逆向任务制衡”</h2>
+<p>针对上述退化现象，作者团队提出了 <strong>Invert4TVG</strong> 框架。核心哲学非常朴素而深刻：<strong>要让大模型不沦为应试机器，就必须用“逆向思维”进行多任务制衡</strong>。</p>
+<p>最精彩的工程亮点在于：<strong>完全不需要重新花钱标注新的视频数据！</strong> 团队直接把现有的 TVG 标注数据倒过来，构建了三道针对动作理解的多粒度逆向考题（Invert-TVG Tasks）：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    Data[&quot;标准 TVG 标注数据&lt;br/&gt;【视频片段 + 文本描述: &#x27;小明在厨房切土豆&#x27;】&quot;]
+    
+    Data --&gt; T1[&quot;逆向任务 1: 动词完形填空 (Verb Completion)&lt;br/&gt;挖掉动作动词：&#x27;小明在厨房正在 [ ? ] 土豆&#x27; ➔ 逼模型填出 &#x27;切&#x27;&quot;]
+    Data --&gt; T2[&quot;逆向任务 2: 动作识别 (Action Recognition)&lt;br/&gt;直接截取片段：提问视频里正在进行什么动作 ➔ 输出动作分类&quot;]
+    Data --&gt; T3[&quot;逆向任务 3: 视频描述 (Video Description)&lt;br/&gt;给截取片段：让大模型自发用自然语言详尽描述整段动作事件&quot;]</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">逆向辅助任务</th>
+<th style="text-align:left">考题形式</th>
+<th style="text-align:left">核心作用与能力兜底</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>动词填空<br>(Verb Completion)</strong></td>
+<td style="text-align:left">给片段视频，将文本描述中的动词掩码（Mask）挖空，要求补全动词。</td>
+<td style="text-align:left">强迫模型建立起“视觉画面动作”与“文本动作动词”的精细局部对齐。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>动作识别<br>(Action Recognition)</strong></td>
+<td style="text-align:left">给片段视频，要求明确给出动作类别标签。</td>
+<td style="text-align:left">强化粗粒度的全局动作辨识度，防止模型认错核心动作类型。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>视频描述<br>(Video Description)</strong></td>
+<td style="text-align:left">给片段视频，要求用自由文本生成包含关键动作的事件解说。</td>
+<td style="text-align:left">考验大模型对背景、人物、动作演进的端到端综合叙事与理解力。</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="03-训练机制：强化学习（GRPO）与概率抽样">03. 训练机制：强化学习（GRPO）与概率抽样</h2>
+<p>将正向定位与这三道逆向题融合，论文采用了无 Critic 网络的策略优化算法 <strong>GRPO（Group Relative Policy Optimization）</strong> 进行端到端后训练（Post-Training）。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">                           ┌──► [80% 概率] 正向定位任务 ──► 给予时序定位边界 IoU 奖励</span><br><span class="line">单次迭代采样子样本 (Batch) ──┤</span><br><span class="line">                           └──► [20% 概率] 逆向辅助任务 ──► 给予动作语义准确度奖励 (Binary Reward)</span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>概率调度机制（Sampling Schedule）</strong>：
+<ul>
+<li>训练中并不采用僵硬的平均分配，而是保持 <strong>80% 左右的概率做正向定位</strong>，确保核心定位能力稳步攀升；</li>
+<li>穿插 <strong>20% 概率随机抽查逆向题</strong>，就像随堂抽测，时刻警告模型“必须时刻看懂动作本身”。</li>
+</ul>
+</li>
+<li><strong>极简端到端设计</strong>：
+<ul>
+<li>架构没有外挂任何复杂的时序检测头（Regression Head），一切输入都是 Prompt 文本与视频帧，一切输出都是语言 Token（时间戳直接以文本形式输出），保证了对各类开源多模态底座的高度兼容。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="04-实验成果与两大反直觉发现">04. 实验成果与两大反直觉发现</h2>
+<p>团队在 <strong>Charades-STA</strong>（室内日常长视频）和 <strong>ActivityNet Captions</strong>（开放域长视频）两大权威基准上进行了全方位评测：</p>
+<h3 id="1-严苛指标大幅提升">1. 严苛指标大幅提升</h3>
+<p>在 <strong>R1@0.7</strong>（要求预测时间段与真值重合度高达 70% 的极高精度指标）上，基于 <strong>3B 小模型</strong>的 Invert4TVG 相较 baseline（如 Time-R1）直接<strong>取得了 7.1% 的显著跃升</strong>。这直接印证了：<strong>只有地基上的动作理解扎实，顶层的高精度时间裁剪才能真正裁得准。</strong></p>
+<h3 id="2-反直觉发现：简单“二元奖励（0-1）”胜过复杂的连续相似度打分">2. 反直觉发现：简单“二元奖励（0/1）”胜过复杂的连续相似度打分</h3>
+<p>在给“逆向动词填空”评判奖励时，直觉上工程师可能会想用余弦相似度（Cosine Similarity）去衡量语义近似度。但消融实验证明：</p>
+<ul>
+<li><strong>连续相似度往往带来灾难噪音</strong>：词向量模型经常会把风马牛不相及的动词（甚至语义相反的动作）计算出 0.4~0.6 的弱相似度，从而向强化学习注入了大量含糊不清的误导信号。</li>
+<li><strong>非黑即白的 0/1 硬反馈（Binary Reward）效果最佳</strong>：对就是对，错就是错，简单的规则反而给强化学习提供了最干净、收敛最稳定的梯度更新。</li>
+</ul>
+<h3 id="3-卓越的零样本跨场景泛化（Zero-Shot）">3. 卓越的零样本跨场景泛化（Zero-Shot）</h3>
+<p>在室内视频训练的模型，直接零样本扔到户外复杂视频（如 <strong>QVHighlights</strong>）进行盲测，性能依然保持大幅领先。这有力证明了逆向任务训练出来的模型，真正习得了<strong>通用的动作物理常识</strong>，而非仅仅背诵了室内布景。</p>
+<hr>
+<h2 id="05-算力成本核算与显存开销剖析">05. 算力成本核算与显存开销剖析</h2>
+<p>针对团队落地的现实算力评估，论文公开了真实的硬件训练配置，具有非常清晰的工程参考价值：</p>
+<h3 id="1-论文基线硬件配置与账本">1. 论文基线硬件配置与账本</h3>
+<ul>
+<li><strong>基座选择</strong>：<strong>Qwen2.5-VL-3B</strong>（阿里开源的 30 亿参数轻量多模态模型）。</li>
+<li><strong>硬件设备</strong>：单机 <strong>8 张 NVIDIA A100 (40GB)</strong>。</li>
+<li><strong>训练周期</strong>：微调 2 个 Epoch，每个 Epoch 约耗时 80 小时，整体验证周期约 <strong>160 小时（6.5~7 天）</strong>。</li>
+<li><strong>市价折算</strong>：按目前主流云算力 8 卡 A100 约 60~100 元/小时计算，一次完整的科研微调总成本约在 <strong>1 万 ~ 1.6 万元人民币</strong>，相比预训练动辄百万上千万而言，属于非常亲民且高性价比的垂直调优方案。</li>
+</ul>
+<h3 id="2-视频多模态模型后训练的显存特性">2. 视频多模态模型后训练的显存特性</h3>
+<p>在针对长视频多模态大模型进行后训练调优时，有几点非常值得关注的工程细节：</p>
+<ul>
+<li><strong>视频长上下文的“瞬时显存洪峰”</strong>：纯文本模型在推理与训练时通常只需处理数百至数千个词元（Tokens），但视频模型输入的是成百上千帧画面。在反向传播与注意力计算中，视频特征缓存（Activations）会带来巨大的瞬时显存压力。</li>
+<li><strong>强化学习（RL）的额外开销</strong>：相比常规的有监督微调（SFT），GRPO 强化学习需要为单条 Prompt 生成多组候选答案（Rollouts）并计算重要性权重，这进一步放大了前向与反向过程中的显存占用。</li>
+<li><strong>为何 3B 是性价比极佳的选择</strong>：论文优先以 3B 规模验证算法，是非常务实的工程取舍。3B 参数底座在保留了丰富视觉语义理解能力的同时，显著降低了多帧视频注意力运算的显存门槛，让这类长视频后训练在普通单机 8 卡集群上能够稳定收敛。</li>
+</ul>
+<hr>
+<h2 id="06-总结与启示">06. 总结与启示</h2>
+<p>《Invert4TVG》带给多模态与智能体领域的思考远超时序定位本身：</p>
+<ol>
+<li><strong>警惕单一指标的“古德哈特定律”</strong>：当 IoU 成为唯一 KPI，模型就会牺牲一切通识认知去迎合指标。引入<strong>逆向自洽任务</strong>，是防止深度学习模型“退化作弊”的最优雅手段。</li>
+<li><strong>数据利用的艺术</strong>：没有标注成本的新突破才是最具工程魅力的突破。将既有标注倒转为自监督考题，是以极低边际成本榨取模型最大潜力的典范。</li>
+<li><strong>小模型的垂直逆袭</strong>：不要盲目迷信百亿级大参数，在明确的架构解耦与科学的训练调度下，3B 规模的多模态轻量模型依然能在专业细分领域打出统治级的表现。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E7%90%86%E8%A7%A3/" rel="tag"># 视频理解</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag"># 强化学习</a>
+              <a href="/tags/Invert4TVG/" rel="tag"># Invert4TVG</a>
+              <a href="/tags/%E6%97%B6%E5%BA%8F%E8%A7%86%E9%A2%91%E5%AE%9A%E4%BD%8D/" rel="tag"># 时序视频定位</a>
+              <a href="/tags/GRPO/" rel="tag"># GRPO</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/10/27/FreeDVC-TrainingFreeDenseVideoCaptioning/" rel="next" title="【论文分享】无需训练即可看懂长视频？MIR 2026 论文 FreeDVC 解析及多模态视频资产库工程实践">
+                  【论文分享】无需训练即可看懂长视频？MIR 2026 论文 FreeDVC 解析及多模态视频资产库工程实践 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">175k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">10:36</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"5e7ed23b762229c68d448712caeb1d9d"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>

@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">123</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">39</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">126</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">40</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-count">40</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">123</span>
+        <span class="site-state-item-count">126</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,106 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/27/Invert4TVG-TemporalVideoGrounding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/10/27/Invert4TVG-TemporalVideoGrounding/" class="post-title-link" itemprop="url">【论文分享】长视频定位别做“猜时间题的做题家”：ICLR 2026 华南理工&字节跳动 Invert4TVG 论文解析</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-10-27 10:55:00 / 修改时间：11:02:47" itemprop="dateCreated datePublished" datetime="2026-10-27T10:55:00+08:00">2026-10-27</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>9 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态视频理解领域，<strong>时序视频定位（Temporal Video Grounding, TVG）</strong> 是一个非常经典但也极具挑战的刚需场景：输入一段动辄数分钟乃至数小时的未剪辑长视频，并附带一句自然语言（如 <strong>“找到男主角打翻水杯的瞬间”</strong>），算法需要精确输出事件发生的<strong>起止时间戳（Start &amp; End Timestamps）</strong>。</p>
+<p>随着 Qwen2.5-VL 等开源多模态大模型与 DeepSeek-R1 式强化学习（RL）的爆火，近期行业主流纷纷采用强化学习直接优化时间重叠度（IoU）奖励。然而，华南理工大学与字节跳动团队在被 <strong>ICLR 2026</strong> 录用的前沿论文《Invert4TVG》中揭示了一个被大众忽视的致命陷阱——<strong>纯粹刷时间指标会让大模型退化成“不辨动作的应试做题家”</strong>。</p>
+<p>本文从系统架构、工程落地与实操成本等视角，对这篇论文的核心突破与工业思考进行系统梳理。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Invert4TVG: A Temporal Video Grounding Framework with Inversion Tasks Preserving Action Understanding Ability<br>
+<strong>作者团队</strong>：华南理工大学 (SCUT)、字节跳动 (ByteDance)、广东省人工智能与数字经济实验室 (SZ)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2508.07388">https://arxiv.org/abs/2508.07388</a><br>
+<strong>收录会议</strong>：ICLR 2026</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/10/27/Invert4TVG-TemporalVideoGrounding/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +326,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-10-27 10:15:00 / 修改时间：10:20:44" itemprop="dateCreated datePublished" datetime="2026-10-27T10:15:00+08:00">2026-10-27</time>
+      <time title="创建时间：2026-10-27 10:15:00 / 修改时间：11:02:47" itemprop="dateCreated datePublished" datetime="2026-10-27T10:15:00+08:00">2026-10-27</time>
     </span>
 
   
@@ -326,7 +426,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-10-27 00:25:00 / 修改时间：10:20:44" itemprop="dateCreated datePublished" datetime="2026-10-27T00:25:00+08:00">2026-10-27</time>
+      <time title="创建时间：2026-10-27 00:25:00 / 修改时间：11:02:47" itemprop="dateCreated datePublished" datetime="2026-10-27T00:25:00+08:00">2026-10-27</time>
     </span>
 
   
@@ -431,7 +531,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-27 10:20:44" itemprop="dateModified" datetime="2026-10-27T10:20:44+08:00">2026-10-27</time>
+      <time title="修改时间：2026-10-27 11:02:47" itemprop="dateModified" datetime="2026-10-27T11:02:47+08:00">2026-10-27</time>
     </span>
 
   
@@ -536,7 +636,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-27 10:20:44" itemprop="dateModified" datetime="2026-10-27T10:20:44+08:00">2026-10-27</time>
+      <time title="修改时间：2026-10-27 11:02:47" itemprop="dateModified" datetime="2026-10-27T11:02:47+08:00">2026-10-27</time>
     </span>
 
   
@@ -596,104 +696,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2025/05/14/ClipModelsResearch/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/05/14/ClipModelsResearch/" class="post-title-link" itemprop="url">CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-05-14 17:50:12" itemprop="dateCreated datePublished" datetime="2025-05-14T17:50:12+08:00">2025-05-14</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-27 10:20:44" itemprop="dateModified" datetime="2026-10-27T10:20:44+08:00">2026-10-27</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>12k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>45 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在视频安防领域，监控摄像头和无人机积累了海量视频数据。这些数据通常仅在有明确目标需求时通过人工查看，成本高且效率低，导致大部分视频数据未被有效利用，长期处于“沉默”状态，甚至最终被销毁。为充分挖掘这些视频数据的价值，我们需要通过抽帧分析提取特征，并支持以自然语言检索视频数据，从而显著提升使用效率、降低成本。要实现这一目标，类似CLIP的模型是关键技术路径。本文主要研究模型的技术水平，帮助技术人员做方案决策。本文由 Deep Research with Gemini 2.5 Pro 撰写。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2025/05/14/ClipModelsResearch/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -718,14 +720,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">172k</span>
+    <span title="站点总字数">175k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">10:26</span>
+    <span title="站点阅读时长">10:36</span>
   </span>
 </div>
 <div class="busuanzi-count">
