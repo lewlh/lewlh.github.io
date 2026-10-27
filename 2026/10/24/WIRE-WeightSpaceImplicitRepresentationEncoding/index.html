@@ -39,7 +39,7 @@
 <meta property="og:description" content="最近研读了一篇极具工程启发意义的长视频大模型（Video LLM）前沿论文——《WIRE: Weight Space Implicit Representation Encoding of Frozen Video LLMs》。 在当前的视频大模型领域，大家在面对几十甚至上千帧的长视频时，普遍面临着极其严峻的工程瓶颈：Token 海啸、Prefill 耗时漫长、显存（KV Cache）频频溢出。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-10-24T03:35:00.000Z">
-<meta property="article:modified_time" content="2026-10-27T05:21:38.521Z">
+<meta property="article:modified_time" content="2026-10-27T06:07:42.075Z">
 <meta property="article:author" content="豪豪">
 <meta property="article:tag" content="LoRA">
 <meta property="article:tag" content="Video LLM">
@@ -134,7 +134,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">134</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">42</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">136</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">43</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -159,7 +159,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%A1%8C%E4%B8%9A%E7%97%9B%E7%82%B9%EF%BC%9A%E9%95%BF%E8%A7%86%E9%A2%91%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E2%80%9C%E7%B4%AF%E6%AD%BB%E2%80%9D%E5%A4%A7%E6%A8%A1%E5%9E%8B%EF%BC%9F"><span class="nav-text">01. 行业痛点：长视频为什么会“累死”大模型？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E9%A2%91%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6"><span class="nav-text">视频大模型的工作机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E7%BB%9F%E6%9E%B6%E6%9E%84%E7%9A%84%E4%B8%89%E5%A4%A7%E5%B7%A5%E7%A8%8B%E7%93%B6%E9%A2%88"><span class="nav-text">传统架构的三大工程瓶颈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E5%A6%A5%E5%8D%8F%E6%96%B9%E6%A1%88%E7%9A%84%E7%A1%AC%E4%BC%A4"><span class="nav-text">现有妥协方案的硬伤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E7%A0%B4%E5%B1%80%E6%80%9D%E8%B7%AF%EF%BC%9AWIRE-%E7%9A%84%E6%A0%B8%E5%BF%83%E9%A2%A0%E8%A6%86%E4%B8%8E%E7%9B%B4%E8%A7%82%E6%AF%94%E5%96%BB"><span class="nav-text">02. 破局思路：WIRE 的核心颠覆与直观比喻</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E4%BF%97%E6%AF%94%E5%96%BB%EF%BC%9A%E5%8E%9A%E9%87%8D%E5%B0%8F%E6%8A%84-vs-%E6%8F%90%E7%BA%B2%E5%8A%A0%E4%B8%B4%E6%97%B6%E8%82%8C%E8%82%89%E8%AE%B0%E5%BF%86"><span class="nav-text">通俗比喻：厚重小抄 vs 提纲加临时肌肉记忆</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E4%B8%8E%E7%B3%BB%E7%BB%9F%E6%95%B0%E6%8D%AE%E6%B5%81%EF%BC%88Pipeline%EF%BC%89"><span class="nav-text">03. 算法实现与系统数据流（Pipeline）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%AD%A5%E9%AA%A4%E5%89%96%E6%9E%90"><span class="nav-text">核心步骤剖析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E4%B8%BA%E4%BB%80%E4%B9%88-WIRE-%E9%87%8C%E7%9A%84-LoRA-%E6%9E%81%E5%85%B6%E7%89%B9%E6%AE%8A%EF%BC%9F"><span class="nav-text">04. 为什么 WIRE 里的 LoRA 极其特殊？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%9D%99%E6%80%81%E7%84%8A%E6%AD%BB-vs-%E5%8A%A8%E6%80%81%E7%94%9F%E6%88%90%EF%BC%88%E4%B8%80%E8%A7%86%E9%A2%91%E4%B8%80%E5%8F%98%EF%BC%89"><span class="nav-text">1. 静态焊死 vs. 动态生成（一视频一变）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%B0%81%E5%9C%A8%E8%A2%AB%E8%AE%AD%E7%BB%83%EF%BC%9F%E2%80%94%E2%80%94%E8%AE%AD%E7%BB%83%E7%9A%84%E6%98%AF%E2%80%9C%E9%80%A0%E9%94%81%E7%9A%84%E6%AF%8D%E6%9C%BA%E2%80%9D"><span class="nav-text">2. 谁在被训练？——训练的是“造锁的母机”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%A7%84%E9%81%BF%E5%8F%82%E6%95%B0%E7%88%86%E7%82%B8%E7%9A%84%E5%9B%A0%E5%AD%90%E5%88%86%E8%A7%A3%E6%9C%BA%E5%88%B6"><span class="nav-text">3. 规避参数爆炸的因子分解机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%8E%A8%E7%90%86%E6%97%B6%E9%97%B4%E4%B8%8E%E6%80%A7%E8%83%BD%E6%88%90%E6%9C%AC%E7%9A%84%E7%9C%9F%E5%AE%9E%E5%BA%95%E7%BB%86%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E2%80%9C%E8%B4%9F%E6%88%90%E6%9C%AC%E2%80%9D%EF%BC%9F"><span class="nav-text">4. 推理时间与性能成本的真实底细：为什么是“负成本”？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E7%94%A8%E4%BA%86-RGB-%E7%94%BB%E9%9D%A2%EF%BC%8C%E6%B2%A1%E8%80%83%E8%99%91%E8%A7%86%E9%A2%91%E9%9F%B3%E9%A2%91%EF%BC%9F"><span class="nav-text">05. 为什么只用了 RGB 画面，没考虑视频音频？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9F%BA%E6%A8%A1%E8%83%BD%E5%8A%9B%E7%9A%84%E8%BE%B9%E7%95%8C%EF%BC%88Qwen3-VL-%E7%9A%84%E6%9E%B6%E6%9E%84%E5%86%B3%E5%AE%9A%EF%BC%89"><span class="nav-text">1. 基模能力的边界（Qwen3-VL 的架构决定）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Token-%E7%BB%8F%E6%B5%8E%E5%AD%A6%EF%BC%9A%E7%94%BB%E9%9D%A2%E7%9A%84%E5%BC%80%E9%94%80%E8%BF%9C%E8%B6%85%E9%9F%B3%E9%A2%91%EF%BC%88%E6%8A%93%E6%A0%B8%E5%BF%83%E7%9F%9B%E7%9B%BE%EF%BC%89"><span class="nav-text">2. Token 经济学：画面的开销远超音频（抓核心矛盾）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E8%AF%84%E6%B5%8B%E6%88%90%E7%BB%A9%E5%8D%95%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%AE%9E%E6%88%98%E8%80%83%E9%87%8F"><span class="nav-text">06. 评测成绩单与工程实战考量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E8%80%83%E9%87%8F%EF%BC%88Engineering-Notes%EF%BC%89"><span class="nav-text">生产环境部署考量（Engineering Notes）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E8%BF%9B%E9%98%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%EF%BC%9A%E8%B7%A8-N-%E4%B8%AA%E8%A7%86%E9%A2%91%E6%A3%80%E7%B4%A2%E4%B8%8E%E5%88%87%E7%89%87%E7%B2%92%E5%BA%A6%E7%9A%84%E5%B7%A5%E7%A8%8B%E6%8A%89%E6%8B%A9"><span class="nav-text">07. 进阶系统设计：跨 N 个视频检索与切片粒度的工程抉择</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%81%8C%E8%B4%A3%E8%BE%B9%E7%95%8C%EF%BC%9A%E5%88%9D%E7%AD%9B%EF%BC%88Stage-1%EF%BC%89%E4%B8%8E%E7%B2%BE%E8%AF%BB%EF%BC%88Stage-2%EF%BC%89%E7%9A%84%E6%B8%85%E6%99%B0%E8%A7%A3%E8%80%A6"><span class="nav-text">1. 职责边界：初筛（Stage 1）与精读（Stage 2）的清晰解耦</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%88%87%E7%89%87%E7%B2%92%E5%BA%A6%E5%9B%B0%E6%83%91%EF%BC%9A%E9%95%BF%E8%A7%86%E9%A2%91-A-%E5%88%87%E6%88%90%E7%89%87%E6%AE%B5-B%EF%BC%8CLoRA-%E8%AF%A5%E4%B8%BA%E8%B0%81%E8%80%8C%E7%94%9F%EF%BC%9F"><span class="nav-text">2. 切片粒度困惑：长视频 A 切成片段 B，LoRA 该为谁而生？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#08-%E9%80%86%E5%90%91%E9%87%8D%E6%9E%84%EF%BC%9A%E5%B0%86-WIRE-%E5%BC%95%E5%85%A5%E7%A6%BB%E7%BA%BF-ETL-%E9%A2%84%E5%A4%84%E7%90%86%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-text">08. 逆向重构：将 WIRE 引入离线 ETL 预处理流水线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%90%BD%E5%9C%B0%E5%9C%BA%E6%99%AF%E4%B8%80%EF%BC%9A%E4%BD%8E%E7%AE%97%E5%8A%9B%E6%B6%88%E8%80%97%E7%9A%84%E2%80%9C%E7%B2%BE%E5%87%86%E8%AF%AD%E4%B9%89%E5%88%87%E5%88%86%E2%80%9D%EF%BC%88Semantic-Chunking%EF%BC%89"><span class="nav-text">1. 落地场景一：低算力消耗的“精准语义切分”（Semantic Chunking）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%90%BD%E5%9C%B0%E5%9C%BA%E6%99%AF%E4%BA%8C%EF%BC%9A%E6%89%B9%E9%87%8F%E7%94%9F%E4%BA%A7%E9%AB%98%E4%BF%9D%E7%9C%9F%E5%85%A8%E5%B1%80%E6%8F%8F%E8%BF%B0%EF%BC%88Dense-Video-Captioning%EF%BC%89"><span class="nav-text">2. 落地场景二：批量生产高保真全局描述（Dense Video Captioning）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%90%BD%E5%9C%B0%E5%9C%BA%E6%99%AF%E4%B8%89%EF%BC%9A%E7%A0%B4%E9%99%A4%E6%A8%A1%E6%80%81%E9%B8%BF%E6%B2%9F%EF%BC%8C%E6%89%93%E9%80%A0%E6%9C%80%E5%BC%BA%E6%A3%80%E7%B4%A2-Embedding"><span class="nav-text">3. 落地场景三：破除模态鸿沟，打造最强检索 Embedding</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-text">总结</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%A1%8C%E4%B8%9A%E7%97%9B%E7%82%B9%EF%BC%9A%E9%95%BF%E8%A7%86%E9%A2%91%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E2%80%9C%E7%B4%AF%E6%AD%BB%E2%80%9D%E5%A4%A7%E6%A8%A1%E5%9E%8B%EF%BC%9F"><span class="nav-text">01. 行业痛点：长视频为什么会“累死”大模型？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E9%A2%91%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6"><span class="nav-text">视频大模型的工作机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E7%BB%9F%E6%9E%B6%E6%9E%84%E7%9A%84%E4%B8%89%E5%A4%A7%E5%B7%A5%E7%A8%8B%E7%93%B6%E9%A2%88"><span class="nav-text">传统架构的三大工程瓶颈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E5%A6%A5%E5%8D%8F%E6%96%B9%E6%A1%88%E7%9A%84%E7%A1%AC%E4%BC%A4"><span class="nav-text">现有妥协方案的硬伤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E7%A0%B4%E5%B1%80%E6%80%9D%E8%B7%AF%EF%BC%9AWIRE-%E7%9A%84%E6%A0%B8%E5%BF%83%E9%A2%A0%E8%A6%86%E4%B8%8E%E7%9B%B4%E8%A7%82%E6%AF%94%E5%96%BB"><span class="nav-text">02. 破局思路：WIRE 的核心颠覆与直观比喻</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E4%BF%97%E6%AF%94%E5%96%BB%EF%BC%9A%E5%8E%9A%E9%87%8D%E5%B0%8F%E6%8A%84-vs-%E6%8F%90%E7%BA%B2%E5%8A%A0%E4%B8%B4%E6%97%B6%E8%82%8C%E8%82%89%E8%AE%B0%E5%BF%86"><span class="nav-text">通俗比喻：厚重小抄 vs 提纲加临时肌肉记忆</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E4%B8%8E%E7%B3%BB%E7%BB%9F%E6%95%B0%E6%8D%AE%E6%B5%81%EF%BC%88Pipeline%EF%BC%89"><span class="nav-text">03. 算法实现与系统数据流（Pipeline）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%AD%A5%E9%AA%A4%E5%89%96%E6%9E%90"><span class="nav-text">核心步骤剖析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E4%B8%BA%E4%BB%80%E4%B9%88-WIRE-%E9%87%8C%E7%9A%84-LoRA-%E6%9E%81%E5%85%B6%E7%89%B9%E6%AE%8A%EF%BC%9F"><span class="nav-text">04. 为什么 WIRE 里的 LoRA 极其特殊？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%9D%99%E6%80%81%E7%84%8A%E6%AD%BB-vs-%E5%8A%A8%E6%80%81%E7%94%9F%E6%88%90%EF%BC%88%E4%B8%80%E8%A7%86%E9%A2%91%E4%B8%80%E5%8F%98%EF%BC%89"><span class="nav-text">1. 静态焊死 vs. 动态生成（一视频一变）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%B0%81%E5%9C%A8%E8%A2%AB%E8%AE%AD%E7%BB%83%EF%BC%9F%E2%80%94%E2%80%94%E8%AE%AD%E7%BB%83%E7%9A%84%E6%98%AF%E2%80%9C%E9%80%A0%E9%94%81%E7%9A%84%E6%AF%8D%E6%9C%BA%E2%80%9D"><span class="nav-text">2. 谁在被训练？——训练的是“造锁的母机”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%A7%84%E9%81%BF%E5%8F%82%E6%95%B0%E7%88%86%E7%82%B8%E7%9A%84%E5%9B%A0%E5%AD%90%E5%88%86%E8%A7%A3%E6%9C%BA%E5%88%B6"><span class="nav-text">3. 规避参数爆炸的因子分解机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%8E%A8%E7%90%86%E6%97%B6%E9%97%B4%E4%B8%8E%E6%80%A7%E8%83%BD%E6%88%90%E6%9C%AC%E7%9A%84%E7%9C%9F%E5%AE%9E%E5%BA%95%E7%BB%86%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E2%80%9C%E8%B4%9F%E6%88%90%E6%9C%AC%E2%80%9D%EF%BC%9F"><span class="nav-text">4. 推理时间与性能成本的真实底细：为什么是“负成本”？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E7%94%A8%E4%BA%86-RGB-%E7%94%BB%E9%9D%A2%EF%BC%8C%E6%B2%A1%E8%80%83%E8%99%91%E8%A7%86%E9%A2%91%E9%9F%B3%E9%A2%91%EF%BC%9F"><span class="nav-text">05. 为什么只用了 RGB 画面，没考虑视频音频？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9F%BA%E6%A8%A1%E8%83%BD%E5%8A%9B%E7%9A%84%E8%BE%B9%E7%95%8C%EF%BC%88Qwen3-VL-%E7%9A%84%E6%9E%B6%E6%9E%84%E5%86%B3%E5%AE%9A%EF%BC%89"><span class="nav-text">1. 基模能力的边界（Qwen3-VL 的架构决定）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Token-%E7%BB%8F%E6%B5%8E%E5%AD%A6%EF%BC%9A%E7%94%BB%E9%9D%A2%E7%9A%84%E5%BC%80%E9%94%80%E8%BF%9C%E8%B6%85%E9%9F%B3%E9%A2%91%EF%BC%88%E6%8A%93%E6%A0%B8%E5%BF%83%E7%9F%9B%E7%9B%BE%EF%BC%89"><span class="nav-text">2. Token 经济学：画面的开销远超音频（抓核心矛盾）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E8%AF%84%E6%B5%8B%E6%88%90%E7%BB%A9%E5%8D%95%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%AE%9E%E6%88%98%E8%80%83%E9%87%8F"><span class="nav-text">06. 评测成绩单与工程实战考量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E8%80%83%E9%87%8F%EF%BC%88Engineering-Notes%EF%BC%89"><span class="nav-text">生产环境部署考量（Engineering Notes）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E8%BF%9B%E9%98%B6%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%EF%BC%9A%E8%B7%A8-N-%E4%B8%AA%E8%A7%86%E9%A2%91%E6%A3%80%E7%B4%A2%E4%B8%8E%E5%88%87%E7%89%87%E7%B2%92%E5%BA%A6%E7%9A%84%E5%B7%A5%E7%A8%8B%E6%8A%89%E6%8B%A9"><span class="nav-text">07. 进阶系统设计：跨 N 个视频检索与切片粒度的工程抉择</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%81%8C%E8%B4%A3%E8%BE%B9%E7%95%8C%EF%BC%9A%E5%88%9D%E7%AD%9B%EF%BC%88Stage-1%EF%BC%89%E4%B8%8E%E7%B2%BE%E8%AF%BB%EF%BC%88Stage-2%EF%BC%89%E7%9A%84%E6%B8%85%E6%99%B0%E8%A7%A3%E8%80%A6"><span class="nav-text">1. 职责边界：初筛（Stage 1）与精读（Stage 2）的清晰解耦</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%88%87%E7%89%87%E7%B2%92%E5%BA%A6%E5%9B%B0%E6%83%91%EF%BC%9A%E9%95%BF%E8%A7%86%E9%A2%91-A-%E5%88%87%E6%88%90%E7%89%87%E6%AE%B5-B%EF%BC%8CLoRA-%E8%AF%A5%E4%B8%BA%E8%B0%81%E8%80%8C%E7%94%9F%EF%BC%9F"><span class="nav-text">2. 切片粒度困惑：长视频 A 切成片段 B，LoRA 该为谁而生？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#08-%E9%80%86%E5%90%91%E9%87%8D%E6%9E%84%EF%BC%9A%E5%B0%86-WIRE-%E5%BC%95%E5%85%A5%E7%A6%BB%E7%BA%BF-ETL-%E9%A2%84%E5%A4%84%E7%90%86%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-text">08. 逆向重构：将 WIRE 引入离线 ETL 预处理流水线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%90%BD%E5%9C%B0%E5%9C%BA%E6%99%AF%E4%B8%80%EF%BC%9A%E4%BD%8E%E7%AE%97%E5%8A%9B%E6%B6%88%E8%80%97%E7%9A%84%E2%80%9C%E7%B2%BE%E5%87%86%E8%AF%AD%E4%B9%89%E5%88%87%E5%88%86%E2%80%9D%EF%BC%88Semantic-Chunking%EF%BC%89"><span class="nav-text">1. 落地场景一：低算力消耗的“精准语义切分”（Semantic Chunking）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%90%BD%E5%9C%B0%E5%9C%BA%E6%99%AF%E4%BA%8C%EF%BC%9A%E6%89%B9%E9%87%8F%E7%94%9F%E4%BA%A7%E9%AB%98%E4%BF%9D%E7%9C%9F%E5%85%A8%E5%B1%80%E6%8F%8F%E8%BF%B0%EF%BC%88Dense-Video-Captioning%EF%BC%89"><span class="nav-text">2. 落地场景二：批量生产高保真全局描述（Dense Video Captioning）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%90%BD%E5%9C%B0%E5%9C%BA%E6%99%AF%E4%B8%89%EF%BC%9A%E7%A0%B4%E9%99%A4%E6%A8%A1%E6%80%81%E9%B8%BF%E6%B2%9F%EF%BC%8C%E6%89%93%E9%80%A0%E6%9C%80%E5%BC%BA%E6%A3%80%E7%B4%A2-Embedding"><span class="nav-text">3. 落地场景三：破除模态鸿沟，打造最强检索 Embedding</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BB%B6%E4%BC%B8%E9%98%85%E8%AF%BB%E4%B8%8E%E7%9B%B8%E5%85%B3%E8%AE%BA%E6%96%87"><span class="nav-text">延伸阅读与相关论文</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -172,13 +172,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-count">43</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">134</span>
+        <span class="site-state-item-count">136</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -241,7 +241,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-27 13:21:38" itemprop="dateModified" datetime="2026-10-27T13:21:38+08:00">2026-10-27</time>
+      <time title="修改时间：2026-10-27 14:07:42" itemprop="dateModified" datetime="2026-10-27T14:07:42+08:00">2026-10-27</time>
     </span>
 
   
@@ -258,7 +258,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>5.4k</span>
+      <span>5.5k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -488,6 +488,13 @@ LoRA 矩阵处在高度敏感的非线性参数流形上。若试图将代表切
 <li><strong>破除输入端内卷</strong>：证明了当输入激活值（Activation）过于臃肿时，将高频微观表征动态迁移至模型参数权重空间（Weight Space）具有极高的投资回报率；</li>
 <li><strong>重塑工业流水线</strong>：它在在线侧救活了长视频深度问答的延迟与显存瓶颈；在离线侧则可作为强大的数据增强引擎，赋能精准语义切分、密集描述提取与高精度文本向量构建。</li>
 </ol>
+<hr>
+<h2 id="延伸阅读与相关论文">延伸阅读与相关论文</h2>
+<ul>
+<li><strong>同系列深度长文推荐</strong>：<a href="/2026/10/27/MIT3-MemoryInternalizationViaTestTimeTraining/">【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training)</a><br>
+<em>探讨了另一种更为激进的 Weight-Space 路线：通过测试时微调（TTT）与视觉记忆蒸馏，彻底销毁原视频，实现纯文本闭卷问答。</em></li>
+<li><strong>MIT³ 原文</strong>：Zhao et al., <em>Memory Internalization via Test-Time Training for Long-Video Understanding</em>, <a target="_blank" href="https://arxiv.org/abs/2610.26910" rel="external nofollow noreferrer noopener">arXiv:2610.26910</a>.</li>
+</ul>
 
     </div>
 
@@ -498,11 +505,11 @@ LoRA 矩阵处在高度敏感的非线性参数流形上。若试图将代表切
     <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
-              <a href="/tags/WIRE/" rel="tag"># WIRE</a>
               <a href="/tags/%E8%A7%86%E9%A2%91%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 视频大模型</a>
               <a href="/tags/Video-LLM/" rel="tag"># Video LLM</a>
               <a href="/tags/LoRA/" rel="tag"># LoRA</a>
               <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%B7%A5%E7%A8%8B/" rel="tag"># 系统工程</a>
+              <a href="/tags/WIRE/" rel="tag"># WIRE</a>
           </div>
 
         
@@ -514,8 +521,8 @@ LoRA 矩阵处在高度敏感的非线性参数流形上。若试图将代表切
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2025/05/14/ClipModelsResearch/" rel="next" title="CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告">
-                  CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告 <i class="fa fa-angle-right"></i>
+                <a href="/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/" rel="next" title="【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training)">
+                  【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training) <i class="fa fa-angle-right"></i>
                 </a>
             </div>
           </div>
@@ -549,14 +556,14 @@ LoRA 矩阵处在高度敏感的非线性参数流形上。若试图将代表切
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">183k</span>
+    <span title="站点总字数">187k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">11:06</span>
+    <span title="站点阅读时长">11:21</span>
   </span>
 </div>
 <div class="busuanzi-count">

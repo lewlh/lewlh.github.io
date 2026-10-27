@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="继前几天研读了通过超网络前向生成权重的前沿论文 《打破长视频的显存与计算魔咒：解析前沿论文 WIRE》 之后，今天我们来深入探讨同一时期在计算机视觉顶会开源社区引发广泛讨论的另一篇重量级论文——《Memory Internalization via Test-Time Training for Long-Video Understanding》（引入了 MIT³ 框架）。 如果说上一篇 WIRE">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training)">
+<meta property="og:url" content="https://lewlh.github.io/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="继前几天研读了通过超网络前向生成权重的前沿论文 《打破长视频的显存与计算魔咒：解析前沿论文 WIRE》 之后，今天我们来深入探讨同一时期在计算机视觉顶会开源社区引发广泛讨论的另一篇重量级论文——《Memory Internalization via Test-Time Training for Long-Video Understanding》（引入了 MIT³ 框架）。 如果说上一篇 WIRE">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-23T05:56:00.000Z">
+<meta property="article:modified_time" content="2026-10-27T06:07:42.073Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="LoRA">
+<meta property="article:tag" content="MIT3">
+<meta property="article:tag" content="Test-Time Training">
+<meta property="article:tag" content="Video LLM">
+<meta property="article:tag" content="系统工程">
+<meta property="article:tag" content="视频大模型">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/","path":"2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/","title":"【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training) | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">136</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">43</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%A1%8C%E4%B8%9A%E7%97%9B%E7%82%B9%EF%BC%9A%E9%95%BF%E8%A7%86%E9%A2%91%E2%80%9C%E5%BC%80%E5%8D%B7%E8%80%83%E8%AF%95%E2%80%9D%E7%9A%84%E6%B2%89%E9%87%8D%E4%BB%A3%E4%BB%B7"><span class="nav-text">01. 行业痛点：长视频“开卷考试”的沉重代价</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BC%A0%E7%BB%9F%E6%A8%A1%E5%9E%8B%E7%9A%84%E2%80%9C%E5%BC%80%E5%8D%B7%E7%96%B2%E5%8A%B3%E2%80%9D"><span class="nav-text">1. 传统模型的“开卷疲劳”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BC%A0%E7%BB%9F%E6%A3%80%E7%B4%A2%EF%BC%88RAG%EF%BC%89%E7%9A%84%E5%B1%80%E9%99%90"><span class="nav-text">2. 传统检索（RAG）的局限</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%A0%B8%E5%BF%83%E7%AA%81%E7%A0%B4%EF%BC%9ALoRA-%E8%A1%A5%E4%B8%81%E5%A6%82%E4%BD%95%E6%88%90%E4%B8%BA%E2%80%9C%E8%A7%86%E9%A2%91%E8%AE%B0%E5%BF%86%E8%BD%BD%E4%BD%93%E2%80%9D%EF%BC%9F"><span class="nav-text">02. 核心突破：LoRA 补丁如何成为“视频记忆载体”？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%BD%BD%E4%BD%93%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">1. 载体是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%BF%99%E4%B8%AA%E6%96%87%E4%BB%B6%E8%83%BD%E7%8B%AC%E7%AB%8B%E8%BF%90%E8%A1%8C%E5%90%97%EF%BC%9F"><span class="nav-text">2. 这个文件能独立运行吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E7%AE%97%E6%B3%95%E4%B8%89%E5%A4%A7%E6%94%AF%E6%9F%B1%EF%BC%9AMIT%C2%B3-%E6%98%AF%E5%A6%82%E4%BD%95%E7%82%BC%E6%88%90%E7%9A%84%EF%BC%9F"><span class="nav-text">03. 算法三大支柱：MIT³ 是如何炼成的？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%AF%E6%9F%B1%E4%B8%80%EF%BC%9A%E7%B4%A7%E5%87%91%E5%A4%9A%E5%B0%BA%E5%BA%A6%E7%9B%91%E7%9D%A3%EF%BC%88Compact-Multi-scale-Supervision%EF%BC%89"><span class="nav-text">支柱一：紧凑多尺度监督（Compact Multi-scale Supervision）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%AF%E6%9F%B1%E4%BA%8C%EF%BC%9ADelta-Injection-%E5%9B%A0%E6%9E%9C%E8%BF%BD%E8%B8%AA%EF%BC%88Causal-Tracing%EF%BC%89"><span class="nav-text">支柱二：Delta-Injection 因果追踪（Causal Tracing）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%AF%E6%9F%B1%E4%B8%89%EF%BC%9A%E8%A7%86%E8%A7%89%E8%AE%B0%E5%BF%86%E8%92%B8%E9%A6%8F%EF%BC%88Visual-Memory-Distillation%EF%BC%89"><span class="nav-text">支柱三：视觉记忆蒸馏（Visual Memory Distillation）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E6%B7%B1%E5%BA%A6%E5%AF%B9%E6%AF%94%EF%BC%9AMIT%C2%B3-vs-WIRE"><span class="nav-text">04. 深度对比：MIT³ vs. WIRE</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E5%B7%A5%E7%A8%8B%E5%A4%8D%E7%8E%B0%E9%AA%A8%E6%9E%B6%EF%BC%88PyTorch-PEFT%EF%BC%89"><span class="nav-text">05. 工程复现骨架（PyTorch &#x2F; PEFT）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E5%95%86%E4%B8%9A%E8%90%BD%E5%9C%B0%EF%BC%9A%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%E4%B8%9A%E5%8A%A1%E9%80%82%E5%90%88%E4%B8%8A-MIT%C2%B3%EF%BC%9F"><span class="nav-text">06. 商业落地：什么样的业务适合上 MIT³？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E7%BB%93%E8%AF%AD"><span class="nav-text">07. 结语</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#08-%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE%E4%B8%8E%E5%BB%B6%E4%BC%B8%E9%98%85%E8%AF%BB-References-Further-Reading"><span class="nav-text">08. 参考文献与延伸阅读 (References &amp; Further Reading)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%9C%AC%E7%AB%99%E7%9B%B8%E5%85%B3%E5%89%8D%E6%B2%BF%E6%B7%B1%E5%BA%A6%E9%95%BF%E6%96%87"><span class="nav-text">1. 本站相关前沿深度长文</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E8%AE%BA%E6%96%87%E4%BF%A1%E6%81%AF%E4%B8%8E%E5%8E%9F%E6%96%87%E9%93%BE%E6%8E%A5"><span class="nav-text">2. 核心论文信息与原文链接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%9B%B8%E5%85%B3%E7%AE%97%E6%B3%95%E4%B8%8E%E7%90%86%E8%AE%BA%E6%B8%8A%E6%BA%90%E6%96%87%E7%8C%AE"><span class="nav-text">3. 相关算法与理论渊源文献</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">136</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training) | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-23 13:56:00" itemprop="dateCreated datePublished" datetime="2026-10-23T13:56:00+08:00">2026-10-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-10-27 14:07:42" itemprop="dateModified" datetime="2026-10-27T14:07:42+08:00">2026-10-27</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>继前几天研读了通过超网络前向生成权重的前沿论文 <a href="/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/">《打破长视频的显存与计算魔咒：解析前沿论文 WIRE》</a> 之后，今天我们来深入探讨同一时期在计算机视觉顶会开源社区引发广泛讨论的另一篇重量级论文——《Memory Internalization via Test-Time Training for Long-Video Understanding》（引入了 <strong>MIT³</strong> 框架）。</p>
+<p>如果说上一篇 WIRE 走的是“极速流式压缩、输入端保留压缩 Token、超网络毫秒级生成补丁”的工程路线；那么这篇来自<strong>上海交通大学与同济大学团队</strong>的 MIT³ 则走了一条更为激进且极具科幻感的“内化”路线：</p>
+<blockquote>
+<p><strong>“拿到一部长视频，AI 先通过测试时训练（Test-Time Training）把整部视频的记忆一次性‘刻’进脑神经网络；记完之后，彻底销毁原视频！后续不管你问 10 个还是 1000 个问题，AI 全程两手空空，以纯文本（Video-free）模式闭卷秒回。”</strong></p>
+</blockquote>
+<p>在这篇分享中，我们将摒弃晦涩抽象的数学黑话，系统拆解 MIT³ 的核心哲学、破解的工业难题、因果追踪与视觉记忆蒸馏的底层原理、工程复现细节以及与 WIRE 的横向架构对比。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Memory Internalization via Test-Time Training for Long-Video Understanding<br>
+<strong>作者团队</strong>：Haonan Zhao, Jiaxuan Chen, Qingyang Liu, Shuochen Chang, Siyu Sun, Jiangtong Li, Li Niu (上海交通大学、同济大学)<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2610.26910" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2610.26910</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" href="https://arxiv.org/html/2610.26910" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2610.26910</a></p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-行业痛点：长视频“开卷考试”的沉重代价">01. 行业痛点：长视频“开卷考试”的沉重代价</h2>
+<p>在分析长视频（如 2 小时的电影、公开课或全天监控录像）时，传统多模态视频大模型（Video LLM）面临着一个无法回避的工程困局：</p>
+<h3 id="1-传统模型的“开卷疲劳”">1. 传统模型的“开卷疲劳”</h3>
+<ul>
+<li>用户问第 1 句：“视频第 10 分钟那个男人穿什么衣服？”——大模型把 2 小时切出的数万张帧特征扫一遍；</li>
+<li>用户问第 2 句：“后来他去了哪里？”——大模型又把这数万张特征在显存里完整遍历计算一遍。</li>
+<li><strong>代价</strong>：输入序列（Tokens）海啸式暴涨，KV Cache 显存吃满，推理首字延迟（TTFT）极长，且每问一次都要重复烧钱。</li>
+</ul>
+<h3 id="2-传统检索（RAG）的局限">2. 传统检索（RAG）的局限</h3>
+<p>如果先提取文字描述做向量检索，虽然省算力，但文字无法还原微观视觉细节，面对长跨度的因果时空链条极易断章取义。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">【传统模式：开卷翻书】</span><br><span class="line">用户每个提问 ──▶ 必须同时输入 [数万个视频特征向量] + [文字问题] ──▶ 显存爆炸、算力高昂</span><br><span class="line"></span><br><span class="line">【MIT³ 模式：闭卷内化】</span><br><span class="line">视频先预热一次 ──▶ 视频文件/特征彻底销毁 ──▶ 每次提问只输入 [文字问题] ──▶ 纯文本秒回</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="02-核心突破：LoRA-补丁如何成为“视频记忆载体”？">02. 核心突破：LoRA 补丁如何成为“视频记忆载体”？</h2>
+<p>很多工程师的第一反应是：“这不就是提取特征存起来吗？”<br>
+其实不然。<strong>它存的不是通常意义上的‘特征数据’，而是直接变成了大模型的‘脑神经突触权重’。</strong></p>
+<h3 id="1-载体是什么？">1. 载体是什么？</h3>
+<p>载体不是数据库，而是一个极轻量级的外挂参数模块——<strong>LoRA（低秩适配器）</strong>。</p>
+<ul>
+<li>底座大模型（如 7B/8B 参数）全部冻结，不修改任何原生代码；</li>
+<li>针对特定的长视频，在特定的神经层上外挂几组微型参数矩阵；</li>
+<li>视频的全部信息被“烧录”进这个微型矩阵中，最终生成一个通常仅 <strong>20MB ~ 50MB</strong> 的标准权重文件（如 <code>video_adapter.safetensors</code>）。</li>
+</ul>
+<h3 id="2-这个文件能独立运行吗？">2. 这个文件能独立运行吗？</h3>
+<p><strong>绝对不能！它不是一个独立大模型。</strong></p>
+<ul>
+<li><strong>底座大模型</strong>：像一个懂语言、通逻辑、具备完整思考能力的“真人脑子”；</li>
+<li><strong><code>safetensors</code> 文件</strong>：只是一张“写满了这部视频专属密码的小纸条”。</li>
+<li>提问时，底座大模型将这个 20MB 的小补丁动态“贴”在自己的额头上，从而瞬间回忆起整部视频的脉络与细节。</li>
+</ul>
+<hr>
+<h2 id="03-算法三大支柱：MIT³-是如何炼成的？">03. 算法三大支柱：MIT³ 是如何炼成的？</h2>
+<p>把视频“背下来”听起来很美好，但在工程上有三大致命挑战：<strong>出题成本、写入位置、模态鸿沟</strong>。MIT³ 提出了三个环环相扣的技术支柱：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[长视频输入]</span><br><span class="line">   │</span><br><span class="line">   ├──▶ 1. 紧凑多尺度监督 (Compact Multi-scale Supervision) ──▶ 全自动构建少而精的代表性锚点</span><br><span class="line">   │</span><br><span class="line">   ├──▶ 2. 增量注入因果追踪 (Delta-Injection Causal Tracing) ─▶ 像脑部CT一样精准锁定黄金Top-K层</span><br><span class="line">   │</span><br><span class="line">   └──▶ 3. 视觉记忆蒸馏 (Visual Memory Distillation) ─────────▶ 让文本激活逼近真实视觉脑电波</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="支柱一：紧凑多尺度监督（Compact-Multi-scale-Supervision）">支柱一：紧凑多尺度监督（Compact Multi-scale Supervision）</h3>
+<p>如果像过去一样依靠题海战术，为了记下一部视频需要生成 2,000 道题，光是出题就要耗费半小时，工程上根本无法落地。MIT³ 提出了<strong>立体分层、去冗余</strong>的紧凑生成策略：</p>
+<ol>
+<li><strong>宏观尺度（Global Scale）</strong>：覆盖整部视频的宏观主线与长程因果（生成 2~3 个全局 QA）；</li>
+<li><strong>中观尺度（Event Scale）</strong>：覆盖 3~5 分钟事件段落的动作流与起承转合（生成 5~10 个事件 QA）；</li>
+<li><strong>微观尺度（Local Scale）</strong>：覆盖关键帧的高信息量瞬间，如实体属性、文字与特写细节（生成 15~25 个局部 QA）。</li>
+</ol>
+<p><strong>核心优势</strong>：不需要人工标注，通过现成视觉模型或字幕全自动生成，<strong>仅用 30~40 道高质量题目（Compact）</strong>，就搭建起整部视频的记忆骨架。</p>
+<hr>
+<h3 id="支柱二：Delta-Injection-因果追踪（Causal-Tracing）">支柱二：Delta-Injection 因果追踪（Causal Tracing）</h3>
+<p>为什么不能在所有层均匀挂 LoRA？<br>
+因为浅层负责基础词法，深层负责语言组织。如果盲目在全层写入，会导致严重的“灾难性遗忘”，模型不仅记不住视频，反而连话都说不利索。</p>
+<p>MIT³ 像神经外科医生一样，通过三步实验探测出记忆中枢：</p>
+<ol>
+<li><strong>满血前向（Clean Run）</strong>：输入视频 + 问题，记录各层隐藏状态 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>h</mi><mi>l</mi><mrow><mo stretchy="false">(</mo><mi>V</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">h_l^{(V)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.3461em;vertical-align:-0.3013em;"></span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.3987em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.2222em;">V</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3013em;"><span></span></span></span></span></span></span></span></span></span> 及正确答案概率 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mtext>clean</mtext></msub></mrow><annotation encoding="application/x-tex">P_{\text{clean}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">clean</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>；</li>
+<li><strong>致盲前向（Corrupted Run）</strong>：不给视频，仅给问题，记录纯文本状态 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>h</mi><mi>l</mi><mrow><mo stretchy="false">(</mo><mi>T</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">h_l^{(T)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.3461em;vertical-align:-0.3013em;"></span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.3987em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3013em;"><span></span></span></span></span></span></span></span></span></span> 及暴跌后的概率 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mtext>corrupted</mtext></msub></mrow><annotation encoding="application/x-tex">P_{\text{corrupted}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">corrupted</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span>；</li>
+<li><strong>计算纯视觉增量</strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>h</mi><mi>l</mi></msub><mo>=</mo><msubsup><mi>h</mi><mi>l</mi><mrow><mo stretchy="false">(</mo><mi>V</mi><mo stretchy="false">)</mo></mrow></msubsup><mo>−</mo><msubsup><mi>h</mi><mi>l</mi><mrow><mo stretchy="false">(</mo><mi>T</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\Delta h_l = h_l^{(V)} - h_l^{(T)}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.3461em;vertical-align:-0.3013em;"></span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.3987em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.2222em;">V</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3013em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.3461em;vertical-align:-0.3013em;"></span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.3987em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3013em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+</li>
+<li><strong>单层干预（Delta-Injection）</strong>：在致盲模式下，人为在第 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi></mrow><annotation encoding="application/x-tex">l</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.0197em;">l</span></span></span></span> 层强制打入视觉增量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>h</mi><mi>l</mi></msub></mrow><annotation encoding="application/x-tex">\Delta h_l</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，观察正确答案的恢复概率 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>P</mi><mtext>restored</mtext><mrow><mo stretchy="false">(</mo><mi>l</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">P_{\text{restored}}^{(l)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.3461em;vertical-align:-0.3013em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.3987em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">restored</span></span></span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3013em;"><span></span></span></span></span></span></span></span></span></span>。</li>
+</ol>
+<p>由此定义第 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi></mrow><annotation encoding="application/x-tex">l</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.0197em;">l</span></span></span></span> 层的<strong>因果记忆贡献度（Causal Utility）</strong>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>U</mi><mi>l</mi></msub><mo>=</mo><mfrac><mrow><msubsup><mi>P</mi><mtext>restored</mtext><mrow><mo stretchy="false">(</mo><mi>l</mi><mo stretchy="false">)</mo></mrow></msubsup><mo>−</mo><msub><mi>P</mi><mtext>corrupted</mtext></msub></mrow><mrow><msub><mi>P</mi><mtext>clean</mtext></msub><mo>−</mo><msub><mi>P</mi><mtext>corrupted</mtext></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">U_l = \frac{P_{\text{restored}}^{(l)} - P_{\text{corrupted}}}{P_{\text{clean}} - P_{\text{corrupted}}}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.7082em;vertical-align:-0.9721em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.7361em;"><span style="top:-2.3588em;"><span class="pstrut" style="height:3.0448em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">clean</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">corrupted</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.2748em;"><span class="pstrut" style="height:3.0448em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.7361em;"><span class="pstrut" style="height:3.0448em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.3987em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">restored</span></span></span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3013em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">corrupted</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9721em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>算法对全模型所有层打分排序，<strong>仅挑选贡献度最高的 Top-<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span> 层（通常 4~8 层）挂载 LoRA</strong>，其余未选中的层彻底冻结，节省了 80% 的无效求导计算。</p>
+<hr>
+<h3 id="支柱三：视觉记忆蒸馏（Visual-Memory-Distillation）">支柱三：视觉记忆蒸馏（Visual Memory Distillation）</h3>
+<p>文字的带宽太窄，光靠做问答题（语言交叉熵 Loss），模型只能学到干瘪的表面字句，稍微换个问法就会崩溃。</p>
+<p>MIT³ 设计了<strong>双分支特征对齐机制</strong>：</p>
+<ul>
+<li><strong>教师分支（Teacher）</strong>：看真实视频，提取特定层在文本 Token 处的真实视觉激发态 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>h</mi><mrow><mi>l</mi><mo separator="true">,</mo><mtext>text</mtext></mrow><mrow><mo stretchy="false">(</mo><mi>V</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">h_{l, \text{text}}^{(V)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.4822em;vertical-align:-0.4374em;"></span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.3987em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord text mtight"><span class="mord mtight">text</span></span></span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.2222em;">V</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4374em;"><span></span></span></span></span></span></span></span></span></span>；</li>
+<li><strong>学生分支（Student）</strong>：在纯文本输入下，计算挂载了 LoRA 后的当前状态 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>h</mi><mrow><mi>l</mi><mo separator="true">,</mo><mtext>text</mtext></mrow><mrow><mo stretchy="false">(</mo><mi>A</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">h_{l, \text{text}}^{(A)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.4822em;vertical-align:-0.4374em;"></span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.3987em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord text mtight"><span class="mord mtight">text</span></span></span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight">A</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4374em;"><span></span></span></span></span></span></span></span></span></span>；</li>
+<li><strong>优化目标</strong>：强制学生状态逐像素逼近教师状态！</li>
+</ul>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="script">L</mi><mtext>total</mtext></msub><mo>=</mo><msub><mi mathvariant="script">L</mi><mtext>task</mtext></msub><mo>+</mo><mi>λ</mi><mo>⋅</mo><msub><mi mathvariant="script">L</mi><mtext>distill</mtext></msub></mrow><annotation encoding="application/x-tex">\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{task}} + \lambda \cdot \mathcal{L}_{\text{distill}}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">total</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">task</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord mathnormal">λ</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">distill</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="script">L</mi><mtext>distill</mtext></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>l</mi><mo>∈</mo><mtext>Top</mtext><mi>K</mi></mrow></munder><mfrac><mn>1</mn><mi>T</mi></mfrac><munderover><mo>∑</mo><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow><mi>T</mi></munderover><msubsup><mrow><mo fence="true">∥</mo><msubsup><mi>h</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>A</mi><mo stretchy="false">)</mo></mrow></msubsup><mo>−</mo><msubsup><mi>h</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>V</mi><mo stretchy="false">)</mo></mrow></msubsup><mo fence="true">∥</mo></mrow><mn>2</mn><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">\mathcal{L}_{\text{distill}} = \sum_{l \in \text{Top}K} \frac{1}{T} \sum_{t=1}^{T} \left\| h_{l, t}^{(A)} - h_{l, t}^{(V)} \right\|_2^2
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">distill</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:3.2666em;vertical-align:-1.4382em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8479em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mrel mtight">∈</span><span class="mord text mtight"><span class="mord mtight">Top</span></span><span class="mord mathnormal mtight" style="margin-right:0.0715em;">K</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.4382em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">T</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.8283em;"><span style="top:-1.8829em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span><span style="top:-4.3em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2671em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.15em;"><span style="top:-3.15em;"><span class="pstrut" style="height:3.8em;"></span><span style="width:0.556em;height:1.8em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.556em" height="1.8em" viewBox="0 0 556 1800"><path d="M145 15 v585 v600 v585 c2.667,10,9.667,15,21,15
+c10,0,16.667,-5,20,-15 v-585 v-600 v-585 c-2.667,-10,-9.667,-15,-21,-15
+c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v600 v585 h43z
+M367 15 v585 v600 v585 c2.667,10,9.667,15,21,15
+c10,0,16.667,-5,20,-15 v-585 v-600 v-585 c-2.667,-10,-9.667,-15,-21,-15
+c-10,0,-16.667,5,-20,15z M410 15 H367 v585 v600 v585 h43z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.65em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.3987em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">t</span></span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight">A</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4374em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.3987em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">t</span></span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.2222em;">V</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4374em;"><span></span></span></span></span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.15em;"><span style="top:-3.15em;"><span class="pstrut" style="height:3.8em;"></span><span style="width:0.556em;height:1.8em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.556em" height="1.8em" viewBox="0 0 556 1800"><path d="M145 15 v585 v600 v585 c2.667,10,9.667,15,21,15
+c10,0,16.667,-5,20,-15 v-585 v-600 v-585 c-2.667,-10,-9.667,-15,-21,-15
+c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v600 v585 h43z
+M367 15 v585 v600 v585 c2.667,10,9.667,15,21,15
+c10,0,16.667,-5,20,-15 v-585 v-600 v-585 c-2.667,-10,-9.667,-15,-21,-15
+c-10,0,-16.667,5,-20,15z M410 15 H367 v585 v600 v585 h43z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.65em;"><span></span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.354em;"><span style="top:-2.0003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span><span style="top:-3.6029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.6997em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+<p><strong>本质意义</strong>：虽然原视频画面在问答时被丢弃了，但模型在纯文本思考时，神经元激发的内在脑电波和亲眼看到画面时一模一样！</p>
+<hr>
+<h2 id="04-深度对比：MIT³-vs-WIRE">04. 深度对比：MIT³ vs. WIRE</h2>
+<p>近期学术界有两篇将长视频推向“权重空间（Weight-Space）”的代表作（关于 WIRE 的具体系统架构与实现细节，可参考前序文章 <a href="/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/">《打破长视频的显存与计算魔咒：解析前沿论文 WIRE (Weight Space Implicit Representation Encoding)》</a>）。许多工程师容易将它们混淆，其实两者的架构路线截然不同：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">评估维度</th>
+<th style="text-align:left">MIT³ (arXiv:2610.26910)</th>
+<th style="text-align:left">WIRE (arXiv:2610.17355)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>底层哲学</strong></td>
+<td style="text-align:left"><strong>彻底闭卷（Video-free）</strong>，完全扔掉视频</td>
+<td style="text-align:left"><strong>视频大压缩 + 权重补漏</strong>，半开卷</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>输入框内容</strong></td>
+<td style="text-align:left"><strong>纯文本</strong>（只有你的问题，0 视觉 Token）</td>
+<td style="text-align:left"><strong>压缩后的视频向量 + 你的问题</strong>（约数千 Token）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>LoRA 怎么来的</strong></td>
+<td style="text-align:left"><strong>测试时微调（TTT）</strong>：反向传播蒸馏迭代生成</td>
+<td style="text-align:left"><strong>超网络前向预测</strong>：单次矩阵计算瞬间生成</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>准备预热耗时</strong></td>
+<td style="text-align:left">需 1~3 分钟训练迭代（慢热型）</td>
+<td style="text-align:left">毫秒级生成（即用型）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>推理端显存压力</strong></td>
+<td style="text-align:left"><strong>零视频显存</strong>，普通单张显卡即可跑高并发</td>
+<td style="text-align:left">依赖长上下文 KV Cache，但缩短了 3.5 倍</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>持久化存储</strong></td>
+<td style="text-align:left">作为 20MB 资产长期保存在磁盘</td>
+<td style="text-align:left">在显存中动态运算，通常用完即弃</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="05-工程复现骨架（PyTorch-PEFT）">05. 工程复现骨架（PyTorch / PEFT）</h2>
+<p>以下是基于 Hugging Face 生态复现 MIT³ 完整闭环流水线的核心工程实现骨架：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> Dataset, DataLoader</span><br><span class="line"><span class="keyword">from</span> peft <span class="keyword">import</span> LoraConfig, get_peft_model</span><br><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoTokenizer, AutoModelForCausalLM</span><br><span class="line"></span><br><span class="line"><span class="comment"># =========================================================================</span></span><br><span class="line"><span class="comment"># 步骤 1：紧凑多尺度监督自动生成器 (Compact Multi-scale Supervision)</span></span><br><span class="line"><span class="comment"># =========================================================================</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CompactMultiScaleGenerator</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    全自动多尺度数据流水线：</span></span><br><span class="line"><span class="string">    拒绝对数千帧暴力出题，按【全局-事件-局部】三层立体结构，提炼 30~40 条高质量监督样本</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, vlm_engine, text_llm_engine</span>):</span><br><span class="line">        <span class="variable language_">self</span>.vlm = vlm_engine        <span class="comment"># 负责快速看图打标的轻量视觉模型 (如 Qwen-VL)</span></span><br><span class="line">        <span class="variable language_">self</span>.llm = text_llm_engine    <span class="comment"># 负责结构化提炼 QA 的文本大模型</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">generate</span>(<span class="params">self, video_path</span>):</span><br><span class="line">        supervision_pool = []</span><br><span class="line"></span><br><span class="line">        <span class="comment"># --- 1.1 宏观尺度 (Global Scale: 2~3 个样本) ---</span></span><br><span class="line">        <span class="comment"># 提取全片关键帧序列并总结长程因果与故事核心</span></span><br><span class="line">        global_summary = <span class="variable language_">self</span>.vlm.summarize_video_narrative(video_path)</span><br><span class="line">        global_qas = <span class="variable language_">self</span>.llm.generate_qa(</span><br><span class="line">            context=global_summary,</span><br><span class="line">            prompt=<span class="string">&quot;生成2个涵盖整部视频主旨、核心人物关系及长时序事件因果的宏观问答题。&quot;</span>,</span><br><span class="line">            scale=<span class="string">&quot;global&quot;</span></span><br><span class="line">        )</span><br><span class="line">        supervision_pool.extend(global_qas)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># --- 1.2 中观尺度 (Event Scale: 5~10 个样本) ---</span></span><br><span class="line">        <span class="comment"># 按场景切换 (Scene Detection) 切分出若干 3~5 分钟的动作流片段</span></span><br><span class="line">        event_segments = <span class="variable language_">self</span>.detect_scene_transitions(video_path, max_segments=<span class="number">8</span>)</span><br><span class="line">        <span class="keyword">for</span> seg <span class="keyword">in</span> event_segments:</span><br><span class="line">            seg_desc = <span class="variable language_">self</span>.vlm.caption_clip(seg.frames)</span><br><span class="line">            event_qa = <span class="variable language_">self</span>.llm.generate_qa(</span><br><span class="line">                context=seg_desc,</span><br><span class="line">                prompt=<span class="string">&quot;基于该片段连续动作流，生成1个关于行为动机、事件起因或结果的中观问答题。&quot;</span>,</span><br><span class="line">                scale=<span class="string">&quot;event&quot;</span></span><br><span class="line">            )</span><br><span class="line">            supervision_pool.append(event_qa)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># --- 1.3 微观尺度 (Local Scale: 15~25 个样本) ---</span></span><br><span class="line">        <span class="comment"># 提取高信息熵/突变关键帧，锁定文字、特写道具、微表情与精准时间戳</span></span><br><span class="line">        salient_frames = <span class="variable language_">self</span>.extract_salient_keyframes(video_path, max_frames=<span class="number">20</span>)</span><br><span class="line">        <span class="keyword">for</span> frame <span class="keyword">in</span> salient_frames:</span><br><span class="line">            local_desc = <span class="variable language_">self</span>.vlm.describe_details(frame.image)</span><br><span class="line">            local_qa = <span class="variable language_">self</span>.llm.generate_qa(</span><br><span class="line">                context=<span class="string">f&quot;时间戳 [<span class="subst">&#123;frame.timestamp&#125;</span>]: <span class="subst">&#123;local_desc&#125;</span>&quot;</span>,</span><br><span class="line">                prompt=<span class="string">&quot;针对画面中的具体物体颜色、文字、位置等微观细节，生成1个高保真局部问答题。&quot;</span>,</span><br><span class="line">                scale=<span class="string">&quot;local&quot;</span></span><br><span class="line">            )</span><br><span class="line">            supervision_pool.append(local_qa)</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;紧凑多尺度数据集构建完毕！总精简样本量: <span class="subst">&#123;<span class="built_in">len</span>(supervision_pool)&#125;</span> 条 (极速收敛，无冗余)&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> supervision_pool</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">detect_scene_transitions</span>(<span class="params">self, video_path, max_segments</span>): ...</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">extract_salient_keyframes</span>(<span class="params">self, video_path, max_frames</span>): ...</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 将生成的少而精样本封装为 PyTorch DataLoader</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">VideoQADataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, qa_list, tokenizer, max_len=<span class="number">256</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.data = [</span><br><span class="line">            tokenizer(<span class="string">f&quot;Question: <span class="subst">&#123;item[<span class="string">&#x27;q&#x27;</span>]&#125;</span> Answer: <span class="subst">&#123;item[<span class="string">&#x27;a&#x27;</span>]&#125;</span>&quot;</span>, </span><br><span class="line">                      truncation=<span class="literal">True</span>, max_length=max_len, return_tensors=<span class="string">&quot;pt&quot;</span>) </span><br><span class="line">            <span class="keyword">for</span> item <span class="keyword">in</span> qa_list</span><br><span class="line">        ]</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>): <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.data)</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>): <span class="keyword">return</span> &#123;k: v.squeeze(<span class="number">0</span>) <span class="keyword">for</span> k, v <span class="keyword">in</span> <span class="variable language_">self</span>.data[idx].items()&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># =========================================================================</span></span><br><span class="line"><span class="comment"># 步骤 2：底座加载与因果追踪 (Delta-Injection Causal Tracing)</span></span><br><span class="line"><span class="comment"># =========================================================================</span></span><br><span class="line">base_model = AutoModelForCausalLM.from_pretrained(<span class="string">&quot;Qwen2.5-7B&quot;</span>).<span class="built_in">eval</span>()</span><br><span class="line"><span class="keyword">for</span> p <span class="keyword">in</span> base_model.parameters():</span><br><span class="line">    p.requires_grad = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行紧凑多尺度生成器，产出训练数据</span></span><br><span class="line">generator = CompactMultiScaleGenerator(vlm_engine=..., text_llm_engine=...)</span><br><span class="line">compact_qa_dataset = generator.generate(<span class="string">&quot;lecture_2hours.mp4&quot;</span>)</span><br><span class="line">compact_qa_loader = DataLoader(VideoQADataset(compact_qa_dataset, tokenizer), batch_size=<span class="number">2</span>, shuffle=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 利用多尺度样本中的典型探针进行因果追踪，选出黄金 Top-K 层与目标视觉激活 h_teacher</span></span><br><span class="line">target_layers, h_teacher = run_causal_tracing(base_model, compact_qa_dataset[<span class="number">0</span>], visual_tokens, top_k=<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># =========================================================================</span></span><br><span class="line"><span class="comment"># 步骤 3：靶向挂载 LoRA 适配器</span></span><br><span class="line"><span class="comment"># =========================================================================</span></span><br><span class="line">lora_config = LoraConfig(</span><br><span class="line">    r=<span class="number">32</span>,</span><br><span class="line">    lora_alpha=<span class="number">64</span>,</span><br><span class="line">    target_modules=[<span class="string">&quot;q_proj&quot;</span>, <span class="string">&quot;v_proj&quot;</span>],</span><br><span class="line">    layers_to_transform=target_layers  <span class="comment"># 核心：只注入被选中的黄金 Top-K 层！</span></span><br><span class="line">)</span><br><span class="line">model = get_peft_model(base_model, lora_config)</span><br><span class="line">optimizer = torch.optim.AdamW(model.parameters(), lr=<span class="number">1e-4</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># =========================================================================</span></span><br><span class="line"><span class="comment"># 步骤 4：视觉记忆蒸馏训练循环 (纯文本输入，迅速收敛)</span></span><br><span class="line"><span class="comment"># =========================================================================</span></span><br><span class="line">model.train()</span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>):</span><br><span class="line">    <span class="keyword">for</span> batch <span class="keyword">in</span> compact_qa_loader:</span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        <span class="comment"># 学生分支输入是纯文本！</span></span><br><span class="line">        outputs = model(input_ids=batch[<span class="string">&quot;input_ids&quot;</span>], labels=batch[<span class="string">&quot;input_ids&quot;</span>], output_hidden_states=<span class="literal">True</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 1. 语言任务损失 (Cross-Entropy)</span></span><br><span class="line">        loss_task = outputs.loss</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 2. 视觉记忆蒸馏损失 (MSE 对齐各关键层文本 Token 位置的隐藏状态)</span></span><br><span class="line">        loss_distill = <span class="number">0.0</span></span><br><span class="line">        seq_len = batch[<span class="string">&quot;input_ids&quot;</span>].shape[<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">for</span> l <span class="keyword">in</span> target_layers:</span><br><span class="line">            h_student = outputs.hidden_states[l]</span><br><span class="line">            <span class="comment"># 逼近预存的教师视觉表征</span></span><br><span class="line">            loss_distill += F.mse_loss(h_student, h_teacher[l][:, -seq_len:, :])</span><br><span class="line">            </span><br><span class="line">        total_loss = loss_task + <span class="number">0.5</span> * loss_distill</span><br><span class="line">        total_loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line"><span class="comment"># =========================================================================</span></span><br><span class="line"><span class="comment"># 步骤 5：导出轻量级记忆文件，彻底销毁原视频</span></span><br><span class="line"><span class="comment"># =========================================================================</span></span><br><span class="line">model.save_pretrained(<span class="string">&quot;./mit3_video_adapter&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;视频记忆内化完毕！原视频文件及视频帧缓存已全部安全销毁。&quot;</span>)</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="06-商业落地：什么样的业务适合上-MIT³？">06. 商业落地：什么样的业务适合上 MIT³？</h2>
+<p>在技术选型中，不能只看算法有多新颖，必须看<strong>投入产出比（ROI）公式</strong>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>总开销</mtext><mo>=</mo><mtext>一次性预热训练成本 (固定)</mtext><mo>+</mo><mi>N</mi><mo>×</mo><mtext>单次提问推理成本</mtext></mrow><annotation encoding="application/x-tex">\text{总开销} = \text{一次性预热训练成本 (固定)} + N \times \text{单次提问推理成本}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord text"><span class="mord cjk_fallback">总开销</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord cjk_fallback">一次性预热训练成本</span><span class="mord"> (</span><span class="mord cjk_fallback">固定</span><span class="mord">)</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord text"><span class="mord cjk_fallback">单次提问推理成本</span></span></span></span></span></span></p>
+<ul>
+<li><strong>绝对不要用的场景（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N=1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span>）</strong>：<br>
+如果用户在 App 随手刷短视频并随口问一句，让用户等待 2 分钟做微调，属于灾难级产品设计。此时应当使用传统的单次推理或 WIRE 类的流式方案。</li>
+<li><strong>极具商业价值的落地场景（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>≫</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">N \gg 100</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7224em;vertical-align:-0.0391em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≫</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">100</span></span></span></span>）</strong>：
+<ul>
+<li><strong>长视频知识库 / 网课问答助教</strong>：录制好的名师公开课，全校数万名学生随时发问。提前花 2 分钟预热生成一个 20MB 权重文件，后续上万次提问全部走纯文本通道，<strong>显卡成本暴跌几十倍，并发承载力呈数量级提升</strong>！</li>
+<li><strong>庭审/案件录像复盘系统</strong>：长达几小时的案情视频，专案组需多角度反复核验线索，无延迟的纯文本秒级交互体验极佳。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="07-结语">07. 结语</h2>
+<p>从“在输入端拼命堆砌 Token”到“把信息写进模型权重”，是多模态大模型在应对长时序任务时一次极具启发性的范式演进。</p>
+<p>MIT³ 证明了：<strong>大模型完全可以在几分钟内，通过少量的紧凑样本与精准的神经元靶向蒸馏，把一部庞大的长视频内化为自身的长期记忆。</strong> 这种“一次写入、终身轻量读取”的思想，不仅为长视频理解开辟了全新路径，也为未来多模态端侧落地与高并发系统架构提供了极为珍贵的工程参考。</p>
+<hr>
+<h2 id="08-参考文献与延伸阅读-References-Further-Reading">08. 参考文献与延伸阅读 (References &amp; Further Reading)</h2>
+<h3 id="1-本站相关前沿深度长文">1. 本站相关前沿深度长文</h3>
+<ul>
+<li><strong>前序姊妹篇</strong>：<a href="/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/">【论文分享】打破长视频的显存与计算魔咒：解析前沿论文 WIRE (Weight Space Implicit Representation Encoding)</a><br>
+<em>深入剖析了如何通过超网络（Hypernetwork）前向生成 LoRA 补丁，将长视频 Token 序列压缩 3.5 倍的另一条 Weight-Space 路线。</em></li>
+<li><strong>时序与轨迹定位</strong>：<a href="/2026/10/24/VTrajEmbed-TextVideoTrajectoryEmbedding/">【论文分享】VTrajEmbed: 文本引导的视频轨迹表征学习</a></li>
+<li><strong>免训练密集切分</strong>：<a href="/2026/10/27/FreeDVC-TrainingFreeDenseVideoCaptioning/">【论文分享】FreeDVC: Training-Free Dense Video Captioning</a></li>
+</ul>
+<h3 id="2-核心论文信息与原文链接">2. 核心论文信息与原文链接</h3>
+<ul>
+<li><strong>MIT³ 原文</strong>：Zhao, H., Chen, J., Liu, Q., Chang, S., Sun, S., Li, J., &amp; Niu, L. (2026). <em>Memory Internalization via Test-Time Training for Long-Video Understanding</em>. arXiv preprint <a target="_blank" href="https://arxiv.org/abs/2610.26910" rel="external nofollow noreferrer noopener">arXiv:2610.26910</a>. HTML 交互阅读版：<a target="_blank" href="https://arxiv.org/html/2610.26910" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2610.26910</a></li>
+<li><strong>WIRE 原文</strong>：Ali, A., Zoabi, T., Wolf, L., &amp; Baskin, C. (2026). <em>WIRE: Weight Space Implicit Representation Encoding of Frozen Video LLMs</em>. arXiv preprint <a target="_blank" href="https://arxiv.org/abs/2610.17355" rel="external nofollow noreferrer noopener">arXiv:2610.17355</a>. HTML 交互阅读版：<a target="_blank" href="https://arxiv.org/html/2610.17355" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2610.17355</a></li>
+</ul>
+<h3 id="3-相关算法与理论渊源文献">3. 相关算法与理论渊源文献</h3>
+<ul>
+<li><strong>因果追踪与知识定位（ROME）</strong>：Meng, K., Bau, D., Andonian, A., &amp; Belinkov, Y. (2022). <em>Locating and editing factual associations in GPT</em>. NeurIPS 2022. <a target="_blank" href="https://arxiv.org/abs/2202.05262" rel="external nofollow noreferrer noopener">arXiv:2202.05262</a>.<br>
+<em>（MIT³ 中 Delta-Injection Causal Tracing 的核心理论源流）</em></li>
+<li><strong>测试时训练（Test-Time Training, TTT）</strong>：Sun, Y., Wang, X., Liu, Z., Miller, J., Efros, A., &amp; Hardt, M. (2020). <em>Test-Time Training with Self-Supervision for Generalization under Distribution Shifts</em>. ICML 2020.</li>
+<li><strong>参数高效微调（LoRA）</strong>：Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., &amp; Chen, W. (2021). <em>LoRA: Low-Rank Adaptation of Large Language Models</em>. ICLR 2022.</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/MIT3/" rel="tag"># MIT3</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 视频大模型</a>
+              <a href="/tags/Video-LLM/" rel="tag"># Video LLM</a>
+              <a href="/tags/Test-Time-Training/" rel="tag"># Test-Time Training</a>
+              <a href="/tags/LoRA/" rel="tag"># LoRA</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%B7%A5%E7%A8%8B/" rel="tag"># 系统工程</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/" rel="prev" title="【论文分享】打破长视频的显存与计算魔咒：解析前沿论文 WIRE (Weight Space Implicit Representation Encoding)">
+                  <i class="fa fa-angle-left"></i> 【论文分享】打破长视频的显存与计算魔咒：解析前沿论文 WIRE (Weight Space Implicit Representation Encoding)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/14/ClipModelsResearch/" rel="next" title="CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告">
+                  CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">187k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">11:21</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"015c3e5466b92f0921334bb98fccb227"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>
