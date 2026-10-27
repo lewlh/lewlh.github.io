@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">118</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">38</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">123</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">39</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-count">39</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">118</span>
+        <span class="site-state-item-count">123</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,106 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/27/FreeDVC-TrainingFreeDenseVideoCaptioning/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/10/27/FreeDVC-TrainingFreeDenseVideoCaptioning/" class="post-title-link" itemprop="url">【论文分享】无需训练即可看懂长视频？MIR 2026 论文 FreeDVC 解析及多模态视频资产库工程实践</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-10-27 10:15:00 / 修改时间：10:20:44" itemprop="dateCreated datePublished" datetime="2026-10-27T10:15:00+08:00">2026-10-27</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>最近研读了发表在《Machine Intelligence Research》(MIR) 上的最新长视频理解论文《Training-free Dense Video Captioning with Large-scale Pretrained Models》（提出 FreeDVC 框架）。</p>
+<p>对于从事后端或 AI 基础设施开发的软件工程师来说，视频理解一直是一个“门槛极高”的重算法领域：传统的密集视频字幕（Dense Video Captioning, DVC）往往需要动用海量经过人工精细打标（标注到秒级时间戳）的视频数据进行端到端微调，算力成本昂贵且极难泛化。</p>
+<p>而 FreeDVC 最让人眼前一亮的地方在于它的 <strong>“纯工程解法”：不改动任何模型权重、完全无需特定任务训练（Training-free），而是将现成成熟的视觉、语音与语言大模型组合成高效的“多模型流水线”</strong>，并在跨领域的零样本（Zero-shot）任务中展现出了极强的表现。更重要的是，它为海量长视频资产的“细粒度特征提取与向量数据库结构化”提供了完美的落地范式。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Training-free Dense Video Captioning with Large-scale Pretrained Models<br>
+<strong>作者团队</strong>：南京航空航天大学 (NUAA) 计算机科学与技术学院 / 人工智能学院 等<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://www.mi-research.net/article/doi/10.1007/s11633-025-1585-x">https://www.mi-research.net/article/doi/10.1007/s11633-025-1585-x</a><br>
+<strong>发表期刊</strong>：<em>Machine Intelligence Research</em> (MIR 2026)</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/10/27/FreeDVC-TrainingFreeDenseVideoCaptioning/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +326,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-10-27 00:25:00 / 修改时间：00:27:27" itemprop="dateCreated datePublished" datetime="2026-10-27T00:25:00+08:00">2026-10-27</time>
+      <time title="创建时间：2026-10-27 00:25:00 / 修改时间：10:20:44" itemprop="dateCreated datePublished" datetime="2026-10-27T00:25:00+08:00">2026-10-27</time>
     </span>
 
   
@@ -331,7 +431,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-27 00:27:27" itemprop="dateModified" datetime="2026-10-27T00:27:27+08:00">2026-10-27</time>
+      <time title="修改时间：2026-10-27 10:20:44" itemprop="dateModified" datetime="2026-10-27T10:20:44+08:00">2026-10-27</time>
     </span>
 
   
@@ -360,7 +460,7 @@
     
     <div class="post-body" itemprop="articleBody">
           <p>最近研读了中科院自动化所（CASIA）与快手可灵大模型团队（Kling Team）联合发布的最新长视频理解论文《PIGEONS: Incremental Long-Video Captioning with Persistent Identity Gallery and Evolving Overarching Narrative Summary》。</p>
-<p>对于从事技术但非算法背景的工程师来说，长视频理解（Video Captioning）看起来只是“让多模态大模型多读几张图”，但实际深入后会发现，长程视频在**主体指代一致性（认准人）<strong>和</strong>长程叙事连贯性（讲对事）**上面临着极其严峻的工程与算法挑战。本文从工业落地和技术原理的角度，梳理这篇论文的核心突破与思考。</p>
+<p>对于从事技术但非算法背景的工程师来说，长视频理解（Video Captioning）看起来只是“让多模态大模型多读几张图”，但实际深入后会发现，长程视频在 <strong>主体指代一致性（认准人）<strong>和</strong>长程叙事连贯性（讲对事）</strong> 上面临着极其严峻的工程与算法挑战。本文从工业落地和技术原理的角度，梳理这篇论文的核心突破与思考。</p>
 <blockquote>
 <p><strong>论文题目</strong>：PIGEONS: Incremental Long-Video Captioning with Persistent Identity Gallery and Evolving Overarching Narrative Summary<br>
 <strong>作者团队</strong>：中科院自动化所 (CASIA)、中国科学院大学、快手可灵团队 (Kling Team)、香港科技大学、北京大学、南京大学<br>
@@ -436,7 +536,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-27 00:27:27" itemprop="dateModified" datetime="2026-10-27T00:27:27+08:00">2026-10-27</time>
+      <time title="修改时间：2026-10-27 10:20:44" itemprop="dateModified" datetime="2026-10-27T10:20:44+08:00">2026-10-27</time>
     </span>
 
   
@@ -540,7 +640,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-27 00:27:27" itemprop="dateModified" datetime="2026-10-27T00:27:27+08:00">2026-10-27</time>
+      <time title="修改时间：2026-10-27 10:20:44" itemprop="dateModified" datetime="2026-10-27T10:20:44+08:00">2026-10-27</time>
     </span>
 
   
@@ -594,105 +694,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2025/05/06/AiInTheEnterprise/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/05/06/AiInTheEnterprise/" class="post-title-link" itemprop="url">OpenAI《AI in the Enterprise》中文翻译</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-05-06 22:53:00" itemprop="dateCreated datePublished" datetime="2025-05-06T22:53:00+08:00">2025-05-06</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-27 00:27:27" itemprop="dateModified" datetime="2026-10-27T00:27:27+08:00">2026-10-27</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>5.4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>20 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>OpenAI 最近发布的<a target="_blank" rel="noopener" href="https://cdn.openai.com/business-guides-and-resources/ai-in-the-enterprise.pdf">《AI in the Enterprise》</a>这份文档是OpenAI发布的一份企业级AI应用指南，旨在向企业介绍如何利用OpenAI的AI技术（特别是ChatGPT和相关模型）来提升业务效率、创新产品和服务，并应对企业级挑战。文档面向企业决策者、IT负责人和开发者，提供了AI在企业场景中的应用案例、技术实现路径以及部署建议。这份文档原版是英文，为了方便自己学习理解，我将其翻译成中文（利用各种LLM工具），并整理出这篇文章，分享给需要的人。本译文已经生成PDF,读者朋友们也可以直接下载<a target="_blank" rel="noopener" href="https://github.com/lewlh/share/blob/main/documents/AiInTheEnterprise%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91.pdf">AiInTheEnterprise中文翻译.pdf</a></p>
-<p><img src="/images/202505/AiInTheEnterprise.jpeg" alt="AI in the Enterprise"></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2025/05/06/AiInTheEnterprise/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -717,14 +718,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">169k</span>
+    <span title="站点总字数">172k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">10:16</span>
+    <span title="站点阅读时长">10:26</span>
   </span>
 </div>
 <div class="busuanzi-count">
