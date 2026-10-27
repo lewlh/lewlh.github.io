@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["gitalk"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在近期大模型领域（尤其是具备长思维链 CoT 深度推理的多模态大模型）的发展中，一个普遍且棘手的痛点逐渐暴露：“过度思考（Overthinking）”。 面对奥数、几何证明等复杂难题时，深度思考（Slow Thinking）确实能显著提升准确率；但在面对海量简单问题（例如“图片里的猫是什么颜色？”、“发票总金额是多少？”）时，大模型依然会不受控地在后台自言自语，生成成百上千字的冗长推理链。这不仅带">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】给大模型装上“变速箱”：解析 TempoMoE 如何识别并引导快慢思考专家实现高效多模态推理">
+<meta property="og:url" content="https://lewlh.github.io/2026/10/22/TempoMoE-FastSlowThinkingExperts/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在近期大模型领域（尤其是具备长思维链 CoT 深度推理的多模态大模型）的发展中，一个普遍且棘手的痛点逐渐暴露：“过度思考（Overthinking）”。 面对奥数、几何证明等复杂难题时，深度思考（Slow Thinking）确实能显著提升准确率；但在面对海量简单问题（例如“图片里的猫是什么颜色？”、“发票总金额是多少？”）时，大模型依然会不受控地在后台自言自语，生成成百上千字的冗长推理链。这不仅带">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-22T01:45:00.000Z">
+<meta property="article:modified_time" content="2026-10-27T07:50:43.480Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="MoE">
+<meta property="article:tag" content="TempoMoE">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="快慢思考">
+<meta property="article:tag" content="思维链">
+<meta property="article:tag" content="混合专家模型">
+<meta property="article:tag" content="系统工程">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/2026/10/22/TempoMoE-FastSlowThinkingExperts/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/2026/10/22/TempoMoE-FastSlowThinkingExperts/","path":"2026/10/22/TempoMoE-FastSlowThinkingExperts/","title":"【论文分享】给大模型装上“变速箱”：解析 TempoMoE 如何识别并引导快慢思考专家实现高效多模态推理"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】给大模型装上“变速箱”：解析 TempoMoE 如何识别并引导快慢思考专家实现高效多模态推理 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">144</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">45</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%A1%8C%E4%B8%9A%E7%97%9B%E7%82%B9%EF%BC%9A%E6%B7%B1%E5%BA%A6%E6%8E%A8%E7%90%86%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E2%80%9C%E8%BF%87%E5%BA%A6%E6%80%9D%E8%80%83%E2%80%9D%E5%9B%B0%E5%B1%80"><span class="nav-text">01. 行业痛点：深度推理大模型的“过度思考”困局</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%BC%BA%E4%B9%8F%E2%80%9C%E8%AE%A4%E7%9F%A5%E8%87%AA%E9%80%82%E5%BA%94%E2%80%9D%E8%83%BD%E5%8A%9B"><span class="nav-text">1. 缺乏“认知自适应”能力</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%83%B3%E5%A4%AA%E5%A4%9A%E5%AF%BC%E8%87%B4%E7%9A%84%E2%80%9C%E8%87%AA%E6%88%91%E6%80%80%E7%96%91%E4%B8%8E%E6%94%B9%E9%94%99%E2%80%9D"><span class="nav-text">2. 想太多导致的“自我怀疑与改错”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E7%AA%81%E7%A0%B4%E6%80%A7%E5%8F%91%E7%8E%B0%EF%BC%9AMoE-%E5%86%85%E9%83%A8%E5%A4%A9%E7%84%B6%E5%AD%98%E5%9C%A8%E2%80%9C%E5%BF%AB%E6%85%A2%E7%A5%9E%E7%BB%8F%E5%85%83%E5%88%86%E5%B7%A5%E2%80%9D"><span class="nav-text">02. 突破性发现：MoE 内部天然存在“快慢神经元分工”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AF%B9%E6%AF%94%E6%B5%8B%E8%AF%95%E6%B3%95%EF%BC%88Tempo-Contrastive-Analysis%EF%BC%89"><span class="nav-text">1. 对比测试法（Tempo-Contrastive Analysis）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%9B%A0%E6%9E%9C%E9%98%BB%E6%96%AD%E5%AE%9E%E9%AA%8C%EF%BC%88%E7%A1%AC%E6%A0%B8%E5%AE%9E%E8%AF%81%EF%BC%89"><span class="nav-text">2. 因果阻断实验（硬核实证）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E7%AE%97%E6%B3%95%E5%BA%95%E5%BA%A7%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E9%87%8C%E7%9A%84%E2%80%9C%E4%B8%93%E5%AE%B6%E2%80%9D%E4%B8%8E%E2%80%9C%E8%B7%AF%E7%94%B1%E5%99%A8%E2%80%9D%E7%A9%B6%E7%AB%9F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">03. 算法底座：大模型里的“专家”与“路由器”究竟是什么？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%93%E5%AE%B6%EF%BC%88Expert%EF%BC%89%E4%B8%8D%E6%98%AF%E6%99%BA%E8%83%BD%E4%BD%93%EF%BC%8C%E8%80%8C%E6%98%AF%E7%8B%AC%E7%AB%8B%E7%9A%84%E8%AE%A1%E7%AE%97%E7%9F%A9%E9%98%B5"><span class="nav-text">1. 专家（Expert）不是智能体，而是独立的计算矩阵</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%B7%AF%E7%94%B1%E5%99%A8%EF%BC%88Router%EF%BC%89%E6%98%AF%E8%BD%BB%E9%87%8F%E7%BA%A7%E7%9A%84%E6%89%93%E5%88%86%E5%B0%8F%E7%AE%97%E7%9B%98"><span class="nav-text">2. 路由器（Router）是轻量级的打分小算盘</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E5%85%A8%E6%99%AF%E6%9E%B6%E6%9E%84%EF%BC%9ATempoMoE-%E4%B8%A4%E9%98%B6%E6%AE%B5%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="nav-text">04. 全景架构：TempoMoE 两阶段工作流</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E4%B8%80%EF%BC%9A%E7%A6%BB%E7%BA%BF%E7%94%BB%E5%83%8F%EF%BC%88Offline-Profiling%EF%BC%89"><span class="nav-text">阶段一：离线画像（Offline Profiling）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E4%BA%8C%EF%BC%9A%E5%9C%A8%E7%BA%BF%E8%B0%83%E5%BA%A6%EF%BC%88Online-Difficulty-Adaptive-Steering%EF%BC%89"><span class="nav-text">阶段二：在线调度（Online Difficulty-Adaptive Steering）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E8%AF%BB%E9%A2%98%E6%B5%8B%E7%86%B5%EF%BC%88Prefill-Routing-Entropy%EF%BC%89"><span class="nav-text">1. 读题测熵（Prefill Routing Entropy）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E7%99%BE%E5%88%86%E4%BD%8D%E6%A0%A1%E5%87%86%EF%BC%88Percentile-Calibration%EF%BC%89"><span class="nav-text">2. 百分位校准（Percentile Calibration）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E4%B8%93%E5%AE%B6%E5%81%8F%E7%BD%AE%E8%B5%8B%E5%80%BC%EF%BC%88Bias-Assignment%EF%BC%89"><span class="nav-text">3. 专家偏置赋值（Bias Assignment）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E8%BD%AF%E9%87%8D%E5%8A%A0%E6%9D%83%EF%BC%88Soft-Reweighting%EF%BC%89%E2%80%94%E2%80%94-%E4%BF%9D%E9%9A%9C%E6%98%BE%E5%AD%98%E6%8B%93%E6%89%91"><span class="nav-text">4. 软重加权（Soft Reweighting）—— 保障显存拓扑</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E7%AB%AF%E5%88%B0%E7%AB%AF%E5%AE%9E%E5%BD%95%EF%BC%9A%E4%BB%8E%E2%80%9C%E9%82%A3%E5%8F%AA%E7%8C%AB%E6%98%AF%E4%BB%80%E4%B9%88%E9%A2%9C%E8%89%B2%EF%BC%9F%E2%80%9D%E5%88%B0%E5%BE%97%E5%87%BA%E9%9A%BE%E5%BA%A6%E5%88%86"><span class="nav-text">05. 端到端实录：从“那只猫是什么颜色？”到得出难度分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%A0%81%E6%A8%A1%E6%8B%9F%EF%BC%9A%E9%9B%B6%E4%BE%B5%E5%85%A5%E7%9A%84%E5%B7%A5%E7%A8%8B%E5%AE%9E%E7%8E%B0"><span class="nav-text">06. 核心代码模拟：零侵入的工程实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E5%AE%9E%E6%B5%8B%E8%A1%A8%E7%8E%B0%EF%BC%9A%E5%AD%A6%E6%9C%AF%E8%AF%84%E6%B5%8B%E4%B8%8E%E5%B7%A5%E7%A8%8B%E6%8C%87%E6%A0%87%E6%94%B6%E7%9B%8A"><span class="nav-text">07. 实测表现：学术评测与工程指标收益</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%94%B6%E7%9B%8A%E6%80%BB%E7%BB%93"><span class="nav-text">核心收益总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#08-%E6%9E%B6%E6%9E%84%E5%B8%88%E8%A7%86%E8%A7%92%EF%BC%9A%E8%90%BD%E5%9C%B0%E8%BE%B9%E7%95%8C%E4%B8%8E%E6%B7%B1%E5%BA%A6%E6%80%9D%E8%BE%A8"><span class="nav-text">08. 架构师视角：落地边界与深度思辨</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E2%80%9C%E7%99%BD%E7%9B%92%E2%80%9D%E4%BE%9D%E8%B5%96%EF%BC%9A%E5%95%86%E4%B8%9A%E9%97%AD%E6%BA%90-API-%E6%97%A0%E6%B3%95%E4%BD%BF%E7%94%A8"><span class="nav-text">1. “白盒”依赖：商业闭源 API 无法使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%A6%BB%E7%BA%BF%E7%94%BB%E5%83%8F%E7%9A%84%E6%BC%82%E7%A7%BB%E4%B8%8E%E6%9B%B4%E6%96%B0"><span class="nav-text">2. 离线画像的漂移与更新</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#09-%E6%80%BB%E7%BB%93"><span class="nav-text">09. 总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">144</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/22/TempoMoE-FastSlowThinkingExperts/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】给大模型装上“变速箱”：解析 TempoMoE 如何识别并引导快慢思考专家实现高效多模态推理 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】给大模型装上“变速箱”：解析 TempoMoE 如何识别并引导快慢思考专家实现高效多模态推理
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-22 09:45:00" itemprop="dateCreated datePublished" datetime="2026-10-22T09:45:00+08:00">2026-10-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-10-27 15:50:43" itemprop="dateModified" datetime="2026-10-27T15:50:43+08:00">2026-10-27</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在近期大模型领域（尤其是具备长思维链 CoT 深度推理的多模态大模型）的发展中，一个普遍且棘手的痛点逐渐暴露：<strong>“过度思考（Overthinking）”</strong>。</p>
+<p>面对奥数、几何证明等复杂难题时，深度思考（Slow Thinking）确实能显著提升准确率；但在面对海量简单问题（例如“图片里的猫是什么颜色？”、“发票总金额是多少？”）时，大模型依然会不受控地在后台自言自语，生成成百上千字的冗长推理链。这不仅带来了极高的显存延迟和 Token 计费成本，有时甚至会因为“想太多”而把自己绕晕，把简单送分题做错。</p>
+<p>近期发布在 arXiv 上的亮眼前沿工作——<strong>《TempoMoE: Identifying and Steering Fast-Slow Thinking Experts for Efficient Multimodal Reasoning》</strong>（arXiv: 2610.25999），提出了一种极具工程巧思与认知科学隐喻的全新范式：</p>
+<blockquote>
+<p><strong>“大模型内部并不是铁板一块，MoE（专家混合模型）各层网络中自然分化出了擅长直觉感知的‘快思考专家’与擅长严密逻辑推导的‘慢思考专家’。通过一套完全免训练（Training-Free）的两阶段动态调度框架，系统在读题的一瞬间就能通过‘信息熵’度量题目难易度，进而动态调整专家话语权：简单题快答，难题深思——砍掉高达 35.4% 的冗余计算 Token，同时准确率反而提升 2.6%！”</strong></p>
+</blockquote>
+<p>本文将以通俗易懂的系统工程视角，带你彻底拆解 TempoMoE 的内在机理、从自然语言到数学熵值的端到端流水线、核心代码逻辑，以及它给工业级开源模型私有化部署带来的落地启示。</p>
+<blockquote>
+<p><strong>论文题目</strong>：TempoMoE: Identifying and Steering Fast-Slow Thinking Experts for Efficient Multimodal Reasoning<br>
+<strong>作者团队</strong>：Xiyue Zhang, Keru Zhou, Ziyi Wang, Bing Hu, Li Wang<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2610.25999" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2610.25999</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" href="https://arxiv.org/html/2610.25999" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2610.25999</a><br>
+<strong>核心标签</strong>：Training-Free / Multimodal MoE / Fast-Slow Thinking / System 1 &amp; 2 / Inference Steering</p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-行业痛点：深度推理大模型的“过度思考”困局">01. 行业痛点：深度推理大模型的“过度思考”困局</h2>
+<p>自 OpenAI o1、DeepSeek-R1、Kimi 等深度思考模型普及以来，Chain-of-Thought（CoT，思维链）技术让大模型在数学与逻辑推理任务上实现了质的跃迁。但在工业级实际部署中，它也暴露出巨大的计算效率缺陷：</p>
+<h3 id="1-缺乏“认知自适应”能力">1. 缺乏“认知自适应”能力</h3>
+<p>人类的思维由 <strong>快思考系统（系统1，直觉反射）</strong> 和 <strong>慢思考系统（系统2，审慎推导）</strong> 协同主导（诺贝尔奖得主丹尼尔·卡尼曼的《思考，快与慢》）：</p>
+<ul>
+<li>看到 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mn>1</mn><mo>=</mo><mo stretchy="false">?</mo></mrow><annotation encoding="application/x-tex">1 + 1 = ?</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span></span><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mclose">?</span></span></span></span>，人类脱口而出 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn></mrow><annotation encoding="application/x-tex">2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">2</span></span></span></span>（零延迟、极低能耗）；</li>
+<li>面对奥数压轴题，人类才会拿出草稿纸列式推导（高能耗、深思熟虑）。</li>
+</ul>
+<p>但现存的深度推理模型，只要开启了思维链，就会陷入 <strong>“拿高射炮打蚊子”</strong> 的死板模式。即使你问它最直观的看图识物，它也会强行在后台写一篇长篇大论，推演光影折射、排除各种反常假设，导致用户端首字延迟（TTFT）与总时延（Latency）居高不下。</p>
+<h3 id="2-想太多导致的“自我怀疑与改错”">2. 想太多导致的“自我怀疑与改错”</h3>
+<p>论文指出，这种无节制的过度思考不仅浪费 Token 计费成本，还会引入幻觉风险：模型在简单常识题上由于推演步数过多，反而会在中间步骤产生逻辑漂移，硬生生把最初正确的直觉答案推翻篡改。</p>
+<hr>
+<h2 id="02-突破性发现：MoE-内部天然存在“快慢神经元分工”">02. 突破性发现：MoE 内部天然存在“快慢神经元分工”</h2>
+<p>针对上述痛点，作者将目光投向了当前最主流的 <strong>MoE（Mixture-of-Experts，专家混合架构）</strong>。</p>
+<p>在传统认知中，MoE 中的“专家”通常被假设为按领域分工（如代码专家、数学专家、文科专家）。但 TempoMoE 团队提出了一个全新的猜想：<strong>专家之间是否存在“思考节奏（Tempo）”的分化？</strong></p>
+<h3 id="1-对比测试法（Tempo-Contrastive-Analysis）">1. 对比测试法（Tempo-Contrastive Analysis）</h3>
+<p>作者固定同一组输入题目，仅在系统提示词中切换思考节奏：</p>
+<ul>
+<li><strong>快指令（Fast Prompt）</strong>：<em>“请凭直觉、简明扼要地直接作答，不要冗长推演。”</em></li>
+<li><strong>慢指令（Slow Prompt）</strong>：<em>“请一步一步详细审题，逐步推导与严谨验证。”</em></li>
+</ul>
+<p>实验结果令人振奋：<strong>MoE 内部各层专家的激活偏好呈现出极度稳定、显著的两极分化！</strong></p>
+<ul>
+<li><strong>快思考专家（Fast-Thinking Experts）</strong>：只要触发快答指令，激活权重便大幅飙升；</li>
+<li><strong>慢思考专家（Slow-Thinking Experts）</strong>：只有在展开多轮长链条推导与自检验时，才会被高频征召。</li>
+</ul>
+<h3 id="2-因果阻断实验（硬核实证）">2. 因果阻断实验（硬核实证）</h3>
+<p>为了证明这不仅仅是统计巧合，作者进行了因果干预实验：</p>
+<ul>
+<li><strong>强行屏蔽慢专家</strong>：将慢专家的路由权重置零。结果模型立刻丧失了长篇大论推导的能力，思维链大幅缩短，呈现直觉化快问快答；</li>
+<li><strong>强行屏蔽快专家</strong>：将快专家的路由权重置零。结果即使给模型输入最简单的小学加法或基础看图题，模型也必然陷入漫长的自言自语。</li>
+</ul>
+<p><strong>这充分证明：MoE 网络中的特定专家子集，在物理上直接掌控着大模型的“思考深度”！</strong></p>
+<hr>
+<h2 id="03-算法底座：大模型里的“专家”与“路由器”究竟是什么？">03. 算法底座：大模型里的“专家”与“路由器”究竟是什么？</h2>
+<p>为了让非算法背景的读者也能透彻理解，我们需要先拆解 MoE 底层的物理本质。</p>
+<h3 id="1-专家（Expert）不是智能体，而是独立的计算矩阵">1. 专家（Expert）不是智能体，而是独立的计算矩阵</h3>
+<p>在传统稠密模型（Dense）中，每一层网络只有一个巨大的前馈计算层（FFN），所有 token 都必须完整通过该层。而在 MoE 架构中，工程师将该层拆解为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span></span></span></span> 个并行的小型前馈网络（比如 64 个或 256 个），编号为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext>Expert</mtext><mn>0</mn></msub><mo separator="true">,</mo><msub><mtext>Expert</mtext><mn>1</mn></msub><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><msub><mtext>Expert</mtext><mi>N</mi></msub></mrow><annotation encoding="application/x-tex">\text{Expert}_0, \text{Expert}_1, \dots, \text{Expert}_N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9275em;vertical-align:-0.2441em;"></span><span class="mord"><span class="mord text"><span class="mord">Expert</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.207em;"><span style="top:-2.4559em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2441em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord text"><span class="mord">Expert</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.207em;"><span style="top:-2.4559em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2441em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord text"><span class="mord">Expert</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2342em;"><span style="top:-2.4559em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.109em;">N</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2441em;"><span></span></span></span></span></span></span></span></span></span>。</p>
+<ul>
+<li>它们不是独立运行的外部程序，纯粹是保存在显存里的<strong>浮点参数矩阵</strong>；</li>
+<li>每个矩阵在海量数据预训练后，自然演化出对特定特征模式（如边缘轮廓、句法结构、公式符号）的敏感性。</li>
+</ul>
+<h3 id="2-路由器（Router）是轻量级的打分小算盘">2. 路由器（Router）是轻量级的打分小算盘</h3>
+<p>路由器参数量通常不足整层的 1%。当一个词（Token）的特征向量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi></mrow><annotation encoding="application/x-tex">x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span> 传入时，路由器执行简单的线性投影（向量点积）与 Softmax：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mtext>Logits</mtext><mi>e</mi></msub><mo>=</mo><mi>x</mi><mo>⋅</mo><msub><mi>W</mi><mrow><mtext>gate</mtext><mo separator="true">,</mo><mi>e</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\text{Logits}_e = x \cdot W_{\text{gate}, e}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9275em;vertical-align:-0.2441em;"></span><span class="mord"><span class="mord text"><span class="mord">Logits</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.0573em;"><span style="top:-2.4559em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">e</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2441em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.4445em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">gate</span></span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>w</mi><mi>e</mi></msub><mo>=</mo><mfrac><mrow><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mtext>Logits</mtext><mi>e</mi></msub><mo stretchy="false">)</mo></mrow><mrow><munder><mo>∑</mo><mi>j</mi></munder><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mtext>Logits</mtext><mi>j</mi></msub><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">w_e = \frac{\exp(\text{Logits}_e)}{\sum_j \exp(\text{Logits}_j)}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">e</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.5488em;vertical-align:-1.1218em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.162em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4358em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">exp</span><span class="mopen">(</span><span class="mord"><span class="mord text"><span class="mord">Logits</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2175em;"><span style="top:-2.4559em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3802em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">exp</span><span class="mopen">(</span><span class="mord"><span class="mord text"><span class="mord">Logits</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.0573em;"><span style="top:-2.4559em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">e</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2441em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.1218em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>路由器负责算出每个专家与当前输入的匹配百分比 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>e</mi></msub></mrow><annotation encoding="application/x-tex">w_e</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">e</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，并挑选得分最高的 Top-<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span>（例如 64 个专家中挑 8 个）激活计算，其余专家原地休眠，从而实现大幅降低活跃算力的目的。</p>
+<hr>
+<h2 id="04-全景架构：TempoMoE-两阶段工作流">04. 全景架构：TempoMoE 两阶段工作流</h2>
+<p>基于上述机制，TempoMoE 提出了一个<strong>完全免训练（Training-Free）、即插即用</strong>的工程调控架构。它分为“离线画像”与“在线推理”两大阶段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">【阶段一：离线画像（Offline Profiling，每个模型仅跑一次）】</span><br><span class="line">  新模型（如 Qwen3-VL） </span><br><span class="line">       │</span><br><span class="line">       ▼</span><br><span class="line">  运行百道基准题（对比 Fast vs Slow Prompt）</span><br><span class="line">       │</span><br><span class="line">       ▼</span><br><span class="line">  统计每层专家的激活权重差值 Δw</span><br><span class="line">       │</span><br><span class="line">       ▼</span><br><span class="line">  导出该模型的专属体检表 profile.json（轻量几 KB）</span><br><span class="line"></span><br><span class="line">─────────────────────────────────────────────────────────────</span><br><span class="line"></span><br><span class="line">【阶段二：在线服务（Online Steering，毫秒级推理拦截）】</span><br><span class="line">  用户输入题目与图像</span><br><span class="line">       │</span><br><span class="line">       ▼</span><br><span class="line">  Prefill 读题完毕 ──&gt; 提取末位 Token 的路由概率分布</span><br><span class="line">       │</span><br><span class="line">       ▼</span><br><span class="line">  计算香农信息熵 H ──&gt; 百分位校准折算为难度分 s(x) ∈ [0, 1]</span><br><span class="line">       │</span><br><span class="line">       ├─────────────────────────┬─────────────────────────┐</span><br><span class="line">       ▼                                                   ▼</span><br><span class="line">  【简单题目 (s ≈ 0.1)】                              【复杂难题 (s ≈ 0.9)】</span><br><span class="line">  大幅提高快专家得分偏置 b                               大幅提高慢专家得分偏置 b</span><br><span class="line">  压制慢专家话语权                                       压制快专家话语权</span><br><span class="line">       │                                                   │</span><br><span class="line">       └─────────────────────────┬─────────────────────────┘</span><br><span class="line">                                 │</span><br><span class="line">                                 ▼</span><br><span class="line">                 在原有 Top-K 专家内执行 Soft Reweighting</span><br><span class="line">                                 │</span><br><span class="line">                                 ▼</span><br><span class="line">                     最终合成输出（快答或深思）</span><br></pre></td></tr></table></figure>
+<h3 id="阶段一：离线画像（Offline-Profiling）">阶段一：离线画像（Offline Profiling）</h3>
+<p>针对不同厂商的模型（如 Qwen、Kimi、ERNIE），由于神经元初始化和分工各异，需要先进行一次自动化摸底：</p>
+<ol>
+<li>取通用评测集运行对比 Prompt；</li>
+<li>统计各层每个专家在快思考与慢思考下的平均激活权重，计算相对倾向：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>w</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>e</mi></mrow></msub><mo>=</mo><msubsup><mover accent="true"><mi>w</mi><mo>ˉ</mo></mover><mrow><mi>l</mi><mo separator="true">,</mo><mi>e</mi></mrow><mtext>fast</mtext></msubsup><mo>−</mo><msubsup><mover accent="true"><mi>w</mi><mo>ˉ</mo></mover><mrow><mi>l</mi><mo separator="true">,</mo><mi>e</mi></mrow><mtext>slow</mtext></msubsup></mrow><annotation encoding="application/x-tex">\Delta w_{l,e} = \bar{w}_{l,e}^{\text{fast}} - \bar{w}_{l,e}^{\text{slow}}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.2822em;vertical-align:-0.3831em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.5678em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0269em;">w</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">ˉ</span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-2.453em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">fast</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3831em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.2822em;vertical-align:-0.3831em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.5678em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0269em;">w</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">ˉ</span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-2.453em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">slow</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3831em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+</li>
+<li>归一化后生成快属性分数 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>A</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>e</mi></mrow><mtext>fast</mtext></msubsup></mrow><annotation encoding="application/x-tex">A_{l,e}^{\text{fast}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.2683em;vertical-align:-0.4192em;"></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-2.4169em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">fast</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4192em;"><span></span></span></span></span></span></span></span></span></span> 和慢属性分数 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>A</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>e</mi></mrow><mtext>slow</mtext></msubsup></mrow><annotation encoding="application/x-tex">A_{l,e}^{\text{slow}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.2683em;vertical-align:-0.4192em;"></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-2.4169em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">slow</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4192em;"><span></span></span></span></span></span></span></span></span></span>；</li>
+<li>序列化固化为轻量级 JSON 配置文件。</li>
+</ol>
+<h3 id="阶段二：在线调度（Online-Difficulty-Adaptive-Steering）">阶段二：在线调度（Online Difficulty-Adaptive Steering）</h3>
+<p>当线上服务接收到真实请求时，系统按以下 4 步无感拦截：</p>
+<h4 id="1-读题测熵（Prefill-Routing-Entropy）">1. 读题测熵（Prefill Routing Entropy）</h4>
+<p>在大模型处理用户 Prompt 的预填充（Prefill）阶段，读取<strong>最后一个非填充 Token</strong> 处的路由器概率分布 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mo stretchy="false">[</mo><msub><mi>p</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>p</mi><mn>2</mn></msub><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><msub><mi>p</mi><mi>N</mi></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">P = [p_1, p_2, \dots, p_N]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.109em;">N</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>。此时注意力机制已汇聚全文与图像全部信息，计算香农信息熵：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>H</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mo>−</mo><munderover><mo>∑</mo><mrow><mi>e</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><msub><mi>p</mi><mi>e</mi></msub><mi>ln</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>p</mi><mi>e</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">H(x) = -\sum_{e=1}^N p_e \ln(p_e)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0813em;">H</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:3.0954em;vertical-align:-1.2671em;"></span><span class="mord">−</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.8283em;"><span style="top:-1.8829em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span><span style="top:-4.3em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.109em;">N</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2671em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">e</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">ln</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">e</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+<h4 id="2-百分位校准（Percentile-Calibration）">2. 百分位校准（Percentile Calibration）</h4>
+<p>由于不同基座模型的天然熵基线不同，TempoMoE 将计算出的原始熵值映射到离线统计的历史分位数区间中，得到标准化的相对难度指标 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>∈</mo><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">s(x) \in [0, 1]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">s</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">]</span></span></span></span>：</p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">s(x) \to 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">s</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span>：代表比该模型平时见过的绝大多数问题都简单；</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>→</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">s(x) \to 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">s</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span>：代表高复杂度难题。</li>
+</ul>
+<h4 id="3-专家偏置赋值（Bias-Assignment）">3. 专家偏置赋值（Bias Assignment）</h4>
+<p>根据难度值与预存的专家属性表，为每个专家计算增益偏置 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>e</mi></mrow></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">b_{l,e}(x)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>g</mi><mtext>fast</mtext></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mo>−</mo><msub><mi>g</mi><mi>max</mi><mo>⁡</mo></msub><mo>⋅</mo><mi>s</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo separator="true">,</mo><mspace width="1em"/><msub><mi>g</mi><mtext>slow</mtext></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>g</mi><mi>max</mi><mo>⁡</mo></msub><mo>⋅</mo><mi>s</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">g_{\text{fast}}(x) = -g_{\max} \cdot s(x), \quad g_{\text{slow}}(x) = g_{\max} \cdot s(x)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">fast</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord">−</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mtight">m</span><span class="mtight">a</span><span class="mtight">x</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">s</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">slow</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6389em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mop mtight"><span class="mtight">m</span><span class="mtight">a</span><span class="mtight">x</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">s</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>b</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>e</mi></mrow></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>g</mi><mtext>fast</mtext></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>⋅</mo><msubsup><mi>A</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>e</mi></mrow><mtext>fast</mtext></msubsup><mo>+</mo><msub><mi>g</mi><mtext>slow</mtext></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>⋅</mo><msubsup><mi>A</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>e</mi></mrow><mtext>slow</mtext></msubsup></mrow><annotation encoding="application/x-tex">b_{l,e}(x) = g_{\text{fast}}(x) \cdot A_{l,e}^{\text{fast}} + g_{\text{slow}}(x) \cdot A_{l,e}^{\text{slow}}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">fast</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.2822em;vertical-align:-0.3831em;"></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">fast</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3831em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">slow</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.2822em;vertical-align:-0.3831em;"></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">slow</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3831em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+<h4 id="4-软重加权（Soft-Reweighting）——-保障显存拓扑">4. 软重加权（Soft Reweighting）—— 保障显存拓扑</h4>
+<p>这是至关重要的工业级细节：<strong>TempoMoE 绝不变更原本已被选中的 Top-<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span> 专家集合，避免破坏显存张量布局与计算图！</strong><br>
+它仅在选中的 Top-<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span> 专家内部重新切分权重比例：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msubsup><mi>w</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>t</mi><mo separator="true">,</mo><mi>e</mi></mrow><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msubsup><mo>=</mo><mfrac><mrow><msub><mi>w</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>t</mi><mo separator="true">,</mo><mi>e</mi></mrow></msub><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>b</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>e</mi></mrow></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><mi>τ</mi><mo stretchy="false">)</mo></mrow><mrow><munder><mo>∑</mo><mrow><mi>j</mi><mo>∈</mo><msub><mi mathvariant="script">K</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>t</mi></mrow></msub></mrow></munder><msub><mi>w</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>t</mi><mo separator="true">,</mo><mi>j</mi></mrow></msub><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>b</mi><mrow><mi>l</mi><mo separator="true">,</mo><mi>j</mi></mrow></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><mi>τ</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">w&#x27;_{l,t,e} = \frac{w_{l,t,e} \exp(b_{l,e}(x) / \tau)}{\sum_{j \in \mathcal{K}_{l,t}} w_{l,t,j} \exp(b_{l,j}(x) / \tau)}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.185em;vertical-align:-0.3831em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8019em;"><span style="top:-2.453em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">t</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3831em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.6158em;vertical-align:-1.1888em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1786em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span><span class="mrel mtight">∈</span><span class="mord mtight"><span class="mord mathcal mtight" style="margin-right:0.0144em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.0144em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2901em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5028em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">t</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">exp</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">t</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">exp</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">e</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.1888em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<hr>
+<h2 id="05-端到端实录：从“那只猫是什么颜色？”到得出难度分">05. 端到端实录：从“那只猫是什么颜色？”到得出难度分</h2>
+<p>许多初学者容易困惑：一段人类语言与图像，究竟是怎样被转换为纯数学的难度分数的？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">[原始输入] ──&gt; “那只猫是什么颜色？” + [黑猫照片]</span><br><span class="line">     │</span><br><span class="line">     ▼</span><br><span class="line">[特征编码] ──&gt; 视觉编码器提取切片特征 + 词表 Embedding 提取文字坐标</span><br><span class="line">     │</span><br><span class="line">     ▼</span><br><span class="line">[全盘读题] ──&gt; Transformer 多层注意力交互，汇聚到末位标点“？”</span><br><span class="line">               生成浓缩整题语义的 4096 维隐藏层向量 input_vector</span><br><span class="line">     │</span><br><span class="line">     ▼</span><br><span class="line">[分诊打分] ──&gt; 路由器执行点积：input_vector · W_gate</span><br><span class="line">               视觉专家专长匹配，得分 10.5；代数专家不相关，得分 0.1</span><br><span class="line">     │</span><br><span class="line">     ▼</span><br><span class="line">[概率归一] ──&gt; 经 Softmax 转换：视觉专家独占 99.9% 胜率，其余 &lt; 0.1%</span><br><span class="line">     │</span><br><span class="line">     ▼</span><br><span class="line">[香农测度] ──&gt; H = -∑ p·ln(p) ≈ 0.008 （极低混乱度，一目了然）</span><br><span class="line">     │</span><br><span class="line">     ▼</span><br><span class="line">[定论输出] ──&gt; difficulty ≈ 0.006 （判定为极简单送分题）</span><br><span class="line">               系统自动拉大快专家音量、压制慢专家，避免废话！</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="06-核心代码模拟：零侵入的工程实现">06. 核心代码模拟：零侵入的工程实现</h2>
+<p>在实际部署中，TempoMoE 不需要重新训练模型，仅仅是在开源推理引擎（如 vLLM、SGLang 或 HuggingFace）的 MoE Gating 前向传播逻辑中插入几行 Hook：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TempoMoESteerer</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    TempoMoE 在线调度器极简实现</span></span><br><span class="line"><span class="string">    仅在 Router 算完原始权重后，执行微秒级重加权</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, expert_profiles, g_max=<span class="number">1.2</span>, tau=<span class="number">1.0</span></span>):</span><br><span class="line">        <span class="comment"># 预加载离线画像生成的专家快慢配置表</span></span><br><span class="line">        <span class="variable language_">self</span>.profiles = expert_profiles</span><br><span class="line">        <span class="variable language_">self</span>.g_max = g_max</span><br><span class="line">        <span class="variable language_">self</span>.tau = tau</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">calculate_difficulty</span>(<span class="params">self, prefill_router_probs</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;利用香农信息熵计算题目难度系数 s(x) ∈ [0, 1]&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 计算信息熵（混乱度）</span></span><br><span class="line">        entropy = -<span class="built_in">sum</span>(p * math.log(p) <span class="keyword">for</span> p <span class="keyword">in</span> prefill_router_probs <span class="keyword">if</span> p &gt; <span class="number">0</span>)</span><br><span class="line">        max_entropy = math.log(<span class="built_in">len</span>(prefill_router_probs))</span><br><span class="line">        <span class="comment"># 归一化作为难度指标</span></span><br><span class="line">        difficulty = entropy / max_entropy</span><br><span class="line">        <span class="keyword">return</span> difficulty</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">steer_routing</span>(<span class="params">self, raw_weights, top_k_indices, difficulty</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        在原有 Top-K 专家内部软重加权</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 简单题偏向快专家，难题偏向慢专家</span></span><br><span class="line">        g_fast = -<span class="variable language_">self</span>.g_max * (difficulty - <span class="number">0.5</span>)</span><br><span class="line">        g_slow = <span class="variable language_">self</span>.g_max * (difficulty - <span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line">        adjusted_weights = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> idx <span class="keyword">in</span> top_k_indices:</span><br><span class="line">            prof = <span class="variable language_">self</span>.profiles[idx]</span><br><span class="line">            <span class="comment"># 计算偏置增益</span></span><br><span class="line">            bias = g_fast * prof[<span class="string">&quot;fast&quot;</span>] + g_slow * prof[<span class="string">&quot;slow&quot;</span>]</span><br><span class="line">            <span class="comment"># 应用软重加权</span></span><br><span class="line">            adjusted_weights[idx] = raw_weights[idx] * math.exp(bias / <span class="variable language_">self</span>.tau)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 重新归一化为 100%</span></span><br><span class="line">        total = <span class="built_in">sum</span>(adjusted_weights.values())</span><br><span class="line">        <span class="keyword">return</span> &#123;idx: w / total <span class="keyword">for</span> idx, w <span class="keyword">in</span> adjusted_weights.items()&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="07-实测表现：学术评测与工程指标收益">07. 实测表现：学术评测与工程指标收益</h2>
+<p>论文在三大具有代表性的工业级多模态 MoE 架构上，跨越 MathVista（多模态数学）、ChartQA（图表逻辑分析）、MMBench（通用多模态理解）等 6 个基准进行了严格评测：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">测试底座模型</th>
+<th style="text-align:center">思考 Token 削减量</th>
+<th style="text-align:center">综合推理准确率变化</th>
+<th style="text-align:left">核心表现观察</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Kimi-VL</strong></td>
+<td style="text-align:center"><strong>-31.2%</strong></td>
+<td style="text-align:center"><strong>+1.8%</strong></td>
+<td style="text-align:left">显著减少了简单图文常识题上的冗余推理链</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Qwen3-VL</strong></td>
+<td style="text-align:center"><strong>-35.4%</strong></td>
+<td style="text-align:center"><strong>+2.6%</strong></td>
+<td style="text-align:left">算力削减最显著，有效纠正了简单题“想太多算错”的问题</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>ERNIE-4.5-VL</strong></td>
+<td style="text-align:center"><strong>-28.7%</strong></td>
+<td style="text-align:center"><strong>+1.5%</strong></td>
+<td style="text-align:left">证明在异构复杂路由拓扑上依然具备鲁棒性</td>
+</tr>
+</tbody>
+</table>
+<h3 id="核心收益总结">核心收益总结</h3>
+<ol>
+<li><strong>显著降本提速</strong>：推理生成阶段的 Token 数量削减多达三分之一以上，直接平抑了推理服务器的算力峰值开销；</li>
+<li><strong>准确率不降反升</strong>：通过遏制简单题上的过度推演，避免了“自作聪明”引发的幻觉与逻辑漂移；</li>
+<li><strong>零显存拓扑变更</strong>：不改变每次激活的 Top-<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span> 专家数量，显存张量维度完全保持原样，硬件计算吞吐不受任何扰动。</li>
+</ol>
+<hr>
+<h2 id="08-架构师视角：落地边界与深度思辨">08. 架构师视角：落地边界与深度思辨</h2>
+<p>虽然 TempoMoE 展现出了惊艳的提速与降本能力，但在将其引入生产环境时，必须清晰认识到它的工程适用边界：</p>
+<h3 id="1-“白盒”依赖：商业闭源-API-无法使用">1. “白盒”依赖：商业闭源 API 无法使用</h3>
+<ul>
+<li><strong>无法用于闭源黑盒接口</strong>：如果你是通过 HTTP 调用商业化 API（如闭源的 Claude 或外部模型接口），因为无法获取底层的 Router Logits，也无法干预前向传播代码，无法应用本技术；</li>
+<li><strong>适用于私有化部署场景</strong>：在企业自建集群使用 vLLM、TensorRT-LLM 或 SGLang 私有化托管开源 MoE（如 Qwen-VL 系列）时，TempoMoE 是一种投入产出比极高的提效加速方案。</li>
+</ul>
+<h3 id="2-离线画像的漂移与更新">2. 离线画像的漂移与更新</h3>
+<p>当模型经过特定领域的 Post-Training（如企业垂直领域 LoRA 微调）后，原本各个专家的快慢特性可能会发生细微偏移。建议在主干模型更新或微调后，重新运行阶段一的离线脚本，更新专属的 <code>profile.json</code> 映射配置。</p>
+<hr>
+<h2 id="09-总结">09. 总结</h2>
+<p>TempoMoE 的创新之处在于，它没有盲目追求“训练更大参数的模型”，也没有简单地停留在外层 Prompt 的提示词工程，而是<strong>向内剖析现代多模态大模型的内部生理机制</strong>：</p>
+<ul>
+<li>首次证实并定位了 MoE 网络中客观存在的<strong>快慢思考神经元分工</strong>；</li>
+<li>巧妙复用读题阶段自带的<strong>路由信息熵</strong>作为无成本的难度探针；</li>
+<li>以极度优雅的<strong>免训练软干预</strong>，给深度推理模型装上了自适应换挡的“变速箱”。</li>
+</ul>
+<p>对于正在探索大模型降本增效、高并发低延迟落地的架构师与算法工程师而言，这种在推理运行时介入的轻量级控制思想，无疑提供了极具价值的工程解题范式。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%B7%A5%E7%A8%8B/" rel="tag"># 系统工程</a>
+              <a href="/tags/TempoMoE/" rel="tag"># TempoMoE</a>
+              <a href="/tags/MoE/" rel="tag"># MoE</a>
+              <a href="/tags/%E6%B7%B7%E5%90%88%E4%B8%93%E5%AE%B6%E6%A8%A1%E5%9E%8B/" rel="tag"># 混合专家模型</a>
+              <a href="/tags/%E6%80%9D%E7%BB%B4%E9%93%BE/" rel="tag"># 思维链</a>
+              <a href="/tags/%E5%BF%AB%E6%85%A2%E6%80%9D%E8%80%83/" rel="tag"># 快慢思考</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/10/22/Video-EMem-WriteOnceQueryMany/" rel="prev" title="【论文分享】长视频大模型的“读写分离”革命：解析 Video-EMem 与自进化架构 VideoEvoHarness">
+                  <i class="fa fa-angle-left"></i> 【论文分享】长视频大模型的“读写分离”革命：解析 Video-EMem 与自进化架构 VideoEvoHarness
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/14/ClipModelsResearch/" rel="next" title="CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告">
+                  CLIP类模型在安防监控视频图像自然语言检索应用中的性能分析报告 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">195k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">11:48</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"lewlh","repo":"lewlh.github.io","client_id":"9c039ac68e2a5f51b6f3","client_secret":"2cbc1d562bf1e0184214082921c51471d457f678","admin_user":"lewlh","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"zh-CN","body":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"7597ba4035fcf46ba4225c2a1c0ca17e"}</script>
+<script src="/js/third-party/comments/gitalk.js" defer></script>
+
+</body>
+</html>
