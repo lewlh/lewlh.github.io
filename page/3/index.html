@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">148</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">46</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">154</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">47</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">46</span>
+          <span class="site-state-item-count">47</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">148</span>
+        <span class="site-state-item-count">154</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -232,7 +232,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 13:10:48" itemprop="dateModified" datetime="2026-10-28T13:10:48+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 13:44:20" itemprop="dateModified" datetime="2026-10-28T13:44:20+08:00">2026-10-28</time>
     </span>
 
   
@@ -307,6 +307,113 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2025/05/28/ChainOfVerification-CoVe/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/05/28/ChainOfVerification-CoVe/" class="post-title-link" itemprop="url">【论文分享】让大模型学会“自我审讯”：Meta 的验证链（CoVe）凭什么能登顶国际顶刊？</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-05-28 13:35:00" itemprop="dateCreated datePublished" datetime="2025-05-28T13:35:00+08:00">2025-05-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-10-28 13:44:20" itemprop="dateModified" datetime="2026-10-28T13:44:20+08:00">2026-10-28</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在日常使用 ChatGPT、Claude 或 DeepSeek 时，几乎每个人都踩过同一个啼笑皆非的坑——<strong>大模型一本正经地胡说八道（AI 幻觉，Hallucination）</strong>。</p>
+<p>更让人抓狂的是，当你试图质问它：“<em>你确定吗？你再仔细核对一下你刚才给的答案！</em>”，AI 往往会泰然自若地看一眼自己刚才说的话，信誓旦旦地回答：“<em>我非常确定，这完全准确。</em>”</p>
+<p>来自 <strong>Meta AI（前 Facebook 人工智能实验室）</strong> 的顶尖研究团队在 ACL 顶会上发表了一篇极具影响力的开创性论文：<strong>《Chain-of-Verification Reduces Hallucination in Large Language Models》（简称 CoVe，验证链）</strong>。</p>
+<p>这篇论文没有改动神经网络的一行底层代码，也没有花几百万美元去重新训练模型，仅仅设计了一套优雅的 <strong>“自审控制流”</strong>，就将大模型在各类事实性任务中的幻觉错误直接砍掉了近 <strong>40%</strong>！</p>
+<blockquote>
+<p><strong>论文题目</strong>：Chain-of-Verification Reduces Hallucination in Large Language Models<br>
+<strong>作者团队</strong>：Shehzaad Dhuliawala, Mojtaba Komeili, Jing Xu, Roberta Raileanu, Xian Li, Asli Celikyilmaz, Jason Weston (Meta AI)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2309.11495">https://arxiv.org/abs/2309.11495</a><br>
+<strong>发表会议</strong>：Findings of the Association for Computational Linguistics (ACL)</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/05/28/ChainOfVerification-CoVe/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2025/05/14/ClipModelsResearch/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -343,7 +450,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 13:10:48" itemprop="dateModified" datetime="2026-10-28T13:10:48+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 13:44:20" itemprop="dateModified" datetime="2026-10-28T13:44:20+08:00">2026-10-28</time>
     </span>
 
   
@@ -441,7 +548,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 13:10:48" itemprop="dateModified" datetime="2026-10-28T13:10:48+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 13:44:20" itemprop="dateModified" datetime="2026-10-28T13:44:20+08:00">2026-10-28</time>
     </span>
 
   
@@ -540,7 +647,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 13:10:48" itemprop="dateModified" datetime="2026-10-28T13:10:48+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 13:44:20" itemprop="dateModified" datetime="2026-10-28T13:44:20+08:00">2026-10-28</time>
     </span>
 
   
@@ -595,105 +702,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2025/04/15/PromptEngineering/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2025/04/15/PromptEngineering/" class="post-title-link" itemprop="url">Google提示工程中文翻译</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-04-15 16:41:11" itemprop="dateCreated datePublished" datetime="2025-04-15T16:41:11+08:00">2025-04-15</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 13:10:48" itemprop="dateModified" datetime="2026-10-28T13:10:48+08:00">2026-10-28</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>18k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>1:06</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>谷歌近日发布了一份长达 68 页的白皮书，系统阐述了提示工程（Prompt Engineering）的核心理念与最佳实践。这份白皮书原版是英文，为了方便自己学习理解，我将其翻译成中文（利用各种LLM工具），并整理出这篇文章，分享给需要的人。需要注意的是，我是基于<a target="_blank" rel="noopener" href="https://www.kaggle.com/whitepaper-prompt-engineering">Google官方提示工程原版网站</a>提供的v7版本<a target="_blank" rel="noopener" href="https://github.com/lewlh/share/blob/main/documents/PromptEngineeringV7.pdf">pdf</a>进行翻译。本译文已经生成PDF,读者朋友们也可以直接下载<a target="_blank" rel="noopener" href="https://github.com/lewlh/share/blob/main/documents/PromptEngineering%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91.pdf">PromptEngineering中文翻译.pdf</a></p>
-<p><img src="/images/202504/PromptEngineeringV7.jpg" alt="whitepaper-prompt-engineering" loading="lazy"></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2025/04/15/PromptEngineering/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -718,14 +726,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">198k</span>
+    <span title="站点总字数">201k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">12:01</span>
+    <span title="站点阅读时长">12:11</span>
   </span>
 </div>
 <div class="busuanzi-count">
