@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在过去两年里，开源大模型与闭源巨头（GPT-4、Claude）之间始终隔着一道难以逾越的鸿沟。很多团队一度陷入了严重的认知误区：  “是不是闭源大厂的 Transformer 架构有什么未公开的绝密黑科技？” “是不是我们的算力不够庞大、卡堆得不够多？”  全球最大的开源 AI 社区 Hugging Face 联合顶尖研究团队，在重磅论文 《The FineWeb Datasets: Decant">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineWeb）？">
+<meta property="og:url" content="https://lewlh.github.io/2025/09/14/TheFineWebDatasets-DecantingTheWeb/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在过去两年里，开源大模型与闭源巨头（GPT-4、Claude）之间始终隔着一道难以逾越的鸿沟。很多团队一度陷入了严重的认知误区：  “是不是闭源大厂的 Transformer 架构有什么未公开的绝密黑科技？” “是不是我们的算力不够庞大、卡堆得不够多？”  全球最大的开源 AI 社区 Hugging Face 联合顶尖研究团队，在重磅论文 《The FineWeb Datasets: Decant">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-14T07:00:00.000Z">
+<meta property="article:modified_time" content="2026-10-28T07:14:38.137Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="FineWeb">
+<meta property="article:tag" content="大语言模型">
+<meta property="article:tag" content="数据工程">
+<meta property="article:tag" content="数据清洗">
+<meta property="article:tag" content="架构设计">
+<meta property="article:tag" content="深度学习">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/2025/09/14/TheFineWebDatasets-DecantingTheWeb/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/2025/09/14/TheFineWebDatasets-DecantingTheWeb/","path":"2025/09/14/TheFineWebDatasets-DecantingTheWeb/","title":"【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineWeb）？"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineWeb）？ | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">161</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">50</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%A1%8C%E4%B8%9A%E7%9B%B2%E5%8C%BA%EF%BC%9A%E8%A2%AB%E6%89%80%E6%9C%89%E4%BA%BA%E5%BF%BD%E8%A7%86%E7%9A%84%E2%80%9C%E6%95%B0%E6%8D%AE%E6%B3%A5%E6%B2%99%E2%80%9D%E4%B8%8E%E9%97%AD%E6%BA%90%E6%8A%A4%E5%9F%8E%E6%B2%B3"><span class="nav-text">01. 行业盲区：被所有人忽视的“数据泥沙”与闭源护城河</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%A0%B8%E5%BF%83%E5%AE%9E%E9%AA%8C%E4%B8%8E%E5%8F%91%E7%8E%B0%EF%BC%9A%E9%AB%98%E8%B4%A8%E9%87%8F%E8%83%9C%E8%BF%87%E5%A0%86%E7%AE%97%E5%8A%9B%EF%BC%8C%E6%95%99%E8%82%B2%E7%89%88%E5%BE%97%E5%88%86%E5%85%A8%E9%9D%A2%E7%99%BB%E9%A1%B6"><span class="nav-text">02. 核心实验与发现：高质量胜过堆算力，教育版得分全面登顶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E5%8F%91%E7%8E%B0-1%EF%BC%9AFineWeb-%E5%9F%BA%E7%A1%80%E7%89%88%E5%85%A8%E9%9D%A2%E8%B6%85%E8%B6%8A%E4%BB%A5%E5%BE%80%E6%89%80%E6%9C%89%E5%BC%80%E6%BA%90%E6%95%B0%E6%8D%AE%E5%9F%BA%E5%87%86"><span class="nav-text">实验发现 1：FineWeb 基础版全面超越以往所有开源数据基准</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E5%8F%91%E7%8E%B0-2%EF%BC%9A%E6%95%99%E8%82%B2%E4%BB%B7%E5%80%BC%E7%AD%9B%E9%80%89%EF%BC%88FineWeb-Edu%EF%BC%89%E5%B8%A6%E6%9D%A5%E9%99%8D%E7%BB%B4%E6%89%93%E5%87%BB"><span class="nav-text">实验发现 2：教育价值筛选（FineWeb-Edu）带来降维打击</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E5%8F%91%E7%8E%B0-3%EF%BC%9A%E5%88%86%E5%8D%B7%E5%8E%BB%E9%87%8D%EF%BC%88Per-snapshot%EF%BC%89%E9%80%86%E5%90%91%E5%87%BB%E8%B4%A5%E5%85%A8%E5%B1%80%E5%8E%BB%E9%87%8D%EF%BC%88Global%EF%BC%89"><span class="nav-text">实验发现 3：分卷去重（Per-snapshot）逆向击败全局去重（Global）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%A0%B8%E5%BF%83%E7%B2%BE%E9%AB%93%EF%BC%9A%E8%A7%A3%E5%AF%86%E2%80%9C%E9%86%92%E9%85%92%E6%8F%90%E7%BA%AF%E2%80%9D%E7%9A%84%E4%B8%89%E5%A4%A7%E9%BB%84%E9%87%91%E6%B3%95%E5%88%99"><span class="nav-text">03. 核心精髓：解密“醒酒提纯”的三大黄金法则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%8C%9F-%E5%8E%9F%E5%88%99%E4%B8%80%EF%BC%9A%E6%BA%90%E5%A4%B4%E6%8D%A2%E6%B0%B4%E6%B3%95%E5%88%99%EF%BC%88%E6%8B%92%E7%BB%9D%E4%BA%8C%E6%89%8B%E6%B1%A1%E6%9F%93%EF%BC%8C%E7%9B%B4%E5%95%83%E5%8E%9F%E5%A7%8B-WARC%EF%BC%89"><span class="nav-text">🌟 原则一：源头换水法则（拒绝二手污染，直啃原始 WARC）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%8C%9F-%E5%8E%9F%E5%88%99%E4%BA%8C%EF%BC%9A%E6%97%B6%E9%97%B4%E8%B7%A8%E5%BA%A6%E6%B3%95%E5%88%99%EF%BC%88%E4%BF%9D%E6%8A%A4%E6%BC%94%E8%BF%9B%EF%BC%8C%E5%8F%8D%E5%AF%B9%E8%BF%87%E5%BA%A6%E5%8E%BB%E9%87%8D%EF%BC%89"><span class="nav-text">🌟 原则二：时间跨度法则（保护演进，反对过度去重）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%8C%9F-%E5%8E%9F%E5%88%99%E4%B8%89%EF%BC%9A%E7%9F%A5%E8%AF%86%E5%AF%86%E5%BA%A6%E6%B3%95%E5%88%99%EF%BC%88%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%BD%93%E8%80%83%E5%AE%98%EF%BC%8C%E4%BB%A5%E5%B0%8F%E5%8D%9A%E5%A4%A7%EF%BC%89"><span class="nav-text">🌟 原则三：知识密度法则（大模型当考官，以小博大）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E7%B3%BB%E7%BB%9F%E5%B7%A5%E7%A8%8B%E8%90%BD%E5%9C%B0%EF%BC%9AFineWeb-%E7%9A%84%E4%B8%89%E5%A4%A7%E9%85%8D%E5%A5%97%E2%80%9C%E7%A5%9E%E5%8A%A9%E6%94%BB%E2%80%9D%E6%A8%A1%E5%9D%97"><span class="nav-text">04. 系统工程落地：FineWeb 的三大配套“神助攻”模块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%A8%A1%E5%9D%97%E4%B8%80%EF%BC%9AHTML-%E5%8E%9F%E7%94%9F%E6%B7%B1%E5%BA%A6%E6%8A%BD%E5%8F%96%EF%BC%88Trafilatura-%E6%89%8B%E6%9C%AF%E5%88%80%EF%BC%89"><span class="nav-text">1. 模块一：HTML 原生深度抽取（Trafilatura 手术刀）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A8%A1%E5%9D%97%E4%BA%8C%EF%BC%9A%E5%88%86%E5%8D%B7-MinHash-LSH-%E6%A8%A1%E7%B3%8A%E5%8E%BB%E9%87%8D"><span class="nav-text">2. 模块二：分卷 MinHash LSH 模糊去重</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%A8%A1%E5%9D%97%E4%B8%89%EF%BC%9A%E6%95%99%E8%82%B2%E4%BB%B7%E5%80%BC%E8%92%B8%E9%A6%8F%E6%B5%81%E6%B0%B4%E7%BA%BF%EF%BC%88FineWeb-Edu-Classifier%EF%BC%89"><span class="nav-text">3. 模块三：教育价值蒸馏流水线（FineWeb-Edu Classifier）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E6%80%BB%E7%BB%93%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%90%BD%E5%9C%B0%E6%80%9D%E8%80%83"><span class="nav-text">05. 总结与架构落地思考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">161</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2025/09/14/TheFineWebDatasets-DecantingTheWeb/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineWeb）？ | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineWeb）？
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-09-14 15:00:00" itemprop="dateCreated datePublished" datetime="2025-09-14T15:00:00+08:00">2025-09-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-10-28 15:14:38" itemprop="dateModified" datetime="2026-10-28T15:14:38+08:00">2026-10-28</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>13 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在过去两年里，开源大模型与闭源巨头（GPT-4、Claude）之间始终隔着一道难以逾越的鸿沟。很多团队一度陷入了严重的认知误区：</p>
+<ul>
+<li><em>“是不是闭源大厂的 Transformer 架构有什么未公开的绝密黑科技？”</em></li>
+<li><em>“是不是我们的算力不够庞大、卡堆得不够多？”</em></li>
+</ul>
+<p>全球最大的开源 AI 社区 <strong>Hugging Face</strong> 联合顶尖研究团队，在重磅论文 <strong>《The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale》</strong> 中彻底揭开了大模型行业最大的“遮羞布”：<strong>架构早就全面开源了，各大巨头真正藏在深闺里的终极武器，从来不是模型代码，而是他们秘密打磨的高纯度数据集！</strong></p>
+<p>这篇论文最迷人的地方在于其标题中的词汇——<strong>Decanting（醒酒/倾析）</strong>。如同侍酒师品鉴一瓶历经十年的名庄红酒一样：互联网上十年的公开网页，就像一坛积满了泥沙与碎屑的陈年浊酒；而 Hugging Face 的使命，就是<strong>把最上层清澈醇厚的 15 万亿“黄金酒液”缓缓倒出，将瓶底沉淀的粗俗垃圾尽数抛弃</strong>！</p>
+<blockquote>
+<p><strong>在模型架构早已全面开源的今天，大模型真正的“智商护城河”到底在哪里？是继续盲目堆叠海量无序算力，还是向数据源头的纯度要答案？</strong></p>
+</blockquote>
+<p>论文作者通过长达数月的工业级清洗与严密对照实验给出了震撼全行业的答卷：通过五道精密的“醒酒滤网”，不仅洗出了 <strong>15 万亿 Token 的 FineWeb 纯净语料</strong>，其教育精选版 <strong>FineWeb-Edu</strong> 更是让模型在综合学科知识（MMLU）和科学常识（ARC）上<strong>暴涨 5~10 个百分点</strong>！</p>
+<blockquote>
+<p><strong>论文题目</strong>：The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale<br>
+<strong>作者团队</strong>：Guilherme Penedo, Hynek Kydlíček, Loubna Ben Allal, Anton Lozhkov, Margaret Mitchell, Colin Raffel, Leandro von Werra, Thomas Wolf (Hugging Face)<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2406.17557" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2406.17557</a><br>
+<strong>HTML 预览</strong>：<a target="_blank" href="https://arxiv.org/html/2406.17557" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2406.17557</a><br>
+<strong>开源数据集</strong>：<a target="_blank" href="https://huggingface.co/datasets/HuggingFaceFW/fineweb" rel="external nofollow noreferrer noopener">https://huggingface.co/datasets/HuggingFaceFW/fineweb</a></p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-行业盲区：被所有人忽视的“数据泥沙”与闭源护城河">01. 行业盲区：被所有人忽视的“数据泥沙”与闭源护城河</h2>
+<p>做中餐的人都知道：做一锅顶级的开水白菜，<strong>不仅讲究放调料的顺序，更关键的是那锅高汤必须用极细致的肉蓉反复“吊汤”，吸尽所有浮沫与杂质，才能清澈见底却鲜美至极</strong>。</p>
+<p>但在过去几年里，大模型开源界在训练数据上的做法却像是在“直接喝未沉淀的泥巴水”：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">【传统常见的大模型训练数据流】</span><br><span class="line"></span><br><span class="line">方案 A: 粗放式直接灌水 (Raw WET 官方提取文本)</span><br><span class="line">  [全网爬虫 Common Crawl] ──&gt; [直接下载官方 WET 文本] ──&gt; [简单去重后灌入模型]</span><br><span class="line">  （致命缺陷：充斥大量导航栏、广告横幅、Cookie 弹窗、死循环代码与乱码）</span><br><span class="line"></span><br><span class="line">方案 B: 盲目迷信规模 (Brute-force Volume Scaling)</span><br><span class="line">  [数万亿未经深洗的杂乱语料] ──&gt; [烧数百万美元电费狂炼] ──&gt; [模型消化不良]</span><br><span class="line">  （致命缺陷：信息密度极低，模型说话啰嗦、常识薄弱、逻辑推理频频翻车）</span><br></pre></td></tr></table></figure>
+<p>当我们查看未经深度清洗的原始网页语料时，会发现触目惊心的现实：</p>
+<ul>
+<li>成千上万的网页侧边栏：<em>“首页 &gt; 新闻 &gt; 科技 &gt; 评论 (42) &gt; 点击登录查看更多”</em>；</li>
+<li>大段由于程序 Bug 产生的无限复读（同一句话重复粘贴 50 遍）；</li>
+<li>毫无营养的垃圾广告弹窗与法律免责声明；</li>
+<li>充满极端偏见与低俗辱骂的社交媒体评论。</li>
+</ul>
+<p>把这些垃圾喂给模型，模型就会患上 <strong>“信息肥胖症”——参数体积巨大、电费烧了数百万美元，脑子里却塞满了垃圾水文</strong>。Hugging Face 团队决定下血本：重构整个预处理流水线，用绝对开放透明的方式，为全球开源界树立一道真正工业级的数据标杆！</p>
+<hr>
+<h2 id="02-核心实验与发现：高质量胜过堆算力，教育版得分全面登顶">02. 核心实验与发现：高质量胜过堆算力，教育版得分全面登顶</h2>
+<p>为了检验数据提纯的真实效果，Hugging Face 在完全相同的模型架构（以 LLaMA 架构为基准）、统一的超参数与计算预算下，系统对比了全球主流知名开源语料库的表现：</p>
+<pre><code class="highlight mermaid">flowchart LR
+    subgraph D1[&quot;上一代代表性开源语料&quot;]
+        direction TB
+        C4[&quot;C4 (Google T5 语料)&lt;br/&gt;MMLU: 48.2&quot;]
+        RW[&quot;RefinedWeb (Falcon 语料)&lt;br/&gt;MMLU: 52.1&quot;]
+        RP[&quot;RedPajama V2&lt;br/&gt;MMLU: 51.8&quot;]
+    end
+
+    subgraph D2[&quot;Hugging Face 提纯矩阵 (优选)&quot;]
+        direction TB
+        FW[&quot;FineWeb 基础版 (15T)&lt;br/&gt;MMLU: 54.8 (全面领跑)&quot;]
+        FWE[&quot;★ FineWeb-Edu 教育版 (1.3T)&lt;br/&gt;MMLU: 59.2 (狂涨 11 分登顶！)&quot;]
+    end</code></pre>
+<h3 id="实验发现-1：FineWeb-基础版全面超越以往所有开源数据基准">实验发现 1：FineWeb 基础版全面超越以往所有开源数据基准</h3>
+<p>在包含 96 个 Common Crawl 月度快照、历经数千亿 Token 验证的消融测试中：</p>
+<ul>
+<li>采用 FineWeb 训练出的模型，在推理常识、代码理解和事实性问答上，<strong>全面击败了 C4、RefinedWeb、RedPajama 和 Dolma</strong>；</li>
+<li>证明了哪怕只是做好了源头 HTML 正文提取和基础清洗，就能带来系统性的代际飞跃。</li>
+</ul>
+<h3 id="实验发现-2：教育价值筛选（FineWeb-Edu）带来降维打击">实验发现 2：教育价值筛选（FineWeb-Edu）带来降维打击</h3>
+<p>这是全篇论文最震撼的实验结果：</p>
+<ul>
+<li>仅仅将语料切换为经过教育打分筛选的 <strong>FineWeb-Edu（得分 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\ge 3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">3</span></span></span></span> 分的子集）</strong>；</li>
+<li>模型在 <strong>MMLU（综合学科考试）上狂飙至 59.2 分</strong>，在 <strong>ARC（科学推理）上飙升至 63.8 分</strong>；</li>
+<li><strong>这种提升幅度，在过去往往意味着要把模型参数从 7B 扩充到 13B 甚至 30B 才能换来！</strong> 真正印证了“高营养膳食让小模型长出大智慧”。</li>
+</ul>
+<h3 id="实验发现-3：分卷去重（Per-snapshot）逆向击败全局去重（Global）">实验发现 3：分卷去重（Per-snapshot）逆向击败全局去重（Global）</h3>
+<p>论文在消融实验中推翻了一个长期以来的工程直觉：</p>
+<ul>
+<li>传统认为“全网大一统去重（跨 10 年全局去重）”最干净；</li>
+<li>但实验确凿证实：<strong>按月度快照独立去重，训练出的模型各项指标均显著优于全局去重！</strong></li>
+<li>适度保留跨年份的自然演进与复现，是大模型稳固基础世界常识的生命线。</li>
+</ul>
+<hr>
+<h2 id="03-核心精髓：解密“醒酒提纯”的三大黄金法则">03. 核心精髓：解密“醒酒提纯”的三大黄金法则</h2>
+<p>论文不仅公开了数据，更首次系统性地总结了网络语料清洗的三大核心法则：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">            【FineWeb 数据醒酒的三大黄金法则】</span><br><span class="line"> </span><br><span class="line">法则一：源头换水法则 ─────&gt; 坚决抛弃二手 WET 文本，直啃原始 WARC 网页源码</span><br><span class="line">法则二：时间跨度法则 ─────&gt; 分卷独立去重，保护跨时空的常识复现与知识演进</span><br><span class="line">法则三：知识密度法则 ─────&gt; 用大模型做考官，精准提纯高教育价值的黄金教材</span><br></pre></td></tr></table></figure>
+<h3 id="🌟-原则一：源头换水法则（拒绝二手污染，直啃原始-WARC）">🌟 原则一：源头换水法则（拒绝二手污染，直啃原始 WARC）</h3>
+<p>过去开源界图省事，直接下载爬虫框架预提取的 WET 纯文本。但那些现成脚本极其粗糙，会把网页侧边栏、广告横幅混作一团。<br>
+FineWeb 团队坚持<strong>从底层原始 HTML（WARC）从头提取</strong>，引入了业界顶级正文解析算法 <strong>Trafilatura</strong>：</p>
+<ul>
+<li>彻底剥离页眉、页脚、版权声明、导航链接；</li>
+<li>这一步直接在数据源头过滤掉了 <strong>超过 40% 的排版杂音</strong>。</li>
+</ul>
+<hr>
+<h3 id="🌟-原则二：时间跨度法则（保护演进，反对过度去重）">🌟 原则二：时间跨度法则（保护演进，反对过度去重）</h3>
+<p>为什么“全网跨年份全局去重”反而会导致模型变笨？作者通过数据统计揭示了根本机理：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">【全局去重与分卷去重的认知差异】</span><br><span class="line"></span><br><span class="line">全局大一统去重 (Global Deduplication):</span><br><span class="line">  2015年探讨相对论 ──&gt; 保留</span><br><span class="line">  2018年探讨相对论 ──&gt; [判定为重复，强行删除！]</span><br><span class="line">  2023年探讨相对论 ──&gt; [判定为重复，强行删除！]</span><br><span class="line">  （后果：模型丢失了核心知识的跨年代演进与多重上下文佐证，常识变得脆弱）</span><br><span class="line"></span><br><span class="line">分卷按月去重 (Per-snapshot Deduplication, FineWeb 方案):</span><br><span class="line">  每个时间快照内部消灭恶性复读，但允许核心概念跨年代适度共现！</span><br><span class="line">  （收益：模型在不同时间切片中稳稳扎牢基础世界知识）</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="🌟-原则三：知识密度法则（大模型当考官，以小博大）">🌟 原则三：知识密度法则（大模型当考官，以小博大）</h3>
+<p>互联网上大部分干净文本只是“无害的废话”（如家长里短、娱乐八卦）。为了培养具备科学家水准的推理大脑，必须像筛选名校教材一样筛选数据。<br>
+Hugging Face 创造性地设计了 <strong>“以大带小”的教育价值提纯流水线</strong>，不仅将知识密度量化，更让模型获得了前所未有的数理与常识爆发。</p>
+<hr>
+<h2 id="04-系统工程落地：FineWeb-的三大配套“神助攻”模块">04. 系统工程落地：FineWeb 的三大配套“神助攻”模块</h2>
+<p>为了将 96 个月的 Common Crawl 原始洪流驯服为 15 万亿纯净 Token，Hugging Face 设计了坚如磐石的工业级流水线：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph S1[&quot;模块一: HTML 原生深度抽取&quot;]
+        WARC[&quot;原始 WARC 网页镜像 (海量 PB 级)&quot;] --&gt; TRAF[&quot;Trafilatura 正文手术刀&lt;br/&gt;剔除 DOM 树上的导航/广告/杂质&quot;]
+        TRAF --&gt; LANG[&quot;FastText 语言置信度过滤 (≥ 0.65)&quot;]
+    end
+
+    subgraph S2[&quot;模块二: 规则净化与分卷去重&quot;]
+        LANG --&gt; HEUR[&quot;启发式规则筛查&lt;br/&gt;清除死循环、极短行、高符号占比&quot;]
+        HEUR --&gt; MINHASH[&quot;MinHash LSH 算法&lt;br/&gt;112 个哈希函数, 快照内相似度 ≥ 0.8 去重&quot;]
+    end
+
+    subgraph S3[&quot;模块三: 教育价值蒸馏与终极提纯&quot;]
+        MINHASH --&gt; BASE_DATA[&quot;【FineWeb 基础库: 15T Tokens】&quot;]
+        BASE_DATA --&gt; EDU_CLF[&quot;Edu 分类器打分&lt;br/&gt;(基于 Llama-3-70B 标注蒸馏而来)&quot;]
+        EDU_CLF --&gt; EDU_FILTER[&quot;阈值截断: 剔除得分 &lt; 3 的低养分网页&quot;]
+        EDU_FILTER --&gt; FINAL_DATA[&quot;🏆 【FineWeb-Edu 黄金库: 1.3T Tokens】&quot;]
+    end</code></pre>
+<h3 id="1-模块一：HTML-原生深度抽取（Trafilatura-手术刀）">1. 模块一：HTML 原生深度抽取（Trafilatura 手术刀）</h3>
+<ul>
+<li><strong>背景痛点</strong>：现成 WET 文本把大量页面脚本、导航标签混入正文，大模型学会了一堆无用的“点击查看”、“关注博主”。</li>
+<li><strong>解法</strong>：基于网页 DOM 树结构，采用 Trafilatura 深度探测算法精准锚定正文主体，配合 FastText 进行语言纯度判定（仅保留置信度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>0.65</mn></mrow><annotation encoding="application/x-tex">\ge 0.65</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0.65</span></span></span></span> 的纯净文本）。</li>
+<li><strong>工程收益</strong>：正文提取纯净度提升数倍，彻底解决了困扰行业多年的“排版幽灵”问题。</li>
+</ul>
+<h3 id="2-模块二：分卷-MinHash-LSH-模糊去重">2. 模块二：分卷 MinHash LSH 模糊去重</h3>
+<ul>
+<li><strong>背景痛点</strong>：全网充斥着数以百万计的机械复制通稿、开源软件协议与模板，若放任不管会导致严重的参数过拟合与复读机效应。</li>
+<li><strong>解法</strong>：采用 MinHash 局部敏感哈希（LSH）算法（配置 112 个哈希函数，划分为 14 个 Band、每个 Band 8 行），对 Jaccard 相似度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>0.8</mn></mrow><annotation encoding="application/x-tex">\ge 0.8</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0.8</span></span></span></span> 的网页进行子快照级别的高效碰撞剔除。</li>
+<li><strong>工程收益</strong>：削减掉全网近三分之一的劣质重复冗余，显著节约了千卡集群的训练算力。</li>
+</ul>
+<h3 id="3-模块三：教育价值蒸馏流水线（FineWeb-Edu-Classifier）">3. 模块三：教育价值蒸馏流水线（FineWeb-Edu Classifier）</h3>
+<ul>
+<li><strong>背景痛点</strong>：纯规则过滤只能剔除“有害内容”，无法辨别“平庸水文”与“高深学问”。若全由顶级大模型逐条审查，调用费高达数千万美元，根本不具备可行性。</li>
+<li><strong>解法</strong>：极具工程智慧的“两阶段蒸馏法”：
+<ol>
+<li><strong>名师出卷</strong>：用 Llama-3-70B-Instruct 精细标注 50 万条网页样本，给出 0 到 5 分的教育价值评级；</li>
+<li><strong>学徒上岗</strong>：用这 50 万条黄金样本训练一个极轻量的分类小模型（Snowflake/FastText 架构），以数十万 QPS 的速度对全网 15 万亿 Token 进行闪电打分；</li>
+<li><strong>黄金截断</strong>：<strong>只保留得分 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\ge 3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">3</span></span></span></span> 分的高知识密度文本</strong>。</li>
+</ol>
+</li>
+<li><strong>工程收益</strong>：用极低的推理代价提炼出了 1.3 万亿 Token 的“高考冲刺题库”，成就了目前全球开源界最强的数据集标杆！</li>
+</ul>
+<hr>
+<h2 id="05-总结与架构落地思考">05. 总结与架构落地思考</h2>
+<p>虽然这篇论文主要解决的是大模型基座预训练数据的问题，但其沉淀出的 <strong>“醒酒工程哲学”</strong>，对现代企业构建 <strong>私有化大模型微调、高质量 RAG 知识库以及多模态媒体资产沉淀</strong>具有极其深远的普适价值：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">思考维度</th>
+<th style="text-align:left">传统粗放认知</th>
+<th style="text-align:left">FineWeb 带来的架构认知升级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>数据规模视角</strong></td>
+<td style="text-align:left">盲目迷信 Token 总量，越多越好</td>
+<td style="text-align:left"><strong>纯度高于规模！1.3T 经过高密度提纯的数据，完胜 15T 原始平庸语料</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>源头解析策略</strong></td>
+<td style="text-align:left">拿现成爬虫提取的纯文本凑合用</td>
+<td style="text-align:left"><strong>必须深入原始 HTML/DOM 结构，用专业正文解析器从源头剥离排版杂质</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>去重治理粒度</strong></td>
+<td style="text-align:left">追求全库一次性暴力全局去重</td>
+<td style="text-align:left"><strong>分卷/分周期适度去重：消灭短期恶意复读，但保护常识在历史长河中的演进</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>质量评估手段</strong></td>
+<td style="text-align:left">仅依赖长度、关键词黑名单等死板规则</td>
+<td style="text-align:left"><strong>引入“小模型+大模型蒸馏”的语义价值打分器，从感知级走向认知级筛选</strong></td>
+</tr>
+</tbody>
+</table>
+<p>在今天这个“算力昂贵、显卡难求”的时代，Hugging Face 的这篇划时代工作为我们指明了最清晰的破局方向：</p>
+<ul>
+<li><strong>UniPRO（融合顺序）告诉我们“调料顺序至关重要”；</strong></li>
+<li><strong>对比场景图（Scene Graph）告诉我们“食材切成结构化骨架最容易入味”；</strong></li>
+<li><strong>而 FineWeb（数据醒酒）则从最根本处奠定了基石——“食材必须洗净泥沙，烹饪出的菜肴才能真正惊艳世界！”</strong></li>
+</ul>
+<p>在同一时期，由 Apple、华盛顿大学等领衔发布的另一篇数据姐妹篇神作 <strong><a href="/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/">【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？</a></strong>，更是用绝对排除模型架构干扰的 53 门全科目统考，彻底证实了这一真理：<strong>3000 亿顶级提纯语料的战力，足以把 2 万亿原始语料训练的大模型斩落马下！</strong></p>
+<p>只有当我们的数据工程摆脱了盲目堆砌的虚荣，走向深思熟虑的提纯与尊重，大语言模型，才真正拥有了探索人类智慧终极疆域的力量。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" rel="tag"># 大语言模型</a>
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="tag"># 架构设计</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B/" rel="tag"># 数据工程</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E6%B8%85%E6%B4%97/" rel="tag"># 数据清洗</a>
+              <a href="/tags/FineWeb/" rel="tag"># FineWeb</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/" rel="prev" title="【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？">
+                  <i class="fa fa-angle-left"></i> 【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/28/ChainOfVerification-CoVe/" rel="next" title="【论文分享】让大模型学会“自我审讯”：Meta 的验证链（CoVe）凭什么能登顶国际顶刊？">
+                  【论文分享】让大模型学会“自我审讯”：Meta 的验证链（CoVe）凭什么能登顶国际顶刊？ <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">212k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">12:52</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>

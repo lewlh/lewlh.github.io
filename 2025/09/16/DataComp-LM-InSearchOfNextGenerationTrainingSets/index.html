@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在大模型研发领域，长期存在着一种说不清道不明的“糊涂账”：很多团队宣称自己的数据清洗天下第一，但在训练时，他们往往悄悄换了更先进的位置编码、加了特殊的优化器、调整了模型超参数。外界根本分不清：它的模型跑分高，到底是因为数据真的洗干净了，还是因为它的模型架构偷偷占了便宜？ 在我们上一篇探讨的 【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineW">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？">
+<meta property="og:url" content="https://lewlh.github.io/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在大模型研发领域，长期存在着一种说不清道不明的“糊涂账”：很多团队宣称自己的数据清洗天下第一，但在训练时，他们往往悄悄换了更先进的位置编码、加了特殊的优化器、调整了模型超参数。外界根本分不清：它的模型跑分高，到底是因为数据真的洗干净了，还是因为它的模型架构偷偷占了便宜？ 在我们上一篇探讨的 【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineW">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-16T02:00:00.000Z">
+<meta property="article:modified_time" content="2026-10-28T07:14:38.135Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="DCLM">
+<meta property="article:tag" content="大语言模型">
+<meta property="article:tag" content="数据工程">
+<meta property="article:tag" content="数据清洗">
+<meta property="article:tag" content="架构设计">
+<meta property="article:tag" content="深度学习">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/","path":"2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/","title":"【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？ | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">161</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">50</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%A1%8C%E4%B8%9A%E7%9B%B2%E5%8C%BA%EF%BC%9A%E8%A2%AB%E6%B7%B7%E6%B7%86%E7%9A%84%E2%80%9C%E6%9E%B6%E6%9E%84%E7%BA%A2%E5%88%A9%E2%80%9D%E4%B8%8E%E7%BC%BA%E5%A4%B1%E7%9A%84%E7%BB%9F%E8%80%83%E5%9F%BA%E5%87%86"><span class="nav-text">01. 行业盲区：被混淆的“架构红利”与缺失的统考基准</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%A0%B8%E5%BF%83%E5%AE%9E%E9%AA%8C%E4%B8%8E%E5%8F%91%E7%8E%B0%EF%BC%9A300B-%E9%80%86%E8%A2%AD-2-%E4%B8%87%E4%BA%BF%EF%BC%8C%E6%95%B0%E6%8D%AE%E7%BC%A9%E6%94%BE%E5%AE%9A%E5%BE%8B%E7%9A%84%E7%A7%91%E5%AD%A6%E9%93%81%E8%AF%81"><span class="nav-text">02. 核心实验与发现：300B 逆袭 2 万亿，数据缩放定律的科学铁证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E5%8F%91%E7%8E%B0-1%EF%BC%9A%E7%AE%97%E5%8A%9B%E5%BC%80%E9%94%80%E9%AA%A4%E9%99%8D%E8%BF%91-7-%E5%80%8D%EF%BC%8C%E5%AD%A6%E6%9C%AF%E5%A4%A7%E8%80%83%E6%88%90%E7%BB%A9%E5%85%A8%E9%9D%A2%E5%8F%8D%E8%B6%85"><span class="nav-text">实验发现 1：算力开销骤降近 7 倍，学术大考成绩全面反超</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E5%8F%91%E7%8E%B0-2%EF%BC%9A%E4%BD%8E%E8%AE%A1%E7%AE%97%E9%87%8F%E4%B8%8B%E7%9A%84%E2%80%9C%E8%BF%87%E6%BB%A4%E6%9E%81%E5%8C%96%E6%B3%95%E5%88%99%E2%80%9D"><span class="nav-text">实验发现 2：低计算量下的“过滤极化法则”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%A0%B8%E5%BF%83%E7%B2%BE%E9%AB%93%EF%BC%9A%E8%A7%A3%E5%AF%86-DCLM-%E7%9A%84%E5%9B%9B%E5%A4%A7%E7%A1%AC%E6%A0%B8%E7%A7%91%E5%AD%A6%E5%8F%91%E7%8E%B0"><span class="nav-text">03. 核心精髓：解密 DCLM 的四大硬核科学发现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%8C%9F-%E5%8E%9F%E5%88%99%E4%B8%80%EF%BC%9A%E6%A8%A1%E5%9E%8B%E6%89%93%E5%88%86%EF%BC%88Model-Based%EF%BC%89%E5%AF%B9%E8%A7%84%E5%88%99%E8%BF%87%E6%BB%A4%EF%BC%88Heuristics%EF%BC%89%E7%9A%84%E9%99%8D%E7%BB%B4%E6%89%93%E5%87%BB"><span class="nav-text">🌟 原则一：模型打分（Model-Based）对规则过滤（Heuristics）的降维打击</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%8C%9F-%E5%8E%9F%E5%88%99%E4%BA%8C%EF%BC%9A%E7%AE%97%E5%8A%9B%E8%87%AA%E9%80%82%E5%BA%94%E8%BF%87%E6%BB%A4%E6%B3%95%E5%88%99%EF%BC%88Compute-Aware-Filtering%EF%BC%89"><span class="nav-text">🌟 原则二：算力自适应过滤法则（Compute-Aware Filtering）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%8C%9F-%E5%8E%9F%E5%88%99%E4%B8%89%EF%BC%9A%E8%AE%A4%E7%9F%A5%E5%A4%9A%E6%A0%B7%E6%80%A7%E6%B3%95%E5%88%99%EF%BC%88%E9%98%B2%E6%AD%A2%E2%80%9C%E7%9F%A5%E8%AF%86%E5%81%8F%E7%A7%91%E2%80%9D%EF%BC%89"><span class="nav-text">🌟 原则三：认知多样性法则（防止“知识偏科”）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E7%B3%BB%E7%BB%9F%E5%B7%A5%E7%A8%8B%E8%90%BD%E5%9C%B0%EF%BC%9ADCLM-%E6%A0%87%E5%87%86%E5%8C%96%E8%AF%84%E6%B5%8B%E6%B2%99%E7%9B%92%E7%9A%84%E4%B8%89%E7%BA%A7%E8%B7%B3%E5%8F%B0"><span class="nav-text">04. 系统工程落地：DCLM 标准化评测沙盒的三级跳台</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%A8%A1%E5%9D%97%E4%B8%80%EF%BC%9A%E4%B8%89%E7%BA%A7%E6%A2%AF%E9%98%9F%E7%BC%A9%E6%94%BE%E5%BC%95%E6%93%8E%EF%BC%88Multi-Scale-Testbed%EF%BC%89"><span class="nav-text">1. 模块一：三级梯队缩放引擎（Multi-Scale Testbed）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A8%A1%E5%9D%97%E4%BA%8C%EF%BC%9A%E6%A0%87%E5%87%86%E5%8C%96-OpenLM-%E8%AE%AD%E7%BB%83%E9%BB%91%E7%9B%92"><span class="nav-text">2. 模块二：标准化 OpenLM 训练黑盒</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%A8%A1%E5%9D%97%E4%B8%89%EF%BC%9A%E5%85%A8%E8%87%AA%E5%8A%A8-53-%E9%97%A8%E5%A4%9A%E5%AD%A6%E7%A7%91%E9%98%85%E5%8D%B7%E6%9C%BA"><span class="nav-text">3. 模块三：全自动 53 门多学科阅卷机</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E6%80%BB%E7%BB%93%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%90%BD%E5%9C%B0%E6%80%9D%E8%80%83"><span class="nav-text">05. 总结与架构落地思考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">161</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？ | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-09-16 10:00:00" itemprop="dateCreated datePublished" datetime="2025-09-16T10:00:00+08:00">2025-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-10-28 15:14:38" itemprop="dateModified" datetime="2026-10-28T15:14:38+08:00">2026-10-28</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在大模型研发领域，长期存在着一种说不清道不明的“糊涂账”：很多团队宣称自己的数据清洗天下第一，但在训练时，他们往往悄悄换了更先进的位置编码、加了特殊的优化器、调整了模型超参数。外界根本分不清：<strong>它的模型跑分高，到底是因为数据真的洗干净了，还是因为它的模型架构偷偷占了便宜？</strong></p>
+<p>在我们上一篇探讨的 <a href="/2025/09/14/TheFineWebDatasets-DecantingTheWeb/">【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineWeb）</a> 中，我们见证了 Hugging Face 如何用极具匠心的工艺打造出一套顶级的“数据淘金滤网”。</p>
+<p>而在同一时期，由 <strong>Apple、华盛顿大学（UW）、丰田研究院（TRI）、哥伦比亚大学</strong> 等顶尖机构联合发布的重磅里程碑论文 <strong>《DataComp-LM: In search of the next generation of training sets for language models》（简称 DCLM）</strong>，则带着极其罕见的**“科学洁癖”<strong>，直接为全世界的大模型数据建立了一套绝对公平的</strong>“标准化高考竞技场”**！</p>
+<p>这篇论文最大的特色，就是<strong>彻底排除了一切模型架构的干扰，将神经网络和训练参数全部焊死为唯一的基准控制组，只拿数据说话</strong>。而它交出的最终实验成绩单，更是直接震撼了整个 AI 工业界：</p>
+<blockquote>
+<p><strong>一个标准的 7B（70 亿参数）语言模型，仅仅吃下 3000 亿（300B）精选 Token，在 53 门标准化统考中的表现，直接打平甚至反超了吃了整整 2 万亿（2.0T）Token 的行业标杆（如 LLaMA-2 7B）！</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>论文题目</strong>：DataComp-LM: In search of the next generation of training sets for language models<br>
+<strong>作者团队</strong>：Jeffrey Li, Alex Fang, Georgios Smyrnis, Ludwig Schmidt 等 (Apple, UW, TRI, Columbia)<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2406.11794" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2406.11794</a><br>
+<strong>HTML 预览</strong>：<a target="_blank" href="https://arxiv.org/html/2406.11794" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2406.11794</a><br>
+<strong>开源项目主页</strong>：<a target="_blank" href="https://datacomp.library.cmu.edu/dclm" rel="external nofollow noreferrer noopener">https://datacomp.library.cmu.edu/dclm</a></p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-行业盲区：被混淆的“架构红利”与缺失的统考基准">01. 行业盲区：被混淆的“架构红利”与缺失的统考基准</h2>
+<p>在传统的计算机视觉时代，学术界有著名的 <strong>ImageNet</strong>：全世界的算法科学家都在<strong>同一张固定考卷上</strong>比赛设计网络结构。</p>
+<p>但进入大模型时代后，比赛规则彻底反转了：大家用的全都是标准的 Transformer Decoder 架构，比拼的重心完全转移到了<strong>数据清洗工程</strong>。然而，由于缺乏公认的标准竞技场，各家论文的宣称充满了杂音与自说自话：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">【传统大模型论文常见的“混淆变量”问题】</span><br><span class="line"></span><br><span class="line">方案 A: 夹带私货的“不公平竞赛”</span><br><span class="line">  [机构自研数据集] ──&gt; [偷偷换上更好的 RoPE/SwiGLU/学习率] ──&gt; 跑分提升！</span><br><span class="line">  （科学疑问：跑分提升到底是因为数据好，还是因为架构在作弊？）</span><br><span class="line"></span><br><span class="line">方案 B: DCLM 的“绝对控制变量”竞技场 (优选)</span><br><span class="line">  [参赛者提交过滤方案] ──&gt; [统一下发 240T 原始候选池]</span><br><span class="line">                       ──&gt; [锁死同一套 OpenLM 标准架构与优化器]</span><br><span class="line">                       ──&gt; [全自动参加 53 门标准化考试]</span><br><span class="line">  （科学铁证：任何百分之零点几的提升，100% 只能归功于数据质量！）</span><br></pre></td></tr></table></figure>
+<p>Apple 与华盛顿大学团队深知：<strong>如果不把模型架构的性能差异彻底抛开，大模型数据清洗就永远只能停留在一门玄学，无法成为严谨的科学。</strong></p>
+<p>于是，DCLM 构建了全球首个开放标准沙盒：</p>
+<ol>
+<li><strong>统一的食材库</strong>：从 Common Crawl 沉淀出高达 <strong>240 万亿原始 Token</strong> 的候选金矿；</li>
+<li><strong>锁死的标准化训练引擎</strong>：采用开源的 OpenLM 框架，学习率、余弦调度器、词表全部固定；</li>
+<li><strong>53 门科目的全科统考</strong>：涵盖 MMLU、数学推理、代码生成、逻辑链条等，杜绝单一任务“偏科刷榜”。</li>
+</ol>
+<hr>
+<h2 id="02-核心实验与发现：300B-逆袭-2-万亿，数据缩放定律的科学铁证">02. 核心实验与发现：300B 逆袭 2 万亿，数据缩放定律的科学铁证</h2>
+<p>在彻底排除了模型架构与超参数的干扰之后，团队使用自己研发的 <strong>DCLM-Baseline</strong> 过滤配方，从零预训练了 7B 参数模型，并在同等条件下与全球顶流开源数据集展开了残酷的“同台拉马力机”对决：</p>
+<pre><code class="highlight mermaid">flowchart LR
+    subgraph S1[&quot;传统大模型: 海量堆算力 (消耗巨大)&quot;]
+        direction TB
+        LLaMA1[&quot;LLaMA-1 (7B)&lt;br/&gt;1.0 万亿 Tokens | MMLU: 35.1&quot;]
+        LLaMA2[&quot;LLaMA-2 (7B)&lt;br/&gt;2.0 万亿 Tokens | MMLU: 45.3&quot;]
+        Dolma[&quot;Dolma 7B (OLMo)&lt;br/&gt;3.0 万亿 Tokens | MMLU: 40.2&quot;]
+    end
+
+    subgraph S2[&quot;DCLM 纯度革命: 300B 极致精炼 (优选)&quot;]
+        direction TB
+        DCLM[&quot;🏆 DCLM-Baseline 7B&lt;br/&gt;【仅吃 3000 亿 Tokens (300B)】&lt;br/&gt;MMLU: 64.0 (暴涨近 20 分横扫全场！)&quot;]
+    end
+
+    LLaMA2 -. &quot;数据量仅 1/7&lt;br/&gt;跑分大幅反超近 20 分&quot; .-&gt; DCLM</code></pre>
+<h3 id="实验发现-1：算力开销骤降近-7-倍，学术大考成绩全面反超">实验发现 1：算力开销骤降近 7 倍，学术大考成绩全面反超</h3>
+<p>在衡量综合学科知识水平的最高考场（MMLU 5-shot）上：</p>
+<ul>
+<li>吃了 <strong>2.0 万亿 Token</strong> 的行业领头羊 LLaMA-2 7B 仅考出了 <strong>45.3 分</strong>；</li>
+<li>吃了 <strong>3.0 万亿 Token</strong> 的 Dolma 7B 仅考出了 <strong>40.2 分</strong>；</li>
+<li>而 DCLM-Baseline 7B 仅仅吃了 <strong>3000 亿 Token（仅为前者的 1/7 到 1/10）</strong>，成绩却暴涨到了 <strong>64.0 分</strong>！</li>
+</ul>
+<p>这给全行业带来了颠覆性的认知震撼：<strong>在同等模型智商下，优秀的数据清洗机制直接为团队省下了近 7 倍的训练电费与集群开销！</strong></p>
+<h3 id="实验发现-2：低计算量下的“过滤极化法则”">实验发现 2：低计算量下的“过滤极化法则”</h3>
+<p>实验给出了一个反直觉的定律：<strong>你的计算预算越小，数据过滤门槛就必须越狠毒！</strong></p>
+<ul>
+<li>当算力只够训练 40 亿（4B）Token 时：只保留全网评分前 <strong>5% ~ 10%</strong> 的顶级极品数据，模型智商最高；</li>
+<li>任何试图“多见识不同水文”的宽容策略，在低算力下都会导致模型智商迅速平庸化。</li>
+</ul>
+<hr>
+<h2 id="03-核心精髓：解密-DCLM-的四大硬核科学发现">03. 核心精髓：解密 DCLM 的四大硬核科学发现</h2>
+<p>DCLM 最大的学术价值在于，它没有空谈理论，而是通过几百组控制变量实验，提炼出了指导现代大模型数据预训练的四大黄金法则：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">            【DCLM 数据缩放与清洗的四大黄金法则】</span><br><span class="line"> </span><br><span class="line">法则一：模型打分法则 ─────&gt; 小快灵的 fastText 分类器对死板正则规则形成降维打击</span><br><span class="line">法则二：算力自适应法则 ───&gt; 算力预算越小过滤越要狠；算力巨大时需适度放宽防重复</span><br><span class="line">法则三：认知多样性法则 ───&gt; 警惕单一学术文本！必须保留代码与对话以防严重偏科</span><br><span class="line">法则四：全科目大考法则 ───&gt; 53 门基准立体阅卷，杜绝在单一榜单上制造虚假繁荣</span><br></pre></td></tr></table></figure>
+<h3 id="🌟-原则一：模型打分（Model-Based）对规则过滤（Heuristics）的降维打击">🌟 原则一：模型打分（Model-Based）对规则过滤（Heuristics）的降维打击</h3>
+<p>很多传统数据管线依赖写死规则（如：“段落必须大于 50 词”、“标点符号比例小于 30%”）。<br>
+DCLM 实验证明：<strong>死板规则只能剔除 10%~20% 最粗糙的乱码，对伪装成正文的低质营销水文完全失灵！</strong></p>
+<ul>
+<li>DCLM 采用监督学习训练了轻量级 <strong>fastText 质量分类器</strong>；</li>
+<li>将维基百科、高质量问答（ELI5）、ArXiv 论文作为正样本，把未过滤的随机网页作为负样本；</li>
+<li>这个极小极快的模型能够在毫秒级内感知一段话的“文风素养、逻辑密度与表达格调”，其清洗提纯效果呈代际优势碾压传统正则。</li>
+</ul>
+<hr>
+<h3 id="🌟-原则二：算力自适应过滤法则（Compute-Aware-Filtering）">🌟 原则二：算力自适应过滤法则（Compute-Aware Filtering）</h3>
+<p>很多人以为“好数据的标准是永恒不变的”。DCLM 纠正了这一重大误区：</p>
+<ul>
+<li><strong>如果你的卡很少（预算吃紧）</strong>：必须执行“严选策略”，宁可只要前 5% 的极品牛排；</li>
+<li><strong>如果你的卡很多（目标是 2T 规模）</strong>：必须将门槛适度放宽至前 20%~30%。因为如果门槛锁死，极品语料会被过快消耗殆尽，导致模型在后续轮次中不得不反复吃同一批文章，陷入严重的“记忆过拟合”。</li>
+</ul>
+<hr>
+<h3 id="🌟-原则三：认知多样性法则（防止“知识偏科”）">🌟 原则三：认知多样性法则（防止“知识偏科”）</h3>
+<p>DCLM 发现了一个极其危险的陷阱：如果我们只挑高学术价值的教材喂给模型，模型会在学术考试上刷出高分，但它在<strong>编写 Python 代码、处理日常对话指令、做非结构化摘要</strong>时能力会暴跌！</p>
+<ul>
+<li>真正卓越的数据配方，不是把世界变成纯粹的维基百科；</li>
+<li>而是以高知识密度语料为骨干的同时，严格按比例混入清洗干净的开源高质量代码库与多领域权威新闻，维持模型的“全科通用性”。</li>
+</ul>
+<hr>
+<h2 id="04-系统工程落地：DCLM-标准化评测沙盒的三级跳台">04. 系统工程落地：DCLM 标准化评测沙盒的三级跳台</h2>
+<p>为了让全球研究者都能以最低的试错成本找到最佳数据策略，DCLM 将庞大的训练过程抽象成了<strong>三级标准跳水台</strong>：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph Stage1[&quot;第 1 级: 400M 参数小规模初试 (几小时出结果)&quot;]
+        D1[&quot;你的待测试数据过滤方案&quot;] --&gt; T1[&quot;400M 模型 / 4.1B Tokens 快速迭代&quot;]
+        T1 --&gt; EVAL1[&quot;初赛打分: 快速淘汰劣质规则&quot;]
+    end
+
+    subgraph Stage2[&quot;第 2 级: 1.4B 参数中规模复赛 (验证可扩展性)&quot;]
+        EVAL1 -- &quot;晋级者&quot; --&gt; T2[&quot;1.4B 模型 / 14B Tokens 扩展性验证&quot;]
+        T2 --&gt; EVAL2[&quot;复赛打分: 确认数据策略能否放大&quot;]
+    end
+
+    subgraph Stage3[&quot;第 3 级: 7B 参数 300B Tokens 终极决战&quot;]
+        EVAL2 -- &quot;优胜配方&quot; --&gt; T3[&quot;7B 模型 / 300B Tokens 巅峰预训练&quot;]
+        T3 --&gt; FULL_EVAL[&quot;🏆 53 门全科目自动化机器大考&lt;br/&gt;(输出全面雷达图与世界排名)&quot;]
+    end</code></pre>
+<h3 id="1-模块一：三级梯队缩放引擎（Multi-Scale-Testbed）">1. 模块一：三级梯队缩放引擎（Multi-Scale Testbed）</h3>
+<ul>
+<li><strong>背景痛点</strong>：没有人能承受每次测试一种新规则就烧几万美元去训一个 7B 模型。</li>
+<li><strong>解法</strong>：在 400M、1.4B、7B 三个台阶上，数据过滤的优胜趋势具有极高的相关性。开发者可以在 400M 尺度上以极低成本尝试成百上千种奇思妙想，挑出黑马后再送上 7B 决战。</li>
+</ul>
+<h3 id="2-模块二：标准化-OpenLM-训练黑盒">2. 模块二：标准化 OpenLM 训练黑盒</h3>
+<ul>
+<li><strong>背景痛点</strong>：不同实验之间经常因为优化器微小的 implementation 差异导致结论失真。</li>
+<li><strong>解法</strong>：全链路代码严格锁定，采用标准化数据加载与并行策略，确保外部提交的任何方案在底层受到的算力与网络待遇完全平等。</li>
+</ul>
+<h3 id="3-模块三：全自动-53-门多学科阅卷机">3. 模块三：全自动 53 门多学科阅卷机</h3>
+<ul>
+<li><strong>背景痛点</strong>：单项跑分极其容易被“刷榜作弊”。</li>
+<li><strong>解法</strong>：建立覆盖常识推理（ARC、HellaSwag）、学术考试（MMLU）、代码补全（HumanEval）、多步逻辑（GSM8k）等 53 项自动化评测框架，杜绝虚假繁荣。</li>
+</ul>
+<hr>
+<h2 id="05-总结与架构落地思考">05. 总结与架构落地思考</h2>
+<p>如果说我们上一篇探讨的 <strong><a href="/2025/09/14/TheFineWebDatasets-DecantingTheWeb/">FineWeb</a></strong> 是一位技艺登峰造极的“淘金工匠”，那么 <strong>DCLM</strong> 就是为整个黄金市场制定了统一度量衡与成色标准的“公证处”。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">思考维度</th>
+<th style="text-align:left">传统粗放认知</th>
+<th style="text-align:left">DCLM 带来的架构认知升级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>评测实验方法</strong></td>
+<td style="text-align:left">模型架构与数据混在一起改，归因糊涂</td>
+<td style="text-align:left"><strong>彻底锁死模型架构与训练脚本，用绝对控制变量只度量数据质量</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>数据清洗逻辑</strong></td>
+<td style="text-align:left">依赖工程师经验写死板正则规则</td>
+<td style="text-align:left"><strong>利用 fastText 等小快灵模型进行语义打分，清洗精度代际提升</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>算力与数据配比</strong></td>
+<td style="text-align:left">迷信 Token 越多越好，盲目烧显卡</td>
+<td style="text-align:left"><strong>300B 顶级提纯数据战胜 2.0T 原始数据，算力效率最高提升近 7 倍</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>能力均衡视角</strong></td>
+<td style="text-align:left">盲目堆单一学术数据导致严重偏科</td>
+<td style="text-align:left"><strong>在 53 门综合考场下保持代码、对话与专业常识的多样性黄金比例</strong></td>
+</tr>
+</tbody>
+</table>
+<p>至此，大模型预训练与落地架构的“三部曲”已完全闭环：</p>
+<ul>
+<li><strong>UniPRO（融合顺序）</strong> 告诉我们：多模态交互时“放调料的顺序”决定了梯度与表征的上限；</li>
+<li><strong>对比场景图（Scene Graph）</strong> 告诉我们：视觉输入绝不能切成豆腐渣，必须提取出“结构化的主谓宾骨架”；</li>
+<li><strong>FineWeb 与 DCLM（数据双子星）</strong> 则从最底层的物理世界发出了最清醒的呐喊：<br>
+<strong>在模型架构早已走向同质化的今天，抛开一切虚荣的参数与算力盲信，深耕数据提纯，才是普通开发者与工程团队以小博大、逆风翻盘的终极王道！</strong></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" rel="tag"># 大语言模型</a>
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="tag"># 架构设计</a>
+              <a href="/tags/DCLM/" rel="tag"># DCLM</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B/" rel="tag"># 数据工程</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E6%B8%85%E6%B4%97/" rel="tag"># 数据清洗</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/02/28/ContrastiveSceneGraphs-MultimodalGrounding/" rel="prev" title="【论文分享】告别“近视眼”：对比场景图（Contrastive Scene Graphs）如何用数学与结构重塑多模态认知？">
+                  <i class="fa fa-angle-left"></i> 【论文分享】告别“近视眼”：对比场景图（Contrastive Scene Graphs）如何用数学与结构重塑多模态认知？
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/09/14/TheFineWebDatasets-DecantingTheWeb/" rel="next" title="【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineWeb）？">
+                  【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineWeb）？ <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">212k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">12:52</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
