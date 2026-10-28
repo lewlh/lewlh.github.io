@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">172</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">52</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">178</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">53</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-count">53</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">172</span>
+        <span class="site-state-item-count">178</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,112 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/27/FreeDVC-TrainingFreeDenseVideoCaptioning/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/10/27/FreeDVC-TrainingFreeDenseVideoCaptioning/" class="post-title-link" itemprop="url">【论文分享】无需训练即可看懂长视频？MIR 2026 论文 FreeDVC 解析及多模态视频资产库工程实践</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-27 10:15:00" itemprop="dateCreated datePublished" datetime="2026-10-27T10:15:00+08:00">2026-10-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-10-28 19:34:38" itemprop="dateModified" datetime="2026-10-28T19:34:38+08:00">2026-10-28</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>最近研读了发表在《Machine Intelligence Research》(MIR) 上的最新长视频理解论文《Training-free Dense Video Captioning with Large-scale Pretrained Models》（提出 FreeDVC 框架）。</p>
+<p>对于从事后端或 AI 基础设施开发的软件工程师来说，视频理解一直是一个“门槛极高”的重算法领域：传统的密集视频字幕（Dense Video Captioning, DVC）往往需要动用海量经过人工精细打标（标注到秒级时间戳）的视频数据进行端到端微调，算力成本昂贵且极难泛化。</p>
+<p>而 FreeDVC 最让人眼前一亮的地方在于它的 <strong>“纯工程解法”：不改动任何模型权重、完全无需特定任务训练（Training-free），而是将现成成熟的视觉、语音与语言大模型组合成高效的“多模型流水线”</strong>，并在跨领域的零样本（Zero-shot）任务中展现出了极强的表现。更重要的是，它为海量长视频资产的“细粒度特征提取与向量数据库结构化”提供了完美的落地范式。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Training-free Dense Video Captioning with Large-scale Pretrained Models<br>
+<strong>作者团队</strong>：南京航空航天大学 (NUAA) 计算机科学与技术学院 / 人工智能学院 等<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://www.mi-research.net/article/doi/10.1007/s11633-025-1585-x">https://www.mi-research.net/article/doi/10.1007/s11633-025-1585-x</a><br>
+<strong>发表期刊</strong>：<em>Machine Intelligence Research</em> (MIR 2026)</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/10/27/FreeDVC-TrainingFreeDenseVideoCaptioning/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +338,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 18:25:16" itemprop="dateModified" datetime="2026-10-28T18:25:16+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 19:34:38" itemprop="dateModified" datetime="2026-10-28T19:34:38+08:00">2026-10-28</time>
     </span>
 
   
@@ -337,7 +443,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 18:25:16" itemprop="dateModified" datetime="2026-10-28T18:25:16+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 19:34:38" itemprop="dateModified" datetime="2026-10-28T19:34:38+08:00">2026-10-28</time>
     </span>
 
   
@@ -442,7 +548,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 18:25:16" itemprop="dateModified" datetime="2026-10-28T18:25:16+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 19:34:38" itemprop="dateModified" datetime="2026-10-28T19:34:38+08:00">2026-10-28</time>
     </span>
 
   
@@ -546,7 +652,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 18:25:16" itemprop="dateModified" datetime="2026-10-28T18:25:16+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 19:34:38" itemprop="dateModified" datetime="2026-10-28T19:34:38+08:00">2026-10-28</time>
     </span>
 
   
@@ -608,113 +714,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/" class="post-title-link" itemprop="url">【论文分享】打破长视频的显存与计算魔咒：解析前沿论文 WIRE (Weight Space Implicit Representation Encoding)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-24 11:35:00" itemprop="dateCreated datePublished" datetime="2026-10-24T11:35:00+08:00">2026-10-24</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 18:25:16" itemprop="dateModified" datetime="2026-10-28T18:25:16+08:00">2026-10-28</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>5.5k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>20 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>最近研读了一篇极具工程启发意义的长视频大模型（Video LLM）前沿论文——《WIRE: Weight Space Implicit Representation Encoding of Frozen Video LLMs》。</p>
-<p>在当前的视频大模型领域，大家在面对几十甚至上千帧的长视频时，普遍面临着极其严峻的工程瓶颈：<strong>Token 海啸、Prefill 耗时漫长、显存（KV Cache）频频溢出</strong>。</p>
-<p>这篇论文跳出了传统“只在输入端（Token）打转”的思维惯性，提出了一个兼具理论美感与工程实效的破局方案：<strong>将原本塞在输入序列里的微观视频信息，通过轻量级超网络实时提炼成临时的 LoRA 补丁，直接“刷”进大模型的权重空间中</strong>。在基准测试中，它将视觉序列长度压缩了 <strong>3.5 倍</strong>，长视频前置处理速度提升了 <strong>3~4 倍</strong>，同时显存开销锐减至约 <strong>28%</strong>，且完全不影响自回归打字速度。</p>
-<p>在此将论文的核心洞见、系统工程实现、LoRA 的特殊生成机制以及多模态权衡整理成一篇系统的技术分享笔记。</p>
-<blockquote>
-<p><strong>论文题目</strong>：WIRE: Weight Space Implicit Representation Encoding of Frozen Video LLMs<br>
-<strong>作者团队</strong>：Ameen Ali, Tamim Zoabi, Lior Wolf, Chaim Baskin (特拉维夫大学 / Technion 等)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.17355">https://arxiv.org/abs/2610.17355</a><br>
-<strong>Papers.cool</strong>：<a target="_blank" rel="noopener" href="https://papers.cool/arxiv/2610.17355">https://papers.cool/arxiv/2610.17355</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -739,14 +738,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">224k</span>
+    <span title="站点总字数">228k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">13:33</span>
+    <span title="站点阅读时长">13:50</span>
   </span>
 </div>
 <div class="busuanzi-count">
