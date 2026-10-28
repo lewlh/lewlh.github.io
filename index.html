@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">161</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">50</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">167</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">51</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-count">51</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">161</span>
+        <span class="site-state-item-count">167</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,121 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/28/FewShotReferringRelationships-Videos/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/10/28/FewShotReferringRelationships-Videos/" class="post-title-link" itemprop="url">【论文分享】看懂动态世界的因果：解析 CVPR 顶会《Few-Shot Referring Relationships in Videos》的时空图与置信度传播</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-10-28 16:20:00 / 修改时间：17:04:45" itemprop="dateCreated datePublished" datetime="2026-10-28T16:20:00+08:00">2026-10-28</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>25 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在我们之前分享的 <a href="/2026/02/28/ContrastiveSceneGraphs-MultimodalGrounding/">【论文分享】告别“近视眼”：对比场景图（Contrastive Scene Graphs）如何用数学与结构重塑多模态认知？</a> 中，我们深入探讨了如何利用图结构与对比学习治愈大模型在 2D 静态图片上的“关系盲”，让模型分清到底是谁压在谁身上。</p>
+<p>但现实世界并不是一张张静止的切片，而是一条奔流不息的时间长河。当我们将目光投向<strong>动态视频</strong>时，一个更为严峻的认知鸿沟横亘在面前：</p>
+<p>给 AI 输入一段长视频并询问：<strong>“穿红衣服的骑手跃过栅栏的动作发生在哪里？”</strong></p>
+<ul>
+<li>传统目标检测与大模型可以轻松框出画面里的“人”、“马”和“栅栏”；</li>
+<li>但只要画面里有多匹马、多个骑手，或者发生动作的瞬间只有短短几秒，<strong>模型就会彻底陷入“时空迷失”</strong>——它分不清到底哪个人和哪匹马正在完成“跃过”动作，更无法在几百帧的连续画面中稳定咬住这一对交互轨迹。</li>
+</ul>
+<p>更致命的是，现实世界中的动态交互千奇百怪，视频标注成本是图片的成百上千倍，<strong>我们根本不可能提前为每一种冷门动作收集成千上万条带时空标注的训练视频</strong>。</p>
+<p>在计算机视觉顶会 <strong>CVPR 2023</strong> 上，来自印度理工学院（IIT Jodhpur）的研究团队发表了一篇极具开创性的重磅论文 —— <strong>《Few-Shot Referring Relationships in Videos》</strong>。论文提出了一套优雅而强大的数学图模型框架：</p>
+<blockquote>
+<p><strong>“无需海量标注，仅凭 2~3 个参考演示视频（Few-Shot），借助 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi></mrow><annotation encoding="application/x-tex">T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span></span></span></span>-分部随机场（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi></mrow><annotation encoding="application/x-tex">T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span></span></span></span>-partite Random Field）与置信度传播（Belief Propagation）算法，就能在充满干扰的长视频中，精确提取出罕见动态交互的完整时空时序管道（Spatio-Temporal Tubelets）！”</strong></p>
+</blockquote>
+<p>在这篇博客中，我们将用最通俗易懂的语言，彻底拆解这篇论文背后的<strong>数学原理、图模型推导、四大核心机械架构与元学习工程落地</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Few-Shot Referring Relationships in Videos<br>
+<strong>作者团队</strong>：Yogesh Kumar, Anand Mishra (印度理工学院焦特布尔分校 IIT Jodhpur)<br>
+<strong>收录会议</strong>：CVPR 2023 (IEEE/CVF Conference on Computer Vision and Pattern Recognition)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content/CVPR2023/html/Kumar_Few-Shot_Referring_Relationships_in_Videos_CVPR_2023_paper.html">https://openaccess.thecvf.com/content/CVPR2023/html/Kumar_Few-Shot_Referring_Relationships_in_Videos_CVPR_2023_paper.html</a><br>
+<strong>博士毕业论文汇总 (arXiv)</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.21422">https://arxiv.org/abs/2610.21422</a> (Chapter 3 / Survey)<br>
+<strong>arXiv HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.21422v1">https://arxiv.org/html/2610.21422v1</a><br>
+<strong>开源代码库</strong>：<a target="_blank" rel="noopener" href="https://github.com/vl2g/RefRelations">https://github.com/vl2g/RefRelations</a><br>
+<strong>核心领域</strong>：Video Understanding, Visual Relationship Grounding, Few-Shot Learning, Spatio-Temporal Modeling<br>
+<strong>技术亮点</strong>：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi></mrow><annotation encoding="application/x-tex">T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span></span></span></span>-partite 随机场时空建模、查询条件平移嵌入 (TransE)、全局/局部双重语义聚合 (GSA/LLA)、置信度传播 (Belief Propagation)</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/10/28/FewShotReferringRelationships-Videos/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +341,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-10-28 11:55:00 / 修改时间：15:14:38" itemprop="dateCreated datePublished" datetime="2026-10-28T11:55:00+08:00">2026-10-28</time>
+      <time title="创建时间：2026-10-28 11:55:00 / 修改时间：17:04:45" itemprop="dateCreated datePublished" datetime="2026-10-28T11:55:00+08:00">2026-10-28</time>
     </span>
 
   
@@ -336,7 +451,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 15:14:38" itemprop="dateModified" datetime="2026-10-28T15:14:38+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 17:04:45" itemprop="dateModified" datetime="2026-10-28T17:04:45+08:00">2026-10-28</time>
     </span>
 
   
@@ -442,7 +557,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 15:14:38" itemprop="dateModified" datetime="2026-10-28T15:14:38+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 17:04:45" itemprop="dateModified" datetime="2026-10-28T17:04:45+08:00">2026-10-28</time>
     </span>
 
   
@@ -548,7 +663,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 15:14:38" itemprop="dateModified" datetime="2026-10-28T15:14:38+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 17:04:45" itemprop="dateModified" datetime="2026-10-28T17:04:45+08:00">2026-10-28</time>
     </span>
 
   
@@ -609,113 +724,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/26/PIGEONS-LongVideoCaptioning/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/10/26/PIGEONS-LongVideoCaptioning/" class="post-title-link" itemprop="url">【论文分享】如何让大模型看懂10分钟长视频？中科院&可灵团队 PIGEONS 论文解析</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-26 18:58:00" itemprop="dateCreated datePublished" datetime="2026-10-26T18:58:00+08:00">2026-10-26</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 15:14:38" itemprop="dateModified" datetime="2026-10-28T15:14:38+08:00">2026-10-28</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>2.7k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>10 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>最近研读了中科院自动化所（CASIA）与快手可灵大模型团队（Kling Team）联合发布的最新长视频理解论文《PIGEONS: Incremental Long-Video Captioning with Persistent Identity Gallery and Evolving Overarching Narrative Summary》。</p>
-<p>对于从事技术但非算法背景的工程师来说，长视频理解（Video Captioning）看起来只是“让多模态大模型多读几张图”，但实际深入后会发现，长程视频在 <strong>主体指代一致性（认准人）<strong>和</strong>长程叙事连贯性（讲对事）</strong> 上面临着极其严峻的工程与算法挑战。本文从工业落地和技术原理的角度，梳理这篇论文的核心突破与思考。</p>
-<blockquote>
-<p><strong>论文题目</strong>：PIGEONS: Incremental Long-Video Captioning with Persistent Identity Gallery and Evolving Overarching Narrative Summary<br>
-<strong>作者团队</strong>：中科院自动化所 (CASIA)、中国科学院大学、快手可灵团队 (Kling Team)、香港科技大学、北京大学、南京大学<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.16066">https://arxiv.org/abs/2610.16066</a><br>
-<strong>项目主页</strong>：<a target="_blank" rel="noopener" href="https://pigeons-captioner.github.io/">https://pigeons-captioner.github.io/</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2026/10/26/PIGEONS-LongVideoCaptioning/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>
@@ -738,14 +748,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">212k</span>
+    <span title="站点总字数">219k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">12:52</span>
+    <span title="站点阅读时长">13:17</span>
   </span>
 </div>
 <div class="busuanzi-count">
