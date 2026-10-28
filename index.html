@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">167</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">51</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">172</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">52</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">51</span>
+          <span class="site-state-item-count">52</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">167</span>
+        <span class="site-state-item-count">172</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,125 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/28/QDETRv-QueryGuidedDETR-VideoObjectLocalization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/10/28/QDETRv-QueryGuidedDETR-VideoObjectLocalization/" class="post-title-link" itemprop="url">【论文分享】看图寻物的“时空雷达”：解析 AAAI 顶会《QDETRv》如何用记忆模块与合成轨迹重塑视频目标追踪（兼论 SAM 2 的底层思想渊源）</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-10-28 17:30:00 / 修改时间：18:25:16" itemprop="dateCreated datePublished" datetime="2026-10-28T17:30:00+08:00">2026-10-28</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.5k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在真实世界的计算机视觉应用中，我们经常会遇到这样一类近乎苛刻的需求：</p>
+<blockquote>
+<p><strong>“失主在游乐园丢了一款极其罕见的定制公仔，手机里只有一张随手拍的正面特写。能否让 AI 在园区长达数小时的全景监控录像中，把这个公仔出现的所有时间片段和具体空间位置全部抓捕出来？”</strong></p>
+</blockquote>
+<p>面对这种**“单样本目标定位（One-Shot Object Localization）”**任务，工业界传统的目标检测算法（如 YOLO、Faster R-CNN）几乎全军覆没：</p>
+<ol>
+<li><strong>闭集死记硬背（Closed-Set Dilemma）</strong>：模型只认识训练集标注过的几十种常见物体（人、车、狗等），遇到没见过的长尾罕见物品直接沦为“功能盲”；</li>
+<li><strong>时序失忆与闪烁（Temporal Amnesia）</strong>：若采用单帧独立匹配，物体一旦发生 <strong>180 度大转身（露出从未见过的背面）</strong>，或者被树木、立柱<strong>遮挡 1 秒钟</strong>，算法立刻跟丢，轨迹彻底碎裂；</li>
+<li><strong>数据标注贵到破产（Annotation Scarcity）</strong>：在视频中为目标逐帧标注连续时空包围盒，成本是静态图片的成百上千倍。</li>
+</ol>
+<p>在人工智能顶级学术会议 <strong>AAAI 2024</strong> 上，来自印度理工学院与埃森哲实验室（Accenture Labs）的联合研究团队发表了重磅突破论文 —— <strong>《QDETRv: Query-Guided DETR for One-Shot Object Localization in Videos》</strong>。</p>
+<p>论文不仅巧妙将静态检测神器 DETR（Detection Transformer）改造为具备“时空雷达”的视频跟踪架构，更开创性地提出了 <strong>“循环对象查询记忆矩阵（Recurrent Memory）”</strong> 与 <strong>“合成轨迹自监督预训练（Synthetic Object Trajectories）”</strong> 两大杀手锏。</p>
+<blockquote>
+<p>[!IMPORTANT]<br>
+<strong>站在 2026 年的前沿视角审视</strong>：这项研究最具前瞻性的地方在于，它所确立的**“利用 Memory 缓存跨时序解决遮挡与形变”<strong>以及</strong>“利用合成轨迹克服视频无标注难题”**的工程范式，与后续 <strong>Meta 轰动全球的现象级模型 SAM 2（Segment Anything Model 2）</strong> 的底层流式记忆架构（Streaming Memory Bank）形成了惊人的一致与深远的技术呼应！</p>
+</blockquote>
+<p>在这篇博客中，我们将彻底拆解 QDETRv 的数学推导、模型机械架构实现细节，并深度对比它与 Meta SAM 2 之间的技术血脉演进。</p>
+<blockquote>
+<p><strong>论文题目</strong>：QDETRv: Query-Guided DETR for One-Shot Object Localization in Videos<br>
+<strong>作者团队</strong>：Yogesh Kumar, Saswat Subhajyoti Mallick, Anand Mishra, Sowmya Rasipuram, Anutosh Maitra, Roshni Ramnani (IIT Jodhpur, Accenture Labs)<br>
+<strong>收录会议</strong>：AAAI 2024 (Association for the Advancement of Artificial Intelligence)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://doi.org/10.1609/aaai.v38i3.28063">https://doi.org/10.1609/aaai.v38i3.28063</a><br>
+<strong>博士毕业论文汇总 (arXiv)</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.21422">https://arxiv.org/abs/2610.21422</a> (Chapter 2 / Survey)<br>
+<strong>arXiv HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.21422v1">https://arxiv.org/html/2610.21422v1</a><br>
+<strong>开源代码库</strong>：<a target="_blank" rel="noopener" href="https://github.com/yogesh-iitj/QDETRV">https://github.com/yogesh-iitj/QDETRV</a><br>
+<strong>核心领域</strong>：One-Shot Object Localization, Video Object Detection, Video Tracking, DEtection TRansformer<br>
+<strong>技术亮点</strong>：Query-Context 特征融合 (QCF)、循环时序记忆矩阵 (Recurrent Memory)、合成轨迹自监督预训练 (SOT)</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/10/28/QDETRv-QueryGuidedDETR-VideoObjectLocalization/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +345,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-10-28 16:20:00 / 修改时间：17:04:45" itemprop="dateCreated datePublished" datetime="2026-10-28T16:20:00+08:00">2026-10-28</time>
+      <time title="创建时间：2026-10-28 16:20:00 / 修改时间：18:25:16" itemprop="dateCreated datePublished" datetime="2026-10-28T16:20:00+08:00">2026-10-28</time>
     </span>
 
   
@@ -341,7 +460,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-10-28 11:55:00 / 修改时间：17:04:45" itemprop="dateCreated datePublished" datetime="2026-10-28T11:55:00+08:00">2026-10-28</time>
+      <time title="创建时间：2026-10-28 11:55:00 / 修改时间：18:25:16" itemprop="dateCreated datePublished" datetime="2026-10-28T11:55:00+08:00">2026-10-28</time>
     </span>
 
   
@@ -451,7 +570,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 17:04:45" itemprop="dateModified" datetime="2026-10-28T17:04:45+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 18:25:16" itemprop="dateModified" datetime="2026-10-28T18:25:16+08:00">2026-10-28</time>
     </span>
 
   
@@ -557,7 +676,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 17:04:45" itemprop="dateModified" datetime="2026-10-28T17:04:45+08:00">2026-10-28</time>
+      <time title="修改时间：2026-10-28 18:25:16" itemprop="dateModified" datetime="2026-10-28T18:25:16+08:00">2026-10-28</time>
     </span>
 
   
@@ -619,111 +738,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/26/ThinkCompressAnswer-TCA/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/10/26/ThinkCompressAnswer-TCA/" class="post-title-link" itemprop="url">【论文分享】多模态大模型的“克制之道”：解析定位前沿论文 Think-Compress-Answer (TCA)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-27 00:25:00" itemprop="dateCreated datePublished" datetime="2026-10-27T00:25:00+08:00">2026-10-27</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-28 17:04:45" itemprop="dateModified" datetime="2026-10-28T17:04:45+08:00">2026-10-28</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>2.9k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>11 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>最近研读了一篇非常有启发性的多模态定位前沿论文《Think, Compress, Answer: Reinforcement Learning for Multimodal Grounding via Reasoning Compression》（简称 <strong>TCA</strong>）。</p>
-<p>在当前大模型言必谈“长思维链（o1/R1 模式）”的浪潮下，这篇论文反其道而行之，敏锐地指出了视觉定位任务中的致命问题——<strong>“大模型想得越多，错得越离谱”</strong>。论文提出了一套“先发散思考、再极简提炼、后精准定位”的框架，配合四阶段轻量级强化学习，在完全不改变模型骨干的情况下大幅刷新了图像与视频指代分割的 SOTA。在此整理一篇通俗而系统的分享笔记，记录核心洞见与工程实现细节。</p>
-<blockquote>
-<p><strong>论文题目</strong>：Think, Compress, Answer: Reinforcement Learning for Multimodal Grounding via Reasoning Compression<br>
-<strong>作者团队</strong>：延世大学 (Yonsei University) 等<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.25640">https://arxiv.org/abs/2610.25640</a><br>
-<strong>Papers.cool</strong>：<a target="_blank" rel="noopener" href="https://papers.cool/arxiv/2610.25640">https://papers.cool/arxiv/2610.25640</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2026/10/26/ThinkCompressAnswer-TCA/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -748,14 +762,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">219k</span>
+    <span title="站点总字数">224k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">13:17</span>
+    <span title="站点阅读时长">13:33</span>
   </span>
 </div>
 <div class="busuanzi-count">

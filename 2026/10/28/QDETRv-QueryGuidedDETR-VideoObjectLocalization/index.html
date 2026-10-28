@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在真实世界的计算机视觉应用中，我们经常会遇到这样一类近乎苛刻的需求：  “失主在游乐园丢了一款极其罕见的定制公仔，手机里只有一张随手拍的正面特写。能否让 AI 在园区长达数小时的全景监控录像中，把这个公仔出现的所有时间片段和具体空间位置全部抓捕出来？”  面对这种**“单样本目标定位（One-Shot Object Localization）”**任务，工业界传统的目标检测算法（如 YOLO、Fa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】看图寻物的“时空雷达”：解析 AAAI 顶会《QDETRv》如何用记忆模块与合成轨迹重塑视频目标追踪（兼论 SAM 2 的底层思想渊源）">
+<meta property="og:url" content="https://lewlh.github.io/2026/10/28/QDETRv-QueryGuidedDETR-VideoObjectLocalization/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在真实世界的计算机视觉应用中，我们经常会遇到这样一类近乎苛刻的需求：  “失主在游乐园丢了一款极其罕见的定制公仔，手机里只有一张随手拍的正面特写。能否让 AI 在园区长达数小时的全景监控录像中，把这个公仔出现的所有时间片段和具体空间位置全部抓捕出来？”  面对这种**“单样本目标定位（One-Shot Object Localization）”**任务，工业界传统的目标检测算法（如 YOLO、Fa">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-28T09:30:00.000Z">
+<meta property="article:modified_time" content="2026-10-28T10:25:16.591Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="AAAI">
+<meta property="article:tag" content="DETR">
+<meta property="article:tag" content="QDETRv">
+<meta property="article:tag" content="SAM2">
+<meta property="article:tag" content="架构设计">
+<meta property="article:tag" content="目标检测">
+<meta property="article:tag" content="目标追踪">
+<meta property="article:tag" content="视频理解">
+<meta property="article:tag" content="记忆模块">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/2026/10/28/QDETRv-QueryGuidedDETR-VideoObjectLocalization/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/2026/10/28/QDETRv-QueryGuidedDETR-VideoObjectLocalization/","path":"2026/10/28/QDETRv-QueryGuidedDETR-VideoObjectLocalization/","title":"【论文分享】看图寻物的“时空雷达”：解析 AAAI 顶会《QDETRv》如何用记忆模块与合成轨迹重塑视频目标追踪（兼论 SAM 2 的底层思想渊源）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】看图寻物的“时空雷达”：解析 AAAI 顶会《QDETRv》如何用记忆模块与合成轨迹重塑视频目标追踪（兼论 SAM 2 的底层思想渊源） | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">172</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">52</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%A1%8C%E4%B8%9A%E7%9B%B2%E5%8C%BA%EF%BC%9A%E4%BC%A0%E7%BB%9F%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%E8%B7%A8%E5%85%A5%E9%95%BF%E8%A7%86%E9%A2%91%E7%9A%84%E2%80%9C%E5%A4%B1%E5%BF%86%E5%9B%B0%E5%A2%83%E2%80%9D"><span class="nav-text">01. 行业盲区：传统目标检测跨入长视频的“失忆困境”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%9B%AE%E6%A0%87%E5%A4%A7%E8%A7%92%E5%BA%A6%E8%87%AA%E6%97%8B%E8%BD%AC%EF%BC%88Orientation-Change%EF%BC%89"><span class="nav-text">1. 目标大角度自旋转（Orientation Change）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%9F%AD%E6%9A%82%E5%8A%A8%E6%80%81%E9%81%AE%E6%8C%A1%EF%BC%88Transient-Occlusion%EF%BC%89"><span class="nav-text">2. 短暂动态遮挡（Transient Occlusion）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%B5%B7%E9%87%8F%E6%A0%87%E6%B3%A8%E6%88%90%E6%9C%AC%E4%B8%8E%E9%95%BF%E5%B0%BE%E5%BC%80%E9%9B%86%EF%BC%88Open-Set-Video-Annotation%EF%BC%89"><span class="nav-text">3. 海量标注成本与长尾开集（Open-Set Video Annotation）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E4%BB%BB%E5%8A%A1%E6%95%B0%E5%AD%A6%E5%8C%96%E5%AE%9A%E4%B9%89%EF%BC%9A%E5%8D%95%E6%A0%B7%E6%9C%AC%E8%A7%86%E9%A2%91%E7%9B%AE%E6%A0%87%E5%AE%9A%E4%BD%8D%EF%BC%88OSVOL%EF%BC%89"><span class="nav-text">02. 任务数学化定义：单样本视频目标定位（OSVOL）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%A0%B8%E5%BF%83%E7%B2%BE%E9%AB%93%EF%BC%9A%E8%A7%A3%E6%9E%84-QDETRv-%E7%9A%84%E4%B8%89%E5%A4%A7%E6%95%B0%E5%AD%A6%E4%B8%8E%E7%AE%97%E6%B3%95%E6%94%AF%E6%9F%B1"><span class="nav-text">03. 核心精髓：解构 QDETRv 的三大数学与算法支柱</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%8C%9F-%E6%94%AF%E6%9F%B1%E4%B8%80%EF%BC%9AQuery-Context-%E8%9E%8D%E5%90%88%EF%BC%88QCF%EF%BC%89%E4%B8%8E%E7%9B%B8%E5%85%B3%E6%80%A7%E5%BC%95%E5%AF%BC"><span class="nav-text">🌟 支柱一：Query-Context 融合（QCF）与相关性引导</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%8C%9F-%E6%94%AF%E6%9F%B1%E4%BA%8C%EF%BC%9A%E5%BE%AA%E7%8E%AF%E5%AF%B9%E8%B1%A1%E6%9F%A5%E8%AF%A2%E8%AE%B0%E5%BF%86%E7%9F%A9%E9%98%B5%EF%BC%88Recurrent-Memory-Module%EF%BC%89"><span class="nav-text">🌟 支柱二：循环对象查询记忆矩阵（Recurrent Memory Module）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%97%B6%E5%BA%8F%E8%B7%A8%E6%B3%A8%E6%84%8F%E5%8A%9B%E8%AF%BB%E5%8F%96%EF%BC%88Read-via-Temporal-Cross-Attention%EF%BC%89"><span class="nav-text">1. 时序跨注意力读取（Read via Temporal Cross-Attention）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E9%97%A8%E6%8E%A7%E8%AE%B0%E5%BF%86%E6%9B%B4%E6%96%B0%EF%BC%88Recurrent-Gated-Write%EF%BC%89"><span class="nav-text">2. 门控记忆更新（Recurrent Gated Write）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%8C%9F-%E6%94%AF%E6%9F%B1%E4%B8%89%EF%BC%9A%E5%90%88%E6%88%90%E8%BD%A8%E8%BF%B9%E8%87%AA%E7%9B%91%E7%9D%A3%E9%A2%84%E8%AE%AD%E7%BB%83%EF%BC%88Synthetic-Object-Trajectories-SOT%EF%BC%89"><span class="nav-text">🌟 支柱三：合成轨迹自监督预训练（Synthetic Object Trajectories, SOT）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E8%BD%A8%E8%BF%B9%E6%95%B0%E5%AD%A6%E5%8F%98%E6%8D%A2"><span class="nav-text">1. 轨迹数学变换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E8%87%AA%E7%9B%91%E7%9D%A3%E7%89%B9%E5%BE%81%E9%87%8D%E6%9E%84%E6%8D%9F%E5%A4%B1%EF%BC%88Patch-Feature-Reconstruction-Loss%EF%BC%89"><span class="nav-text">2. 自监督特征重构损失（Patch Feature Reconstruction Loss）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E6%9C%BA%E6%A2%B0%E6%9E%B6%E6%9E%84%E8%90%BD%E5%9C%B0%EF%BC%9A%E4%BA%94%E9%98%B6%E6%AE%B5%E7%AB%AF%E5%88%B0%E7%AB%AF%E7%BD%91%E7%BB%9C%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-text">04. 机械架构落地：五阶段端到端网络流水线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E7%A0%81%E5%99%A8%E4%B8%AD%E7%9A%84%E4%B8%89%E9%87%8D%E6%B3%A8%E6%84%8F%E5%8A%9B%E7%89%A9%E7%90%86%E7%BB%93%E6%9E%84"><span class="nav-text">解码器中的三重注意力物理结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E6%A0%B8%E5%BF%83%E6%BA%AF%E6%BA%90%EF%BC%9A%E6%B7%B1%E5%BA%A6%E5%AF%B9%E6%AF%94-QDETRv-%E4%B8%8E-Meta-SAM-2-%E7%9A%84%E6%8A%80%E6%9C%AF%E5%85%B1%E9%B8%A3"><span class="nav-text">05. 核心溯源：深度对比 QDETRv 与 Meta SAM 2 的技术共鸣</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E5%AE%9E%E9%AA%8C%E6%95%B0%E6%8D%AE%E4%B8%8E%E8%AF%84%E6%B5%8B%E5%8F%91%E7%8E%B0"><span class="nav-text">06. 实验数据与评测发现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E8%9E%8D%E5%AE%9E%E9%AA%8C%E7%9A%84%E5%85%B3%E9%94%AE%E7%BB%93%E8%AE%BA%EF%BC%9A"><span class="nav-text">消融实验的关键结论：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E6%80%BB%E7%BB%93%E4%B8%8E%E6%9E%B6%E6%9E%84%E8%90%BD%E5%9C%B0%E6%80%9D%E8%80%83"><span class="nav-text">07. 总结与架构落地思考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">172</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/28/QDETRv-QueryGuidedDETR-VideoObjectLocalization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】看图寻物的“时空雷达”：解析 AAAI 顶会《QDETRv》如何用记忆模块与合成轨迹重塑视频目标追踪（兼论 SAM 2 的底层思想渊源） | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】看图寻物的“时空雷达”：解析 AAAI 顶会《QDETRv》如何用记忆模块与合成轨迹重塑视频目标追踪（兼论 SAM 2 的底层思想渊源）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-10-28 17:30:00 / 修改时间：18:25:16" itemprop="dateCreated datePublished" datetime="2026-10-28T17:30:00+08:00">2026-10-28</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.5k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在真实世界的计算机视觉应用中，我们经常会遇到这样一类近乎苛刻的需求：</p>
+<blockquote>
+<p><strong>“失主在游乐园丢了一款极其罕见的定制公仔，手机里只有一张随手拍的正面特写。能否让 AI 在园区长达数小时的全景监控录像中，把这个公仔出现的所有时间片段和具体空间位置全部抓捕出来？”</strong></p>
+</blockquote>
+<p>面对这种**“单样本目标定位（One-Shot Object Localization）”**任务，工业界传统的目标检测算法（如 YOLO、Faster R-CNN）几乎全军覆没：</p>
+<ol>
+<li><strong>闭集死记硬背（Closed-Set Dilemma）</strong>：模型只认识训练集标注过的几十种常见物体（人、车、狗等），遇到没见过的长尾罕见物品直接沦为“功能盲”；</li>
+<li><strong>时序失忆与闪烁（Temporal Amnesia）</strong>：若采用单帧独立匹配，物体一旦发生 <strong>180 度大转身（露出从未见过的背面）</strong>，或者被树木、立柱<strong>遮挡 1 秒钟</strong>，算法立刻跟丢，轨迹彻底碎裂；</li>
+<li><strong>数据标注贵到破产（Annotation Scarcity）</strong>：在视频中为目标逐帧标注连续时空包围盒，成本是静态图片的成百上千倍。</li>
+</ol>
+<p>在人工智能顶级学术会议 <strong>AAAI 2024</strong> 上，来自印度理工学院与埃森哲实验室（Accenture Labs）的联合研究团队发表了重磅突破论文 —— <strong>《QDETRv: Query-Guided DETR for One-Shot Object Localization in Videos》</strong>。</p>
+<p>论文不仅巧妙将静态检测神器 DETR（Detection Transformer）改造为具备“时空雷达”的视频跟踪架构，更开创性地提出了 <strong>“循环对象查询记忆矩阵（Recurrent Memory）”</strong> 与 <strong>“合成轨迹自监督预训练（Synthetic Object Trajectories）”</strong> 两大杀手锏。</p>
+<blockquote>
+<p>[!IMPORTANT]<br>
+<strong>站在 2026 年的前沿视角审视</strong>：这项研究最具前瞻性的地方在于，它所确立的**“利用 Memory 缓存跨时序解决遮挡与形变”<strong>以及</strong>“利用合成轨迹克服视频无标注难题”**的工程范式，与后续 <strong>Meta 轰动全球的现象级模型 SAM 2（Segment Anything Model 2）</strong> 的底层流式记忆架构（Streaming Memory Bank）形成了惊人的一致与深远的技术呼应！</p>
+</blockquote>
+<p>在这篇博客中，我们将彻底拆解 QDETRv 的数学推导、模型机械架构实现细节，并深度对比它与 Meta SAM 2 之间的技术血脉演进。</p>
+<blockquote>
+<p><strong>论文题目</strong>：QDETRv: Query-Guided DETR for One-Shot Object Localization in Videos<br>
+<strong>作者团队</strong>：Yogesh Kumar, Saswat Subhajyoti Mallick, Anand Mishra, Sowmya Rasipuram, Anutosh Maitra, Roshni Ramnani (IIT Jodhpur, Accenture Labs)<br>
+<strong>收录会议</strong>：AAAI 2024 (Association for the Advancement of Artificial Intelligence)<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://doi.org/10.1609/aaai.v38i3.28063" rel="external nofollow noreferrer noopener">https://doi.org/10.1609/aaai.v38i3.28063</a><br>
+<strong>博士毕业论文汇总 (arXiv)</strong>：<a target="_blank" href="https://arxiv.org/abs/2610.21422" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2610.21422</a> (Chapter 2 / Survey)<br>
+<strong>arXiv HTML 预览</strong>：<a target="_blank" href="https://arxiv.org/html/2610.21422v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2610.21422v1</a><br>
+<strong>开源代码库</strong>：<a target="_blank" href="https://github.com/yogesh-iitj/QDETRV" rel="external nofollow noreferrer noopener">https://github.com/yogesh-iitj/QDETRV</a><br>
+<strong>核心领域</strong>：One-Shot Object Localization, Video Object Detection, Video Tracking, DEtection TRansformer<br>
+<strong>技术亮点</strong>：Query-Context 特征融合 (QCF)、循环时序记忆矩阵 (Recurrent Memory)、合成轨迹自监督预训练 (SOT)</p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-行业盲区：传统目标检测跨入长视频的“失忆困境”">01. 行业盲区：传统目标检测跨入长视频的“失忆困境”</h2>
+<p>在传统的静态目标检测中，Transformer 架构的经典之作 <strong>DETR</strong> 引入了 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span></span></span></span> 个可学习的探测向量（Object Queries <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold">Q</mi><mo>∈</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mi>N</mi><mo>×</mo><mi>D</mi></mrow></msup></mrow><annotation encoding="application/x-tex">\mathbf{Q} \in \mathbb{R}^{N \times D}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8805em;vertical-align:-0.1944em;"></span><span class="mord mathbf">Q</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8413em;"></span><span class="mord"><span class="mord mathbb">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.109em;">N</span><span class="mbin mtight">×</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">D</span></span></span></span></span></span></span></span></span></span></span></span>）。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">【传统 DETR 的单帧工作方式】</span><br><span class="line"> </span><br><span class="line">   静态单张图片 ──&gt; Backbone 抽取特征 ──&gt; [100 个固定木偶探测员 Q] ──&gt; 预测 100 个检测框</span><br><span class="line">   （缺陷：各帧独立，探测员在每一帧都被“格式化失忆”，无法保留运动惯性与形变线索）</span><br></pre></td></tr></table></figure>
+<p>当这套逻辑直接套用到连续视频时，会遭遇三大灾难性壁垒：</p>
+<h3 id="1-目标大角度自旋转（Orientation-Change）">1. 目标大角度自旋转（Orientation Change）</h3>
+<p>参考照片里给的是正面，但视频第 3 秒目标转成了背面。由于参考特征与当前帧的余弦相似度暴跌，传统特征匹配模块会瞬间判定目标已“消失”。</p>
+<h3 id="2-短暂动态遮挡（Transient-Occlusion）">2. 短暂动态遮挡（Transient Occlusion）</h3>
+<p>目标走过一堵墙或被前景行人挡住 0.5 秒。在缺乏隐式状态机的情况下，模型不仅在遮挡期丢失目标，而且在目标重新露头时，会将其当成一个“全新未知杂物”，造成追踪 ID 断裂与闪烁。</p>
+<h3 id="3-海量标注成本与长尾开集（Open-Set-Video-Annotation）">3. 海量标注成本与长尾开集（Open-Set Video Annotation）</h3>
+<p>业界成熟的视频跟踪数据集（如 TAO、MOT）往往只标注特定类别的刚体物体。要让模型能够泛化到任意现实长尾物体，需要数百万段带密集包围盒坐标的视频，标注费用高昂。</p>
+<hr>
+<h2 id="02-任务数学化定义：单样本视频目标定位（OSVOL）">02. 任务数学化定义：单样本视频目标定位（OSVOL）</h2>
+<p>为了用严密的数学语言描述该任务，系统输入与输出定义如下：</p>
+<pre><code class="highlight mermaid">flowchart LR
+    subgraph Inputs[&quot;输入线索 (Inputs)&quot;]
+        IQ[&quot;参考图片 (Query Image) I_q ∈ ℝ^(3 × H_q × W_q)&lt;br/&gt;包含未见过的目标物体裁切&quot;]
+        VT[&quot;目标视频 (Target Video) V = &#123;I_1, I_2, ..., I_T&#125;&lt;br/&gt;T 帧充满动态干扰的长视频&quot;]
+    end
+
+    Inputs --&gt; QDETRv[&quot;QDETRv 神经系统&lt;br/&gt;(QCF 融合 + 记忆 Transformer)&quot;]
+
+    QDETRv --&gt; Outputs[&quot;输出管道 (Output Tubelet)&quot;]
+    subgraph Outputs[&quot;时空定位管道&quot;]
+        TUB[&quot;目标时空管道 T = &#123;b_1, b_2, ..., b_T&#125;&lt;br/&gt;其中 b_t = [x, y, w, h] ∈ [0, 1]^4&quot;]
+    end</code></pre>
+<ul>
+<li><strong>查询输入</strong>：一张包含未知目标物体的裁剪图像 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>q</mi></msub></mrow><annotation encoding="application/x-tex">I_q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span>；</li>
+<li><strong>测试序列</strong>：包含 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi></mrow><annotation encoding="application/x-tex">T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span></span></span></span> 个时间步的视频流 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>=</mo><mo stretchy="false">{</mo><msub><mi>I</mi><mi>t</mi></msub><msubsup><mo stretchy="false">}</mo><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow><mi>T</mi></msubsup></mrow><annotation encoding="application/x-tex">V = \{I_t\}_{t=1}^T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.2222em;">V</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0913em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">}</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-2.4519em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2481em;"><span></span></span></span></span></span></span></span></span></span>；</li>
+<li><strong>输出目标</strong>：在全视频每一帧中预测出该目标的高置信度二维边界框 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mi>t</mi></msub><mo>=</mo><mo stretchy="false">[</mo><msub><mi>x</mi><mi>c</mi></msub><mo separator="true">,</mo><msub><mi>y</mi><mi>c</mi></msub><mo separator="true">,</mo><mi>w</mi><mo separator="true">,</mo><mi>h</mi><mo stretchy="false">]</mo><mo>∈</mo><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><msup><mo stretchy="false">]</mo><mn>4</mn></msup></mrow><annotation encoding="application/x-tex">b_t = [x_c, y_c, w, h] \in [0, 1]^4</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">h</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose"><span class="mclose">]</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">4</span></span></span></span></span></span></span></span></span></span></span>。若目标在该帧中完全被遮挡或未入画，则输出背景无目标状态 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∅</mi></mrow><annotation encoding="application/x-tex">\varnothing</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6633em;vertical-align:-0.0817em;"></span><span class="mord amsrm">∅</span></span></span></span>。</li>
+</ul>
+<hr>
+<h2 id="03-核心精髓：解构-QDETRv-的三大数学与算法支柱">03. 核心精髓：解构 QDETRv 的三大数学与算法支柱</h2>
+<p>针对上述困境，论文构筑了 <strong>三大核心支柱</strong>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">             【QDETRv 三大核心算法支柱】</span><br><span class="line"> </span><br><span class="line">支柱一：Query-Context 融合 (QCF) ───&gt; 用参考图作为探针，过滤全画面 90% 的无关噪声</span><br><span class="line">支柱二：循环时序记忆矩阵 (Memory) ───&gt; 建立 100×256 记忆缓存，用前一秒的形态抵御遮挡</span><br><span class="line">支柱三：合成轨迹自监督预训练 (SOT) ──&gt; 纯数学代码无中生有合成视频，零人工成本练就追踪本能</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="🌟-支柱一：Query-Context-融合（QCF）与相关性引导">🌟 支柱一：Query-Context 融合（QCF）与相关性引导</h3>
+<p>传统检测器的探测向量是随机初始化后通过反向传播固定的盲盒；而 QDETRv 首先将参考图 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>q</mi></msub></mrow><annotation encoding="application/x-tex">I_q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span> 送入共享卷积前端，提炼出紧凑的目标语义嵌入 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold">f</mi><mi>q</mi></msub><mo>∈</mo><msup><mi mathvariant="double-struck">R</mi><mi>d</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{f}_q \in \mathbb{R}^d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathbf" style="margin-right:0.109em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8491em;"></span><span class="mord"><span class="mord mathbb">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span></span></span></span></span></span></span></span>。</p>
+<p>在对视频帧特征图 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold">F</mi><mi>t</mi></msub><mo>∈</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mi>H</mi><mo>×</mo><mi>W</mi><mo>×</mo><mi>d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">\mathbf{F}_t \in \mathbb{R}^{H \times W \times d}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8361em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathbf">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8491em;"></span><span class="mord"><span class="mord mathbb">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0813em;">H</span><span class="mbin mtight">×</span><span class="mord mathnormal mtight" style="margin-right:0.1389em;">W</span><span class="mbin mtight">×</span><span class="mord mathnormal mtight">d</span></span></span></span></span></span></span></span></span></span></span></span> 进行编码时，设计了 <strong>Query-Context 引导融合机制</strong>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="bold">A</mi><mi>t</mi></msub><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><msub><mi mathvariant="bold">F</mi><mi>t</mi></msub><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><mi>y</mi><mo stretchy="false">)</mo><mo>⋅</mo><msub><mi mathvariant="bold">f</mi><mi>q</mi></msub></mrow><mrow><mi mathvariant="normal">∥</mi><msub><mi mathvariant="bold">F</mi><mi>t</mi></msub><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo><mi>y</mi><mo stretchy="false">)</mo><mi mathvariant="normal">∥</mi><mi mathvariant="normal">∥</mi><msub><mi mathvariant="bold">f</mi><mi>q</mi></msub><mi mathvariant="normal">∥</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\mathbf{A}_t(x, y) = \frac{\mathbf{F}_t(x, y) \cdot \mathbf{f}_q}{\|\mathbf{F}_t(x, y)\| \|\mathbf{f}_q\|} 
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathbf">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.3991em;vertical-align:-0.9721em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∥</span><span class="mord"><span class="mord mathbf">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mord">∥∥</span><span class="mord"><span class="mord mathbf" style="margin-right:0.109em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mord">∥</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathbf">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathbf" style="margin-right:0.109em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9721em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mover accent="true"><mi mathvariant="bold">F</mi><mo stretchy="true">~</mo></mover><mi>t</mi></msub><mo>=</mo><msub><mi mathvariant="bold">F</mi><mi>t</mi></msub><mo>⊙</mo><mtext>Sigmoid</mtext><mo fence="false" stretchy="true" minsize="1.8em" maxsize="1.8em">(</mo><msub><mtext>Conv</mtext><mrow><mn>1</mn><mo>×</mo><mn>1</mn></mrow></msub><mo stretchy="false">(</mo><msub><mi mathvariant="bold">A</mi><mi>t</mi></msub><mo stretchy="false">)</mo><mo fence="false" stretchy="true" minsize="1.8em" maxsize="1.8em">)</mo><mo>+</mo><msub><mi mathvariant="bold">F</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">\widetilde{\mathbf{F}}_t = \mathbf{F}_t \odot \text{Sigmoid}\Big( \text{Conv}_{1\times 1}(\mathbf{A}_t) \Big) + \mathbf{F}_t 
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0961em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9461em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathbf">F</span></span><span class="svg-align" style="top:-3.6861em;"><span class="pstrut" style="height:3em;"></span><span style="height:0.26em;"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="0.26em" viewBox="0 0 600 260" preserveAspectRatio="none"><path d="M200 55.538c-77 0-168 73.953-177 73.953-3 0-7
+-2.175-9-5.437L2 97c-1-2-2-4-2-6 0-4 2-7 5-9l20-12C116 12 171 0 207 0c86 0
+ 114 68 191 68 78 0 168-68 177-68 4 0 7 2 9 5l12 19c1 2.175 2 4.35 2 6.525 0
+ 4.35-2 7.613-5 9.788l-19 13.05c-92 63.077-116.937 75.308-183 76.128
+-68.267.847-113-73.952-191-73.952z"/></svg></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8361em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathbf">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⊙</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.8em;vertical-align:-0.65em;"></span><span class="mord text"><span class="mord">Sigmoid</span></span><span class="mord"><span class="delimsizing size2">(</span></span><span class="mord"><span class="mord text"><span class="mord">Conv</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mbin mtight">×</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathbf">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mord"><span class="delimsizing size2">)</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8361em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathbf">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold">A</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf{A}_t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8361em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathbf">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 是当前视频帧与目标物体之间的<strong>相关性热力图（Affinity Map）</strong>；</li>
+<li>经过门控 Sigmoid 加权后，背景中与目标完全无关的像素被压抑，使进入 Transformer 编码器的特征图聚焦于所有高相似度的潜在候选区域。</li>
+</ul>
+<hr>
+<h3 id="🌟-支柱二：循环对象查询记忆矩阵（Recurrent-Memory-Module）">🌟 支柱二：循环对象查询记忆矩阵（Recurrent Memory Module）</h3>
+<p>这是算法彻底解决**“转身形变与短暂遮挡”**的数学核心。</p>
+<p>作者在 Transformer 解码器旁边设计了一个专用的 <strong>时序记忆矩阵（Temporal Memory Matrix）</strong>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="bold">M</mi><mi>t</mi></msub><mo>∈</mo><msup><mi mathvariant="double-struck">R</mi><mrow><mi>N</mi><mo>×</mo><mi>D</mi></mrow></msup><mspace width="1em"/><mo stretchy="false">(</mo><mi>N</mi><mo>=</mo><mn>100</mn><mo separator="true">,</mo><mi>D</mi><mo>=</mo><mn>256</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{M}_t \in \mathbb{R}^{N \times D} \quad (N=100, D=256) 
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8361em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathbf">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.1413em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathbb">R</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8913em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.109em;">N</span><span class="mbin mtight">×</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">D</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:1em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord">100</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">D</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">256</span><span class="mclose">)</span></span></span></span></span></p>
+<h4 id="1-时序跨注意力读取（Read-via-Temporal-Cross-Attention）">1. 时序跨注意力读取（Read via Temporal Cross-Attention）</h4>
+<p>在处理第 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi></mrow><annotation encoding="application/x-tex">t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6151em;"></span><span class="mord mathnormal">t</span></span></span></span> 帧时，解码器中的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span></span></span></span> 个目标探测向量不仅在当前帧画面做空间注意力，还会向上一帧的记忆库 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold">M</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">\mathbf{M}_{t-1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8944em;vertical-align:-0.2083em;"></span><span class="mord"><span class="mord mathbf">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span></span></span></span> 打听目标之前的最新外观：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msubsup><mi mathvariant="bold">Q</mi><mi>t</mi><mtext>temporal</mtext></msubsup><mo>=</mo><mtext>Softmax</mtext><mrow><mo fence="true">(</mo><mfrac><mrow><msub><mi mathvariant="bold">Q</mi><mi>t</mi></msub><mo>⋅</mo><msubsup><mi mathvariant="bold">M</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow><mi>T</mi></msubsup></mrow><msqrt><mi>D</mi></msqrt></mfrac><mo fence="true">)</mo></mrow><msub><mi mathvariant="bold">M</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">\mathbf{Q}_t^{\text{temporal}} = \text{Softmax}\left( \frac{\mathbf{Q}_t \cdot \mathbf{M}_{t-1}^T}{\sqrt{D}} \right) \mathbf{M}_{t-1} 
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.2128em;vertical-align:-0.2458em;"></span><span class="mord"><span class="mord mathbf">Q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.967em;"><span style="top:-2.4542em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span><span style="top:-3.1809em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">temporal</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2458em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.4878em;vertical-align:-0.95em;"></span><span class="mord text"><span class="mord">Softmax</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.5378em;"><span style="top:-2.1833em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9267em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord mathnormal" style="margin-right:0.0278em;">D</span></span></span><span style="top:-2.8867em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1133em;"><span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.6964em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathbf">Q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathbf">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-2.4519em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3064em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.93em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathbf">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+<h4 id="2-门控记忆更新（Recurrent-Gated-Write）">2. 门控记忆更新（Recurrent Gated Write）</h4>
+<p>当第 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi></mrow><annotation encoding="application/x-tex">t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6151em;"></span><span class="mord mathnormal">t</span></span></span></span> 帧完成预测，若某一个探测向量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi mathvariant="bold">q</mi><mi>i</mi><mi>t</mi></msubsup></mrow><annotation encoding="application/x-tex">\mathbf{q}_i^t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0522em;vertical-align:-0.2587em;"></span><span class="mord"><span class="mord mathbf">q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7936em;"><span style="top:-2.4413em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2587em;"><span></span></span></span></span></span></span></span></span></span> 输出了高于阈值的置信度（确认锁定了目标），则将其最新的形态状态以<strong>指数移动平均（EMA）加门控滤波</strong>的形式写回记忆矩阵：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="bold">M</mi><mi>t</mi></msub><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo><mo>=</mo><mi>γ</mi><mo>⋅</mo><msub><mi mathvariant="bold">M</mi><mrow><mi>t</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo><mo>+</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>γ</mi><mo stretchy="false">)</mo><mo>⋅</mo><msubsup><mi mathvariant="bold">q</mi><mi>i</mi><mi>t</mi></msubsup></mrow><annotation encoding="application/x-tex">\mathbf{M}_t(i) = \gamma \cdot \mathbf{M}_{t-1}(i) + (1 - \gamma) \cdot \mathbf{q}_i^t 
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathbf">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">i</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6389em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0556em;">γ</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathbf">M</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">i</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0556em;">γ</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0906em;vertical-align:-0.247em;"></span><span class="mord"><span class="mord mathbf">q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8436em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+<ul>
+<li><strong>为什么能扛住 180 度转身？</strong><br>
+当公仔从正面缓缓转向侧面、再转到背面时，记忆模块在连续帧中<strong>一步步平滑吸收了背面的视觉特征</strong>。即使背面与初始照片大相径庭，它依然能与前几帧的记忆完美对齐！</li>
+<li><strong>为什么能扛住遮挡？</strong><br>
+当目标被柱子完全遮挡时，预测置信度跌落谷底，门控单元<strong>瞬间关闭写入通道，将记忆矩阵原样冻结（Freeze Memory）</strong>；等目标从柱子后方露头的瞬间，记忆矩阵立刻释放遮挡前的最后一刻状态，瞬间实现重定位。</li>
+</ul>
+<hr>
+<h3 id="🌟-支柱三：合成轨迹自监督预训练（Synthetic-Object-Trajectories-SOT）">🌟 支柱三：合成轨迹自监督预训练（Synthetic Object Trajectories, SOT）</h3>
+<p>这是整篇论文<strong>最被业界赞叹的“无中生有”数据工程</strong>！</p>
+<p>为了不花一分钱人工标注费用就教会模型在时空里跟踪，作者设计了一套<strong>纯代码驱动的假视频生成器</strong>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────┐       ┌────────────────────────┐       ┌─────────────────────────┐</span><br><span class="line">│ 静态图片库 (如 COCO)    │ ───▶  │ 算法生成平滑位移曲线   │ ───▶  │ 连续 T 帧仿真合成假视频  │</span><br><span class="line">│ 抠出任意物体前景 Patch  │       │ (贝塞尔曲线 + 随机形变)│       │ (天然具备绝对精确坐标)  │</span><br><span class="line">└─────────────────────────┘       └────────────────────────┘       └─────────────────────────┘</span><br></pre></td></tr></table></figure>
+<h4 id="1-轨迹数学变换">1. 轨迹数学变换</h4>
+<p>在纯净背景图像上，算法让抠出的物体贴纸按照平滑参数方程移动：</p>
+<ul>
+<li><strong>中心轨迹</strong>：沿着随机三次贝塞尔曲线 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>t</mi><msup><mo stretchy="false">)</mo><mn>3</mn></msup><msub><mi>P</mi><mn>0</mn></msub><mo>+</mo><mn>3</mn><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>t</mi><msup><mo stretchy="false">)</mo><mn>2</mn></msup><mi>t</mi><msub><mi>P</mi><mn>1</mn></msub><mo>+</mo><mn>3</mn><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>t</mi><mo stretchy="false">)</mo><msup><mi>t</mi><mn>2</mn></msup><msub><mi>P</mi><mn>2</mn></msub><mo>+</mo><msup><mi>t</mi><mn>3</mn></msup><msub><mi>P</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">P(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal">t</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">3</span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal">t</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord mathnormal">t</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">3</span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.9641em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 连续滑移；</li>
+<li><strong>尺度与旋转</strong>：动态施加缩放因子 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>∈</mo><mo stretchy="false">[</mo><mn>0.5</mn><mo separator="true">,</mo><mn>2.0</mn><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">s(t) \in [0.5, 2.0]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">s</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0.5</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">2.0</span><span class="mclose">]</span></span></span></span> 和微幅旋转 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>∈</mo><mo stretchy="false">[</mo><mo>−</mo><msup><mn>30</mn><mo>∘</mo></msup><mo separator="true">,</mo><mo>+</mo><msup><mn>30</mn><mo>∘</mo></msup><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">\theta(t) \in [-30^\circ, +30^\circ]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">θ</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord">3</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6741em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">∘</span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">+</span><span class="mord">3</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6741em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">∘</span></span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>；</li>
+<li><strong>人造随机遮挡块</strong>：在序列中随机几帧，用纯色块或背景贴图强行遮盖物体的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>30</mn><mi mathvariant="normal">%</mi><mo>∼</mo><mn>70</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">30\% \sim 70\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">30%</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">70%</span></span></span></span>，模拟极端遮挡。</li>
+</ul>
+<h4 id="2-自监督特征重构损失（Patch-Feature-Reconstruction-Loss）">2. 自监督特征重构损失（Patch Feature Reconstruction Loss）</h4>
+<p>为了防止模型走捷径（只记贴图边缘的人工接缝），作者引入了特征重构损失：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="script">L</mi><mtext>pretrain</mtext></msub><mo>=</mo><msub><mi mathvariant="script">L</mi><mtext>Hungarian</mtext></msub><mo stretchy="false">(</mo><mtext>框坐标与分类</mtext><mo stretchy="false">)</mo><mo>+</mo><msub><mi>λ</mi><mtext>rec</mtext></msub><mo>⋅</mo><msub><mi mathvariant="script">L</mi><mtext>recon</mtext></msub><mo stretchy="false">(</mo><msub><mover accent="true"><mi mathvariant="bold">f</mi><mo stretchy="true">~</mo></mover><mtext>patch</mtext></msub><mo separator="true">,</mo><msubsup><mi mathvariant="bold">f</mi><mtext>patch</mtext><mtext>gt</mtext></msubsup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{L}_{\text{pretrain}} = \mathcal{L}_{\text{Hungarian}}(\text{框坐标与分类}) + \lambda_{\text{rec}} \cdot \mathcal{L}_{\text{recon}}(\widetilde{\mathbf{f}}_{\text{patch}}, \mathbf{f}_{\text{patch}}^{\text{gt}}) 
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3175em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">pretrain</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">Hungarian</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord text"><span class="mord cjk_fallback">框坐标与分类</span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">rec</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.3919em;vertical-align:-0.4374em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">recon</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9544em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathbf" style="margin-right:0.109em;">f</span></span><span class="svg-align" style="top:-3.6944em;"><span class="pstrut" style="height:3em;"></span><span style="height:0.26em;"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="0.26em" viewBox="0 0 600 260" preserveAspectRatio="none"><path d="M200 55.538c-77 0-168 73.953-177 73.953-3 0-7
+-2.175-9-5.437L2 97c-1-2-2-4-2-6 0-4 2-7 5-9l20-12C116 12 171 0 207 0c86 0
+ 114 68 191 68 78 0 168-68 177-68 4 0 7 2 9 5l12 19c1 2.175 2 4.35 2 6.525 0
+ 4.35-2 7.613-5 9.788l-19 13.05c-92 63.077-116.937 75.308-183 76.128
+-68.267.847-113-73.952-191-73.952z"/></svg></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">patch</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathbf" style="margin-right:0.109em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9115em;"><span style="top:-2.3987em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">patch</span></span></span></span></span><span style="top:-3.1809em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">gt</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4374em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+<ul>
+<li>模型不仅要在合成序列中把包围盒框出来；</li>
+<li>解码器输出的特征向量还必须通过一个投影头，<strong>逆向还原出参考目标 Patch 的底层高维纹理表征</strong>。</li>
+<li><strong>效果</strong>：在没有消耗哪怕一段真实视频标注的前提下，仅凭这套自监督预训练，模型就掌握了极强的时空连续性追踪本能！</li>
+</ul>
+<hr>
+<h2 id="04-机械架构落地：五阶段端到端网络流水线">04. 机械架构落地：五阶段端到端网络流水线</h2>
+<p>为了展示算法在工程代码中的真实面貌，其端到端的多模态计算图如下：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph S1[&quot;阶段一：多模态张量输入&quot;]
+        IMG_T[&quot;当前帧张量 I_t ∈ ℝ^(3 × H × W)&quot;]
+        IMG_Q[&quot;参考图张量 I_q ∈ ℝ^(3 × H_q × W_q)&quot;]
+    end
+
+    subgraph S2[&quot;阶段二：骨干网络与多尺度特征&quot;]
+        IMG_T --&gt; BB_FRAME[&quot;ResNet-101 / Swin-B 骨干&lt;br/&gt;输出多尺度特征图 F_t ∈ ℝ^(C × H/16 × W/16)&quot;]
+        IMG_Q --&gt; BB_QUERY[&quot;共享 CNN 抽取器&lt;br/&gt;输出参考目标向量 f_q ∈ ℝ^256&quot;]
+    end
+
+    subgraph S3[&quot;阶段三：QCF 引导与空间编码&quot;]
+        BB_FRAME &amp; BB_QUERY --&gt; QCF_BLOCK[&quot;【Query-Context Fusion 融合层】&lt;br/&gt;点积计算 Affinity Map 并生成注意力掩码&quot;]
+        QCF_BLOCK --&gt; ENC[&quot;Transformer 空间编码器 (6 层 Self-Attn)&lt;br/&gt;编码帧内上下文全局相关性&quot;]
+    end
+
+    subgraph S4[&quot;阶段四：带记忆的时序 Transformer 解码器 (核心)&quot;]
+        ENC --&gt; DEC[&quot;Transformer 解码器 (6 层)&quot;]
+        QUERIES[&quot;100 个 Object Queries ∈ ℝ^(100 × 256)&quot;] --&gt; DEC
+        
+        MEM_IN[&quot;【时序记忆矩阵 M_(t-1)】&lt;br/&gt;存储上一帧的探测历史 (100 × 256)&quot;] --&gt;|时序跨注意力读取| DEC
+        
+        DEC --&gt; OUT_Q[&quot;当前帧解码向量 q_t*&quot;]
+        OUT_Q --&gt;|门控指数移动平均 EMA| MEM_OUT[&quot;【写回更新记忆 M_t】&lt;br/&gt;供第 t+1 帧读取&quot;]
+    end
+
+    subgraph S5[&quot;阶段五：双重预测头与匈牙利匹配&quot;]
+        OUT_Q --&gt; CLS_HEAD[&quot;分类打分头 (Linear ➔ Sigmoid)&lt;br/&gt;预测目标置信度 score ∈ [0, 1]&quot;]
+        OUT_Q --&gt; BOX_HEAD[&quot;3 层 MLP 边界框回归头&lt;br/&gt;预测包围盒 (x, y, w, h)&quot;]
+    end</code></pre>
+<h3 id="解码器中的三重注意力物理结构">解码器中的三重注意力物理结构</h3>
+<p>解码器的每一层（Layer）中，包含分工极度明确的三级注意力操作：</p>
+<ol>
+<li><strong>Self-Attention（自注意力层）</strong>：让 100 个目标探测向量互相“对暗号”，确保同一个物体不会被两个不同的探测向量重复定位；</li>
+<li><strong>Temporal Cross-Attention（记忆交叉注意力层）</strong>：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># PyTorch 时序记忆读取计算示意</span></span><br><span class="line">temporal_context = torch.bmm(</span><br><span class="line">    F.softmax(torch.bmm(queries, memory_matrix.transpose(<span class="number">1</span>, <span class="number">2</span>)) / (D**<span class="number">0.5</span>), dim=-<span class="number">1</span>),</span><br><span class="line">    memory_matrix</span><br><span class="line">)</span><br><span class="line">queries = queries + temporal_context</span><br></pre></td></tr></table></figure>
+</li>
+<li><strong>Context Cross-Attention（空间上下文交叉注意力层）</strong>：探测向量与当前帧编码特征图做交互，在空间二维坐标中精准落笔框选。</li>
+</ol>
+<hr>
+<h2 id="05-核心溯源：深度对比-QDETRv-与-Meta-SAM-2-的技术共鸣">05. 核心溯源：深度对比 QDETRv 与 Meta SAM 2 的技术共鸣</h2>
+<p>2024 年 7 月，Meta 发布了席卷整个 AI 领域的通用视频分割大模型 <strong>SAM 2（Segment Anything Model 2）</strong>。如果我们仔细比对两者的系统架构，会发现两篇论文在面对“时序追踪”这一终极命题时，给出了<strong>惊人相似的底层工程解法</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">技术维度</th>
+<th style="text-align:left">QDETRv (AAAI 2024，本文作者工作)</th>
+<th style="text-align:left">Meta SAM 2 (2024年7月，Meta 成果)</th>
+<th style="text-align:left">架构深层共鸣点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>时序记忆架构</strong></td>
+<td style="text-align:left"><strong>时序记忆矩阵（Memory Module）</strong><br>维护 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>100</mn><mo>×</mo><mn>256</mn></mrow><annotation encoding="application/x-tex">100 \times 256</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">100</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">256</span></span></span></span> 的 Recurrent Queries 状态缓存</td>
+<td style="text-align:left"><strong>流式记忆银行（Memory Bank）</strong><br>维护最近 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span></span></span></span> 帧特征与高置信度提示 Memory FIFO 队列</td>
+<td style="text-align:left"><strong>拒绝逐帧孤立处理，通过专用时序缓存传递形变上下文</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>记忆检索机制</strong></td>
+<td style="text-align:left"><strong>Temporal Cross-Attention</strong><br>当前 Object Queries 对上一时刻记忆做跨注意力查询</td>
+<td style="text-align:left"><strong>Memory Attention</strong><br>当前帧视觉 Token 对 Memory Bank 进行多头跨注意力查询</td>
+<td style="text-align:left"><strong>用注意力机制将上一秒的历史平滑借调至当前帧</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>抗遮挡设计</strong></td>
+<td style="text-align:left"><strong>门控冻结机制（Gated Update）</strong><br>置信度低时不写记忆，封存遮挡前状态以待露头激活</td>
+<td style="text-align:left"><strong>遮挡识别头（Occlusion Head）</strong><br>显式预测可见性，遮挡时阻止错误特征污染记忆银行</td>
+<td style="text-align:left"><strong>“遇遮挡则封存，露头即复活”，严防背景噪声污染记忆</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>低成本训练法</strong></td>
+<td style="text-align:left"><strong>合成轨迹预训练（SOT）</strong><br>用静态图片 + 仿射轨迹代码合成假视频，重构特征</td>
+<td style="text-align:left"><strong>SA-V 自动化合成数据生成</strong><br>利用仿真扰动与迭代标注引擎生成海量伪视频掩码</td>
+<td style="text-align:left"><strong>通过代码规则模拟物理运动，攻克视频密集标注昂贵瓶颈</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>交互范式</strong></td>
+<td style="text-align:left"><strong>One-Shot 参考图引导（Visual Prompt）</strong></td>
+<td style="text-align:left"><strong>点选 / 框选提示引导（Point/Box Prompt）</strong></td>
+<td style="text-align:left"><strong>以提示词（Prompt / Query）为中心驱动开放世界视频定位</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!TIP]<br>
+<strong>技术演进的必然规律</strong>：<br>
+这充分证明，在视频时空建模领域，<strong>“Prompt 引导 + 动态 Memory 缓存”</strong> 已经成为公认的最优解。QDETRv 在小样本视频目标定位任务上对这一范式的探索与验证，在思想谱系上与后续通用大模型的流式记忆架构完全相通。</p>
+</blockquote>
+<hr>
+<h2 id="06-实验数据与评测发现">06. 实验数据与评测发现</h2>
+<p>在权威的开放世界视频基准 <strong>VidOR</strong> 与 <strong>ImageNet-VidVRD</strong>（小样本 / 单样本协议）上，QDETRv 展现出了强大的抗遮挡与泛化能力：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">评测方法</th>
+<th style="text-align:left">架构核心特点</th>
+<th style="text-align:left">未见目标定位精度 (mAP@0.5)</th>
+<th style="text-align:left">严重遮挡下追踪留存率</th>
+<th style="text-align:left">推理速度 (FPS)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>SiamFC++ (传统孪生网络)</strong></td>
+<td style="text-align:left">逐帧局部互相关比对</td>
+<td style="text-align:left">14.2%</td>
+<td style="text-align:left">11.5% (极易丢目标)</td>
+<td style="text-align:left">45</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>标准 DETR 逐帧独立推理</strong></td>
+<td style="text-align:left">100 个静态无记忆 Query</td>
+<td style="text-align:left">18.6%</td>
+<td style="text-align:left">15.3% (目标转身即丢)</td>
+<td style="text-align:left">30</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>TransVOD (暴力全时序堆叠)</strong></td>
+<td style="text-align:left">窗口内多帧全局注意力</td>
+<td style="text-align:left">25.4%</td>
+<td style="text-align:left">22.8% (显存开销极大)</td>
+<td style="text-align:left">12</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>QDETRv (无预训练版本)</strong></td>
+<td style="text-align:left">仅使用记忆模块</td>
+<td style="text-align:left">24.8%</td>
+<td style="text-align:left">31.4% (遮挡表现显著提升)</td>
+<td style="text-align:left">38</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>QDETRv (全血版：SOT 预训练 + 记忆模块)</strong></td>
+<td style="text-align:left"><strong>合成轨迹 + 循环记忆 + QCF</strong></td>
+<td style="text-align:left"><strong>31.2% (跨越式领先)</strong></td>
+<td style="text-align:left"><strong>42.6% (遮挡后复活率翻倍)</strong></td>
+<td style="text-align:left"><strong>36 (轻量高效)</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="消融实验的关键结论：">消融实验的关键结论：</h3>
+<ol>
+<li><strong>记忆模块带来了遮挡复原质的飞跃</strong>：消融掉记忆模块后，模型在遮挡场景下的成功追踪率直线下跌近 20 个百分点，充分验证了动态状态缓存的必要性；</li>
+<li><strong>合成轨迹预训练填补了冷门物体的开集鸿沟</strong>：引入 SOT 预训练后，在完全未见过的长尾物体分类上，零样本迁移指标（Zero-Shot Transfer）直接暴涨 <strong>8.5%</strong>，证明算法生成假视频的策略完全能有效泛化到真实物理视频中。</li>
+</ol>
+<hr>
+<h2 id="07-总结与架构落地思考">07. 总结与架构落地思考</h2>
+<p>站在工程落地的视角，QDETRv 为当今工业界提供了两点非常宝贵的启示：</p>
+<ol>
+<li><strong>别总想着用千亿多模态大模型解决一切</strong>：<br>
+像 GPT-4o 或 Gemini 看一分钟视频要吞掉上万个 Token，推理成本高得令人咂舌，且延迟无法支持无人机跟瞄或流水线质检。而 QDETRv 这种专用 Transformer 架构，<strong>模型体积仅有几十兆（约 30M~40M 参数），在单张消费级显卡（如 RTX 3060/4060）上即可跑满 35+ FPS，显存占用不足 1GB</strong>，这才是工业现场最需要的架构！</li>
+<li><strong>记忆是抵御长时序遗忘的唯一解</strong>：<br>
+从 QDETRv 的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>100</mn><mo>×</mo><mn>256</mn></mrow><annotation encoding="application/x-tex">100 \times 256</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">100</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">256</span></span></span></span> 记忆矩阵，到 Meta SAM 2 的流式记忆银行，深度学习再一次向人类认知的生物本能致敬——<strong>不需要把过去看过的所有画面全部塞进大脑皮层，只需要在记忆池里留存动态演变的特征向量，我们就能在流动的世界里，一眼认出那个熟悉的目标。</strong></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="tag"># 架构设计</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E7%90%86%E8%A7%A3/" rel="tag"># 视频理解</a>
+              <a href="/tags/AAAI/" rel="tag"># AAAI</a>
+              <a href="/tags/QDETRv/" rel="tag"># QDETRv</a>
+              <a href="/tags/SAM2/" rel="tag"># SAM2</a>
+              <a href="/tags/%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B/" rel="tag"># 目标检测</a>
+              <a href="/tags/%E7%9B%AE%E6%A0%87%E8%BF%BD%E8%B8%AA/" rel="tag"># 目标追踪</a>
+              <a href="/tags/DETR/" rel="tag"># DETR</a>
+              <a href="/tags/%E8%AE%B0%E5%BF%86%E6%A8%A1%E5%9D%97/" rel="tag"># 记忆模块</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/10/28/FewShotReferringRelationships-Videos/" rel="next" title="【论文分享】看懂动态世界的因果：解析 CVPR 顶会《Few-Shot Referring Relationships in Videos》的时空图与置信度传播">
+                  【论文分享】看懂动态世界的因果：解析 CVPR 顶会《Few-Shot Referring Relationships in Videos》的时空图与置信度传播 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">224k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">13:33</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
