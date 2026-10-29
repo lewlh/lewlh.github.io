@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在 AIGC（AI 生图、视频生成）和智能手机画质增强已经烂大街的今天，我们几乎每天都在和图像修复、超分辨率（Super-Resolution）打交道。但如果让你当裁判，给一张 AI 修复后的图片把关，你会怎么做？ 绝大多数普通人都会把图片放大，凑近看细节：  “这张人脸整体看着挺美，但右下角的手指怎么是扭曲的？” “这只小猫的毛发很顺，但耳朵边缘为什么有一团奇怪的塑料噪点？”  然而令人哭笑不得">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】当 AI 图像质检拿上放大镜：VGIQA 如何用“视觉定位奖励”治愈大模型的画质近视？">
+<meta property="og:url" content="https://lewlh.github.io/2026/10/29/VGIQA-FineGrainedImageQualityAssessment/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在 AIGC（AI 生图、视频生成）和智能手机画质增强已经烂大街的今天，我们几乎每天都在和图像修复、超分辨率（Super-Resolution）打交道。但如果让你当裁判，给一张 AI 修复后的图片把关，你会怎么做？ 绝大多数普通人都会把图片放大，凑近看细节：  “这张人脸整体看着挺美，但右下角的手指怎么是扭曲的？” “这只小猫的毛发很顺，但耳朵边缘为什么有一团奇怪的塑料噪点？”  然而令人哭笑不得">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-29T06:30:00.000Z">
+<meta property="article:modified_time" content="2026-10-29T06:53:50.899Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="GRPO">
+<meta property="article:tag" content="IQA">
+<meta property="article:tag" content="Visual Grounding">
+<meta property="article:tag" content="华为">
+<meta property="article:tag" content="图像质量评价">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="强化学习">
+<meta property="article:tag" content="西电">
+<meta property="article:tag" content="视觉定位">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/2026/10/29/VGIQA-FineGrainedImageQualityAssessment/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/2026/10/29/VGIQA-FineGrainedImageQualityAssessment/","path":"2026/10/29/VGIQA-FineGrainedImageQualityAssessment/","title":"【论文分享】当 AI 图像质检拿上放大镜：VGIQA 如何用“视觉定位奖励”治愈大模型的画质近视？"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】当 AI 图像质检拿上放大镜：VGIQA 如何用“视觉定位奖励”治愈大模型的画质近视？ | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">190</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">55</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%A1%8C%E4%B8%9A%E7%9B%B2%E5%8C%BA%EF%BC%9A%E4%BB%8E%E2%80%9C%E7%BB%99%E6%80%BB%E5%88%86%E7%9A%84%E8%80%83%E5%AE%98%E2%80%9D%E5%88%B0%E2%80%9C%E6%89%8B%E6%8B%BF%E6%94%BE%E5%A4%A7%E9%95%9C%E7%9A%84%E8%B4%A8%E6%A3%80%E5%91%98%E2%80%9D"><span class="nav-text">01. 行业盲区：从“给总分的考官”到“手拿放大镜的质检员”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%9E%B6%E6%9E%84%E8%8C%83%E5%BC%8F%EF%BC%9A%E2%80%9C%E5%85%88%E7%9C%8B%E7%BB%86%E8%8A%82%EF%BC%8C%E5%86%8D%E4%B8%8B%E5%AE%9A%E8%AE%BA%E2%80%9D%E7%9A%84%E4%B8%A4%E9%98%B6%E6%AE%B5%E8%AE%AD%E7%BB%83%E6%B5%81"><span class="nav-text">02. 架构范式：“先看细节，再下定论”的两阶段训练流</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E4%B8%80%EF%BC%9A%E5%86%B7%E5%90%AF%E5%8A%A8%EF%BC%88Cold-Start%EF%BC%89"><span class="nav-text">阶段一：冷启动（Cold Start）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E4%BA%8C%EF%BC%9A%E5%A4%9A%E4%BB%BB%E5%8A%A1%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%EF%BC%88GRPO%EF%BC%89"><span class="nav-text">阶段二：多任务强化学习（GRPO）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%A0%B8%E5%BF%83%E7%AE%97%E6%B3%95%E7%B2%BE%E9%AB%93%EF%BC%9A%E5%A6%82%E4%BD%95%E7%94%A8%E2%80%9C%E4%B8%A5%E6%A0%BC%E5%A5%96%E5%8A%B1%E9%9A%94%E7%A6%BB%E2%80%9D%E9%A9%AF%E6%9C%8D%E5%A4%9A%E4%BB%BB%E5%8A%A1%EF%BC%9F"><span class="nav-text">03. 核心算法精髓：如何用“严格奖励隔离”驯服多任务？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%B1%80%E9%83%A8%E5%AE%9A%E4%BD%8D%E5%A5%96%E5%8A%B1%E5%87%BD%E6%95%B0%EF%BC%88%E4%B8%93%E6%B2%BB%E7%94%BB%E6%A1%86%EF%BC%89"><span class="nav-text">1. 局部定位奖励函数（专治画框）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%9A%94%E7%A6%BB%E8%B7%AF%E7%94%B1%E9%97%A8%E6%8E%A7%EF%BC%88%E4%B8%93%E6%AC%BE%E4%B8%93%E7%94%A8%EF%BC%89"><span class="nav-text">2. 隔离路由门控（专款专用）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E7%A0%B4%E5%B1%80%E5%9F%BA%E7%9F%B3%EF%BC%9A%E8%87%AA%E7%A0%94-VGSR-2K-%E6%95%B0%E6%8D%AE%E9%9B%86%E4%B8%8E%E4%B8%A5%E8%B0%A8%E7%9A%84%E5%8F%8C%E7%9B%B2%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-text">04. 破局基石：自研 VGSR-2K 数据集与严谨的双盲流水线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E5%AE%9E%E9%AA%8C%E6%88%98%E5%86%B5%EF%BC%9A7B-%E5%B0%8F%E6%A8%A1%E5%9E%8B%E5%A6%82%E4%BD%95%E8%B6%8A%E7%BA%A7%E7%A2%BE%E5%8E%8B-72B-%E5%B7%A8%E6%97%A0%E9%9C%B8%EF%BC%9F"><span class="nav-text">05. 实验战况：7B 小模型如何越级碾压 72B 巨无霸？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%B1%80%E9%83%A8%E6%89%BE%E8%8C%AC%EF%BC%9A%E4%BB%A5%E5%B0%8F%E5%8D%9A%E5%A4%A7%EF%BC%8C%E6%96%AD%E5%B1%82%E5%BC%8F%E9%A2%86%E5%85%88"><span class="nav-text">1. 局部找茬：以小博大，断层式领先</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%85%A8%E5%B1%80%E6%84%9F%E7%9F%A5%EF%BC%9A%E5%9B%A0%E4%B8%BA%E7%9C%8B%E6%87%82%E7%BB%86%E8%8A%82%EF%BC%8C%E6%89%80%E4%BB%A5%E5%85%A8%E5%B1%80%E6%9B%B4%E5%87%86"><span class="nav-text">2. 全局感知：因为看懂细节，所以全局更准</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%85%A8%E5%B1%80%E8%AF%84%E5%88%86%EF%BC%9A%E6%9B%B4%E6%8C%91%E5%89%94%E7%9A%84%E8%B4%A8%E6%A3%80%E5%A4%A7%E5%B8%88"><span class="nav-text">3. 全局评分：更挑剔的质检大师</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E5%B7%A5%E4%B8%9A%E8%90%BD%E5%9C%B0%E6%80%9D%E8%BE%A8%EF%BC%9A%E5%BD%93-AI-%E7%9C%9F%E6%AD%A3%E5%85%B7%E5%A4%87%E5%83%8F%E7%B4%A0%E7%BA%A7%E6%8C%91%E5%88%BA%E8%83%BD%E5%8A%9B%E4%B9%8B%E5%90%8E"><span class="nav-text">06. 工业落地思辨：当 AI 真正具备像素级挑刺能力之后</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%89%93%E9%80%A0%E2%80%9C%E7%94%9F%E5%9B%BE-%E8%B4%A8%E6%A3%80-%E9%87%8D%E7%BB%98%E2%80%9D%E7%9A%84%E6%97%A0%E4%BA%BA%E5%80%BC%E5%AE%88%E5%B7%A5%E4%B8%9A%E9%97%AD%E7%8E%AF"><span class="nav-text">1. 打造“生图-质检-重绘”的无人值守工业闭环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%85%85%E5%BD%93%E7%94%9F%E5%9B%BE%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9A%84%E2%80%9C%E9%AB%98%E5%88%86%E8%BE%A8%E7%8E%87-RL-%E5%8F%8D%E9%A6%88%E5%93%A8%E5%85%B5%E2%80%9D"><span class="nav-text">2. 充当生图大模型的“高分辨率 RL 反馈哨兵”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">190</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/29/VGIQA-FineGrainedImageQualityAssessment/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】当 AI 图像质检拿上放大镜：VGIQA 如何用“视觉定位奖励”治愈大模型的画质近视？ | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】当 AI 图像质检拿上放大镜：VGIQA 如何用“视觉定位奖励”治愈大模型的画质近视？
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-10-29 14:30:00 / 修改时间：14:53:50" itemprop="dateCreated datePublished" datetime="2026-10-29T14:30:00+08:00">2026-10-29</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>13 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在 AIGC（AI 生图、视频生成）和智能手机画质增强已经烂大街的今天，我们几乎每天都在和图像修复、超分辨率（Super-Resolution）打交道。但如果让你当裁判，给一张 AI 修复后的图片把关，你会怎么做？</p>
+<p>绝大多数普通人都会<strong>把图片放大，凑近看细节</strong>：</p>
+<ul>
+<li>“这张人脸整体看着挺美，但右下角的手指怎么是扭曲的？”</li>
+<li>“这只小猫的毛发很顺，但耳朵边缘为什么有一团奇怪的塑料噪点？”</li>
+</ul>
+<p>然而令人哭笑不得的是，目前市面上绝大多数基于多模态大模型（MLLM）的图像质量评估系统（IQA, Image Quality Assessment），<strong>表现得就像一个只给宏观总分的“近视眼考官”</strong>——它扫一眼整张图，自信满满地给出一个总分“4.1分（满分5分）”或者一句评语“整体画质良好，轻微模糊”。</p>
+<p>但如果你追问它：<strong>“到底哪儿坏了？能不能把瑕疵用框圈出来？”</strong>——它立刻哑口无言。</p>
+<p>近日，由<strong>西安电子科技大学 ISN 国家重点实验室</strong>与**华为通用大模型团队（Huawei Foundation Model Department）**联合在 arXiv 上发布了一篇极具实用价值的工作——《VGIQA: Fine-Grained Image Quality Assessment with Visual Grounding Rewards》，提出了一套彻底打破这一僵局的“细粒度视觉定位”新架构：</p>
+<blockquote>
+<p><strong>“让 AI 质检员告别粗枝大叶的概览，学会‘先看细节、再下定论（Look and then judge）’！通过自研的视觉定位强化学习奖励函数与隔离机制，哪怕仅有 7B（70亿）参数的小模型，也能在画框找茬的精准度上大幅碾压 72B 参数的开源大模型巨无霸！”</strong></p>
+</blockquote>
+<p>在这篇博客中，我们将用最通俗易懂的语言，深度拆解 VGIQA 是如何打通“全局打分”与“局部画框找茬”的，并剖析其背后的多任务强化学习隔离设计、人机协同双盲评测集，以及这项技术在下游生成式 AI 闭环修图中的工业想象力。</p>
+<blockquote>
+<p><strong>论文题目</strong>：VGIQA: Fine-Grained Image Quality Assessment with Visual Grounding Rewards<br>
+<strong>作者团队</strong>：Weichang Wang, Liyu Chen, Shuyue Guan, Jie Hu, Fei Gao, Wei Li, Nannan Wang (西安电子科技大学, 华为通用大模型团队)<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2610.37186" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2610.37186</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" href="https://arxiv.org/html/2610.37186" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2610.37186</a><br>
+<strong>核心领域</strong>：Image Quality Assessment (IQA), Multimodal LLM, Visual Grounding, Reinforcement Learning (GRPO)<br>
+<strong>技术亮点</strong>：先看后判 CoT 范式、任务专属奖励隔离机制、首个细粒度局部定位评估数据集 VGSR-2K</p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-行业盲区：从“给总分的考官”到“手拿放大镜的质检员”">01. 行业盲区：从“给总分的考官”到“手拿放大镜的质检员”</h2>
+<p>回顾计算机视觉里的图像质量评估（IQA）演进史，大致经历了三个时代：</p>
+<ol>
+<li><strong>手工特征时代（PSNR / SSIM / BRISQUE）</strong>：纯靠数学统计公式和像素差。这类指标非常机械，经常出现“数学指标很高、但人眼看着极其别扭”的脱节现象；</li>
+<li><strong>深度学习特征时代（NIMA / ManIQA / CLIP-IQA）</strong>：利用卷积神经网络或 CLIP 对齐人类的主观打分（MOS）。打分准了很多，但依然是一个端到端的黑盒回归数字；</li>
+<li><strong>多模态大模型时代（Q-Align / Q-Insight）</strong>：引入大模型后，AI 终于能够输出长文本解释，阐述光影、构图与清晰度。</li>
+</ol>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">【现有 MLLM 图像质检的尴尬现状】</span><br><span class="line">输入图像 ──▶ MLLM 思考 ──▶ 输出：“该图像得分为 3.6 分，画面存在生成伪影与轻微模糊。”</span><br><span class="line">                              │</span><br><span class="line">                              ▼</span><br><span class="line">下游自动修复管线：“？？？请问瑕疵具体在哪个像素区域？我该对哪里做局部重绘？”</span><br><span class="line">MLLM：“对不起，我画不出框。”</span><br></pre></td></tr></table></figure>
+<p>在当下的扩散模型（Diffusion）和生成式超分辨率时代，这一痛点被无限放大：<strong>现代画质损伤不再是全局均匀老化的雪花点，而是高度集中的局部缺陷。</strong><br>
+例如：</p>
+<ul>
+<li><strong>生成伪影（Generation Artifacts）</strong>：几何边缘断裂、纹理黏连成块；</li>
+<li><strong>语义不一致（Semantic Inconsistency）</strong>：原本参考图里是一件针织毛衣，AI 高清放大后擅自变成了塑料皮革；</li>
+<li><strong>物理幻觉（Unrealistic Hallucinations）</strong>：背景凭空多出半只融化的人手或诡异的光斑。</li>
+</ul>
+<p>如果没有具体的空间坐标框（Bounding Box），任何下游自动化工具（如局部重绘 Inpainting、局部超分增强）都无从下手。</p>
+<hr>
+<h2 id="02-架构范式：“先看细节，再下定论”的两阶段训练流">02. 架构范式：“先看细节，再下定论”的两阶段训练流</h2>
+<p>为了让大模型学会像专业质检员一样“手持放大镜逐区排查”，VGIQA 提出了统一兼顾**局部定位（Local）<strong>与</strong>全局评估（Global）**的“先看后判（Look and then judge）”范式。</p>
+<p>整个框架采用基座模型 <strong>Qwen2.5-VL-7B-Instruct</strong>，并划分为两个紧凑的训练阶段：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph S1[&quot;阶段一：冷启动 (Cold Start SFT)&quot;]
+        direction TB
+        RAW_DATA[&quot;2,288 条精炼思维链数据 (源自 Qwen3-VL-Plus 蒸馏)&quot;] --&gt; SFT[&quot;格式规范微调 (SFT)&quot;]
+        SFT --&gt; PRIOR[&quot;注入质检专业先验，规范 &amp;lt;think&amp;gt; 与 &amp;lt;answer&amp;gt; 输出框格式&quot;]
+    end
+
+    subgraph S2[&quot;阶段二：多任务强化学习 (Multi-Task GRPO)&quot;]
+        direction TB
+        TASK1[&quot;局部质量定位 (Local Task)&quot;] --&gt; REW1[&quot;专属空间奖励: 匈牙利匹配 + DIoU + F1&quot;]
+        TASK2[&quot;退化类型感知 (Degradation)&quot;] --&gt; REW2[&quot;退化类别 + 严重等级奖励&quot;]
+        TASK3[&quot;全局质量打分 (Score Regression)&quot;] --&gt; REW3[&quot;MOS 评分容差奖励&quot;]
+        
+        REW1 &amp; REW2 &amp; REW3 --&gt; GATE&#123;&quot;严格奖励隔离门控 (λ 路由)&quot;&#125;
+        GATE --&gt; POLICY[&quot;GRPO 策略网络梯度更新 (无任务间干扰)&quot;]
+    end
+
+    PRIOR --&gt; S2</code></pre>
+<h3 id="阶段一：冷启动（Cold-Start）">阶段一：冷启动（Cold Start）</h3>
+<p>如果一开始就直接上无监督或大范围强化学习，模型很容易在巨大的空间坐标搜索空间中漫无目的地瞎猜崩溃。</p>
+<ul>
+<li>作者团队从更高级的 Qwen3-VL-Plus 中提炼出 2,288 条结构化 CoT（思维链）样本；</li>
+<li>强制让模型掌握“先推理、后出框”的标准解题模板：在 <code>&lt;think&gt;</code> 中剖析两张对比图的瑕疵成因，在 <code>&lt;answer&gt;</code> 中输出符合规范的坐标框 <code>[ymin, xmin, ymax, xmax]</code>。</li>
+</ul>
+<h3 id="阶段二：多任务强化学习（GRPO）">阶段二：多任务强化学习（GRPO）</h3>
+<p>冷启动完成后，模型已经懂得了基本格式，接下来就要在做题实战中快速进化。团队采用了无需单独训练复杂 Critic 打分模型的 <strong>GRPO（Group Relative Policy Optimization）</strong> 算法，通过组内样本相对排序来驱动参数迭代。</p>
+<hr>
+<h2 id="03-核心算法精髓：如何用“严格奖励隔离”驯服多任务？">03. 核心算法精髓：如何用“严格奖励隔离”驯服多任务？</h2>
+<p>强化学习最怕什么？<strong>奖励作弊与目标冲突（Objective Confusion）</strong>。</p>
+<p>在 VGIQA 中，模型既要学会画框定位，又要学会辨别退化类型，还要学会打出连续的质量总分（1~5分）。如果简单地把这些奖励加权求和扔给模型，强化学习算法往往会找到“走捷径”的投机解——比如模型发现画空框（不报错）最稳妥，或者为了迁就空间损失把整体打分的感知给学坏了。</p>
+<p>为此，论文提出了极其清晰优雅的<strong>严格奖励隔离机制（Reward Isolation Mechanism）</strong>。</p>
+<h3 id="1-局部定位奖励函数（专治画框）">1. 局部定位奖励函数（专治画框）</h3>
+<p>针对模型预测的候选框列表 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="script">B</mi><mi>p</mi></msup></mrow><annotation encoding="application/x-tex">\mathcal{B}^p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord"><span class="mord mathcal" style="margin-right:0.0304em;">B</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">p</span></span></span></span></span></span></span></span></span></span></span> 与真实标注框 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="script">B</mi><mi>g</mi></msup></mrow><annotation encoding="application/x-tex">\mathcal{B}^g</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord"><span class="mord mathcal" style="margin-right:0.0304em;">B</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span></span></span></span></span></span></span></span>：</p>
+<ul>
+<li><strong>场景类别基础奖（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mrow><mi>b</mi><mi>a</mi><mi>s</mi><mi>e</mi></mrow></msub></mrow><annotation encoding="application/x-tex">r_{base}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ba</span><span class="mord mathnormal mtight">se</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>）</strong>：根据图里是“无瑕疵（empty）”、“全图坏（whole）”还是“局部坏（partial）”给与类别均衡基础分，防止样本偏置；</li>
+<li><strong>二分图最佳匹配（Hungarian Matching）</strong>：利用匈牙利算法，在预测框与真实框之间构建一对一的最优匹配；</li>
+<li><strong>距离交并比连续引导（DIoU）</strong>：匹配上的框计算 DIoU（Distance-IoU），不仅考核重合面积，还惩罚两个框中心点的几何欧氏距离：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>r</mi><mrow><mi>c</mi><mi>o</mi><mi>n</mi><mi>t</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mi mathvariant="normal">∣</mi><mi>π</mi><mi mathvariant="normal">∣</mi></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi mathvariant="normal">∣</mi><mi>π</mi><mi mathvariant="normal">∣</mi></mrow></munderover><mfrac><mrow><mn>1</mn><mo>+</mo><mtext>DIoU</mtext><mo stretchy="false">(</mo><msubsup><mi>b</mi><mi>i</mi><mi>p</mi></msubsup><mo separator="true">,</mo><msubsup><mi>b</mi><mrow><mi>π</mi><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow><mi>g</mi></msubsup><mo stretchy="false">)</mo></mrow><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">r_{cont} = \frac{1}{|\pi|} \sum_{i=1}^{|\pi|} \frac{1 + \text{DIoU}(b_i^p, b_{\pi(i)}^g)}{2}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">co</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:3.2387em;vertical-align:-1.2777em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∣</span><span class="mord mathnormal" style="margin-right:0.0359em;">π</span><span class="mord">∣</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.961em;"><span style="top:-1.8723em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span><span style="top:-4.386em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mathnormal mtight" style="margin-right:0.0359em;">π</span><span class="mord mtight">∣</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2777em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6875em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.9052em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord text"><span class="mord">DIoU</span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7823em;"><span style="top:-2.4231em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.1809em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2769em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7823em;"><span style="top:-2.3598em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">π</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">i</span><span class="mclose mtight">)</span></span></span></span><span style="top:-3.1809em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5152em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+</li>
+<li><strong>最终局部奖励</strong>：结合目标检测经典的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>F</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">F_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 分数与连续回归项：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>r</mi><mrow><mi>l</mi><mi>o</mi><mi>c</mi><mi>a</mi><mi>l</mi></mrow></msub><mo>=</mo><msub><mi>r</mi><mrow><mi>b</mi><mi>a</mi><mi>s</mi><mi>e</mi></mrow></msub><mo>+</mo><msub><mi>ω</mi><mrow><mi>l</mi><mi>o</mi><mi>c</mi><mi>a</mi><mi>l</mi></mrow></msub><mo stretchy="false">(</mo><msub><mi>F</mi><mn>1</mn></msub><mo>+</mo><msub><mi>r</mi><mrow><mi>c</mi><mi>o</mi><mi>n</mi><mi>t</mi></mrow></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">r_{local} = r_{base} + \omega_{local}(F_1 + r_{cont})
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mord mathnormal mtight">oc</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ba</span><span class="mord mathnormal mtight">se</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">ω</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mord mathnormal mtight">oc</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">co</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+</li>
+</ul>
+<h3 id="2-隔离路由门控（专款专用）">2. 隔离路由门控（专款专用）</h3>
+<p>整个多任务的总奖励函数被设计为：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>r</mi><mo>=</mo><msub><mi>r</mi><mrow><mi>f</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>t</mi></mrow></msub><mo>+</mo><msub><mi>λ</mi><mrow><mi>l</mi><mi>o</mi><mi>c</mi><mi>a</mi><mi>l</mi></mrow></msub><msub><mi>r</mi><mrow><mi>l</mi><mi>o</mi><mi>c</mi><mi>a</mi><mi>l</mi></mrow></msub><mo>+</mo><msub><mi>λ</mi><mrow><mi>s</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi></mrow></msub><msub><mi>r</mi><mrow><mi>s</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi></mrow></msub><mo>+</mo><msub><mi>λ</mi><mrow><mi>d</mi><mi>e</mi><mi>g</mi></mrow></msub><mo stretchy="false">(</mo><msub><mi>α</mi><mn>1</mn></msub><msub><mi>r</mi><mrow><mi>d</mi><mi>e</mi><mi>g</mi></mrow></msub><mo>+</mo><msub><mi>α</mi><mn>2</mn></msub><msub><mi>r</mi><mrow><mi>l</mi><mi>e</mi><mi>v</mi></mrow></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">r = r_{format} + \lambda_{local} r_{local} + \lambda_{score} r_{score} + \lambda_{deg}(\alpha_1 r_{deg} + \alpha_2 r_{lev})
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.1076em;">f</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">or</span><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mord mathnormal mtight">oc</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mord mathnormal mtight">oc</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">scor</span><span class="mord mathnormal mtight">e</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">scor</span><span class="mord mathnormal mtight">e</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.0359em;">v</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+<p>其中，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mrow><mi>l</mi><mi>o</mi><mi>c</mi><mi>a</mi><mi>l</mi></mrow></msub><mo separator="true">,</mo><msub><mi>λ</mi><mrow><mi>s</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi></mrow></msub><mo separator="true">,</mo><msub><mi>λ</mi><mrow><mi>d</mi><mi>e</mi><mi>g</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\lambda_{local}, \lambda_{score}, \lambda_{deg}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mord mathnormal mtight">oc</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">scor</span><span class="mord mathnormal mtight">e</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span> 是三个<strong>互斥的门控指示变量</strong>（当前是局部定位任务时，只有 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mrow><mi>l</mi><mi>o</mi><mi>c</mi><mi>a</mi><mi>l</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\lambda_{local}=1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span><span class="mord mathnormal mtight">oc</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0197em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span>，其他全为 0）。这种“专款专用”的数学隔离，确保了空间坐标梯度与全局抽象评分梯度完全解耦，彻底杜绝了任务间的交叉干扰。</p>
+<hr>
+<h2 id="04-破局基石：自研-VGSR-2K-数据集与严谨的双盲流水线">04. 破局基石：自研 VGSR-2K 数据集与严谨的双盲流水线</h2>
+<p>在深度学习领域，没有高质量的数据集，一切精妙的算法都是空中楼阁。而细粒度局部图像质检在过去几乎是一片空白。</p>
+<p>为了填补这一空白，作者团队基于 SRBench 和 DiffIQA 构建了业内首个专用的细粒度局部质检基准 <strong>VGSR-2K</strong>。为了防止人工主观随意画框带来的误差，团队制定了一套严苛的人机协同（Human-in-the-Loop）双盲流水线：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">【VGSR-2K 严苛数据构建流水线】</span><br><span class="line"></span><br><span class="line">[超分与参考图像对 (1,798 对)]</span><br><span class="line">        │</span><br><span class="line">        ▼ 步骤 1: 候选生成 (Qwen3-VL-Plus 与 Seed1.6-VL 各推理3次，共生成6组候选框)</span><br><span class="line">[6 组机器候选坐标框]</span><br><span class="line">        │</span><br><span class="line">        ▼ 步骤 2: 双盲选择 (标注人员分为 A、B 两组独立盲选最佳基准框，遇分歧由专家终审)</span><br><span class="line">[初筛基准框]</span><br><span class="line">        │</span><br><span class="line">        ▼ 步骤 3: 双盲纠错与算法合并</span><br><span class="line">        │  * 人类标注员“只准删错框、补漏框，严禁手工微调现有坐标” (规避手抖误差)</span><br><span class="line">        │  * 算法自动求两组留存框交集，补充框通过匈牙利算法按 DIoU &gt; 0.5 自动融合</span><br><span class="line">[高纯净度局部标注]</span><br><span class="line">        │</span><br><span class="line">        ▼ 步骤 4: 专家终审与数据配比均衡 (涵盖生成伪影、语义漂移、反物理幻觉)</span><br><span class="line">[VGSR-2K 正式数据集发布]</span><br></pre></td></tr></table></figure>
+<p>这套流程的设计非常耐人寻味：<strong>充分发挥人类对语义和审美的判断力，同时把最容易出错的坐标精修交给几何算法</strong>，为高质量视觉标注提供了极其优秀的工程示范。</p>
+<hr>
+<h2 id="05-实验战况：7B-小模型如何越级碾压-72B-巨无霸？">05. 实验战况：7B 小模型如何越级碾压 72B 巨无霸？</h2>
+<p>论文在多个标准评测任务上对 VGIQA 进行了全方位“压力测试”。</p>
+<h3 id="1-局部找茬：以小博大，断层式领先">1. 局部找茬：以小博大，断层式领先</h3>
+<p>在核心的 VGSR-2K 局部质量评估测试中（指标为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>F</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">F_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 分数与 DIoU 框重合度）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参评模型</th>
+<th style="text-align:center">参数规模</th>
+<th style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>F</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">F_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">F</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> Score (越高越好)</th>
+<th style="text-align:center">DIoU (越高越好)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Q-Insight</td>
+<td style="text-align:center">7B</td>
+<td style="text-align:center">0.1452</td>
+<td style="text-align:center">0.1673</td>
+</tr>
+<tr>
+<td style="text-align:left">Qwen2.5-VL-72B-Instruct</td>
+<td style="text-align:center"><strong>72B</strong></td>
+<td style="text-align:center">0.1770</td>
+<td style="text-align:center">0.1997</td>
+</tr>
+<tr>
+<td style="text-align:left">Qwen3-VL-32B-Instruct</td>
+<td style="text-align:center"><strong>32B</strong></td>
+<td style="text-align:center">0.1756</td>
+<td style="text-align:center">0.2185</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>VGIQA (Ours)</strong></td>
+<td style="text-align:center"><strong>7B</strong></td>
+<td style="text-align:center"><strong>0.3024</strong></td>
+<td style="text-align:center"><strong>0.3235</strong></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>可以看到，即便是比自身大 10 倍的巨无霸模型 Qwen2.5-VL-72B，在细粒度找茬任务上也只有 0.17 左右的分数；</li>
+<li>而经过两阶段定位强化学习训练的 VGIQA-7B，各项指标<strong>直接翻倍（达到 0.30+）</strong>，展现出了近乎代差级的局部定位敏锐度！</li>
+</ul>
+<h3 id="2-全局感知：因为看懂细节，所以全局更准">2. 全局感知：因为看懂细节，所以全局更准</h3>
+<p>学会了看局部，会不会导致模型“一叶障目，不见泰山”？实验结果恰恰相反！在全局退化感知（辨识模糊、JPEG 压缩块、欠曝、噪点等）任务中：</p>
+<ul>
+<li>VGIQA 的平均退化识别准确率从上一代强化学习模型 Q-Insight 的 <strong>66.57% 大幅跃升至 82.18%</strong>；</li>
+<li>尤其在极其考验细微纹理的**噪点检测（Noise）**上，准确率从 <strong>16.13% 狂飙到 62.21%</strong>；在“完全无损伤（Null）”的判别上更是从 <strong>64.93% 提升至 94.03%</strong>。</li>
+<li><strong>核心启示</strong>：只有看清微观瑕疵，模型才能真正对全局的退化分布形成坚实、本质的认知，而不是靠大模型预训练的文本常识在瞎蒙。</li>
+</ul>
+<h3 id="3-全局评分：更挑剔的质检大师">3. 全局评分：更挑剔的质检大师</h3>
+<p>在标准的 KonIQ、SPAQ 等全局主观打分回归任务上，VGIQA 依然保持了与当前最强学术界 SOTA（如 DeQA）相当的高相关系数。由于模型对局部瑕疵极度敏感，它在打分时表现得像一个更加严谨、苛刻的质检专家，不再会因为整张图远看光鲜亮丽就轻易给出高分。</p>
+<hr>
+<h2 id="06-工业落地思辨：当-AI-真正具备像素级挑刺能力之后">06. 工业落地思辨：当 AI 真正具备像素级挑刺能力之后</h2>
+<p>这篇论文虽然是一篇偏学术的图像评估工作，但其背后的理念对于当下的 AI 工程落地有着极其深远的启发：</p>
+<h3 id="1-打造“生图-质检-重绘”的无人值守工业闭环">1. 打造“生图-质检-重绘”的无人值守工业闭环</h3>
+<p>现在很多企业在跑批量 AIGC（如电商模特换装、游戏原画生成）时，最头疼的就是人工挑图成本。</p>
+<ul>
+<li>传统的自动化脚本只能根据整图美学分筛图；</li>
+<li>有了 VGIQA 这类模型，系统可以在生成图片后，自动圈出“右手第3指结构异常 [210, 540, 260, 580]”；</li>
+<li>紧接着，这个坐标框可以直接作为 Mask 传给 Inpainting（局部重绘）模型进行针对性打补丁，<strong>将过去需要人工圈选的修图管线彻底变成全自动闭环</strong>。</li>
+</ul>
+<h3 id="2-充当生图大模型的“高分辨率-RL-反馈哨兵”">2. 充当生图大模型的“高分辨率 RL 反馈哨兵”</h3>
+<p>现在无论是视频生成（Sora、可灵）还是图像生成（FLUX、SD3），都在向强化学习（RLAIF）寻求上限突破。传统的奖励模型给的是一个整图的标量奖励（Scalar Reward），生图模型很难从一个模糊的分数中反思“到底我画的哪一笔错了”。如果能引入 VGIQA 这种细粒度的定位奖励反馈，生图模型的训练效率和对解剖结构的理解势必迎来又一次飞跃。</p>
+<hr>
+<h2 id="总结">总结</h2>
+<p>从 <strong>“只报喜忧的算命先生”</strong>，到**“手拿放大镜且能精准画圈的质检工程师”<strong>，VGIQA 用一套精妙的</strong>两阶段 CoT 引导 + 严格隔离的多任务 GRPO 强化学习**，证明了结构化细粒度认知在多模态理解中的巨大威力。</p>
+<p>即使参数量不是千亿万亿，只要训练策略设计得当、奖励逻辑对齐严密，小模型同样能在专业垂直领域展现出让人惊叹的硬核实力。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag"># 强化学习</a>
+              <a href="/tags/GRPO/" rel="tag"># GRPO</a>
+              <a href="/tags/%E5%9B%BE%E5%83%8F%E8%B4%A8%E9%87%8F%E8%AF%84%E4%BB%B7/" rel="tag"># 图像质量评价</a>
+              <a href="/tags/IQA/" rel="tag"># IQA</a>
+              <a href="/tags/%E8%A7%86%E8%A7%89%E5%AE%9A%E4%BD%8D/" rel="tag"># 视觉定位</a>
+              <a href="/tags/Visual-Grounding/" rel="tag"># Visual Grounding</a>
+              <a href="/tags/%E5%8D%8E%E4%B8%BA/" rel="tag"># 华为</a>
+              <a href="/tags/%E8%A5%BF%E7%94%B5/" rel="tag"># 西电</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/10/29/CodeCap-Bench-CodeAsVideoCaption/" rel="next" title="【论文分享】代码即视频描述？解析快手可灵与南大新范式 CodeCap-Bench 及工业落地思辨">
+                  【论文分享】代码即视频描述？解析快手可灵与南大新范式 CodeCap-Bench 及工业落地思辨 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">236k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">14:18</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
