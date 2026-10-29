@@ -39,7 +39,7 @@
 <meta property="og:description" content="在 AIGC（AI 生图、视频生成）和智能手机画质增强已经烂大街的今天，我们几乎每天都在和图像修复、超分辨率（Super-Resolution）打交道。但如果让你当裁判，给一张 AI 修复后的图片把关，你会怎么做？ 绝大多数普通人都会把图片放大，凑近看细节：  “这张人脸整体看着挺美，但右下角的手指怎么是扭曲的？” “这只小猫的毛发很顺，但耳朵边缘为什么有一团奇怪的塑料噪点？”  然而令人哭笑不得">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-10-29T06:30:00.000Z">
-<meta property="article:modified_time" content="2026-10-29T06:53:50.899Z">
+<meta property="article:modified_time" content="2026-10-29T07:32:46.452Z">
 <meta property="article:author" content="豪豪">
 <meta property="article:tag" content="GRPO">
 <meta property="article:tag" content="IQA">
@@ -239,7 +239,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-10-29 14:30:00 / 修改时间：14:53:50" itemprop="dateCreated datePublished" datetime="2026-10-29T14:30:00+08:00">2026-10-29</time>
+      <time title="创建时间：2026-10-29 14:30:00 / 修改时间：15:32:46" itemprop="dateCreated datePublished" datetime="2026-10-29T14:30:00+08:00">2026-10-29</time>
     </span>
 
   
@@ -281,7 +281,7 @@
 </ul>
 <p>然而令人哭笑不得的是，目前市面上绝大多数基于多模态大模型（MLLM）的图像质量评估系统（IQA, Image Quality Assessment），<strong>表现得就像一个只给宏观总分的“近视眼考官”</strong>——它扫一眼整张图，自信满满地给出一个总分“4.1分（满分5分）”或者一句评语“整体画质良好，轻微模糊”。</p>
 <p>但如果你追问它：<strong>“到底哪儿坏了？能不能把瑕疵用框圈出来？”</strong>——它立刻哑口无言。</p>
-<p>近日，由<strong>西安电子科技大学 ISN 国家重点实验室</strong>与**华为通用大模型团队（Huawei Foundation Model Department）**联合在 arXiv 上发布了一篇极具实用价值的工作——《VGIQA: Fine-Grained Image Quality Assessment with Visual Grounding Rewards》，提出了一套彻底打破这一僵局的“细粒度视觉定位”新架构：</p>
+<p>近日，由 <strong>西安电子科技大学 ISN 国家重点实验室</strong> 与 <strong>华为通用大模型团队（Huawei Foundation Model Department）</strong> 联合在 arXiv 上发布了一篇极具实用价值的工作——《VGIQA: Fine-Grained Image Quality Assessment with Visual Grounding Rewards》，提出了一套彻底打破这一僵局的“细粒度视觉定位”新架构：</p>
 <blockquote>
 <p><strong>“让 AI 质检员告别粗枝大叶的概览，学会‘先看细节、再下定论（Look and then judge）’！通过自研的视觉定位强化学习奖励函数与隔离机制，哪怕仅有 7B（70亿）参数的小模型，也能在画框找茬的精准度上大幅碾压 72B 参数的开源大模型巨无霸！”</strong></p>
 </blockquote>
@@ -314,7 +314,7 @@
 <p>如果没有具体的空间坐标框（Bounding Box），任何下游自动化工具（如局部重绘 Inpainting、局部超分增强）都无从下手。</p>
 <hr>
 <h2 id="02-架构范式：“先看细节，再下定论”的两阶段训练流">02. 架构范式：“先看细节，再下定论”的两阶段训练流</h2>
-<p>为了让大模型学会像专业质检员一样“手持放大镜逐区排查”，VGIQA 提出了统一兼顾**局部定位（Local）<strong>与</strong>全局评估（Global）**的“先看后判（Look and then judge）”范式。</p>
+<p>为了让大模型学会像专业质检员一样“手持放大镜逐区排查”，VGIQA 提出了统一兼顾 <strong>局部定位（Local）</strong> 与 <strong>全局评估（Global）</strong> 的“先看后判（Look and then judge）”范式。</p>
 <p>整个框架采用基座模型 <strong>Qwen2.5-VL-7B-Instruct</strong>，并划分为两个紧凑的训练阶段：</p>
 <pre><code class="highlight mermaid">flowchart TD
     subgraph S1[&quot;阶段一：冷启动 (Cold Start SFT)&quot;]
@@ -419,7 +419,7 @@
 <p>学会了看局部，会不会导致模型“一叶障目，不见泰山”？实验结果恰恰相反！在全局退化感知（辨识模糊、JPEG 压缩块、欠曝、噪点等）任务中：</p>
 <ul>
 <li>VGIQA 的平均退化识别准确率从上一代强化学习模型 Q-Insight 的 <strong>66.57% 大幅跃升至 82.18%</strong>；</li>
-<li>尤其在极其考验细微纹理的**噪点检测（Noise）**上，准确率从 <strong>16.13% 狂飙到 62.21%</strong>；在“完全无损伤（Null）”的判别上更是从 <strong>64.93% 提升至 94.03%</strong>。</li>
+<li>尤其在极其考验细微纹理的 <strong>噪点检测（Noise）</strong> 上，准确率从 <strong>16.13% 狂飙到 62.21%</strong>；在“完全无损伤（Null）”的判别上更是从 <strong>64.93% 提升至 94.03%</strong>。</li>
 <li><strong>核心启示</strong>：只有看清微观瑕疵，模型才能真正对全局的退化分布形成坚实、本质的认知，而不是靠大模型预训练的文本常识在瞎蒙。</li>
 </ul>
 <h3 id="3-全局评分：更挑剔的质检大师">3. 全局评分：更挑剔的质检大师</h3>
@@ -438,7 +438,7 @@
 <p>现在无论是视频生成（Sora、可灵）还是图像生成（FLUX、SD3），都在向强化学习（RLAIF）寻求上限突破。传统的奖励模型给的是一个整图的标量奖励（Scalar Reward），生图模型很难从一个模糊的分数中反思“到底我画的哪一笔错了”。如果能引入 VGIQA 这种细粒度的定位奖励反馈，生图模型的训练效率和对解剖结构的理解势必迎来又一次飞跃。</p>
 <hr>
 <h2 id="总结">总结</h2>
-<p>从 <strong>“只报喜忧的算命先生”</strong>，到**“手拿放大镜且能精准画圈的质检工程师”<strong>，VGIQA 用一套精妙的</strong>两阶段 CoT 引导 + 严格隔离的多任务 GRPO 强化学习**，证明了结构化细粒度认知在多模态理解中的巨大威力。</p>
+<p>从 <strong>“只报喜忧的算命先生”</strong>，到 <strong>“手拿放大镜且能精准画圈的质检工程师”</strong>，VGIQA 用一套精妙的 <strong>两阶段 CoT 引导 + 严格隔离的多任务 GRPO 强化学习</strong>，证明了结构化细粒度认知在多模态理解中的巨大威力。</p>
 <p>即使参数量不是千亿万亿，只要训练策略设计得当、奖励逻辑对齐严密，小模型同样能在专业垂直领域展现出让人惊叹的硬核实力。</p>
 
     </div>
