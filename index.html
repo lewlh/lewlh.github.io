@@ -79,7 +79,7 @@
 
 
   
-  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  <script async src="https://cn.vercount.one/js"></script>
 
 
 
@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">190</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">55</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">196</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">56</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">55</span>
+          <span class="site-state-item-count">56</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">190</span>
+        <span class="site-state-item-count">196</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,120 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/29/FVQ-DiscreteVisualTokensSemanticallyLossless/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/10/29/FVQ-DiscreteVisualTokensSemanticallyLossless/" class="post-title-link" itemprop="url">【论文分享】告别“-VL”拼装车时代：华科与美团 FVQ 如何用离散 Token 追平顶尖连续视觉大模型？</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-10-29 16:00:00 / 修改时间：16:15:37" itemprop="dateCreated datePublished" datetime="2026-10-29T16:00:00+08:00">2026-10-29</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在当今的多模态大模型世界里，几乎所有主流模型都带着一个醒目的尾缀：<strong>“-VL”</strong>（Vision-Language，如 Qwen2.5-VL、Qwen3-VL、InternVL）。</p>
+<p>但不知道你是否曾产生过这样一个疑问：<strong>为什么语言大模型（如纯文本的 Qwen、DeepSeek）从来不需要带什么奇怪的后缀，而一旦加上视觉，就非得搞成一个“-VL”的特殊拼装版本？</strong></p>
+<p>答案其实藏在底层最根本的数据形态鸿沟中：</p>
+<ul>
+<li><strong>语言大模型（LLM）的本质是“纯离散的世界”</strong>：无论是汉字还是英语单词，在模型眼里全都是一个个带有固定编号的“整数积木”（Token ID，如 1024、3892）。大模型的全部魔力，都来自于最纯粹的“猜下一个积木编号是谁（Next-Token Prediction）”；</li>
+<li><strong>视觉世界（Vision）却被当成了“连续的浮点小数”</strong>：目前绝大多数多模态模型，都是用一个外挂的视觉编码器（ViT）把图片扫描成一堆带小数点的高精度向量（连续浮点数，如 <code>[0.3421, -1.0543, ...]</code>），然后像打点滴一样硬生生灌进语言模型。</li>
+</ul>
+<p>这种“外挂拼装”虽然看图能力极强，但却带来了巨大的遗憾：<strong>大模型能看图、能说话，却不能像写字一样自己画画，更无法像人类在草稿纸上勾勾画画那样实现“视觉思维链（Visual CoT）”</strong>。</p>
+<p>学界一直梦寐以求的圣杯，叫做 <strong>“原生大一统多模态（Native Multimodal）”</strong>——把图片也切成离散的词语编号（离散 Token），让图片和文字在同一个字典里平起平坐！然而，长久以来的一个“思想教条”牢牢禁锢了这一探索：<strong>“离散化一定会带来量化误差，量化误差必定导致语义丢失，因此离散模型的理解能力永远不可能赶上连续模型。”</strong></p>
+<p>近日，来自<strong>华中科技大学（HUST）与美团 LongCat 团队</strong>（由第一作者邹佳侣、指导教师王兴刚教授等共同主导）联合发布了一篇具有里程碑意义的重磅论文：</p>
+<blockquote>
+<p><strong>“量化误差根本不决定语义保真度！只要给足有效比特预算，配合全新的‘因子化矢量量化（FVQ）’，纯离散视觉 Token 不仅能做到语义无损，而且在工业级多模态测试中，第一次全面追平甚至超越了当前最顶尖的连续模型 Qwen3-VL！”</strong></p>
+</blockquote>
+<p>在这篇分享中，我们将用最通俗易懂的语言、直观的代码透视和生动的比喻，彻底拆解这篇论文背后的思想颠覆、算法玄机，以及它对未来大模型演进的深远影响。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Can Discrete Tokens Serve as Semantically Lossless Representations of Visual Signals?<br>
+<strong>作者团队</strong>：Jialv Zou, Xiaotong Li, Zhengrong Yue, Xu Huang, Yaxin Luo, Wenhao Yan, Haodong Li, Wenyu Liu, Xinggang Wang (华中科技大学, 美团 LongCat, 上海交大, 北大, 清华, 港中文, MBZUAI)<br>
+<strong>论文主页</strong>：<a target="_blank" rel="noopener" href="https://doctor-james.github.io/FVQ-Page/">https://doctor-james.github.io/FVQ-Page/</a><br>
+<strong>代码仓库</strong>：<a target="_blank" rel="noopener" href="https://github.com/hustvl/FVQ">https://github.com/hustvl/FVQ</a><br>
+<strong>arXiv 链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.37662">https://arxiv.org/abs/2610.37662</a><br>
+<strong>核心领域</strong>：Native Multimodal Foundation Models, Discrete Visual Representation, Factorized Vector Quantization (FVQ)<br>
+<strong>技术亮点</strong>：打破量化误差教条、有效比特预算缩放法则、16 组紧框架对称码本、首个全指标抗衡连续基线（Qwen3-VL）的纯离散多模态模型</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/10/29/FVQ-DiscreteVisualTokensSemanticallyLossless/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +340,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-10-29 14:30:00 / 修改时间：15:32:46" itemprop="dateCreated datePublished" datetime="2026-10-29T14:30:00+08:00">2026-10-29</time>
+      <time title="创建时间：2026-10-29 14:30:00 / 修改时间：16:15:37" itemprop="dateCreated datePublished" datetime="2026-10-29T14:30:00+08:00">2026-10-29</time>
     </span>
 
   
@@ -338,7 +452,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-10-29 11:15:00 / 修改时间：15:32:46" itemprop="dateCreated datePublished" datetime="2026-10-29T11:15:00+08:00">2026-10-29</time>
+      <time title="创建时间：2026-10-29 11:15:00 / 修改时间：16:15:37" itemprop="dateCreated datePublished" datetime="2026-10-29T11:15:00+08:00">2026-10-29</time>
     </span>
 
   
@@ -448,7 +562,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-29 15:32:46" itemprop="dateModified" datetime="2026-10-29T15:32:46+08:00">2026-10-29</time>
+      <time title="修改时间：2026-10-29 16:15:37" itemprop="dateModified" datetime="2026-10-29T16:15:37+08:00">2026-10-29</time>
     </span>
 
   
@@ -568,7 +682,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-29 15:32:46" itemprop="dateModified" datetime="2026-10-29T15:32:46+08:00">2026-10-29</time>
+      <time title="修改时间：2026-10-29 16:15:37" itemprop="dateModified" datetime="2026-10-29T16:15:37+08:00">2026-10-29</time>
     </span>
 
   
@@ -649,129 +763,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/28/FewShotReferringRelationships-Videos/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/10/28/FewShotReferringRelationships-Videos/" class="post-title-link" itemprop="url">【论文分享】看懂动态世界的因果：解析 CVPR 顶会《Few-Shot Referring Relationships in Videos》的时空图与置信度传播</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-28 16:20:00" itemprop="dateCreated datePublished" datetime="2026-10-28T16:20:00+08:00">2026-10-28</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-29 15:32:46" itemprop="dateModified" datetime="2026-10-29T15:32:46+08:00">2026-10-29</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>6.9k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>25 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在我们之前分享的 <a href="/2026/02/28/ContrastiveSceneGraphs-MultimodalGrounding/">【论文分享】告别“近视眼”：对比场景图（Contrastive Scene Graphs）如何用数学与结构重塑多模态认知？</a> 中，我们深入探讨了如何利用图结构与对比学习治愈大模型在 2D 静态图片上的“关系盲”，让模型分清到底是谁压在谁身上。</p>
-<p>但现实世界并不是一张张静止的切片，而是一条奔流不息的时间长河。当我们将目光投向<strong>动态视频</strong>时，一个更为严峻的认知鸿沟横亘在面前：</p>
-<p>给 AI 输入一段长视频并询问：<strong>“穿红衣服的骑手跃过栅栏的动作发生在哪里？”</strong></p>
-<ul>
-<li>传统目标检测与大模型可以轻松框出画面里的“人”、“马”和“栅栏”；</li>
-<li>但只要画面里有多匹马、多个骑手，或者发生动作的瞬间只有短短几秒，<strong>模型就会彻底陷入“时空迷失”</strong>——它分不清到底哪个人和哪匹马正在完成“跃过”动作，更无法在几百帧的连续画面中稳定咬住这一对交互轨迹。</li>
-</ul>
-<p>更致命的是，现实世界中的动态交互千奇百怪，视频标注成本是图片的成百上千倍，<strong>我们根本不可能提前为每一种冷门动作收集成千上万条带时空标注的训练视频</strong>。</p>
-<p>在计算机视觉顶会 <strong>CVPR 2023</strong> 上，来自印度理工学院（IIT Jodhpur）的研究团队发表了一篇极具开创性的重磅论文 —— <strong>《Few-Shot Referring Relationships in Videos》</strong>。论文提出了一套优雅而强大的数学图模型框架：</p>
-<blockquote>
-<p><strong>“无需海量标注，仅凭 2~3 个参考演示视频（Few-Shot），借助 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi></mrow><annotation encoding="application/x-tex">T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span></span></span></span>-分部随机场（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi></mrow><annotation encoding="application/x-tex">T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span></span></span></span>-partite Random Field）与置信度传播（Belief Propagation）算法，就能在充满干扰的长视频中，精确提取出罕见动态交互的完整时空时序管道（Spatio-Temporal Tubelets）！”</strong></p>
-</blockquote>
-<p>在这篇博客中，我们将用最通俗易懂的语言，彻底拆解这篇论文背后的<strong>数学原理、图模型推导、四大核心机械架构与元学习工程落地</strong>。</p>
-<blockquote>
-<p><strong>论文题目</strong>：Few-Shot Referring Relationships in Videos<br>
-<strong>作者团队</strong>：Yogesh Kumar, Anand Mishra (印度理工学院焦特布尔分校 IIT Jodhpur)<br>
-<strong>收录会议</strong>：CVPR 2023 (IEEE/CVF Conference on Computer Vision and Pattern Recognition)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content/CVPR2023/html/Kumar_Few-Shot_Referring_Relationships_in_Videos_CVPR_2023_paper.html">https://openaccess.thecvf.com/content/CVPR2023/html/Kumar_Few-Shot_Referring_Relationships_in_Videos_CVPR_2023_paper.html</a><br>
-<strong>博士毕业论文汇总 (arXiv)</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.21422">https://arxiv.org/abs/2610.21422</a> (Chapter 3 / Survey)<br>
-<strong>arXiv HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.21422v1">https://arxiv.org/html/2610.21422v1</a><br>
-<strong>开源代码库</strong>：<a target="_blank" rel="noopener" href="https://github.com/vl2g/RefRelations">https://github.com/vl2g/RefRelations</a><br>
-<strong>核心领域</strong>：Video Understanding, Visual Relationship Grounding, Few-Shot Learning, Spatio-Temporal Modeling<br>
-<strong>技术亮点</strong>：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi></mrow><annotation encoding="application/x-tex">T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span></span></span></span>-partite 随机场时空建模、查询条件平移嵌入 (TransE)、全局/局部双重语义聚合 (GSA/LLA)、置信度传播 (Belief Propagation)</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2026/10/28/FewShotReferringRelationships-Videos/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>
@@ -794,14 +787,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">236k</span>
+    <span title="站点总字数">240k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">14:18</span>
+    <span title="站点阅读时长">14:34</span>
   </span>
 </div>
 <div class="busuanzi-count">

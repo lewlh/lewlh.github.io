@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在当今的多模态大模型世界里，几乎所有主流模型都带着一个醒目的尾缀：“-VL”（Vision-Language，如 Qwen2.5-VL、Qwen3-VL、InternVL）。 但不知道你是否曾产生过这样一个疑问：为什么语言大模型（如纯文本的 Qwen、DeepSeek）从来不需要带什么奇怪的后缀，而一旦加上视觉，就非得搞成一个“-VL”的特殊拼装版本？ 答案其实藏在底层最根本的数据形态鸿沟中：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】告别“-VL”拼装车时代：华科与美团 FVQ 如何用离散 Token 追平顶尖连续视觉大模型？">
+<meta property="og:url" content="https://lewlh.github.io/2026/10/29/FVQ-DiscreteVisualTokensSemanticallyLossless/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在当今的多模态大模型世界里，几乎所有主流模型都带着一个醒目的尾缀：“-VL”（Vision-Language，如 Qwen2.5-VL、Qwen3-VL、InternVL）。 但不知道你是否曾产生过这样一个疑问：为什么语言大模型（如纯文本的 Qwen、DeepSeek）从来不需要带什么奇怪的后缀，而一旦加上视觉，就非得搞成一个“-VL”的特殊拼装版本？ 答案其实藏在底层最根本的数据形态鸿沟中：">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-29T08:00:00.000Z">
+<meta property="article:modified_time" content="2026-10-29T08:15:37.069Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="FVQ">
+<meta property="article:tag" content="Qwen3-VL">
+<meta property="article:tag" content="华中科技大学">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="矢量量化">
+<meta property="article:tag" content="美团">
+<meta property="article:tag" content="视觉离散Token">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/2026/10/29/FVQ-DiscreteVisualTokensSemanticallyLossless/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/2026/10/29/FVQ-DiscreteVisualTokensSemanticallyLossless/","path":"2026/10/29/FVQ-DiscreteVisualTokensSemanticallyLossless/","title":"【论文分享】告别“-VL”拼装车时代：华科与美团 FVQ 如何用离散 Token 追平顶尖连续视觉大模型？"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】告别“-VL”拼装车时代：华科与美团 FVQ 如何用离散 Token 追平顶尖连续视觉大模型？ | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">196</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">56</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%B7%AF%E7%BA%BF%E4%B9%8B%E4%BA%89%EF%BC%9A%E8%BF%9E%E7%BB%AD%E2%80%9C%E6%8B%BC%E8%A3%85%E8%BD%A6%E2%80%9D-vs-%E7%A6%BB%E6%95%A3%E2%80%9C%E7%BA%AF%E8%A1%80%E6%B4%BE%E2%80%9D"><span class="nav-text">01. 路线之争：连续“拼装车” vs 离散“纯血派”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E9%A2%A0%E8%A6%86%E6%95%99%E6%9D%A1%EF%BC%9A%E9%87%8F%E5%8C%96%E8%AF%AF%E5%B7%AE%E6%A0%B9%E6%9C%AC%E4%B8%8D%E7%AD%89%E4%BA%8E%E8%AF%AD%E4%B9%89%E6%8D%9F%E5%A4%B1"><span class="nav-text">02. 颠覆教条：量化误差根本不等于语义损失</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%80%A7%E5%8E%9F%E7%90%86%EF%BC%9A%E7%9C%9F%E6%AD%A3%E8%B5%B7%E5%86%B3%E5%AE%9A%E4%BD%9C%E7%94%A8%E7%9A%84%E6%98%AF%E2%80%9C%E6%9C%89%E6%95%88%E6%AF%94%E7%89%B9%E9%A2%84%E7%AE%97%E2%80%9D"><span class="nav-text">第一性原理：真正起决定作用的是“有效比特预算”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E7%AE%97%E6%B3%95%E8%A7%A3%E6%9E%84%EF%BC%9A%E8%80%81%E6%96%B9%E6%A1%88%E4%B8%BA%E4%BD%95%E9%A5%B1%E5%92%8C%EF%BC%9FFVQ-%E7%9A%84-16-%E6%9C%BA%E4%BD%8D%E5%85%A8%E6%99%AF%E7%A0%B4%E5%B1%80"><span class="nav-text">03. 算法解构：老方案为何饱和？FVQ 的 16 机位全景破局</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%80%81%E6%96%B9%E6%A1%88%E7%9A%84%E4%B8%A4%E5%A4%A7%E6%AD%BB%E8%83%A1%E5%90%8C%EF%BC%88%E9%AB%98%E6%AF%94%E7%89%B9%E9%A5%B1%E5%92%8C%E7%93%B6%E9%A2%88%EF%BC%89"><span class="nav-text">1. 老方案的两大死胡同（高比特饱和瓶颈）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-FVQ%EF%BC%88%E5%9B%A0%E5%AD%90%E5%8C%96%E7%9F%A2%E9%87%8F%E9%87%8F%E5%8C%96%EF%BC%89%E7%9A%84%E7%A0%B4%E5%B1%80%E4%B9%8B%E6%9C%AF%EF%BC%9A%E5%A4%9A%E6%9C%BA%E4%BD%8D%E5%85%A8%E6%99%AF%E6%91%84%E5%BD%B1"><span class="nav-text">2. FVQ（因子化矢量量化）的破局之术：多机位全景摄影</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E6%9E%81%E7%AE%80%E4%BB%A3%E7%A0%81%E9%80%8F%E8%A7%86%EF%BC%9A16-%E6%9C%AC%E5%AD%97%E5%85%B8%E5%9C%A8-PyTorch-%E9%87%8C%E7%A9%B6%E7%AB%9F%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7%EF%BC%9F"><span class="nav-text">04. 极简代码透视：16 本字典在 PyTorch 里究竟长什么样？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E8%AE%AD%E7%BB%83%E5%BA%95%E7%89%8C%EF%BC%9A%E4%B9%B1%E7%A0%81%E5%AD%97%E5%85%B8%E6%98%AF%E5%A6%82%E4%BD%95%E7%BB%83%E6%88%90%E7%BB%9D%E4%B8%96%E9%AB%98%E6%89%8B%E7%9A%84%EF%BC%9F"><span class="nav-text">05. 训练底牌：乱码字典是如何练成绝世高手的？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%8B%AC%E7%AB%8B%E7%BC%96%E7%BA%82%E6%9C%9F%EF%BC%881000-%E4%BA%BF-Token-%E8%87%AA%E7%9B%91%E7%9D%A3%E9%87%8D%E6%9E%84%EF%BC%89"><span class="nav-text">1. 独立编纂期（1000 亿 Token 自监督重构）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%BA%90%E7%A0%81%E5%BD%A9%E8%9B%8B%EF%BC%9A%E6%AD%BB%E8%AF%8D%E5%A4%8D%E6%B4%BB%E6%9C%BA%E5%88%B6%EF%BC%88Dead-Codebook-Restart%EF%BC%89"><span class="nav-text">2. 源码彩蛋：死词复活机制（Dead Codebook Restart）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%9E%B6%E6%9E%84%E7%9C%9F%E7%9B%B8%EF%BC%9A%E5%9C%A8-Transformer-%E4%B8%8A%E7%9A%84%E8%A7%86%E8%A7%89%E6%A1%A5%E6%A2%81"><span class="nav-text">3. 架构真相：在 Transformer 上的视觉桥梁</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E6%88%98%E5%8A%9B%E5%85%A8%E5%BC%80%EF%BC%9A%E5%B7%A5%E4%B8%9A%E7%BA%A7%E5%A4%A7%E8%80%83%E4%B8%8E%E8%B7%A8%E6%A8%A1%E5%9E%8B%E6%B3%9B%E5%8C%96"><span class="nav-text">06. 战力全开：工业级大考与跨模型泛化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%A2%BE%E5%8E%8B%E7%A6%BB%E6%95%A3%E5%A4%9A%E6%A8%A1%E6%80%81%E5%90%8C%E9%97%A8"><span class="nav-text">1. 碾压离散多模态同门</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%AD%A3%E9%9D%A2%E7%A1%AC%E5%88%9A%E9%A1%B6%E5%B0%96%E8%BF%9E%E7%BB%AD%E7%8E%8B%E8%80%85%EF%BC%88Qwen3-VL-8B%EF%BC%89"><span class="nav-text">2. 正面硬刚顶尖连续王者（Qwen3-VL-8B）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%94%BB%E5%85%8B%E6%9E%81%E7%AB%AF-OCR%E2%80%9C%E4%B8%8D%E5%8F%AF%E8%83%BD%E4%B8%89%E8%A7%92%E2%80%9D"><span class="nav-text">3. 攻克极端 OCR“不可能三角”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E8%B7%A8%E7%BC%96%E7%A0%81%E5%99%A8%E6%99%AE%E9%80%82%E6%B3%9B%E5%8C%96"><span class="nav-text">4. 跨编码器普适泛化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E7%BB%88%E5%B1%80%E6%80%9D%E8%BE%A8%EF%BC%9A%E5%BD%93%E7%A6%BB%E6%95%A3-Token-%E6%8A%B9%E5%B9%B3%E5%B7%AE%E8%B7%9D%EF%BC%8C%E6%9C%AA%E6%9D%A5%E8%B5%B0%E5%90%91%E4%BD%95%E6%96%B9%EF%BC%9F"><span class="nav-text">07. 终局思辨：当离散 Token 抹平差距，未来走向何方？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E2%80%9C-VL%E2%80%9D-%E5%90%8E%E7%BC%80%E7%9A%84%E9%BB%84%E6%98%8F%E4%B8%8E%E7%BB%88%E6%9E%81%E5%A4%A7%E4%B8%80%E7%BB%9F"><span class="nav-text">1. “-VL” 后缀的黄昏与终极大一统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%A7%A3%E9%94%81%E7%9C%9F%E6%AD%A3%E7%9A%84%E2%80%9C%E5%A4%9A%E6%A8%A1%E6%80%81%E6%80%9D%E7%BB%B4%E9%93%BE%EF%BC%88Visual-CoT%EF%BC%89%E2%80%9D"><span class="nav-text">2. 解锁真正的“多模态思维链（Visual CoT）”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%AE%A2%E8%A7%82%E5%AE%A1%E8%A7%86%EF%BC%9A%E5%B7%A5%E4%B8%9A%E8%90%BD%E5%9C%B0%E5%89%8D%E7%9A%84%E6%9C%80%E5%90%8E%E7%A1%AC%E9%AA%A8%E5%A4%B4"><span class="nav-text">3. 客观审视：工业落地前的最后硬骨头</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E8%AF%AD%EF%BC%9A%E7%A9%BF%E9%80%8F%E6%95%B0%E5%AD%A6%E7%AC%A6%E5%8F%B7%E7%9A%84%E9%9D%A2%E7%BA%B1%EF%BC%8C%E7%9B%B4%E9%9D%A2%E7%9F%A5%E8%AF%86%E5%B9%B3%E6%9D%83"><span class="nav-text">结语：穿透数学符号的面纱，直面知识平权</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">196</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/29/FVQ-DiscreteVisualTokensSemanticallyLossless/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】告别“-VL”拼装车时代：华科与美团 FVQ 如何用离散 Token 追平顶尖连续视觉大模型？ | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】告别“-VL”拼装车时代：华科与美团 FVQ 如何用离散 Token 追平顶尖连续视觉大模型？
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-10-29 16:00:00 / 修改时间：16:15:37" itemprop="dateCreated datePublished" datetime="2026-10-29T16:00:00+08:00">2026-10-29</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在当今的多模态大模型世界里，几乎所有主流模型都带着一个醒目的尾缀：<strong>“-VL”</strong>（Vision-Language，如 Qwen2.5-VL、Qwen3-VL、InternVL）。</p>
+<p>但不知道你是否曾产生过这样一个疑问：<strong>为什么语言大模型（如纯文本的 Qwen、DeepSeek）从来不需要带什么奇怪的后缀，而一旦加上视觉，就非得搞成一个“-VL”的特殊拼装版本？</strong></p>
+<p>答案其实藏在底层最根本的数据形态鸿沟中：</p>
+<ul>
+<li><strong>语言大模型（LLM）的本质是“纯离散的世界”</strong>：无论是汉字还是英语单词，在模型眼里全都是一个个带有固定编号的“整数积木”（Token ID，如 1024、3892）。大模型的全部魔力，都来自于最纯粹的“猜下一个积木编号是谁（Next-Token Prediction）”；</li>
+<li><strong>视觉世界（Vision）却被当成了“连续的浮点小数”</strong>：目前绝大多数多模态模型，都是用一个外挂的视觉编码器（ViT）把图片扫描成一堆带小数点的高精度向量（连续浮点数，如 <code>[0.3421, -1.0543, ...]</code>），然后像打点滴一样硬生生灌进语言模型。</li>
+</ul>
+<p>这种“外挂拼装”虽然看图能力极强，但却带来了巨大的遗憾：<strong>大模型能看图、能说话，却不能像写字一样自己画画，更无法像人类在草稿纸上勾勾画画那样实现“视觉思维链（Visual CoT）”</strong>。</p>
+<p>学界一直梦寐以求的圣杯，叫做 <strong>“原生大一统多模态（Native Multimodal）”</strong>——把图片也切成离散的词语编号（离散 Token），让图片和文字在同一个字典里平起平坐！然而，长久以来的一个“思想教条”牢牢禁锢了这一探索：<strong>“离散化一定会带来量化误差，量化误差必定导致语义丢失，因此离散模型的理解能力永远不可能赶上连续模型。”</strong></p>
+<p>近日，来自<strong>华中科技大学（HUST）与美团 LongCat 团队</strong>（由第一作者邹佳侣、指导教师王兴刚教授等共同主导）联合发布了一篇具有里程碑意义的重磅论文：</p>
+<blockquote>
+<p><strong>“量化误差根本不决定语义保真度！只要给足有效比特预算，配合全新的‘因子化矢量量化（FVQ）’，纯离散视觉 Token 不仅能做到语义无损，而且在工业级多模态测试中，第一次全面追平甚至超越了当前最顶尖的连续模型 Qwen3-VL！”</strong></p>
+</blockquote>
+<p>在这篇分享中，我们将用最通俗易懂的语言、直观的代码透视和生动的比喻，彻底拆解这篇论文背后的思想颠覆、算法玄机，以及它对未来大模型演进的深远影响。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Can Discrete Tokens Serve as Semantically Lossless Representations of Visual Signals?<br>
+<strong>作者团队</strong>：Jialv Zou, Xiaotong Li, Zhengrong Yue, Xu Huang, Yaxin Luo, Wenhao Yan, Haodong Li, Wenyu Liu, Xinggang Wang (华中科技大学, 美团 LongCat, 上海交大, 北大, 清华, 港中文, MBZUAI)<br>
+<strong>论文主页</strong>：<a target="_blank" href="https://doctor-james.github.io/FVQ-Page/" rel="external nofollow noreferrer noopener">https://doctor-james.github.io/FVQ-Page/</a><br>
+<strong>代码仓库</strong>：<a target="_blank" href="https://github.com/hustvl/FVQ" rel="external nofollow noreferrer noopener">https://github.com/hustvl/FVQ</a><br>
+<strong>arXiv 链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2610.37662" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2610.37662</a><br>
+<strong>核心领域</strong>：Native Multimodal Foundation Models, Discrete Visual Representation, Factorized Vector Quantization (FVQ)<br>
+<strong>技术亮点</strong>：打破量化误差教条、有效比特预算缩放法则、16 组紧框架对称码本、首个全指标抗衡连续基线（Qwen3-VL）的纯离散多模态模型</p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-路线之争：连续“拼装车”-vs-离散“纯血派”">01. 路线之争：连续“拼装车” vs 离散“纯血派”</h2>
+<p>为了看清这项研究的重大价值，我们首先需要理解多模态阵营内部的两条路线：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">                      真实世界的图片（连续的光信号）</span><br><span class="line">                                 │</span><br><span class="line">         ┌───────────────────────┴───────────────────────┐</span><br><span class="line">         ▼                                               ▼</span><br><span class="line">【路线 A：连续模型（如 Qwen3-VL、InternVL）】   【路线 B：离散模型（如 Emu3、Chameleon）】</span><br><span class="line">  保留连续性，用一串串浮点小数向量                  把图片查视觉字典，强行转成整数编号</span><br><span class="line">  直接“外挂灌入”语言大脑                            让图片完全伪装成文字 Token</span><br><span class="line"></span><br><span class="line">  现状：                                           现状：</span><br><span class="line">  ✔ 画面细腻、OCR识字与细节极强                     ✔ 架构高度纯粹，能读图也能像写字一样作画</span><br><span class="line">  ✖ 拼装车架构，无法直接自回归画图                 ✖ 历史痛点：细节损失严重，看图做题一塌糊涂</span><br></pre></td></tr></table></figure>
+<p>对于终端用户来说，用 Qwen3-VL 还是用 Emu3 聊天，表面上几乎没区别——都是传一张图、提个问题，模型给出文字回答。</p>
+<p><strong>但在模型深处，基因截然不同</strong>：</p>
+<ul>
+<li><strong>Qwen3-VL（连续模型）</strong>：输入端把图片变成了 <code>[0.3421, -1.0543, ...]</code> 这种小数串；输出端却只有一个包含十多万汉字/英文单词的“离散词表”。这就导致它<strong>单向通达</strong>——大模型可以读入小数，但在输出端它只能做词表单选题，<strong>绝不可能凭空吐出一长串连续小数来无中生有地画图</strong>；</li>
+<li><strong>Emu3 / Chameleon（离散模型）</strong>：输入端图片是字典编号，输出端也是字典编号。它的大脑不仅能看图，<strong>还能像敲代码一样，一个编号一个编号地把一幅画给“写”出来</strong>，甚至能在做几何题时自己在中间输出几个视觉编号（当草稿纸连辅助线）。</li>
+</ul>
+<p>然而，离散模型的浪漫梦想过去一直被现实残酷打压：<strong>查字典会产生“量化误差（Quantization Error）”，一量化画面就丢细节，导致离散模型在文字识别（OCR）、图表推理和数学问答上被连续模型按在地上摩擦。</strong></p>
+<hr>
+<h2 id="02-颠覆教条：量化误差根本不等于语义损失">02. 颠覆教条：量化误差根本不等于语义损失</h2>
+<p>长期以来，AI 界的共识是：<strong>“连续向量是离散向量不可逾越的天花板（Upper Bound）”</strong>。大家都默认，量化误差越小，语义保留得越好。</p>
+<p>但这篇论文的第一作者们做了一个极其颠覆性的实验：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">【打破教条的反常识实验】</span><br><span class="line">实验对比：</span><br><span class="line">1. 标准单码本量化（VQ）：</span><br><span class="line">   特征重构误差 MSE = 0.027 ──▶ 多模态理解均分：51.2%</span><br><span class="line">2. 剥离粗糙轮廓后的奇数组残差量化（RVQ-Odd）：</span><br><span class="line">   特征重构误差 MSE = 0.246 ──▶ 多模态理解均分：60.7% ！！</span><br></pre></td></tr></table></figure>
+<p><strong>发生了什么？</strong><br>
+第二组实验的重构误差（MSE）<strong>暴增了将近 10 倍（9.1倍）</strong>，肉眼看还原出来的特征变得极其失真，但是拿去让大模型回答图片问题时，理解准确率不仅没有暴跌，反而<strong>大幅暴涨了 9.5 个百分点</strong>！</p>
+<blockquote>
+<p><strong>为什么会这样？（简笔画比喻）</strong><br>
+大语言模型去理解一张图片，<strong>根本不在乎还原出来的每个像素是不是分毫不差</strong>。它在乎的是：<strong>“这些编号能不能把猫和狗、文字笔画与背景清晰地区分开！”</strong><br>
+就像你看一幅潦草的简笔画，画工和实物照片的重构误差巨大，但你一眼就能认出那是人、是车还是猫。<strong>像素误差极大，但核心语义完好无损！</strong></p>
+</blockquote>
+<h3 id="第一性原理：真正起决定作用的是“有效比特预算”">第一性原理：真正起决定作用的是“有效比特预算”</h3>
+<p>数字世界里的任何信号本来就是由有限的比特（0 和 1）构成的。对于离散表示，每个图像切片（Patch）分配的信息容量（比特预算）公式为：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>B</mi><mo>=</mo><mi>L</mi><mo>×</mo><msub><mrow><mi>log</mi><mo>⁡</mo></mrow><mn>2</mn></msub><mi>C</mi></mrow><annotation encoding="application/x-tex">B = L \times \log_2 C
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0502em;">B</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">L</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.9386em;vertical-align:-0.2441em;"></span><span class="mop"><span class="mop">lo<span style="margin-right:0.0139em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.207em;"><span style="top:-2.4559em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2441em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">C</span></span></span></span></span></p>
+<p>其中 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi></mrow><annotation encoding="application/x-tex">L</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal">L</span></span></span></span> 是码本（字典）的数量，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi></mrow><annotation encoding="application/x-tex">C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">C</span></span></span></span> 是每本字典里包含的词条数。</p>
+<p><strong>核心结论</strong>：只要每个图像切片分配的“有效比特预算”足够大，离散表达完全可以在语义上做到 <strong>“绝对无损”</strong>！</p>
+<hr>
+<h2 id="03-算法解构：老方案为何饱和？FVQ-的-16-机位全景破局">03. 算法解构：老方案为何饱和？FVQ 的 16 机位全景破局</h2>
+<p>既然只要增加比特预算（增加字典数量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi></mrow><annotation encoding="application/x-tex">L</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal">L</span></span></span></span>）就行，那以前为什么没人做成？</p>
+<h3 id="1-老方案的两大死胡同（高比特饱和瓶颈）">1. 老方案的两大死胡同（高比特饱和瓶颈）</h3>
+<ul>
+<li><strong>残差量化（RVQ，剥洋葱）</strong>：第 1 本字典抓主干，第 2 本抓残差，第 3 本抓残差的残差……剥到第 8、16 层时，剩下的全是无意义的噪点和高频杂质，新加的字典根本学不到有效语义；</li>
+<li><strong>乘积量化（PQ，切黄瓜）</strong>：把 1024 维特征横切成 16 段，每本字典只管一小段。切得越细，每个字典越是“盲人摸象”，丢失了跨通道的全局关联。</li>
+<li><strong>结果</strong>：增加字典数量后，模型能力很快陷入停滞（饱和），死活赶不上连续模型。</li>
+</ul>
+<h3 id="2-FVQ（因子化矢量量化）的破局之术：多机位全景摄影">2. FVQ（因子化矢量量化）的破局之术：多机位全景摄影</h3>
+<p>华科与美团团队提出了 <strong>FVQ（Factorized Vector Quantization）</strong>，用三道极其优雅的数学与架构设计破解了死局：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">                 【图像切片的 1152 维完整特征】</span><br><span class="line">                              │</span><br><span class="line">      ┌───────────────────────┼───────────────────────┐</span><br><span class="line">      ▼                       ▼                       ▼</span><br><span class="line">  【机位 1】               【机位 2】              【机位 16】</span><br><span class="line">(正面广角全景)           (侧面广角全景)          (俯视广角全景)</span><br><span class="line">[144维投影]             [144维投影]             [144维投影]</span><br><span class="line">      │                       │                       │</span><br><span class="line">      ▼                       ▼                       ▼</span><br><span class="line">在【字典 1】查编号       在【字典 2】查编号       在【字典 16】查编号</span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>全景滤镜（Dense Projections）</strong>：不切片，也不剥洋葱！16 个字典对应的 16 个机位，<strong>每一个机位看到的都是原特征全部 1152 维的全局信息</strong>，维度保持 144 维不变。</li>
+<li><strong>紧框架正交约束（Tight-Frame Condition）</strong>：投影矩阵满足 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="bold">A</mi><mi mathvariant="normal">⊤</mi></msup><mi mathvariant="bold">A</mi><mo>=</mo><mi>ρ</mi><mi mathvariant="bold">I</mi></mrow><annotation encoding="application/x-tex">\mathbf{A}^\top \mathbf{A} = \rho \mathbf{I}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8491em;"></span><span class="mord"><span class="mord mathbf">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">⊤</span></span></span></span></span></span></span></span><span class="mord mathbf">A</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8805em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ρ</span><span class="mord mathbf">I</span></span></span></span>。这意味着 16 个机位从几何上是严格互补、360 度各向同性的，<strong>合并时可以完美、无损地还原原始空间，不偏袒也不丢失任何几何方向</strong>；</li>
+<li><strong>地位平等的对称字典（Symmetric Parallel Quantization）</strong>：<br>
+16 本字典完全对等，并行查表，没有尊卑之分。每一本字典都在实打实地承载高质量语义！</li>
+</ol>
+<p><strong>战果</strong>：随着字典增加到 16 本（每个切片 224 bit），FVQ 的性能一路飙升，<strong>彻底打破了天花板，第一次追平并超越了连续基线（65.3% vs 64.6%）！</strong></p>
+<hr>
+<h2 id="04-极简代码透视：16-本字典在-PyTorch-里究竟长什么样？">04. 极简代码透视：16 本字典在 PyTorch 里究竟长什么样？</h2>
+<p>我们直接扒开其开源代码 <code>src/fvq/quantizer.py</code>，用一段极简的 Python 伪代码还原其核心工作流：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FactorizedVQ_Simple</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, dim=<span class="number">1152</span>, groups=<span class="number">16</span>, group_dim=<span class="number">144</span>, vocab_size=<span class="number">16384</span></span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        <span class="variable language_">self</span>.groups = groups</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 1. 核心底牌：这就是那“16 本独立字典”！</span></span><br><span class="line">        <span class="comment"># 每本字典都是一张 [16384 行, 144 列] 的大表格</span></span><br><span class="line">        <span class="variable language_">self</span>.codebooks = nn.ModuleList([</span><br><span class="line">            nn.Embedding(vocab_size, group_dim) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(groups)</span><br><span class="line">        ])</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 2. 准备“16 个全景机位”（紧框架投影矩阵 R，通过 QR 正交分解生成）</span></span><br><span class="line">        <span class="variable language_">self</span>.R = nn.Parameter(torch.randn(groups, group_dim, dim), requires_grad=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        输入 x: 图像切片的连续特征向量，形状 [1152]</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 第一步：16 个机位同时拍照，投射到 16 个全局视角</span></span><br><span class="line">        views = torch.einsum(<span class="string">&quot;d, grd -&gt; gr&quot;</span>, x, <span class="variable language_">self</span>.R)  <span class="comment"># 形状变成 [16, 144]</span></span><br><span class="line">        </span><br><span class="line">        token_ids = []</span><br><span class="line">        <span class="comment"># 第二步：16 本字典并行查表，寻找欧氏距离最近的单词编号</span></span><br><span class="line">        <span class="keyword">for</span> g <span class="keyword">in</span> <span class="built_in">range</span>(<span class="variable language_">self</span>.groups):</span><br><span class="line">            view_g = views[g]                   <span class="comment"># 第 g 个视角拍到的 [144] 向量</span></span><br><span class="line">            table_g = <span class="variable language_">self</span>.codebooks[g].weight  <span class="comment"># 第 g 本字典 [16384, 144]</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment"># 计算距离并找出最近的单词索引</span></span><br><span class="line">            dist = torch.<span class="built_in">sum</span>((table_g - view_g) ** <span class="number">2</span>, dim=-<span class="number">1</span>)</span><br><span class="line">            token_ids.append(torch.argmin(dist).item())</span><br><span class="line">            </span><br><span class="line">        <span class="comment"># 第三步：返回 16 个整数编号！</span></span><br><span class="line">        <span class="keyword">return</span> token_ids</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模拟运行：</span></span><br><span class="line">fvq = FactorizedVQ_Simple()</span><br><span class="line">fake_patch = torch.randn(<span class="number">1152</span>)</span><br><span class="line">result_ids = fvq(fake_patch)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;输出的 16 个离散 Token 编号：&quot;</span>, result_ids)</span><br><span class="line"><span class="comment"># 输出示例: [8142, 1029, 15401, 342, 9811, 74, ..., 13499]</span></span><br></pre></td></tr></table></figure>
+<p>原本带有大量高精度小数点的复杂图像切片，<strong>经过 FVQ 之后，被彻底洗练成了 16 个纯整数</strong>！大语言模型（如 Qwen3-8B）拿到这些整数，和拿到 16 个汉字文本 Token 毫无二致。</p>
+<hr>
+<h2 id="05-训练底牌：乱码字典是如何练成绝世高手的？">05. 训练底牌：乱码字典是如何练成绝世高手的？</h2>
+<p>刚初始化的 <code>nn.Embedding(16384, 144)</code> 只是显存里的一堆随机乱码，FVQ 是如何把它调教成语义辞海的？</p>
+<h3 id="1-独立编纂期（1000-亿-Token-自监督重构）">1. 独立编纂期（1000 亿 Token 自监督重构）</h3>
+<p>在接入语言模型前，FVQ 经历了长达 <strong>100B tokens</strong> 的图像自监督特训：</p>
+<ul>
+<li>输入特征 ➔ FVQ 查字典 ➔ 逆向合成还原特征 ➔ 比较与原特征的重构差；</li>
+<li><strong>冷知识：字典不靠反向传播更新！</strong> 源码中 <code>requires_grad_(False)</code>，它采用 <strong>EMA（指数移动平均，类似在线 K-Means 聚类）</strong>，让每个词条不断向所有选中它的特征重心挪动。</li>
+</ul>
+<h3 id="2-源码彩蛋：死词复活机制（Dead-Codebook-Restart）">2. 源码彩蛋：死词复活机制（Dead Codebook Restart）</h3>
+<p>为防止某些词条初始化位置太偏僻而变成“僵尸词条”（Codebook Collapse），源码中设计了 <code>_reset</code> 函数：一旦检测到某词条长期无人翻牌，立刻抓取当前的鲜活图像特征强行覆盖，逼其“重新投胎”！</p>
+<h3 id="3-架构真相：在-Transformer-上的视觉桥梁">3. 架构真相：在 Transformer 上的视觉桥梁</h3>
+<p>在训练完成并 <strong>彻底封存（Freeze）</strong> 视觉分词器后，代码通过 <code>FVQVLM</code> 模块接入 <strong>Qwen3-8B</strong>：</p>
+<ul>
+<li>语言模型 Transformer <strong>骨架原封不动，没有做任何结构性魔改</strong>；</li>
+<li>证明了：<strong>不需要改动 LLM 的底层架构，只要前置的视觉离散分词器足够保真，纯语言大脑就能直接吃透视觉信息！</strong></li>
+</ul>
+<hr>
+<h2 id="06-战力全开：工业级大考与跨模型泛化">06. 战力全开：工业级大考与跨模型泛化</h2>
+<p>研究团队在千亿级 Token 的工业规模多模态数据上进行了全阶段严格训练，并与学术界及工业界的各路豪杰展开正面对决：</p>
+<h3 id="1-碾压离散多模态同门">1. 碾压离散多模态同门</h3>
+<p>在 9 项综合视觉语言基准测试的平均分上：</p>
+<ul>
+<li>比业内知名自回归模型 <strong>UniAR-8B 提高了 22.8%</strong>；</li>
+<li>比智源研究院的纯离散统一模型 <strong>Emu3-Chat-8B 提高了 59.2%</strong>！</li>
+</ul>
+<h3 id="2-正面硬刚顶尖连续王者（Qwen3-VL-8B）">2. 正面硬刚顶尖连续王者（Qwen3-VL-8B）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">测试任务 / 数据集</th>
+<th style="text-align:center">连续旗舰 Qwen3-VL-8B</th>
+<th style="text-align:center">离散代表 Emu3-Chat-8B</th>
+<th style="text-align:center"><strong>FVQ (本文离散模型)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>数学推理 (MathVista)</strong></td>
+<td style="text-align:center">77.2%</td>
+<td style="text-align:center">47.6%</td>
+<td style="text-align:center"><strong>77.4% (持平)</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>现实常识 (RealWorldQA)</strong></td>
+<td style="text-align:center">71.5%</td>
+<td style="text-align:center">57.4%</td>
+<td style="text-align:center"><strong>72.0% (胜出)</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>学术图表 (CharXiv DQ/RQ)</strong></td>
+<td style="text-align:center">83.0 / 46.4</td>
+<td style="text-align:center">36.8 / 14.1</td>
+<td style="text-align:center"><strong>86.1 / 49.3 (超越)</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>文档解析 (OmniDocBench ↓)</strong></td>
+<td style="text-align:center">0.170</td>
+<td style="text-align:center">–</td>
+<td style="text-align:center"><strong>0.179 (持平)</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>OCR 基准 (OCRBench)</strong></td>
+<td style="text-align:center">896</td>
+<td style="text-align:center">687</td>
+<td style="text-align:center"><strong>867 (大幅逼近)</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-攻克极端-OCR“不可能三角”">3. 攻克极端 OCR“不可能三角”</h3>
+<p>过去离散模型最怕 OCR，但论文在极端测试中展现了惊人表现：</p>
+<ul>
+<li><strong>21,253 × 3,912 超长表格</strong>：跨越两万多像素的长文档，精准定位并跨列聚合；</li>
+<li><strong>极密集手写试卷</strong>：微小、歪斜、不规则的手写勾选与批注精准提取；</li>
+<li><strong>5,000+ 字超高密度排版单页</strong>：实现全页一字不差的长程文字转写。</li>
+</ul>
+<h3 id="4-跨编码器普适泛化">4. 跨编码器普适泛化</h3>
+<p>将 FVQ 迁移至其他顶尖视觉底座上，性能同样迎来跃升：</p>
+<ul>
+<li>在月之暗面 <strong>MoonViT-v2</strong> 上，均分从单码本的 38.7 飙升至 <strong>61.1</strong>；</li>
+<li>在谷歌 <strong>SigLIP2</strong> 上，均分从 44.7 暴涨至 <strong>53.9</strong>。</li>
+<li>证明了“有效比特预算定律”是普适的视觉底层规律，绝非单一模型的个别特例。</li>
+</ul>
+<hr>
+<h2 id="07-终局思辨：当离散-Token-抹平差距，未来走向何方？">07. 终局思辨：当离散 Token 抹平差距，未来走向何方？</h2>
+<p>这项研究带给整个 AI 工业界的影响是深远且具颠覆性的：</p>
+<h3 id="1-“-VL”-后缀的黄昏与终极大一统">1. “-VL” 后缀的黄昏与终极大一统</h3>
+<p>当纯离散 Token 彻底摆脱了“画质失真、理解力差”的原罪，多模态模型就不再需要用“外挂 ViT 连续向量”来做妥协过渡。未来的 <strong>Qwen4、DeepSeek-V5、GPT-5</strong>，完全可能在诞生之日就是一个天生包含图、文、音统一离散字典的原生大模型。“-VL” 作为技术不成熟时期的过渡名词，终将功成身退。</p>
+<h3 id="2-解锁真正的“多模态思维链（Visual-CoT）”">2. 解锁真正的“多模态思维链（Visual CoT）”</h3>
+<p>人类解几何题、下围棋、设计电路时，一定会拿笔在草稿纸上画图打草稿。连续模型因为输出端无法吐出连续向量，做不到这一点；而<strong>全离散模型可以直接在推理文本的中间吐出几个视觉 Token（画出辅助线或结构草图），边画边想，实现认知维度的重大跨越</strong>。</p>
+<h3 id="3-客观审视：工业落地前的最后硬骨头">3. 客观审视：工业落地前的最后硬骨头</h3>
+<p>虽然 FVQ 证明了语义无损，但要全面替代当下的连续管线，工业界仍需解决：</p>
+<ul>
+<li><strong>序列长度膨胀</strong>：每个 patch 产生 16 个索引，高分辨率下的 Token 数量极多，如何进一步优化上下文推理开销？</li>
+<li><strong>工程生态惯性</strong>：现有大厂的 TensorRT-LLM、vLLM 推理加速卡位均深度绑定连续视觉架构，全离散推理生态的重构仍需时日。</li>
+</ul>
+<hr>
+<h2 id="结语：穿透数学符号的面纱，直面知识平权">结语：穿透数学符号的面纱，直面知识平权</h2>
+<p>正如很多初读这篇论文的朋友所感叹的那样：<em>面对论文里铺天盖地的紧框架条件 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="bold">A</mi><mi mathvariant="normal">⊤</mi></msup><mi mathvariant="bold">A</mi><mo>=</mo><mi>ρ</mi><mi mathvariant="bold">I</mi></mrow><annotation encoding="application/x-tex">\mathbf{A}^\top \mathbf{A} = \rho \mathbf{I}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8491em;"></span><span class="mord"><span class="mord mathbf">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">⊤</span></span></span></span></span></span></span></span><span class="mord mathbf">A</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8805em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ρ</span><span class="mord mathbf">I</span></span></span></span>、QR 正交分解、码本 EMA 更新公式，常常让人望而生畏、产生强烈的智力挫败感。</em></p>
+<p>但当我们一层层剥开那些高密度的数学压缩符号，你会发现它的物理思想是如此朴素、纯粹而优美：<strong>无非就是让 16 个视角互补的摄像机，平起平坐地把现实世界翻译成一本厚度刚刚好的字典而已。</strong></p>
+<p>这或许也是当今大模型时代最动人的底色——<strong>知识平权</strong>。曾经深锁在象牙塔密室里的数学公式与前沿论文，终于在生动的交互与拆解中，褪去了高冷的外衣。只要你心怀好奇、敢于探问事物运行的底层第一性原理，前沿科学的壮丽画卷，便永远向每一个求知者敞开大门。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E8%A7%86%E8%A7%89%E7%A6%BB%E6%95%A3Token/" rel="tag"># 视觉离散Token</a>
+              <a href="/tags/%E7%9F%A2%E9%87%8F%E9%87%8F%E5%8C%96/" rel="tag"># 矢量量化</a>
+              <a href="/tags/FVQ/" rel="tag"># FVQ</a>
+              <a href="/tags/Qwen3-VL/" rel="tag"># Qwen3-VL</a>
+              <a href="/tags/%E5%8D%8E%E4%B8%AD%E7%A7%91%E6%8A%80%E5%A4%A7%E5%AD%A6/" rel="tag"># 华中科技大学</a>
+              <a href="/tags/%E7%BE%8E%E5%9B%A2/" rel="tag"># 美团</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/10/29/VGIQA-FineGrainedImageQualityAssessment/" rel="next" title="【论文分享】当 AI 图像质检拿上放大镜：VGIQA 如何用“视觉定位奖励”治愈大模型的画质近视？">
+                  【论文分享】当 AI 图像质检拿上放大镜：VGIQA 如何用“视觉定位奖励”治愈大模型的画质近视？ <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">240k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">14:34</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
