@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">196</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">56</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">212</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">59</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-count">59</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">196</span>
+        <span class="site-state-item-count">212</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,323 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/27/Invert4TVG-TemporalVideoGrounding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/10/27/Invert4TVG-TemporalVideoGrounding/" class="post-title-link" itemprop="url">【论文分享】长视频定位别做“猜时间题的做题家”：ICLR 2026 华南理工&字节跳动 Invert4TVG 论文解析</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-27 10:55:00" itemprop="dateCreated datePublished" datetime="2026-10-27T10:55:00+08:00">2026-10-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-10-30 13:37:54" itemprop="dateModified" datetime="2026-10-30T13:37:54+08:00">2026-10-30</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>9 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态视频理解领域，<strong>时序视频定位（Temporal Video Grounding, TVG）</strong> 是一个非常经典但也极具挑战的刚需场景：输入一段动辄数分钟乃至数小时的未剪辑长视频，并附带一句自然语言（如 <strong>“找到男主角打翻水杯的瞬间”</strong>），算法需要精确输出事件发生的<strong>起止时间戳（Start &amp; End Timestamps）</strong>。</p>
+<p>随着 Qwen2.5-VL 等开源多模态大模型与 DeepSeek-R1 式强化学习（RL）的爆火，近期行业主流纷纷采用强化学习直接优化时间重叠度（IoU）奖励。然而，华南理工大学与字节跳动团队在被 <strong>ICLR 2026</strong> 录用的前沿论文《Invert4TVG》中揭示了一个被大众忽视的致命陷阱——<strong>纯粹刷时间指标会让大模型退化成“不辨动作的应试做题家”</strong>。</p>
+<p>本文从系统架构、工程落地与实操成本等视角，对这篇论文的核心突破与工业思考进行系统梳理。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Invert4TVG: A Temporal Video Grounding Framework with Inversion Tasks Preserving Action Understanding Ability<br>
+<strong>作者团队</strong>：华南理工大学 (SCUT)、字节跳动 (ByteDance)、广东省人工智能与数字经济实验室 (SZ)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2508.07388">https://arxiv.org/abs/2508.07388</a><br>
+<strong>收录会议</strong>：ICLR 2026</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/10/27/Invert4TVG-TemporalVideoGrounding/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/27/FreeDVC-TrainingFreeDenseVideoCaptioning/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/10/27/FreeDVC-TrainingFreeDenseVideoCaptioning/" class="post-title-link" itemprop="url">【论文分享】无需训练即可看懂长视频？MIR 2026 论文 FreeDVC 解析及多模态视频资产库工程实践</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-27 10:15:00" itemprop="dateCreated datePublished" datetime="2026-10-27T10:15:00+08:00">2026-10-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-10-30 13:37:54" itemprop="dateModified" datetime="2026-10-30T13:37:54+08:00">2026-10-30</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>最近研读了发表在《Machine Intelligence Research》(MIR) 上的最新长视频理解论文《Training-free Dense Video Captioning with Large-scale Pretrained Models》（提出 FreeDVC 框架）。</p>
+<p>对于从事后端或 AI 基础设施开发的软件工程师来说，视频理解一直是一个“门槛极高”的重算法领域：传统的密集视频字幕（Dense Video Captioning, DVC）往往需要动用海量经过人工精细打标（标注到秒级时间戳）的视频数据进行端到端微调，算力成本昂贵且极难泛化。</p>
+<p>而 FreeDVC 最让人眼前一亮的地方在于它的 <strong>“纯工程解法”：不改动任何模型权重、完全无需特定任务训练（Training-free），而是将现成成熟的视觉、语音与语言大模型组合成高效的“多模型流水线”</strong>，并在跨领域的零样本（Zero-shot）任务中展现出了极强的表现。更重要的是，它为海量长视频资产的“细粒度特征提取与向量数据库结构化”提供了完美的落地范式。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Training-free Dense Video Captioning with Large-scale Pretrained Models<br>
+<strong>作者团队</strong>：南京航空航天大学 (NUAA) 计算机科学与技术学院 / 人工智能学院 等<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://www.mi-research.net/article/doi/10.1007/s11633-025-1585-x">https://www.mi-research.net/article/doi/10.1007/s11633-025-1585-x</a><br>
+<strong>发表期刊</strong>：<em>Machine Intelligence Research</em> (MIR 2026)</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/10/27/FreeDVC-TrainingFreeDenseVideoCaptioning/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/26/ThinkCompressAnswer-TCA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/10/26/ThinkCompressAnswer-TCA/" class="post-title-link" itemprop="url">【论文分享】多模态大模型的“克制之道”：解析定位前沿论文 Think-Compress-Answer (TCA)</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-27 00:25:00" itemprop="dateCreated datePublished" datetime="2026-10-27T00:25:00+08:00">2026-10-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-10-30 13:37:54" itemprop="dateModified" datetime="2026-10-30T13:37:54+08:00">2026-10-30</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>最近研读了一篇非常有启发性的多模态定位前沿论文《Think, Compress, Answer: Reinforcement Learning for Multimodal Grounding via Reasoning Compression》（简称 <strong>TCA</strong>）。</p>
+<p>在当前大模型言必谈“长思维链（o1/R1 模式）”的浪潮下，这篇论文反其道而行之，敏锐地指出了视觉定位任务中的致命问题——<strong>“大模型想得越多，错得越离谱”</strong>。论文提出了一套“先发散思考、再极简提炼、后精准定位”的框架，配合四阶段轻量级强化学习，在完全不改变模型骨干的情况下大幅刷新了图像与视频指代分割的 SOTA。在此整理一篇通俗而系统的分享笔记，记录核心洞见与工程实现细节。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Think, Compress, Answer: Reinforcement Learning for Multimodal Grounding via Reasoning Compression<br>
+<strong>作者团队</strong>：延世大学 (Yonsei University) 等<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.25640">https://arxiv.org/abs/2610.25640</a><br>
+<strong>Papers.cool</strong>：<a target="_blank" rel="noopener" href="https://papers.cool/arxiv/2610.25640">https://papers.cool/arxiv/2610.25640</a></p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/10/26/ThinkCompressAnswer-TCA/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +549,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-29 16:15:37" itemprop="dateModified" datetime="2026-10-29T16:15:37+08:00">2026-10-29</time>
+      <time title="修改时间：2026-10-30 13:37:54" itemprop="dateModified" datetime="2026-10-30T13:37:54+08:00">2026-10-30</time>
     </span>
 
   
@@ -337,7 +654,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-29 16:15:37" itemprop="dateModified" datetime="2026-10-29T16:15:37+08:00">2026-10-29</time>
+      <time title="修改时间：2026-10-30 13:37:54" itemprop="dateModified" datetime="2026-10-30T13:37:54+08:00">2026-10-30</time>
     </span>
 
   
@@ -397,328 +714,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/24/VTrajEmbed-TextVideoTrajectoryEmbedding/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/10/24/VTrajEmbed-TextVideoTrajectoryEmbedding/" class="post-title-link" itemprop="url">【论文分享】看懂视频里的“谁在干什么”：VTrajEmbed 轨迹级文本-视频时空向量检索解析与轻量级复现指南</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-24 16:55:00" itemprop="dateCreated datePublished" datetime="2026-10-24T16:55:00+08:00">2026-10-24</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-29 16:15:37" itemprop="dateModified" datetime="2026-10-29T16:15:37+08:00">2026-10-29</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.1k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>11 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在多模态视频理解与智能检索领域，我们长期面临一个看似简单却极难解决的痛点：<strong>传统的视频 AI 只能粗略看懂“整段视频大概发生了什么”，却根本看不懂“视频里具体哪个人/哪辆车做了一套什么动作”。</strong></p>
-<p>如果你向传统视频大模型搜索：“<em>十字路口有汽车在开</em>”，它能轻松搜出来；但如果你搜索：“<em>那辆突然左转并变道加塞的白色 SUV</em>”，传统模型就会立刻抓瞎——因为在传统的“全局向量（Global Embedding）”里，画面里所有的行人、车辆和背景动态都被强行压缩、乱炖成了一锅粥。</p>
-<p>近期由中国电信星辰大模型实验室（Xingchen AGI Lab / TeleAI）与北京大学等团队发表的前沿论文 <strong>《VTrajEmbed: Aligning Text with Video Object Trajectories via Spatiotemporal Embeddings》</strong>（arXiv:2610.22842），正式打破了这一僵局。该方案将视频解构为独立的**“对象时空轨迹（Object Trajectories）”**，并实现了自然语言与连续运动轨迹之间的精准对齐。</p>
-<p>更重要的是，<strong>这套方案的可工程落地性极高</strong>。本文将结合系统架构拆解、底层改造原理、向量数据库实战范式以及在单卡消费级显卡（如 RTX 3080 Ti 12GB）上的自主可控低成本复现指南，为你全景盘点这篇论文的硬核干货。</p>
-<blockquote>
-<p><strong>论文题目</strong>：VTrajEmbed: Aligning Text with Video Object Trajectories via Spatiotemporal Embeddings<br>
-<strong>作者团队</strong>：中国电信星辰大模型实验室 (Xingchen AGI Lab / China Telecom)、北京大学等<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.22842">https://arxiv.org/abs/2610.22842</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2026/10/24/VTrajEmbed-TextVideoTrajectoryEmbedding/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/" class="post-title-link" itemprop="url">【论文分享】打破长视频的显存与计算魔咒：解析前沿论文 WIRE (Weight Space Implicit Representation Encoding)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-24 11:35:00" itemprop="dateCreated datePublished" datetime="2026-10-24T11:35:00+08:00">2026-10-24</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-29 16:15:37" itemprop="dateModified" datetime="2026-10-29T16:15:37+08:00">2026-10-29</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>5.5k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>20 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>最近研读了一篇极具工程启发意义的长视频大模型（Video LLM）前沿论文——《WIRE: Weight Space Implicit Representation Encoding of Frozen Video LLMs》。</p>
-<p>在当前的视频大模型领域，大家在面对几十甚至上千帧的长视频时，普遍面临着极其严峻的工程瓶颈：<strong>Token 海啸、Prefill 耗时漫长、显存（KV Cache）频频溢出</strong>。</p>
-<p>这篇论文跳出了传统“只在输入端（Token）打转”的思维惯性，提出了一个兼具理论美感与工程实效的破局方案：<strong>将原本塞在输入序列里的微观视频信息，通过轻量级超网络实时提炼成临时的 LoRA 补丁，直接“刷”进大模型的权重空间中</strong>。在基准测试中，它将视觉序列长度压缩了 <strong>3.5 倍</strong>，长视频前置处理速度提升了 <strong>3~4 倍</strong>，同时显存开销锐减至约 <strong>28%</strong>，且完全不影响自回归打字速度。</p>
-<p>在此将论文的核心洞见、系统工程实现、LoRA 的特殊生成机制以及多模态权衡整理成一篇系统的技术分享笔记。</p>
-<blockquote>
-<p><strong>论文题目</strong>：WIRE: Weight Space Implicit Representation Encoding of Frozen Video LLMs<br>
-<strong>作者团队</strong>：Ameen Ali, Tamim Zoabi, Lior Wolf, Chaim Baskin (特拉维夫大学 / Technion 等)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.17355">https://arxiv.org/abs/2610.17355</a><br>
-<strong>Papers.cool</strong>：<a target="_blank" rel="noopener" href="https://papers.cool/arxiv/2610.17355">https://papers.cool/arxiv/2610.17355</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/" class="post-title-link" itemprop="url">【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-23 13:56:00" itemprop="dateCreated datePublished" datetime="2026-10-23T13:56:00+08:00">2026-10-23</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-10-29 16:15:37" itemprop="dateModified" datetime="2026-10-29T16:15:37+08:00">2026-10-29</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>14 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>继前几天研读了通过超网络前向生成权重的前沿论文 <a href="/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/">《打破长视频的显存与计算魔咒：解析前沿论文 WIRE》</a> 之后，今天我们来深入探讨同一时期在计算机视觉顶会开源社区引发广泛讨论的另一篇重量级论文——《Memory Internalization via Test-Time Training for Long-Video Understanding》（引入了 <strong>MIT³</strong> 框架）。</p>
-<p>如果说上一篇 WIRE 走的是“极速流式压缩、输入端保留压缩 Token、超网络毫秒级生成补丁”的工程路线；那么这篇来自<strong>上海交通大学与同济大学团队</strong>的 MIT³ 则走了一条更为激进且极具科幻感的“内化”路线：</p>
-<blockquote>
-<p><strong>“拿到一部长视频，AI 先通过测试时训练（Test-Time Training）把整部视频的记忆一次性‘刻’进脑神经网络；记完之后，彻底销毁原视频！后续不管你问 10 个还是 1000 个问题，AI 全程两手空空，以纯文本（Video-free）模式闭卷秒回。”</strong></p>
-</blockquote>
-<p>在这篇分享中，我们将摒弃晦涩抽象的数学黑话，系统拆解 MIT³ 的核心哲学、破解的工业难题、因果追踪与视觉记忆蒸馏的底层原理、工程复现细节以及与 WIRE 的横向架构对比。</p>
-<blockquote>
-<p><strong>论文题目</strong>：Memory Internalization via Test-Time Training for Long-Video Understanding<br>
-<strong>作者团队</strong>：Haonan Zhao, Jiaxuan Chen, Qingyang Liu, Shuochen Chang, Siyu Sun, Jiangtong Li, Li Niu (上海交通大学、同济大学)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.26910">https://arxiv.org/abs/2610.26910</a><br>
-<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.26910">https://arxiv.org/html/2610.26910</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -743,14 +738,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">240k</span>
+    <span title="站点总字数">252k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">14:34</span>
+    <span title="站点阅读时长">15:16</span>
   </span>
 </div>
 <div class="busuanzi-count">

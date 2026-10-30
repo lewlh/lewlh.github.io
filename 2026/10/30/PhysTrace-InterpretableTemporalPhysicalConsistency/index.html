@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在具身智能（Embodied AI）与机器人规划控制领域，视频生成模型（Video Generative Models） 正在扮演越来越核心的角色。从 Sora、Wan2.1 到英伟达的 Cosmos-Predict2，业界越来越倾向于直接把预训练的视频模型作为世界模型（World Models） 或动作策略骨干——让机器人在物理交互前，先在脑海中“生成未来的动作模拟视频”。 但这种范式存在一个致">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】给视频生成模型做“物理质检”与“脑部CT”：arXiv 2026 新作 PhysTrace 架构与工程落地拆解">
+<meta property="og:url" content="https://lewlh.github.io/2026/10/30/PhysTrace-InterpretableTemporalPhysicalConsistency/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在具身智能（Embodied AI）与机器人规划控制领域，视频生成模型（Video Generative Models） 正在扮演越来越核心的角色。从 Sora、Wan2.1 到英伟达的 Cosmos-Predict2，业界越来越倾向于直接把预训练的视频模型作为世界模型（World Models） 或动作策略骨干——让机器人在物理交互前，先在脑海中“生成未来的动作模拟视频”。 但这种范式存在一个致">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-30T05:20:00.000Z">
+<meta property="article:modified_time" content="2026-10-30T05:37:54.378Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="PE-AV">
+<meta property="article:tag" content="PhysTrace">
+<meta property="article:tag" content="世界模型">
+<meta property="article:tag" content="具身智能">
+<meta property="article:tag" content="多模态评测">
+<meta property="article:tag" content="扩散模型">
+<meta property="article:tag" content="物理一致性">
+<meta property="article:tag" content="视频生成">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/2026/10/30/PhysTrace-InterpretableTemporalPhysicalConsistency/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/2026/10/30/PhysTrace-InterpretableTemporalPhysicalConsistency/","path":"2026/10/30/PhysTrace-InterpretableTemporalPhysicalConsistency/","title":"【论文分享】给视频生成模型做“物理质检”与“脑部CT”：arXiv 2026 新作 PhysTrace 架构与工程落地拆解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】给视频生成模型做“物理质检”与“脑部CT”：arXiv 2026 新作 PhysTrace 架构与工程落地拆解 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">212</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">59</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E5%8E%98%E6%B8%85%E8%A7%92%E8%89%B2%E4%B8%8E%E5%85%A8%E6%99%AF%EF%BC%9A%E5%8F%8C%E7%AE%A1%E9%BD%90%E4%B8%8B%E7%9A%84%E4%B8%A4%E5%A4%A7%E7%8B%AC%E7%AB%8B-Pipeline"><span class="nav-text">01. 厘清角色与全景：双管齐下的两大独立 Pipeline</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-Pipeline-1-%E6%A0%B8%E5%BF%83%E6%94%BB%E5%9D%9A%EF%BC%9A%E6%8A%8A%E2%80%9C%E5%93%B2%E5%AD%A6%E7%8E%84%E5%AD%A6%E2%80%9D%E9%99%8D%E7%BA%A7%E4%B8%BA%E2%80%9C%E7%9C%8B%E5%9B%BE%E7%BA%A0%E9%94%99%E2%80%9D"><span class="nav-text">02. Pipeline 1 核心攻坚：把“哲学玄学”降级为“看图纠错”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%AE%B0%E5%BF%86%E5%8A%A8%E6%80%81%E8%BF%87%E6%BB%A4%E5%99%A8%EF%BC%88Selective-State-Retention%EF%BC%89"><span class="nav-text">1. 记忆动态过滤器（Selective State Retention）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%B0%86%E2%80%9C%E7%89%A9%E7%90%86%E5%AE%9A%E6%80%A7%E2%80%9D%E9%99%8D%E7%BA%A7%E4%B8%BA%E2%80%9C%E5%B0%8F%E5%AD%A6%E5%B8%B8%E8%AF%86%E6%8E%A8%E6%BC%94%E2%80%9D"><span class="nav-text">2. 将“物理定性”降级为“小学常识推演”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%94%A8%E5%A4%9A%E6%A8%A1%E6%80%81%E8%A1%A8%E5%BE%81%E6%A8%A1%E5%9E%8B%EF%BC%88PE-AV%EF%BC%89%E5%85%85%E5%BD%93%E6%97%A0%E5%A3%B0%E5%BA%A6%E9%87%8F%E5%B0%BA"><span class="nav-text">3. 用多模态表征模型（PE-AV）充当无声度量尺</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-Pipeline-1-%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E5%AE%9E%E7%8E%B0%E4%BB%A3%E7%A0%81"><span class="nav-text">03. Pipeline 1 核心工程实现代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-Pipeline-2-%E6%B7%B1%E5%BA%A6%E6%8E%A2%E9%92%88%EF%BC%9A%E8%A7%86%E9%A2%91%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B%E7%9A%84%E2%80%9C%E8%84%91%E9%83%A8%E9%80%86%E5%90%91-CT%E2%80%9D"><span class="nav-text">04. Pipeline 2 深度探针：视频生成模型的“脑部逆向 CT”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E8%AF%84%E6%B5%8B%E6%88%90%E7%BB%A9%E5%8D%95%E4%B8%8E%E5%85%A8%E6%96%B0%E5%9F%BA%E5%87%86-IntPhys2-Timing"><span class="nav-text">05. 评测成绩单与全新基准 IntPhys2-Timing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%89%A9%E7%90%86%E8%BF%9D%E8%A7%84%E5%AE%9A%E4%BD%8D%E5%91%BD%E4%B8%AD%E7%8E%87%EF%BC%88Hit-Rate-%EF%BC%89"><span class="nav-text">1. 物理违规定位命中率（Hit Rate %）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%A7%86%E9%A2%91%E7%89%A9%E7%90%86%E5%AF%B9%E9%94%99%E5%AE%9A%E6%80%A7%E5%88%A4%E6%96%AD%EF%BC%88Possible-vs-Impossible-%E5%87%86%E7%A1%AE%E7%8E%87%EF%BC%89"><span class="nav-text">2. 视频物理对错定性判断（Possible vs Impossible 准确率）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E6%9E%B6%E6%9E%84%E5%8F%8D%E6%80%9D%E4%B8%8E%E5%B7%A5%E7%A8%8B%E5%90%AF%E7%A4%BA"><span class="nav-text">06. 架构反思与工程启示</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">212</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/30/PhysTrace-InterpretableTemporalPhysicalConsistency/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】给视频生成模型做“物理质检”与“脑部CT”：arXiv 2026 新作 PhysTrace 架构与工程落地拆解 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】给视频生成模型做“物理质检”与“脑部CT”：arXiv 2026 新作 PhysTrace 架构与工程落地拆解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-10-30 13:20:00 / 修改时间：13:37:54" itemprop="dateCreated datePublished" datetime="2026-10-30T13:20:00+08:00">2026-10-30</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在具身智能（Embodied AI）与机器人规划控制领域，<strong>视频生成模型（Video Generative Models）</strong> 正在扮演越来越核心的角色。从 Sora、Wan2.1 到英伟达的 Cosmos-Predict2，业界越来越倾向于直接把预训练的视频模型作为<strong>世界模型（World Models）</strong> 或动作策略骨干——让机器人在物理交互前，先在脑海中“生成未来的动作模拟视频”。</p>
+<p>但这种范式存在一个致命前提：<strong>生成的视频必须严格遵守现实世界的物理定律。</strong> 如果生成的预测视频里，小球凭空蒸发、机械臂穿透了桌子（穿模）、物体毫无重力地浮空瞬移，基于此做规划的机器人就会在现实执行中遭遇灾难性的翻车。</p>
+<p>如何自动检测视频生成模型“懂不懂物理”？传统的评测方法存在严重的硬伤：</p>
+<ul>
+<li><strong>粗粒度黑盒评分</strong>：只给整段视频打一个“是否合规”的布尔值或模糊的分数，根本看不出哪里违规；</li>
+<li><strong>无法时间定位</strong>：一段 10 秒的视频，前 8 秒都正常，第 9 秒突然穿模，现有基准无法给出违规发生的具体起止秒数；</li>
+<li><strong>直接询问视觉大模型基本靠猜</strong>：直接把视频扔给 GPT-4o 或 Gemini 问“这符合物理吗？”，权威测试表明准确率只有 <strong>52% 左右</strong>——几乎跟抛硬币无异。</li>
+</ul>
+<p>近日，来自韩国釜山大学与独立研究团队发表了一篇构思极为巧妙的最新论文：</p>
+<blockquote>
+<p><strong>《PhysTrace: Interpretable Temporal Evaluation of Physical Consistency in Video Generative Models》</strong> (arXiv:2610.31429)</p>
+</blockquote>
+<p>作者团队提出了一个<strong>无需微调重新训练（Training-free）<strong>的创新评测框架 <strong>PhysTrace</strong>。更引人入胜的是，作者不仅实现了对任意视频物理违规的</strong>秒级定位与文字可解释归因</strong>，还设计了一套“逆向 CT 机”，首次完整透视了 Wan2.1 和 Cosmos 等生成模型在擦除噪点的数十步过程中，<strong>其脑海中的物理常识究竟是在哪个时间步逐步成型、又在哪些定律上终生残疾</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：PhysTrace: Interpretable Temporal Evaluation of Physical Consistency in Video Generative Models<br>
+<strong>作者团队</strong>：Taekoan Yoo, Wonkyung Jung, Kyunghun Kim, Kyeongbo Kong（釜山大学 等）<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2610.31429" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2610.31429</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" href="https://arxiv.org/html/2610.31429" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2610.31429</a><br>
+<strong>代码开源</strong>：<a target="_blank" href="https://github.com/PhysTrace/PhysTrace" rel="external nofollow noreferrer noopener">https://github.com/PhysTrace/PhysTrace</a><br>
+<strong>核心领域</strong>：Video Generative Models, Physical Consistency, Temporal Evaluation, World Models, Diffusion Models</p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-厘清角色与全景：双管齐下的两大独立-Pipeline">01. 厘清角色与全景：双管齐下的两大独立 Pipeline</h2>
+<p>初读论文时，很多人容易陷入“大模型、打分模型、生成模型到底谁测谁”的混乱。实际上，整个 PhysTrace 体系是由 <strong>两个职责极其清晰、完全解耦的独立流水线（Pipeline）</strong> 构成的：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph Pipeline2 [&quot;Pipeline 2: 视频模型逆向 CT 扫描仪 (Section 4)&quot;]
+        direction TB
+        P2_In[&quot;真实物理视频&quot;] --&gt; P2_Inv[&quot;隐空间确定性逆向加噪&lt;br/&gt;(Deterministic Inversion)&quot;]
+        P2_Inv --&gt; P2_Est[&quot;扩散/流模型原生速度反解&lt;br/&gt;Z_clean = X - σ * V&quot;]
+        P2_Est --&gt; P2_Dec[&quot;VAE 解码中间态快照视频&lt;br/&gt;sigma_0.9.mp4, sigma_0.5.mp4 ...&quot;]
+    end
+
+    subgraph Pipeline1 [&quot;Pipeline 1: PhysTrace 核心物理化验机 (Section 3)&quot;]
+        direction TB
+        P1_In[&quot;待测 MP4 视频&lt;br/&gt;(基准视频 或 Pipeline 2 切片)&quot;] --&gt; P1_Win[&quot;时序滑窗切片&lt;br/&gt;(2s window, 1s hop)&quot;]
+        P1_Win --&gt; P1_Mem[&quot;记忆动态过滤器&lt;br/&gt;(Trusted History)&quot;]
+        P1_Mem --&gt; P1_MLLM[&quot;Qwen3-VL 常识推演&lt;br/&gt;生成 State / Prediction&quot;]
+        P1_Win --&gt; P1_Align[&quot;PE-AV 跨模态特征对齐&lt;br/&gt;计算余弦相似度夹角&quot;]
+        P1_MLLM --&gt; P1_Align
+        P1_Align --&gt; P1_Trace[&quot;时序对齐追踪曲线 A(V)&lt;br/&gt;最低点 MAS = 违规时间戳&quot;]
+    end
+
+    P2_Dec --&gt;|输出半成品切片样品| P1_In
+    Dataset[&quot;现成物理测试集 (IntPhys2)&quot;] --&gt;|直接输入化验| P1_In</code></pre>
+<ul>
+<li><strong>Pipeline 1（核心化验机）</strong>：负责 <strong>“检查任意给定视频，指出第几秒发生了哪种物理违规”</strong>。无论视频是实拍、测试集还是模型生成的完整成片，直接送入 Pipeline 1 即可出具诊断报告。</li>
+<li><strong>Pipeline 2（样品加工厂）</strong>：作者专门为扩散/流匹配（Diffusion/Flow）视频模型打造的 <strong>“逆向探针”</strong>。通过在生成模型思考过程中提取出不同噪点比例（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi></mrow><annotation encoding="application/x-tex">\sigma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">σ</span></span></span></span>）下的预估干净视频，再将切片送进 Pipeline 1，以此摸清模型内部物理表征的进化轨迹。</li>
+</ul>
+<hr>
+<h2 id="02-Pipeline-1-核心攻坚：把“哲学玄学”降级为“看图纠错”">02. Pipeline 1 核心攻坚：把“哲学玄学”降级为“看图纠错”</h2>
+<p>为什么直接把视频喂给目前最先进的 GPT-4o 或 Gemini 问“这是否符合物理”，准确率会接近 50% 的抛硬币水平？</p>
+<p>因为“物理一致性”在像素层面是高度隐蔽且跨越时间的。一个孤立的画面看起来完全正常；唯有将过去物体的运动速度、材质属性与眼前画面对比，才能察觉违规。</p>
+<p>作者没有尝试训练一个庞大的物理判别网络，而是采用了举重若轻的 <strong>“三步降级法”</strong>：</p>
+<h3 id="1-记忆动态过滤器（Selective-State-Retention）">1. 记忆动态过滤器（Selective State Retention）</h3>
+<p>如果让视觉大模型（MLLM）在每一个滑窗里漫无目的地回溯全篇，上下文会被大量无关的背景冗余信息污染。</p>
+<p>作者在系统里维护了一个可信历史记忆库 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="script">H</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\mathcal{H}_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal" style="margin-right:0.0097em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0097em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="script">H</mi><mi>i</mi></msub><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><msub><mi mathvariant="script">H</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>∪</mo><mo stretchy="false">{</mo><msub><mi>s</mi><mi>i</mi></msub><mo stretchy="false">}</mo><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><msub><mi>t</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><msub><mi mathvariant="script">H</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><msub><mi>t</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn></mrow></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\mathcal{H}_i = \begin{cases} \mathcal{H}_{i-1} \cup \{s_i\}, &amp; \text{if } t_i = 1 \\ \mathcal{H}_{i-1}, &amp; \text{if } t_i = 0 \end{cases}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal" style="margin-right:0.0097em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0097em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:3em;vertical-align:-1.25em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord"><span class="mord mathcal" style="margin-right:0.0097em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0097em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∪</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">}</span><span class="mpunct">,</span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord"><span class="mord mathcal" style="margin-right:0.0097em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0097em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span><span class="mpunct">,</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord">if </span></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">1</span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord">if </span></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>只有当当前窗口出现了新出现的物体、开始了新的受力运动或发生了关键状态转变时，模型才会将布尔指示符标记为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">t_i = 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7651em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span> 并写入记忆。这种选择性记忆使得后续窗口的推演既轻量又极其聚焦。</p>
+<h3 id="2-将“物理定性”降级为“小学常识推演”">2. 将“物理定性”降级为“小学常识推演”</h3>
+<p>在每个滑窗（默认 2 秒，滑动步长 1 秒）中，让视觉语言大模型（论文采用 Qwen3-VL-8B-Thinking）只做两件极为具体的事：</p>
+<ul>
+<li><strong>当前事实描述（State <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">s_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>）</strong>：纯看眼前这 2 秒，画面里具体呈现了什么？（如：“一个小球穿透了木质障碍物”）；</li>
+<li><strong>历史常识预期（Prediction <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">p_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>）</strong>：基于此前积累的可信记忆 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="script">H</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">\mathcal{H}_{i-1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8917em;vertical-align:-0.2083em;"></span><span class="mord"><span class="mord mathcal" style="margin-right:0.0097em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0097em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em;"><span></span></span></span></span></span></span></span></span></span>，按客观世界常理，当前这 2 秒内<strong>本应当看到什么视觉画面</strong>？（如：“小球应当撞击木质障碍物并静止或弹开”）。</li>
+</ul>
+<h3 id="3-用多模态表征模型（PE-AV）充当无声度量尺">3. 用多模态表征模型（PE-AV）充当无声度量尺</h3>
+<p>有了大模型给出的严密预期文本 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">p_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，如何与实际的视频片段 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">V_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.2222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 比对？作者引入了 Meta 开源的顶级音视频对齐模型 <strong>PE-AV-Large</strong>。它能够将动态连续帧和文字同时映射到统一的 1024 维向量空间中，两者的余弦相似度即为对齐得分：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>a</mi><mi>i</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>f</mi><mtext>video</mtext></msub><mo stretchy="false">(</mo><msub><mi>V</mi><mi>i</mi></msub><msup><mo stretchy="false">)</mo><mi mathvariant="normal">⊤</mi></msup><msub><mi>f</mi><mtext>text</mtext></msub><mo stretchy="false">(</mo><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false">)</mo></mrow><mrow><mi mathvariant="normal">∥</mi><msub><mi>f</mi><mtext>video</mtext></msub><mo stretchy="false">(</mo><msub><mi>V</mi><mi>i</mi></msub><mo stretchy="false">)</mo><msub><mi mathvariant="normal">∥</mi><mn>2</mn></msub><mi mathvariant="normal">∥</mi><msub><mi>f</mi><mtext>text</mtext></msub><mo stretchy="false">(</mo><msub><mi>p</mi><mi>i</mi></msub><mo stretchy="false">)</mo><msub><mi mathvariant="normal">∥</mi><mn>2</mn></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">a_i = \frac{f_{\text{video}}(V_i)^\top f_{\text{text}}(p_i)}{\|f_{\text{video}}(V_i)\|_2 \|f_{\text{text}}(p_i)\|_2}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.4621em;vertical-align:-0.936em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.5261em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∥</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">video</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.2222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mord"><span class="mord">∥</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∥</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">text</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mord"><span class="mord">∥</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">video</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.2222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">⊤</span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">text</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">时间轴 (t)      预期文本描述 (Prediction)            实际视频片段 (Video)         PE-AV 吻合度</span><br><span class="line">──────────────────────────────────────────────────────────────────────────────────</span><br><span class="line">0s ~ 2s         红球向木质挡板匀速滚动                红球向木板匀速滚动           0.85 (高度吻合)</span><br><span class="line">1s ~ 3s         红球即将接触挡板                     红球即将接触挡板             0.83 (高度吻合)</span><br><span class="line">2s ~ 4s         【碰撞】：红球应被挡板阻挡并弹回      红球像幽灵一样穿过了挡板     0.21 (🚨 骤降崩盘)</span><br><span class="line">3s ~ 5s         红球在挡板前静止或反向滚动            红球在挡板另一侧继续滚       0.35 (极低)</span><br></pre></td></tr></table></figure>
+<p>滑动一遍下来，就得到了一条<strong>时序对齐追踪曲线（Temporal Alignment Trace）</strong>。整条曲线的最低得分点（<strong>MAS, Minimum Alignment Score</strong>）所在的时间窗，便是系统锁定的<strong>物理违规发生瞬间</strong>；而该时间窗对应的 Prediction 与 State 文本对照，则直接为人类提供了清晰的可解释报告。</p>
+<hr>
+<h2 id="03-Pipeline-1-核心工程实现代码">03. Pipeline 1 核心工程实现代码</h2>
+<p>以下代码提炼自 PhysTrace 官方开源核心模块（<code>PhysTrace/video_pipeline.py</code> 与 <code>PhysTrace/video_models/clip.py</code>），直观展示了该评估流程的实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">PhysTrace 核心化验流程实现</span></span><br><span class="line"><span class="string">解耦 MLLM 常识生成与跨模态特征对齐</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">WindowResult</span>:</span><br><span class="line">    second: <span class="built_in">float</span></span><br><span class="line">    state: <span class="built_in">str</span></span><br><span class="line">    prediction: <span class="built_in">str</span></span><br><span class="line">    trusted: <span class="built_in">bool</span></span><br><span class="line">    score: <span class="built_in">float</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TrustedHistory</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;可信历史记忆动态过滤器&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.trusted_records: <span class="built_in">list</span>[<span class="built_in">str</span>] = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">context_text</span>(<span class="params">self</span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable language_">self</span>.trusted_records:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;此前无关键交互历史。&quot;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;【历史已知物理状态】：\n&quot;</span> + <span class="string">&quot;\n&quot;</span>.join(<span class="string">f&quot;- <span class="subst">&#123;s&#125;</span>&quot;</span> <span class="keyword">for</span> s <span class="keyword">in</span> <span class="variable language_">self</span>.trusted_records)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">record</span>(<span class="params">self, state: <span class="built_in">str</span>, trusted: <span class="built_in">bool</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="comment"># 仅当观察到新物体或合法状态改变时才收录</span></span><br><span class="line">        <span class="keyword">if</span> trusted:</span><br><span class="line">            <span class="variable language_">self</span>.trusted_records.append(state)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">evaluate_video_physical_trace</span>(<span class="params">video_frames: <span class="built_in">list</span>, mllm, pe_av_scorer, window_size=<span class="number">2</span>, hop=<span class="number">1</span></span>):</span><br><span class="line">    history = TrustedHistory()</span><br><span class="line">    timeline: <span class="built_in">list</span>[WindowResult] = []</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 按照 2s 窗口、1s 步长滑动分片</span></span><br><span class="line">    windows = slice_video_windows(video_frames, window_size=window_size, hop=hop)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> i, w_frames <span class="keyword">in</span> <span class="built_in">enumerate</span>(windows):</span><br><span class="line">        t_sec = i * hop</span><br><span class="line">        ctx = history.context_text()</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 1. 结构化询问视觉大模型 (Qwen3-VL)</span></span><br><span class="line">        prompt = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        <span class="subst">&#123;ctx&#125;</span></span></span><br><span class="line"><span class="string">        请观察当前两秒的视频片段，严格按格式输出：</span></span><br><span class="line"><span class="string">        State: [当前视频片段中真实发生的物体与动态]</span></span><br><span class="line"><span class="string">        Prediction: [根据已知历史与现实物理常识，当前片段应当呈现的物体状态与动态]</span></span><br><span class="line"><span class="string">        Trusted: [当前片段是否包含需要记入历史的新物体或关键状态转移？(True/False)]</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        resp = mllm.generate(prompt=prompt, video=w_frames)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 2. 动态维护记忆库</span></span><br><span class="line">        history.record(resp.state, resp.trusted)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 3. PE-AV 跨模态特征计算余弦相似度</span></span><br><span class="line">        v_feat = pe_av_scorer.encode_video(w_frames)  <span class="comment"># [1, D]</span></span><br><span class="line">        t_feat = pe_av_scorer.encode_text(resp.prediction)  <span class="comment"># [1, D]</span></span><br><span class="line">        sim_score = <span class="built_in">float</span>((F.normalize(v_feat, dim=-<span class="number">1</span>) @ F.normalize(t_feat, dim=-<span class="number">1</span>).T).item())</span><br><span class="line">        </span><br><span class="line">        timeline.append(WindowResult(</span><br><span class="line">            second=t_sec, state=resp.state, prediction=resp.prediction,</span><br><span class="line">            trusted=resp.trusted, score=sim_score</span><br><span class="line">        ))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 4. 锁定最低对齐分数点 (MAS)</span></span><br><span class="line">    mas_result = <span class="built_in">min</span>(timeline, key=<span class="keyword">lambda</span> x: x.score)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 若波动范围超过阈值且极小值低于 0.45，判定为捕获物理违规</span></span><br><span class="line">    is_violation = mas_result.score &lt; <span class="number">0.45</span></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="string">&quot;is_violation&quot;</span>: is_violation,</span><br><span class="line">        <span class="string">&quot;violation_time&quot;</span>: mas_result.second <span class="keyword">if</span> is_violation <span class="keyword">else</span> <span class="literal">None</span>,</span><br><span class="line">        <span class="string">&quot;expected&quot;</span>: mas_result.prediction,</span><br><span class="line">        <span class="string">&quot;observed&quot;</span>: mas_result.state,</span><br><span class="line">        <span class="string">&quot;mas_score&quot;</span>: mas_result.score,</span><br><span class="line">        <span class="string">&quot;trace&quot;</span>: [r.score <span class="keyword">for</span> r <span class="keyword">in</span> timeline]</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="04-Pipeline-2-深度探针：视频生成模型的“脑部逆向-CT”">04. Pipeline 2 深度探针：视频生成模型的“脑部逆向 CT”</h2>
+<p>在评测现成视频之外，论文第 4 节完成了一次更加震撼的机理探究：<strong>当扩散模型（Wan2.1）或整流流模型（Cosmos-Predict2）在去噪生成视频时，物理规律是在哪一步被注入到画面中的？</strong></p>
+<p>针对这一问题，作者利用了流匹配模型的确定性反演（Deterministic Inversion）特性：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 摘自 PhysTrace/prob_wan.py 的核心逆向加噪推演逻辑</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 将干净的原视频编码到 VAE 潜空间</span></span><br><span class="line">X = pipe.vae.encode([video_tensor])[<span class="number">0</span>].<span class="built_in">float</span>()</span><br><span class="line">K = <span class="number">100</span>  <span class="comment"># 反演步数</span></span><br><span class="line">dt = <span class="number">1.0</span> / K</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">range</span>(K):</span><br><span class="line">    sigma = k * dt  <span class="comment"># 噪声比例 (0.0 -&gt; 1.0)</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 2. 调用 DiT 网络计算当前状态下的原生去噪方向（速度场 V）</span></span><br><span class="line">    V = pipe.model([X], t=sigma, context=empty_prompt)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 3. 【核心反解公式】：利用当前模型预估的速度，提取当前潜意识里认定的纯净视频</span></span><br><span class="line">    <span class="comment">#    z_clean = X - sigma * V</span></span><br><span class="line">    <span class="keyword">if</span> k <span class="keyword">in</span> checkpoint_steps:</span><br><span class="line">        clean_latent_estimate = X - sigma * V</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 4. 逆向解码并导出对应噪声阶段的实体 MP4 文件</span></span><br><span class="line">        <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">            decoded_video = pipe.vae.decode([clean_latent_estimate])[<span class="number">0</span>]</span><br><span class="line">            save_video(<span class="string">f&quot;sigma_<span class="subst">&#123;sigma:<span class="number">.2</span>f&#125;</span>.mp4&quot;</span>, decoded_video)</span><br><span class="line">            </span><br><span class="line">    <span class="comment"># 5. 向高噪声空间继续推进一步</span></span><br><span class="line">    X = X + dt * V</span><br></pre></td></tr></table></figure>
+<p>通过这一流程，作者把生成模型在噪声比例为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo>∈</mo><mo stretchy="false">{</mo><mn>0.9</mn><mo separator="true">,</mo><mn>0.8</mn><mo separator="true">,</mo><mn>0.6</mn><mo separator="true">,</mo><mn>0.5</mn><mo separator="true">,</mo><mn>0.0</mn><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">\sigma \in \{0.9, 0.8, 0.6, 0.5, 0.0\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">σ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord">0.9</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">0.8</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">0.6</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">0.5</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">0.0</span><span class="mclose">}</span></span></span></span> 等各个阶段的“预估纯净视频”硬生生洗了出来，再将这些中间态切片送入 Pipeline 1 做体检。</p>
+<p>实验揭示出了生成模型内部极其惊人的物理形成规律：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">去噪生成过程 (从高噪声纯雪花 ────► 最终清晰视频)</span><br><span class="line">─────────────────────────────────────────────────────────────────────────────</span><br><span class="line">噪声比例 σ = 0.9 (全片模糊，仅有大色块轮廓)</span><br><span class="line">  └── 【时空连续性 (Continuity) 奇迹般早已就绪！】</span><br><span class="line">      即使画面极度模糊，物体的宏观运动轨迹、从左到右的速度走向在这一刻已经锁定。</span><br><span class="line">      </span><br><span class="line">噪声比例 σ = 0.5 ~ 0.2 (细节浮现，边缘锐化)</span><br><span class="line">  └── 【属性守恒性 (Immutability) 终于成型】</span><br><span class="line">      直到去噪后半段，小球的材质、颜色才稳定下来，不再出现翻滚中莫名其妙变色的 Bug。</span><br><span class="line">      </span><br><span class="line">噪声比例 σ = 0.0 (完全清晰出图)</span><br><span class="line">  └── 【实体坚固性 (Solidity 穿模) 与 客体永存 (Permanence) 依然是重灾区】</span><br><span class="line">      即便去噪到完全高清无损，模型对于“实心物体互不穿透”、“被挡住的物体仍存在”等深层</span><br><span class="line">      三维物理规律的理解依旧非常脆弱。</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="05-评测成绩单与全新基准-IntPhys2-Timing">05. 评测成绩单与全新基准 IntPhys2-Timing</h2>
+<p>过去全球最常用的直觉物理测试基准是 Meta 等机构提出的 <strong>IntPhys2</strong>，但它只标明了视频“可能/不可能”，缺失了起止秒数标注。</p>
+<p>为此，本研究贡献了全新的基准数据集 <strong>IntPhys2-Timing</strong>，人工校准并标注了每一处物理违规发生的精确时间窗口。</p>
+<h3 id="1-物理违规定位命中率（Hit-Rate-）">1. 物理违规定位命中率（Hit Rate %）</h3>
+<p>在定位物理 Bug 发生的具体秒数上，PhysTrace 与 Meta 的预测惊讶度基线模型 V-JEPA2 进行了硬碰硬较量：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">物理法则类别</th>
+<th style="text-align:left">考察的物理违规类型</th>
+<th style="text-align:center">V-JEPA2 惊讶度基线</th>
+<th style="text-align:center"><strong>PhysTrace (Ours)</strong></th>
+<th style="text-align:center">相对提升</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>属性守恒 (Immutability)</strong></td>
+<td style="text-align:left">运动中颜色突变、形状突变</td>
+<td style="text-align:center">54.7%</td>
+<td style="text-align:center"><strong>70.7%</strong></td>
+<td style="text-align:center" rowspan="2"><strong>+16.0%</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>坚固实体 (Solidity)</strong></td>
+<td style="text-align:left">穿模、掉落物体穿透地板</td>
+<td style="text-align:center">53.6%</td>
+<td style="text-align:center"><strong>69.6%</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>时空连续 (Continuity)</strong></td>
+<td style="text-align:left">物体凭空瞬移、异常跳变</td>
+<td style="text-align:center">61.8%</td>
+<td style="text-align:center"><strong>63.2%</strong></td>
+<td style="text-align:center"><strong>+1.4%</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>客体永存 (Permanence)</strong></td>
+<td style="text-align:left">遮挡后无端蒸发、凭空冒出</td>
+<td style="text-align:center"><strong>59.2%</strong></td>
+<td style="text-align:center">56.6%</td>
+<td style="text-align:center">-2.6%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>平均命中率 (Overall)</strong></td>
+<td style="text-align:left">——</td>
+<td style="text-align:center">57.3%</td>
+<td style="text-align:center"><strong>65.0%</strong></td>
+<td style="text-align:center"><strong>+7.7%</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-视频物理对错定性判断（Possible-vs-Impossible-准确率）">2. 视频物理对错定性判断（Possible vs Impossible 准确率）</h3>
+<p>在区分视频到底“符合物理”还是“物理造假”的全局辨别任务中，PhysTrace 甚至超越了一众端到端大模型：</p>
+<ul>
+<li><strong>GPT-4o（直接判别）</strong>：52.3%</li>
+<li><strong>Qwen-VL 2.5 72B（直接判别）</strong>：49.6%</li>
+<li><strong>Gemini-2.5 Pro（直接判别）</strong>：55.4%</li>
+<li><strong>V-JEPA2（表征预测误差）</strong>：51.6%</li>
+<li><strong>PhysTrace（基于 MAS 最低对齐分判别）</strong>：<strong>59.9%</strong>（在最硬核的 Hard 子集上达到 56.5%，大幅领先全场）</li>
+</ul>
+<hr>
+<h2 id="06-架构反思与工程启示">06. 架构反思与工程启示</h2>
+<p>研读完整篇论文及其开源工程实现，最大的感触是：<strong>在算力军备竞赛之外，“系统工程设计”仍然能迸发出极其惊艳的学术与应用价值。</strong></p>
+<ol>
+<li><strong>避免把大模型当“无所不能的黑盒”</strong>：直接让 MLLM 从头端到端领悟物理是吃力不讨好的；但如果<strong>把大模型当做“逻辑推演节点”</strong>，让它只输出预期草稿，再结合<strong>专用的向量表征模型（PE-AV）去算数值相似度</strong>，系统的鲁棒性就迎来了质的飞跃。</li>
+<li><strong>具身智能世界的“自动化数据质检机”</strong>：未来在自动驾驶与人形机器人领域，合成视频数据的需求量将以指数级爆发。PhysTrace 提供了一套全自动、免训练的“物理违规过滤器”，可以在数据进训练集前，精准剔除那些暗藏穿模与瞬移隐患的生成视频。</li>
+<li><strong>透视黑盒内部认知的可解释范式</strong>：通过生成流的确定性反演在时间步上切片化验，给业界提供了一套通用的“模型内幕扫描工具”，让开发者第一次清楚看到了模型从“懂运动”到“懂材质”的生理发育全过程。</li>
+</ol>
+<p>如果你也对具身智能、世界模型以及生成视频的时空物理一致性分析感兴趣，非常推荐深入翻阅这篇论文与 <a target="_blank" href="https://github.com/PhysTrace/PhysTrace" rel="external nofollow noreferrer noopener">GitHub 源码</a>。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/PhysTrace/" rel="tag"># PhysTrace</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E7%94%9F%E6%88%90/" rel="tag"># 视频生成</a>
+              <a href="/tags/%E7%89%A9%E7%90%86%E4%B8%80%E8%87%B4%E6%80%A7/" rel="tag"># 物理一致性</a>
+              <a href="/tags/%E4%B8%96%E7%95%8C%E6%A8%A1%E5%9E%8B/" rel="tag"># 世界模型</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E8%AF%84%E6%B5%8B/" rel="tag"># 多模态评测</a>
+              <a href="/tags/PE-AV/" rel="tag"># PE-AV</a>
+              <a href="/tags/%E6%89%A9%E6%95%A3%E6%A8%A1%E5%9E%8B/" rel="tag"># 扩散模型</a>
+              <a href="/tags/%E5%85%B7%E8%BA%AB%E6%99%BA%E8%83%BD/" rel="tag"># 具身智能</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/10/30/GeneralizedCycleGRPO-MultimodalUnderstandingGrounding/" rel="prev" title="【论文分享】给多模态大模型装上“自省闭环”：arXiv 2026 新作 Generalized CycleGRPO 统一空间、时间与时空细粒度理解与定位">
+                  <i class="fa fa-angle-left"></i> 【论文分享】给多模态大模型装上“自省闭环”：arXiv 2026 新作 Generalized CycleGRPO 统一空间、时间与时空细粒度理解与定位
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/10/30/WhatReallyWorks-UniversalMultimodalEmbeddings/" rel="next" title="【论文分享】AI“炼丹”流言终结者：通用多模态向量到底怎样训练才真正有效？（NTU &amp; 阿里新作硬核拆解）">
+                  【论文分享】AI“炼丹”流言终结者：通用多模态向量到底怎样训练才真正有效？（NTU & 阿里新作硬核拆解） <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">252k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">15:16</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>

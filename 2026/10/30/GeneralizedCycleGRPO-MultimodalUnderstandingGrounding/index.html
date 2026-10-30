@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在多模态大语言模型（MLLM）迅速迈向视觉深度推理与长视频理解的今天，我们往往要求 AI 具备两种看起来形影不离的核心本领：  细粒度区域理解（Region Understanding &#x2F; Captioning）：给模型画面中的一个指定区域（比如一个红框、一段分割掩码、或视频中的某几秒），模型能详尽写出这里究竟发生了什么； 指代性定位（Referring Localization &#x2F; Ground">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】给多模态大模型装上“自省闭环”：arXiv 2026 新作 Generalized CycleGRPO 统一空间、时间与时空细粒度理解与定位">
+<meta property="og:url" content="https://lewlh.github.io/2026/10/30/GeneralizedCycleGRPO-MultimodalUnderstandingGrounding/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在多模态大语言模型（MLLM）迅速迈向视觉深度推理与长视频理解的今天，我们往往要求 AI 具备两种看起来形影不离的核心本领：  细粒度区域理解（Region Understanding &#x2F; Captioning）：给模型画面中的一个指定区域（比如一个红框、一段分割掩码、或视频中的某几秒），模型能详尽写出这里究竟发生了什么； 指代性定位（Referring Localization &#x2F; Ground">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-10-30T05:35:00.000Z">
+<meta property="article:modified_time" content="2026-10-30T05:37:54.377Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="DOVE">
+<meta property="article:tag" content="GRPO">
+<meta property="article:tag" content="Generalized CycleGRPO">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="强化学习">
+<meta property="article:tag" content="细粒度理解">
+<meta property="article:tag" content="视觉定位">
+<meta property="article:tag" content="视频理解">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/2026/10/30/GeneralizedCycleGRPO-MultimodalUnderstandingGrounding/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/2026/10/30/GeneralizedCycleGRPO-MultimodalUnderstandingGrounding/","path":"2026/10/30/GeneralizedCycleGRPO-MultimodalUnderstandingGrounding/","title":"【论文分享】给多模态大模型装上“自省闭环”：arXiv 2026 新作 Generalized CycleGRPO 统一空间、时间与时空细粒度理解与定位"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】给多模态大模型装上“自省闭环”：arXiv 2026 新作 Generalized CycleGRPO 统一空间、时间与时空细粒度理解与定位 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">212</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">59</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E6%A0%B8%E5%BF%83%E5%9B%B0%E5%B1%80%EF%BC%9A%E8%AF%AD%E8%A8%80%E4%B8%8E%E5%87%A0%E4%BD%95%E5%89%B2%E8%A3%82%E5%B8%A6%E6%9D%A5%E7%9A%84%E2%80%9C%E8%99%9A%E5%81%87%E7%B9%81%E8%8D%A3%E2%80%9D"><span class="nav-text">01. 核心困局：语言与几何割裂带来的“虚假繁荣”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-Generalized-CycleGRPO-%E6%9E%B6%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95%E5%85%A8%E6%99%AF"><span class="nav-text">02. Generalized CycleGRPO 架构与算法全景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%B5%8C%E5%A5%97%E5%8F%8C%E5%B1%82%E9%87%87%E6%A0%B7%EF%BC%88Nested-Rollouts%EF%BC%89"><span class="nav-text">1. 嵌套双层采样（Nested Rollouts）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%97%A0%E5%8F%82%E8%80%83%E6%96%87%E6%9C%AC%E7%9A%84%E5%8F%8C%E5%B1%82%E7%BB%84%E7%9B%B8%E5%AF%B9%E5%A5%96%E5%8A%B1%EF%BC%88Dual-level-Group-Relative-Advantage%EF%BC%89"><span class="nav-text">2. 无参考文本的双层组相对奖励（Dual-level Group Relative Advantage）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E9%98%B2%E2%80%9C%E5%89%A7%E9%80%8F%E4%BD%9C%E5%BC%8A%E2%80%9D%E7%BA%A6%E6%9D%9F%EF%BC%88Anti-leakage-Constraints%EF%BC%89"><span class="nav-text">3. 防“剧透作弊”约束（Anti-leakage Constraints）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E5%B9%BF%E4%B9%89%E5%8C%96%E6%8E%A8%E8%BF%9B%EF%BC%9A%E7%BB%9F%E4%B8%80%E5%BA%A6%E9%87%8F%E7%A9%BA%E9%97%B4%E3%80%81%E6%97%B6%E9%97%B4%E4%B8%8E%E6%97%B6%E7%A9%BA%E5%9B%9B%E7%BB%B4"><span class="nav-text">03. 广义化推进：统一度量空间、时间与时空四维</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E8%AF%84%E6%B5%8B%E9%9D%A9%E6%96%B0%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%85%A8%E6%96%B0%E7%9A%84-DOVE-%E5%9F%BA%E5%87%86%EF%BC%9F"><span class="nav-text">04. 评测革新：为什么需要全新的 DOVE 基准？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E5%AE%9E%E6%88%98%E6%88%98%E7%BB%A9%EF%BC%9A%E5%85%A8%E7%BB%B4%E5%BA%A6%E8%B6%8A%E7%BA%A7%E6%8F%90%E5%8D%87"><span class="nav-text">05. 实战战绩：全维度越级提升</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%A9%BA%E9%97%B4%E8%A7%86%E8%A7%89%E4%BB%BB%E5%8A%A1%E8%A1%A8%E7%8E%B0"><span class="nav-text">1. 空间视觉任务表现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%A7%86%E9%A2%91%E6%97%B6%E9%97%B4%E5%AE%9A%E4%BD%8D%E4%B8%8E%E6%8F%8F%E8%BF%B0%E8%83%BD%E5%8A%9B"><span class="nav-text">2. 视频时间定位与描述能力</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%97%B6%E7%A9%BA%E5%9B%9B%E7%BB%B4%E8%81%94%E5%90%88%E6%8E%A8%E7%90%86%EF%BC%88V-STaR%EF%BC%89"><span class="nav-text">3. 时空四维联合推理（V-STaR）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%85%B3%E9%94%AE%E6%B6%88%E8%9E%8D%E5%AE%9E%E9%AA%8C%E7%9A%84%E5%90%AF%E7%A4%BA"><span class="nav-text">4. 关键消融实验的启示</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E7%AE%97%E6%B3%95%E4%B9%8B%E5%A4%96%EF%BC%9A%E5%AF%B9%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E8%80%85%E4%B8%8E%E5%B7%A5%E7%A8%8B%E8%90%BD%E5%9C%B0%E7%9A%84%E5%90%AF%E5%8F%91"><span class="nav-text">06. 算法之外：对应用开发者与工程落地的启发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8F%91-1%EF%BC%9A%E5%B0%86-DOVE-%E4%B8%89%E7%BB%B4%E5%BA%A6%E6%B2%89%E6%B7%80%E4%B8%BA%E5%B7%A5%E4%B8%9A%E7%BA%A7%E8%A7%86%E9%A2%91-Prompt-%E6%A8%A1%E6%9D%BF"><span class="nav-text">启发 1：将 DOVE 三维度沉淀为工业级视频 Prompt 模板</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8F%91-2%EF%BC%9A%E5%9C%A8%E4%B8%9A%E5%8A%A1%E5%B7%A5%E4%BD%9C%E6%B5%81%E4%B8%AD%E4%BD%8E%E6%88%90%E6%9C%AC%E6%90%AD%E5%BB%BA%E2%80%9C%E8%87%AA%E7%9C%81%E5%8F%8D%E5%90%91%E9%AA%8C%E8%AF%81%EF%BC%88Cycle-Check%EF%BC%89%E2%80%9D"><span class="nav-text">启发 2：在业务工作流中低成本搭建“自省反向验证（Cycle Check）”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E6%80%BB%E7%BB%93%E4%B8%8E%E5%B1%80%E9%99%90%E6%80%A7%E6%80%9D%E8%80%83"><span class="nav-text">07. 总结与局限性思考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">212</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/30/GeneralizedCycleGRPO-MultimodalUnderstandingGrounding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】给多模态大模型装上“自省闭环”：arXiv 2026 新作 Generalized CycleGRPO 统一空间、时间与时空细粒度理解与定位 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】给多模态大模型装上“自省闭环”：arXiv 2026 新作 Generalized CycleGRPO 统一空间、时间与时空细粒度理解与定位
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-10-30 13:35:00 / 修改时间：13:37:54" itemprop="dateCreated datePublished" datetime="2026-10-30T13:35:00+08:00">2026-10-30</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在多模态大语言模型（MLLM）迅速迈向视觉深度推理与长视频理解的今天，我们往往要求 AI 具备两种看起来形影不离的核心本领：</p>
+<ol>
+<li><strong>细粒度区域理解（Region Understanding / Captioning）</strong>：给模型画面中的一个指定区域（比如一个红框、一段分割掩码、或视频中的某几秒），模型能详尽写出这里究竟发生了什么；</li>
+<li><strong>指代性定位（Referring Localization / Grounding）</strong>：反过来，给模型一句自然语言（如“穿黄色雨衣戴红帽子的男孩”），模型能准确把物体框出来，或者在视频时间轴上精准标记出起止时间戳。</li>
+</ol>
+<p>然而，长期以来业界在这两个方向的训练上存在着<strong>严重的割裂与监督瓶颈</strong>：</p>
+<ul>
+<li>教模型“写描述”通常依赖成本极其高昂的人工文字标注；</li>
+<li>教模型“找位置”则依赖规则化的几何坐标损失；</li>
+<li>两种训练彼此独立、缺乏约束——一句文字通顺流畅的描述，可能根本无法唯一锁定源物体；而一个定位极其精准的检测器，也无法反哺语言描述能力的进化。</li>
+</ul>
+<p>近日，来自新加坡国立大学（NUS）、中国科学院大学（UCAS）、南洋理工大学（NTU）以及陶大程院士团队发表了重磅前沿成果：</p>
+<blockquote>
+<p><strong>《Generalized CycleGRPO for Fine-Grained Multimodal Understanding and Grounding》</strong> (arXiv:2610.29552)</p>
+</blockquote>
+<p>该研究在他们此前 ECCV 空间图像成果的基础上，提出了一套通用的<strong>广义循环强化学习框架（Generalized CycleGRPO）</strong>。它利用“<strong>费曼学习法</strong>”式的自省逻辑：让模型先看区域写出描述，再根据自己写的描述把原区域“找回去”。<strong>找回的几何重叠度（IoU）就是天然客观、无需人工裁判的强化学习奖励。</strong> 更重要的是，该方法一举打通了 2D 静态图像空间、1D 视频时序区间以及四维时空动态轨迹。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Generalized CycleGRPO for Fine-Grained Multimodal Understanding and Grounding<br>
+<strong>作者团队</strong>：Xin Zhang, Haochen Wang, Beibei Lin, Zhaoxiang Zhang, Robby T. Tan, Jason Li, Dacheng Tao (NUS, UCAS, NTU 等)<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2610.29552" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2610.29552</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" href="https://arxiv.org/html/2610.29552v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2610.29552v1</a><br>
+<strong>项目主页</strong>：<a target="_blank" href="https://devinxzhang.github.io/Generalized-CycleGRPO-Page/" rel="external nofollow noreferrer noopener">https://devinxzhang.github.io/Generalized-CycleGRPO-Page/</a><br>
+<strong>核心领域</strong>：Multimodal LLMs, Reinforcement Learning (GRPO), Temporal Grounding, Referring Segmentation, DOVE Benchmark</p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-核心困局：语言与几何割裂带来的“虚假繁荣”">01. 核心困局：语言与几何割裂带来的“虚假繁荣”</h2>
+<p>现有的多模态强化学习（RL）在处理“区域”和“文本”时，通常走入两个极端：</p>
+<pre><code class="highlight mermaid">flowchart LR
+    subgraph S1 [&quot;(A) 区域描述强化学习 (Caption RL)&quot;]
+        A1[&quot;视觉输入 X + 区域 R&quot;] --&gt; B1[&quot;模型生成描述 C&quot;]
+        B1 --&gt; C1[&quot;外部奖励模型 / LLM Judge&lt;br/&gt;(昂贵、有偏、充满幻觉)&quot;]
+    end
+
+    subgraph S2 [&quot;(B) 指代定位强化学习 (Grounding RL)&quot;]
+        A2[&quot;视觉输入 X + 文本 C&quot;] --&gt; B2[&quot;模型预测区域 R&#x27;&quot;]
+        B2 --&gt; C2[&quot;几何 IoU 规则奖励&lt;br/&gt;(仅优化定位，无法提升描述)&quot;]
+    end</code></pre>
+<p>这种单向设计存在两大隐形缺陷：</p>
+<ol>
+<li><strong>流畅却毫无区分度（Lack of Distinctiveness）</strong>：在长视频中尤为明显。如果视频中某人喝了 3 次水，框选第 2 次喝水让模型描述，模型往往给出：“一个男人拿起水杯喝水”。这句话语法上挑不出毛病，但如果把这句话作为线索拿给定位模型，模型根本分不清它指的是第 1 次、第 2 次还是第 3 次。</li>
+<li><strong>奖励信号的外部依赖与噪声</strong>：评判一段文字描述是否准确，要么需要人工标注好的参考答案（Reference Captions），要么需要外挂一个庞大昂贵的 LLM（如 GPT-4）充当裁判。但这既不可扩展，又会引入 LLM 固有的主观偏见与幻觉。</li>
+</ol>
+<p>作者团队抓住了本质：<strong>几何坐标与时序区间是客观世界里确凿无误的物理真理。一个真正优秀的细粒度描述，应当具备“自洽的排他性”——即足以让模型自身从全图或整段视频中，重新精确逆向还原出那个唯一的源区域。</strong></p>
+<hr>
+<h2 id="02-Generalized-CycleGRPO-架构与算法全景">02. Generalized CycleGRPO 架构与算法全景</h2>
+<p>CycleGRPO 的整体运作逻辑非常精炼：用同一个多模态大模型策略 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mi>θ</mi></msub></mrow><annotation encoding="application/x-tex">\pi_\theta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">π</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">θ</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，既充当“<strong>描述者（Captioner）</strong>”，又充当“<strong>自评定位者（Self-Critic Localizer）</strong>”。</p>
+<pre><code class="highlight mermaid">flowchart TD
+    In[&quot;视觉输入 X + 目标区域 R (Mask / Box / 时间区间 / 轨迹)&quot;] --&gt; GenCap[&quot;【外层描述采样】&lt;br/&gt;模型生成 N 个候选描述 C_1, ..., C_N&quot;]
+    
+    subgraph NestedRollout [&quot;嵌套循环展开 (Nested Rollouts)&quot;]
+        direction TB
+        C1[&quot;候选描述 C_i&quot;] --&gt; GenLoc[&quot;【内层定位采样】&lt;br/&gt;模型根据 C_i 尝试找回目标&lt;br/&gt;采样 K 个预测区域 R&#x27;_i,1 ... R&#x27;_i,K&quot;]
+        GenLoc --&gt; Metric[&quot;几何可验证重合度度量 S_Ω(R, R&#x27;_i,k)&lt;br/&gt;(Spatial IoU / Temporal tIoU / Spatio-Temporal S_ST)&quot;]
+    end
+    
+    GenCap --&gt; NestedRollout
+    Metric --&gt; RewardCap[&quot;描述奖励 r^cap_i = α * 均值(s_i,k) + 格式惩罚&lt;br/&gt;(组相对归一化 -&gt; 优化描述生成)&quot;]
+    Metric --&gt; RewardLoc[&quot;定位奖励 r^loc_i,k = α * s_i,k + 格式惩罚&lt;br/&gt;(组内相对归一化 -&gt; 优化定位能力)&quot;]
+    
+    RewardCap --&gt; JointOpt[&quot;联合 GRPO 梯度反传更新&lt;br/&gt;J_CycleGRPO = λ_cap * J_cap + λ_loc * J_loc&quot;]
+    RewardLoc --&gt; JointOpt</code></pre>
+<h3 id="1-嵌套双层采样（Nested-Rollouts）">1. 嵌套双层采样（Nested Rollouts）</h3>
+<p>对于一个训练样本 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>X</mi><mo separator="true">,</mo><mi mathvariant="script">R</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(X, \mathcal{R})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0785em;">X</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathcal">R</span><span class="mclose">)</span></span></span></span>，强化学习训练完全<strong>不需要配备参考文本答案</strong>：</p>
+<ul>
+<li><strong>外层描述采样</strong>：模型针对区域 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">R</mi></mrow><annotation encoding="application/x-tex">\mathcal{R}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathcal">R</span></span></span></span> 采样生成 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span></span></span></span> 个候选描述 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mi>i</mi></msub><mo>∼</mo><msub><mi>π</mi><msub><mi>θ</mi><mtext>old</mtext></msub></msub><mo stretchy="false">(</mo><mo>⋅</mo><mo>∣</mo><msub><mi>q</mi><mtext>cap</mtext></msub><mo stretchy="false">(</mo><mi>X</mi><mo separator="true">,</mo><mi mathvariant="script">R</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">C_i \sim \pi_{\theta_{\text{old}}}(\cdot \mid q_{\text{cap}}(X, \mathcal{R}))</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0059em;vertical-align:-0.2559em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">π</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">θ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.0278em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">old</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2559em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord">⋅</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">cap</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0785em;">X</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathcal">R</span><span class="mclose">))</span></span></span></span>；</li>
+<li><strong>内层定位采样</strong>：将每一个生成的候选描述 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">C_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 作为定位线索，让模型在全图/全视频中进行逆向定位，独立采样 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span> 个重构区域 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover accent="true"><mi mathvariant="script">R</mi><mo stretchy="true">^</mo></mover><mrow><mi>i</mi><mo separator="true">,</mo><mi>k</mi></mrow></msub><mo>∼</mo><msub><mi>π</mi><msub><mi>θ</mi><mtext>old</mtext></msub></msub><mo stretchy="false">(</mo><mo>⋅</mo><mo>∣</mo><msub><mi>q</mi><mtext>loc</mtext></msub><mo stretchy="false">(</mo><mi>X</mi><mo separator="true">,</mo><msub><mi>C</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\widehat{\mathcal{R}}_{i,k} \sim \pi_{\theta_{\text{old}}}(\cdot \mid q_{\text{loc}}(X, C_i))</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.2094em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9233em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathcal">R</span></span><span class="svg-align" style="width:calc(100% - 0.1667em);margin-left:0.1667em;top:-3.6833em;"><span class="pstrut" style="height:3em;"></span><span style="height:0.24em;"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="0.24em" viewBox="0 0 1062 239" preserveAspectRatio="none"><path d="M529 0h5l519 115c5 1 9 5 9 10 0 1-1 2-1 3l-4 22
+c-1 5-5 9-11 9h-2L532 67 19 159h-2c-5 0-9-4-11-9l-5-22c-1-6 2-12 8-13z"/></svg></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0059em;vertical-align:-0.2559em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">π</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">θ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:-0.0278em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">old</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1512em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2559em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord">⋅</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∣</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">loc</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0785em;">X</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">))</span></span></span></span>。</li>
+</ul>
+<p>通过多次采样取平均得分 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover accent="true"><mi>s</mi><mo>ˉ</mo></mover><mi>i</mi></msub><mo>=</mo><mfrac><mn>1</mn><mi>K</mi></mfrac><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></msubsup><msub><mi>S</mi><mi mathvariant="normal">Ω</mi></msub><mo stretchy="false">(</mo><mi mathvariant="script">R</mi><mo separator="true">,</mo><msub><mover accent="true"><mi mathvariant="script">R</mi><mo stretchy="true">^</mo></mover><mrow><mi>i</mi><mo separator="true">,</mo><mi>k</mi></mrow></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\bar{s}_i = \frac{1}{K}\sum_{k=1}^K S_{\Omega}(\mathcal{R}, \widehat{\mathcal{R}}_{i,k})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7178em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.5678em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">s</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">ˉ</span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.3262em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0715em;">K</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9812em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0715em;">K</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">Ω</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathcal">R</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9233em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathcal">R</span></span><span class="svg-align" style="width:calc(100% - 0.1667em);margin-left:0.1667em;top:-3.6833em;"><span class="pstrut" style="height:3em;"></span><span style="height:0.24em;"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="0.24em" viewBox="0 0 1062 239" preserveAspectRatio="none"><path d="M529 0h5l519 115c5 1 9 5 9 10 0 1-1 2-1 3l-4 22
+c-1 5-5 9-11 9h-2L532 67 19 159h-2c-5 0-9-4-11-9l-5-22c-1-6 2-12 8-13z"/></svg></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>，能够极其稳健地评估该描述是否具备排他性的定位辨识度。</p>
+<h3 id="2-无参考文本的双层组相对奖励（Dual-level-Group-Relative-Advantage）">2. 无参考文本的双层组相对奖励（Dual-level Group Relative Advantage）</h3>
+<p>作者采用 GRPO（Group Relative Policy Optimization）避免了额外维护复杂 Critic 网络的负担。在双层嵌套结构中，优势（Advantage）的计算被精心分为两个语义层次：</p>
+<ul>
+<li><strong>描述层（Caption Advantage）</strong>：同一目标区域生成的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span></span></span></span> 个描述互为一组，竞争的是<strong>谁能更稳健地还原原始几何区域</strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msubsup><mi>A</mi><mi>i</mi><mtext>cap</mtext></msubsup><mo>=</mo><mfrac><mrow><msubsup><mi>r</mi><mi>i</mi><mtext>cap</mtext></msubsup><mo>−</mo><msub><mi>μ</mi><mtext>cap</mtext></msub></mrow><mrow><msub><mi>σ</mi><mtext>cap</mtext></msub><mo>+</mo><mi>δ</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">A_i^{\text{cap}} = \frac{r_i^{\text{cap}} - \mu_{\text{cap}}}{\sigma_{\text{cap}} + \delta}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0592em;vertical-align:-0.2769em;"></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7823em;"><span style="top:-2.4231em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.1809em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">cap</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2769em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.4314em;vertical-align:-0.9721em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.4593em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">cap</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.0379em;">δ</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7823em;"><span style="top:-2.4231em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.1809em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">cap</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2769em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">cap</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9721em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+</li>
+<li><strong>定位层（Localization Advantage）</strong>：在固定某一个父描述 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">C_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 的前提下，采样的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span> 次定位路径互为一组，竞争的是<strong>在相同文字指引下的定位几何重叠度</strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msubsup><mi>A</mi><mrow><mi>i</mi><mo separator="true">,</mo><mi>k</mi></mrow><mtext>loc</mtext></msubsup><mo>=</mo><mfrac><mrow><msubsup><mi>r</mi><mrow><mi>i</mi><mo separator="true">,</mo><mi>k</mi></mrow><mtext>loc</mtext></msubsup><mo>−</mo><msub><mi>μ</mi><mrow><mi>i</mi><mo separator="true">,</mo><mtext>loc</mtext></mrow></msub></mrow><mrow><msub><mi>σ</mi><mrow><mi>i</mi><mo separator="true">,</mo><mtext>loc</mtext></mrow></msub><mo>+</mo><mi>δ</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">A_{i,k}^{\text{loc}} = \frac{r_{i,k}^{\text{loc}} - \mu_{i,\text{loc}}}{\sigma_{i,\text{loc}} + \delta}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.2822em;vertical-align:-0.3831em;"></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">loc</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3831em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.6304em;vertical-align:-0.9721em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6583em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">σ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mpunct mtight">,</span><span class="mord text mtight"><span class="mord mtight">loc</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal" style="margin-right:0.0379em;">δ</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.8092em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-2.4169em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">loc</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4192em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mpunct mtight">,</span><span class="mord text mtight"><span class="mord mtight">loc</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9721em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+</li>
+</ul>
+<h3 id="3-防“剧透作弊”约束（Anti-leakage-Constraints）">3. 防“剧透作弊”约束（Anti-leakage Constraints）</h3>
+<p>为了防止模型“耍小聪明”（例如描述时直接写出“第 14 秒至 18 秒发生的动作”或“位于坐标 [120, 340] 的杯子”），作者在文本有效性项 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Φ</mi><mtext>cap</mtext></msub></mrow><annotation encoding="application/x-tex">\Phi_{\text{cap}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord">Φ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">cap</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span> 中设置了强校验：凡是在生成的描述中泄露绝对时间戳或物理坐标的行为，直接施加严厉惩罚，并在输入下一步定位前强制剔除。</p>
+<hr>
+<h2 id="03-广义化推进：统一度量空间、时间与时空四维">03. 广义化推进：统一度量空间、时间与时空四维</h2>
+<p>CycleGRPO 的关键突破在于其<strong>几何不可知（Geometry-Agnostic）的泛化能力</strong>。只要给定了区域形式及其可验证的重合度度量函数 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi mathvariant="normal">Ω</mi></msub><mo stretchy="false">(</mo><mi mathvariant="script">R</mi><mo separator="true">,</mo><mover accent="true"><mi mathvariant="script">R</mi><mo stretchy="true">^</mo></mover><mo stretchy="false">)</mo><mo>∈</mo><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">S_\Omega(\mathcal{R}, \widehat{\mathcal{R}}) \in [0, 1]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.1733em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">Ω</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathcal">R</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9233em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathcal">R</span></span><span class="svg-align" style="width:calc(100% - 0.1667em);margin-left:0.1667em;top:-3.6833em;"><span class="pstrut" style="height:3em;"></span><span style="height:0.24em;"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="0.24em" viewBox="0 0 1062 239" preserveAspectRatio="none"><path d="M529 0h5l519 115c5 1 9 5 9 10 0 1-1 2-1 3l-4 22
+c-1 5-5 9-11 9h-2L532 67 19 159h-2c-5 0-9-4-11-9l-5-22c-1-6 2-12 8-13z"/></svg></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">]</span></span></span></span>，相同的学习框架即可无缝运转：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">区域空间类型</th>
+<th style="text-align:left">区域数学表示 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">R</mi></mrow><annotation encoding="application/x-tex">\mathcal{R}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathcal">R</span></span></span></span></th>
+<th style="text-align:left">序列化方式</th>
+<th style="text-align:left">一致性度量函数 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi mathvariant="normal">Ω</mi></msub></mrow><annotation encoding="application/x-tex">S_\Omega</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">Ω</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></th>
+<th style="text-align:left">物理直觉</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>空间 (Spatial)</strong></td>
+<td style="text-align:left">掩码 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">R</mi><mo>∈</mo><mo stretchy="false">{</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><msup><mo stretchy="false">}</mo><mrow><mi>H</mi><mo>×</mo><mi>W</mi></mrow></msup></mrow><annotation encoding="application/x-tex">\mathcal{R} \in \{0,1\}^{H \times W}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7224em;vertical-align:-0.0391em;"></span><span class="mord mathcal">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0913em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose"><span class="mclose">}</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0813em;">H</span><span class="mbin mtight">×</span><span class="mord mathnormal mtight" style="margin-right:0.1389em;">W</span></span></span></span></span></span></span></span></span></span></span></span> 或 边框 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><msup><mo stretchy="false">]</mo><mn>4</mn></msup></mrow><annotation encoding="application/x-tex">[0,1]^4</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose"><span class="mclose">]</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">4</span></span></span></span></span></span></span></span></span></span></span></td>
+<td style="text-align:left">连续 bbox 坐标字符串 或 SAMTok 离散掩码词元</td>
+<td style="text-align:left">Mask IoU / Bounding Box IoU</td>
+<td style="text-align:left">描述必须说清物体部件、颜色、空间相对关系，否则无法抠出原区域</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>时间 (Temporal)</strong></td>
+<td style="text-align:left">视频起止区间 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">R</mi><mo>∈</mo><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mi>T</mi><msup><mo stretchy="false">]</mo><mrow><mi>L</mi><mo>×</mo><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\mathcal{R} \in [0, T]^{L \times 2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7224em;vertical-align:-0.0391em;"></span><span class="mord mathcal">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0913em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span><span class="mclose"><span class="mclose">]</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">L</span><span class="mbin mtight">×</span><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span></td>
+<td style="text-align:left"><code>&lt;start&gt; 12.5 &lt;/start&gt; &lt;end&gt; 18.2 &lt;/end&gt;</code> 时间戳字符串</td>
+<td style="text-align:left">时间交并比 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>tIoU</mtext><mo>=</mo><mfrac><mrow><mi mathvariant="normal">∣</mi><mi mathvariant="script">R</mi><mo>∩</mo><mover accent="true"><mi mathvariant="script">R</mi><mo stretchy="true">^</mo></mover><mi mathvariant="normal">∣</mi></mrow><mrow><mi mathvariant="normal">∣</mi><mi mathvariant="script">R</mi><mo>∪</mo><mover accent="true"><mi mathvariant="script">R</mi><mo stretchy="true">^</mo></mover><mi mathvariant="normal">∣</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\text{tIoU} = \frac{|\mathcal{R} \cap \widehat{\mathcal{R}}|}{|\mathcal{R} \cup \widehat{\mathcal{R}}|}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord text"><span class="mord">tIoU</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.7627em;vertical-align:-0.6313em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1313em;"><span style="top:-2.5437em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mathcal mtight">R</span><span class="mbin mtight">∪</span><span class="mord katex-accent mtight"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9233em;"><span style="top:-2.7em;"><span class="pstrut" style="height:2.7em;"></span><span class="mord mathcal mtight">R</span></span><span class="svg-align" style="width:calc(100% - 0.1667em);margin-left:0.1667em;top:-3.3833em;"><span class="pstrut" style="height:2.7em;"></span><span class="mtight" style="height:0.24em;"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="0.24em" viewBox="0 0 1062 239" preserveAspectRatio="none"><path d="M529 0h5l519 115c5 1 9 5 9 10 0 1-1 2-1 3l-4 22
+c-1 5-5 9-11 9h-2L532 67 19 159h-2c-5 0-9-4-11-9l-5-22c-1-6 2-12 8-13z"/></svg></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.485em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">∣</span><span class="mord mathcal mtight">R</span><span class="mbin mtight">∩</span><span class="mord katex-accent mtight"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9233em;"><span style="top:-2.7em;"><span class="pstrut" style="height:2.7em;"></span><span class="mord mathcal mtight">R</span></span><span class="svg-align" style="width:calc(100% - 0.1667em);margin-left:0.1667em;top:-3.3833em;"><span class="pstrut" style="height:2.7em;"></span><span class="mtight" style="height:0.24em;"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="0.24em" viewBox="0 0 1062 239" preserveAspectRatio="none"><path d="M529 0h5l519 115c5 1 9 5 9 10 0 1-1 2-1 3l-4 22
+c-1 5-5 9-11 9h-2L532 67 19 159h-2c-5 0-9-4-11-9l-5-22c-1-6 2-12 8-13z"/></svg></span></span></span></span></span></span><span class="mord mtight">∣</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.6313em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></td>
+<td style="text-align:left">描述必须包含该时间片独有的动作阶段，否则在重复动作视频中定位必定漂移</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>时空 (Spatio-Temporal)</strong></td>
+<td style="text-align:left">稀疏时间锚点与空间框集合 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">{</mo><mo stretchy="false">(</mo><msub><mi>t</mi><mi>a</mi></msub><mo separator="true">,</mo><msub><mi>S</mi><mi>a</mi></msub><mo stretchy="false">)</mo><msubsup><mo stretchy="false">}</mo><mrow><mi>a</mi><mo>=</mo><mn>1</mn></mrow><mi>A</mi></msubsup></mrow><annotation encoding="application/x-tex">\{(t_a, S_a)\}_{a=1}^A</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0913em;vertical-align:-0.25em;"></span><span class="mopen">{(</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">a</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">a</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mclose"><span class="mclose">}</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-2.4519em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">a</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2481em;"><span></span></span></span></span></span></span></span></span></span></td>
+<td style="text-align:left">带时间戳的连续边界框序列（When &amp; Where 证据链）</td>
+<td style="text-align:left">基于二分图最大权匹配的时空重合度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mtext>ST</mtext></msub></mrow><annotation encoding="application/x-tex">S_{\text{ST}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">ST</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></td>
+<td style="text-align:left">时间对不上或位置框不准均被惩罚，严格约束动态轨迹追踪</td>
+</tr>
+</tbody>
+</table>
+<p>在时空联合任务中，作者限定时间容差 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi><mo>=</mo><mn>3</mn><mtext>s</mtext></mrow><annotation encoding="application/x-tex">\tau = 3\text{s}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">3</span><span class="mord text"><span class="mord">s</span></span></span></span></span>。如果模型在错误的时间看到了相似物体，或者在正确的时间框选了错误的目标，都无法获得交集奖励，从而杜绝了时空维度的幻觉。</p>
+<hr>
+<h2 id="04-评测革新：为什么需要全新的-DOVE-基准？">04. 评测革新：为什么需要全新的 DOVE 基准？</h2>
+<p>传统视频描述评测基准（如 CIDEr、METEOR）存在一个致命缺陷：它们只看生成文字与人类参考答案的词汇重合度，<strong>根本无法评测生成的描述是否能将目标事件从同类干扰项中剥离出来</strong>。</p>
+<p>为此，团队打造了全新的高质量对比测试集 <strong>DOVE (Distinctive Occurrence-level Video-caption Evaluation)</strong>：</p>
+<pre><code class="highlight mermaid">flowchart LR
+    A[&quot;长视频 (含同一动作的 2~5 次重复发生)&quot;] --&gt; B[&quot;指定评测目标区间 S_i&lt;br/&gt;(其余区间为同视频同动作干扰项)&quot;]
+    B --&gt; C[&quot;被测模型生成自由描述 C_i&quot;]
+    C --&gt; D[&quot;纯文本裁判 (Qwen2.5-72B-Instruct)&lt;br/&gt;(只读描述，看不到原始视频)&quot;]
+    
+    subgraph Probes [&quot;三大人类校验的独特性探针 (Probes)&quot;]
+        direction TB
+        P1[&quot;顺序探针 (Order):&lt;br/&gt;动作前后紧接着发生了什么？&quot;]
+        P2[&quot;状态探针 (State):&lt;br/&gt;人物/物体产生了何种姿态或外观变化？&quot;]
+        P3[&quot;结果探针 (Outcome):&lt;br/&gt;动作产生了何种可见的最终结果？&quot;]
+    end
+    
+    Probes --&gt; D
+    D --&gt; E[&quot;输出核心指标：时间证据覆盖率 (TEC)&quot;]</code></pre>
+<ul>
+<li><strong>180 个独立视频组、530 个目标区间、1,223 道严格的人工验证探针</strong>；</li>
+<li>核心指标 <strong>TEC（Temporal Evidence Coverage）</strong> 为顺序、状态、结果三类探针得分的宏观平均值；</li>
+<li>模型如果只写套话，探针问答就会直接挂掉，极具挑战性与辨识度。</li>
+</ul>
+<hr>
+<h2 id="05-实战战绩：全维度越级提升">05. 实战战绩：全维度越级提升</h2>
+<p>论文在开源主力基座（Qwen2.5-VL、Qwen3-VL、SAMTok、Open-o3-Video）上进行了严格验证：</p>
+<h3 id="1-空间视觉任务表现">1. 空间视觉任务表现</h3>
+<ul>
+<li><strong>GroundingSuite (指代分割)</strong>：SAMTok 基座经 CycleGRPO 优化后，整体 gIoU 从 <strong>57.5% 跃升至 68.2%</strong>（大涨 10.7 个百分点），在复杂的“多目标（Multi）”子项上更是提升了 16.3%；</li>
+<li><strong>GRES (广义指代分割)</strong>：平均 gIoU 从 71.2% 提升至 78.7%；最亮眼的是对“不存在目标”的拒识准确率（No-target Accuracy）从 <strong>58.7% 暴增到 92.5%</strong>，大幅减轻了捕风捉影的定位幻觉。</li>
+</ul>
+<h3 id="2-视频时间定位与描述能力">2. 视频时间定位与描述能力</h3>
+<ul>
+<li><strong>Charades-STA 定位</strong>：Qwen3-VL 基座模型的 tIoU 从 45.6% 提升至 <strong>51.9%</strong>；</li>
+<li><strong>DOVE 细粒度描述评测</strong>：
+<ul>
+<li>Qwen3-VL 初始模型：TEC 仅 14.8%，未提及率（N/M）高达 75.1%；</li>
+<li><strong>CycleGRPO 优化后：TEC 飙升至 33.3%</strong>，未提及率大幅降至 50.7%，全面碾压参数量大得多的 GPT-5.6-sol（17.3%）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-时空四维联合推理（V-STaR）">3. 时空四维联合推理（V-STaR）</h3>
+<ul>
+<li>在同时要求回答“是什么（What）、何时（When）、在哪（Where）”的复合评测中，<strong>仅 4B 参数量的 Open-o3-Video + CycleGRPO 取得了 49.8% 的 mLGM 分数</strong>，直接越级击败了 7B 参数规模的原生模型（46.6%）以及商用模型 GPT-4o（38.2%）。</li>
+</ul>
+<h3 id="4-关键消融实验的启示">4. 关键消融实验的启示</h3>
+<p>论文特别对比了“仅训练描述（Caption-only RL）”与“仅训练定位（Localization-only RL）”：</p>
+<ul>
+<li><strong>单练定位</strong>：时间重合度尚可，但描述能力在复杂场景下依然贫瘠；</li>
+<li><strong>单练描述（靠外部 LLM 打分）</strong>：几乎无法学到时序唯一辨识度；</li>
+<li><strong>双向咬合闭环</strong>：在所有指标上均达成最优，证实了 <strong>“能说清”与“能找准”两项能力的互为因果与相互促进</strong>。</li>
+</ul>
+<hr>
+<h2 id="06-算法之外：对应用开发者与工程落地的启发">06. 算法之外：对应用开发者与工程落地的启发</h2>
+<p>如果你不做底层的模型预训练，这篇论文依然具备极高的“业务借鉴价值”：</p>
+<h3 id="启发-1：将-DOVE-三维度沉淀为工业级视频-Prompt-模板">启发 1：将 DOVE 三维度沉淀为工业级视频 Prompt 模板</h3>
+<p>在调用 GPT-4o 或 Gemini 抽取视频结构化信息时，不要再写笼统的“请详细描述视频内容”。直接借鉴论文的独特性探针框架：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">【系统提示词模版】</span><br><span class="line">你是一个高精度的视频动作分析专家。在描述指定时间段的画面时，请务必明确包含以下三项排他性事实特征：</span><br><span class="line"><span class="bullet">1.</span> [时序关联]：该事件发生前一瞬间由什么引发？结束后紧接着引发了什么？</span><br><span class="line"><span class="bullet">2.</span> [实体状态]：核心动作主体的穿着、朝向、握持道具或物理姿态呈现何种独特性？</span><br><span class="line"><span class="bullet">3.</span> [因果结果]：该动作完成后，在场景中留下了什么确定性的物理改变？</span><br><span class="line">请避免模糊通用的话术，确保这段文字足以唯一检索定位到该事件。</span><br></pre></td></tr></table></figure>
+<h3 id="启发-2：在业务工作流中低成本搭建“自省反向验证（Cycle-Check）”">启发 2：在业务工作流中低成本搭建“自省反向验证（Cycle Check）”</h3>
+<p>在图文质检、违规内容审核、医疗病灶检索等零容忍业务中，最怕大模型一本正经地胡说八道。你可以在 Agent 工作流中引入论文的自洽闭环思想：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    Step1[&quot;步骤 1：主模型生成初步诊断与定位框/时间戳&quot;] --&gt; Step2[&quot;步骤 2：抹去输入坐标，将主模型的描述文本扔给定位模块/模型&quot;]
+    Step2 --&gt; Step3[&quot;步骤 3：计算反向定位结果与初始位置的 IoU 吻合度&quot;]
+    Step3 --&gt; Judge&#123;&quot;IoU &gt;= 阈值 (如 0.6) ?&quot;&#125;
+    Judge --&gt;|是| Pass[&quot;高置信度放行&quot;]
+    Judge --&gt;|否| Retry[&quot;判定为描述含糊或存在幻觉&lt;br/&gt;自动触发重新分析或转交人工介入&quot;]</code></pre>
+<p>无需耗费算力微调模型，利用纯工程流程就能大幅降低幻觉漏检率。</p>
+<hr>
+<h2 id="07-总结与局限性思考">07. 总结与局限性思考</h2>
+<p>《Generalized CycleGRPO》非常优雅地展示了<strong>如何利用客观世界的空间与时间几何作为无需人工干预的天然监督信号</strong>。</p>
+<p>当然，该方案在实际应用中也有其客观局限：</p>
+<ol>
+<li><strong>采样成本高</strong>：外层 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span></span></span></span> 个描述乘以内层 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span> 次定位，前向推理计算量（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>K</mi></mrow><annotation encoding="application/x-tex">N \times K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span>）显著高于普通单向 RL；</li>
+<li><strong>冷启动门槛</strong>：基座模型必须已经具备基础的看图说话和画框定位能力，否则循环初始阶段全是噪声，自省将失去收敛方向；</li>
+<li><strong>缺少音频支持</strong>：目前闭环仅限定在纯视觉几何时空内，而现实视频中大量关键事件往往伴随声音线索。</li>
+</ol>
+<p>瑕不掩瑜，该工作不仅证明了多模态定位与理解相互促进的闭环潜力，更为探索大模型在物理世界中的“自我演进与自我验证”提供了一条极具说服力的可行路径。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E7%90%86%E8%A7%A3/" rel="tag"># 视频理解</a>
+              <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag"># 强化学习</a>
+              <a href="/tags/Generalized-CycleGRPO/" rel="tag"># Generalized CycleGRPO</a>
+              <a href="/tags/GRPO/" rel="tag"># GRPO</a>
+              <a href="/tags/%E8%A7%86%E8%A7%89%E5%AE%9A%E4%BD%8D/" rel="tag"># 视觉定位</a>
+              <a href="/tags/%E7%BB%86%E7%B2%92%E5%BA%A6%E7%90%86%E8%A7%A3/" rel="tag"># 细粒度理解</a>
+              <a href="/tags/DOVE/" rel="tag"># DOVE</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/10/30/PhysTrace-InterpretableTemporalPhysicalConsistency/" rel="next" title="【论文分享】给视频生成模型做“物理质检”与“脑部CT”：arXiv 2026 新作 PhysTrace 架构与工程落地拆解">
+                  【论文分享】给视频生成模型做“物理质检”与“脑部CT”：arXiv 2026 新作 PhysTrace 架构与工程落地拆解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">252k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">15:16</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
