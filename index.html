@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">225</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">62</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">229</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">63</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-count">63</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">225</span>
+        <span class="site-state-item-count">229</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,119 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/11/02/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/11/02/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/" class="post-title-link" itemprop="url">【论文分享】别被 32K 窗口忽悠了：长视频多模态检索为何频频“翻车”？EMNLP 2026 蚂蚁与苏大新作 MMLongEmbed 深度剖析与工程实战</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-02 18:50:00 / 修改时间：19:07:47" itemprop="dateCreated datePublished" datetime="2026-11-02T18:50:00+08:00">2026-11-02</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态大模型（MLLM）和多模态向量嵌入（Multimodal Embedding Models, MEMs）飞速发展的今天，各大模型厂商的宣发通稿里，“支持 32K 甚至 128K 超长上下文”、“支持全模态统一特征对齐”几乎成了标配。</p>
+<p>对于许多想要开发 <strong>“多模态输入 + 向量数据库（SQL 混合检索）+ 精准视频片段召回”</strong> 产品的软件开发工程师而言，直觉上的架构设计似乎非常简单直接：</p>
+<blockquote>
+<p><em>“既然模型支持 32K 超长上下文，那我就把长达 10 分钟甚至 1 小时的长视频直接抽帧，塞给多模态 Embedding 模型提取一个整体高维向量，存入 pgvector 或 Milvus，用户输入一句话或者一张图，直接做余弦相似度查询不就完事了吗？”</em></p>
+</blockquote>
+<p>然而，一旦在真实业务中上线这套方案，系统往往会遭遇密集的 <strong>Bad Case</strong> 轰炸：</p>
+<ol>
+<li><strong>时序动作彻底错乱</strong>：用户搜“先倒油再下锅煎蛋”，排在第一位的视频片段居然是“先下锅煎蛋再倒油”；</li>
+<li><strong>中间时段频繁漏检</strong>：一段 10 分钟的视频，发生在第 5 分钟的核心动作死活搜不出来，反而开头和结尾的无关画面频频被召回；</li>
+<li><strong>图文混合噪点污染</strong>：用户传了一张参考图加一句话，结果检索出的视频被背景里的无关元素带偏；</li>
+<li><strong>算力成本居高不下</strong>：咬牙花大价钱租卡上线了 8B 参数的大模型提向量，检索质量却跟 2B 模型毫无两样。</li>
+</ol>
+<p>难道厂商宣传的长上下文向量模型，在工业落地上真的是一张“空头支票”？</p>
+<p>近日，来自 <strong>苏州大学（Soochow University）与蚂蚁集团（Ant Group）</strong> 的研究团队在自然语言处理顶会 <strong>EMNLP 2026</strong> 上发表了一篇极具工程洞察的重磅论文：</p>
+<blockquote>
+<p><strong>《MMLongEmbed: Benchmarking Multimodal Embedding Models in Long-Context Scenarios》</strong><br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://aclanthology.org/2026.emnlp-main.2586.pdf">https://aclanthology.org/2026.emnlp-main.2586.pdf</a><br>
+<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/AmamiSora1228/MMLongEmbed">https://github.com/AmamiSora1228/MMLongEmbed</a><br>
+<strong>评测模型</strong>：Qwen3-VL-Embedding (2B/8B), Ops-MM-embedding (2B/7B), RzenEmbed-v2-7B, Doubao-Seed-1.6, Embed-RL, GME-Qwen2-VL, VLM2Vec 等 11 款主流开源与商用模型</p>
+</blockquote>
+<p>作者设计了一套严密而苛刻的基准测试集 <strong>MMLongEmbed</strong>，不仅用控制变量法彻底“实锤”了当前长多模态向量模型的 <strong>四大核心工程缺陷</strong>，还为真实检索系统的<strong>Token算力规划、两阶段粗排精排、分层索引设计以及数据库表结构</strong>提供了教科书级别的实战指导。</p>
+<p>本文将完全抛弃生涩的算法数学证明，从 <strong>软件开发工程师（后端/全栈/系统架构）</strong> 的视角，深入拆解这篇论文的核心结论，并给出基于 PostgreSQL + pgvector 的全链路落地解决方案。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/11/02/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +339,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-02 18:00:00 / 修改时间：18:13:34" itemprop="dateCreated datePublished" datetime="2026-11-02T18:00:00+08:00">2026-11-02</time>
+      <time title="创建时间：2026-11-02 18:00:00 / 修改时间：19:07:47" itemprop="dateCreated datePublished" datetime="2026-11-02T18:00:00+08:00">2026-11-02</time>
     </span>
 
   
@@ -336,7 +449,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-02 18:13:34" itemprop="dateModified" datetime="2026-11-02T18:13:34+08:00">2026-11-02</time>
+      <time title="修改时间：2026-11-02 19:07:47" itemprop="dateModified" datetime="2026-11-02T19:07:47+08:00">2026-11-02</time>
     </span>
 
   
@@ -457,7 +570,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-02 18:13:34" itemprop="dateModified" datetime="2026-11-02T18:13:34+08:00">2026-11-02</time>
+      <time title="修改时间：2026-11-02 19:07:47" itemprop="dateModified" datetime="2026-11-02T19:07:47+08:00">2026-11-02</time>
     </span>
 
   
@@ -575,7 +688,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-02 18:13:34" itemprop="dateModified" datetime="2026-11-02T18:13:34+08:00">2026-11-02</time>
+      <time title="修改时间：2026-11-02 19:07:47" itemprop="dateModified" datetime="2026-11-02T19:07:47+08:00">2026-11-02</time>
     </span>
 
   
@@ -653,126 +766,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/29/FVQ-DiscreteVisualTokensSemanticallyLossless/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/10/29/FVQ-DiscreteVisualTokensSemanticallyLossless/" class="post-title-link" itemprop="url">【论文分享】告别“-VL”拼装车时代：华科与美团 FVQ 如何用离散 Token 追平顶尖连续视觉大模型？</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-29 16:00:00" itemprop="dateCreated datePublished" datetime="2026-10-29T16:00:00+08:00">2026-10-29</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-02 18:13:34" itemprop="dateModified" datetime="2026-11-02T18:13:34+08:00">2026-11-02</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>16 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在当今的多模态大模型世界里，几乎所有主流模型都带着一个醒目的尾缀：<strong>“-VL”</strong>（Vision-Language，如 Qwen2.5-VL、Qwen3-VL、InternVL）。</p>
-<p>但不知道你是否曾产生过这样一个疑问：<strong>为什么语言大模型（如纯文本的 Qwen、DeepSeek）从来不需要带什么奇怪的后缀，而一旦加上视觉，就非得搞成一个“-VL”的特殊拼装版本？</strong></p>
-<p>答案其实藏在底层最根本的数据形态鸿沟中：</p>
-<ul>
-<li><strong>语言大模型（LLM）的本质是“纯离散的世界”</strong>：无论是汉字还是英语单词，在模型眼里全都是一个个带有固定编号的“整数积木”（Token ID，如 1024、3892）。大模型的全部魔力，都来自于最纯粹的“猜下一个积木编号是谁（Next-Token Prediction）”；</li>
-<li><strong>视觉世界（Vision）却被当成了“连续的浮点小数”</strong>：目前绝大多数多模态模型，都是用一个外挂的视觉编码器（ViT）把图片扫描成一堆带小数点的高精度向量（连续浮点数，如 <code>[0.3421, -1.0543, ...]</code>），然后像打点滴一样硬生生灌进语言模型。</li>
-</ul>
-<p>这种“外挂拼装”虽然看图能力极强，但却带来了巨大的遗憾：<strong>大模型能看图、能说话，却不能像写字一样自己画画，更无法像人类在草稿纸上勾勾画画那样实现“视觉思维链（Visual CoT）”</strong>。</p>
-<p>学界一直梦寐以求的圣杯，叫做 <strong>“原生大一统多模态（Native Multimodal）”</strong>——把图片也切成离散的词语编号（离散 Token），让图片和文字在同一个字典里平起平坐！然而，长久以来的一个“思想教条”牢牢禁锢了这一探索：<strong>“离散化一定会带来量化误差，量化误差必定导致语义丢失，因此离散模型的理解能力永远不可能赶上连续模型。”</strong></p>
-<p>近日，来自<strong>华中科技大学（HUST）与美团 LongCat 团队</strong>（由第一作者邹佳侣、指导教师王兴刚教授等共同主导）联合发布了一篇具有里程碑意义的重磅论文：</p>
-<blockquote>
-<p><strong>“量化误差根本不决定语义保真度！只要给足有效比特预算，配合全新的‘因子化矢量量化（FVQ）’，纯离散视觉 Token 不仅能做到语义无损，而且在工业级多模态测试中，第一次全面追平甚至超越了当前最顶尖的连续模型 Qwen3-VL！”</strong></p>
-</blockquote>
-<p>在这篇分享中，我们将用最通俗易懂的语言、直观的代码透视和生动的比喻，彻底拆解这篇论文背后的思想颠覆、算法玄机，以及它对未来大模型演进的深远影响。</p>
-<blockquote>
-<p><strong>论文题目</strong>：Can Discrete Tokens Serve as Semantically Lossless Representations of Visual Signals?<br>
-<strong>作者团队</strong>：Jialv Zou, Xiaotong Li, Zhengrong Yue, Xu Huang, Yaxin Luo, Wenhao Yan, Haodong Li, Wenyu Liu, Xinggang Wang (华中科技大学, 美团 LongCat, 上海交大, 北大, 清华, 港中文, MBZUAI)<br>
-<strong>论文主页</strong>：<a target="_blank" rel="noopener" href="https://doctor-james.github.io/FVQ-Page/">https://doctor-james.github.io/FVQ-Page/</a><br>
-<strong>代码仓库</strong>：<a target="_blank" rel="noopener" href="https://github.com/hustvl/FVQ">https://github.com/hustvl/FVQ</a><br>
-<strong>arXiv 链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.37662">https://arxiv.org/abs/2610.37662</a><br>
-<strong>核心领域</strong>：Native Multimodal Foundation Models, Discrete Visual Representation, Factorized Vector Quantization (FVQ)<br>
-<strong>技术亮点</strong>：打破量化误差教条、有效比特预算缩放法则、16 组紧框架对称码本、首个全指标抗衡连续基线（Qwen3-VL）的纯离散多模态模型</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2026/10/29/FVQ-DiscreteVisualTokensSemanticallyLossless/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -797,14 +790,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">267k</span>
+    <span title="站点总字数">272k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">16:12</span>
+    <span title="站点阅读时长">16:28</span>
   </span>
 </div>
 <div class="busuanzi-count">
