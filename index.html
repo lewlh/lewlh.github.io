@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">229</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">63</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">234</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">64</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">63</span>
+          <span class="site-state-item-count">64</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">229</span>
+        <span class="site-state-item-count">234</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,114 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/11/03/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/11/03/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/" class="post-title-link" itemprop="url">【论文分享】告别昂贵的人工标注：NeurIPS 2026 EvoGround 开启视频时序定位的“双智能体自进化”新范式</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-03 11:25:00 / 修改时间：11:34:45" itemprop="dateCreated datePublished" datetime="2026-11-03T11:25:00+08:00">2026-11-03</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.5k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>13 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态视频理解与检索领域，<strong>视频时序定位（Video Temporal Grounding, VTG）</strong> 一直是连接自然语言与长视频语义的核心纽带：给定一段未经剪辑的原始长视频，外加一句自然语言查询（如 <em>“小女孩吹灭生日蛋糕上的蜡烛”</em>），算法需要精确输出该事件在视频时间轴上的<strong>起始与结束时间戳（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><msub><mi>t</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[t_{start}, t_{end}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>）</strong>。</p>
+<p>这项技术是短视频切片、长视频精准定位搜索、安防事件追踪以及多模态 RAG 的核心底座。然而，长期制约该领域工业化落地与学术演进的最大枷锁只有四个字——<strong>人工标注</strong>。</p>
+<p>为一段未剪辑长视频标注毫秒级起止点和精准描述（Query-Moment Pair），其时间与金钱成本极为高昂，且遇到特定行业（如工业流水线、医疗手术、私有业务监控）时，市面上根本没有现成标注可用。</p>
+<p>近日，首尔大学与达特茅斯学院团队在被 <strong>NeurIPS 2026</strong> 录用的重磅论文中交出了一份惊艳的答卷：</p>
+<blockquote>
+<p><strong>《EvoGround: Self-Evolving Video Agents for Video Temporal Grounding》</strong> (arXiv: 2605.13803v2)</p>
+</blockquote>
+<p>该论文提出了一种全新的 <strong>自进化强化学习训练范式</strong>：模型无需任何人手标注的训练集，只需给它“喂”未经标注的原始裸视频，系统内部的 <strong>出题人（Proposer）</strong> 与 <strong>解题人（Solver）</strong> 双智能体便能通过强化学习自我对弈、双向演化。其零样本定位能力甚至超越了许多完全依赖人工高成本训练的有监督主流模型。</p>
+<blockquote>
+<p><strong>论文题目</strong>：EvoGround: Self-Evolving Video Agents for Video Temporal Grounding<br>
+<strong>作者团队</strong>：Minjoon Jung, Byoung-Tak Zhang, Lorenzo Torresani (Seoul National University, Dartmouth College)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2605.13803">https://arxiv.org/abs/2605.13803</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2605.13803v2">https://arxiv.org/html/2605.13803v2</a><br>
+<strong>项目主页</strong>：<a target="_blank" rel="noopener" href="https://minjoong507.github.io/projects/EvoGround/">https://minjoong507.github.io/projects/EvoGround/</a><br>
+<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/minjoong507/EvoGround">https://github.com/minjoong507/EvoGround</a><br>
+<strong>核心领域</strong>：Video Temporal Grounding, Multimodal LLMs, Reinforcement Learning, Self-Evolving Agents, GRPO</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/11/03/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -224,9 +332,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-02 18:50:00 / 修改时间：19:07:47" itemprop="dateCreated datePublished" datetime="2026-11-02T18:50:00+08:00">2026-11-02</time>
+      <time title="创建时间：2026-11-02 18:50:00" itemprop="dateCreated datePublished" datetime="2026-11-02T18:50:00+08:00">2026-11-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-03 11:34:45" itemprop="dateModified" datetime="2026-11-03T11:34:45+08:00">2026-11-03</time>
     </span>
 
   
@@ -337,9 +451,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-02 18:00:00 / 修改时间：19:07:47" itemprop="dateCreated datePublished" datetime="2026-11-02T18:00:00+08:00">2026-11-02</time>
+      <time title="创建时间：2026-11-02 18:00:00" itemprop="dateCreated datePublished" datetime="2026-11-02T18:00:00+08:00">2026-11-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-03 11:34:45" itemprop="dateModified" datetime="2026-11-03T11:34:45+08:00">2026-11-03</time>
     </span>
 
   
@@ -449,7 +569,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-02 19:07:47" itemprop="dateModified" datetime="2026-11-02T19:07:47+08:00">2026-11-02</time>
+      <time title="修改时间：2026-11-03 11:34:45" itemprop="dateModified" datetime="2026-11-03T11:34:45+08:00">2026-11-03</time>
     </span>
 
   
@@ -570,7 +690,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-02 19:07:47" itemprop="dateModified" datetime="2026-11-02T19:07:47+08:00">2026-11-02</time>
+      <time title="修改时间：2026-11-03 11:34:45" itemprop="dateModified" datetime="2026-11-03T11:34:45+08:00">2026-11-03</time>
     </span>
 
   
@@ -644,128 +764,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/10/30/WhatReallyWorks-UniversalMultimodalEmbeddings/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/10/30/WhatReallyWorks-UniversalMultimodalEmbeddings/" class="post-title-link" itemprop="url">【论文分享】AI“炼丹”流言终结者：通用多模态向量到底怎样训练才真正有效？（NTU & 阿里新作硬核拆解）</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-30 11:05:00" itemprop="dateCreated datePublished" datetime="2026-10-30T11:05:00+08:00">2026-10-30</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-02 19:07:47" itemprop="dateModified" datetime="2026-11-02T19:07:47+08:00">2026-11-02</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.1k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>15 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在大模型与多模态检索（Multimodal Retrieval）领域，<strong>对比学习（Contrastive Learning）</strong> 几乎是所有人都在使用的标准训练范式——将文字、图像或图文混合输入映射到同一个向量空间中，<strong>“拉近同义正样本，推开无关负样本”</strong>。</p>
-<p>在过去几年里，学术界和各大机构围绕对比学习卷出了无数眼花缭乱的“微调技巧”：</p>
-<ul>
-<li><strong>梯度调节（Gradient Modulation）</strong>：遇到高相似度的难样本？加大惩罚权重狠狠推开！</li>
-<li><strong>假负例缓解（False-Negative Mitigation）</strong>：标注有噪声？用各种阈值动态过滤假错题！</li>
-<li><strong>智能批次构建（Batch Construction）</strong>：随机打包 Batch 太粗糙？用花式采样法重构训练题库！</li>
-</ul>
-<p>每一篇顶会论文发表时，都在各自的实验设定下宣称 <strong>“涨点显著”</strong>。但当你真正把这些技巧拿来落地，或是想在自己的多模态大模型基座上复现时，往往会遭遇当头棒喝：<strong>为什么不仅没涨点，反而性能雪崩了？这些技巧到底是真突破，还是超参数精调出来的“幸存者偏差”？</strong></p>
-<p>近日，来自<strong>南洋理工大学（NTU）与阿里巴巴集团</strong>的研究团队发表了一篇堪称 <strong>“算法界《流言终结者》”</strong> 的重磅严谨对比论文：</p>
-<blockquote>
-<p><strong>《What Really Works for Universal Multimodal Embeddings? A Controlled Study of Contrastive Training Strategies》</strong> (arXiv:2610.15035)</p>
-</blockquote>
-<p>作者团队统一了基座模型（Qwen2-VL-2B/7B、Qwen3.5-2B）、对齐了所有超参数与提示词格式，在包含 36 个评测数据集的权威基准 <strong>MMEB</strong> 上进行了一场彻底的 <strong>“无滤镜大阅兵”</strong>。</p>
-<p>实验结果给整个多模态向量研究领域泼了一盆透心凉的冷水：</p>
-<blockquote>
-<p><strong>绝大多数曾被顶会吹上天的“花哨技巧”，单用几乎全部无效甚至带来明显负优化；而真正能够稳定带来 6.0% 显著提升的，唯有一套被长期忽视的系统工程打法——“假负例清洗 + 难负例提炼 + 图结构智能批次”的三位一体协同设计（B3 范式）。</strong></p>
-</blockquote>
-<p>本文将为你深度拆解这篇论文的核心实验、颠覆性洞察，以及作者为了彻底查清“模型到底错在哪”而独创的 <strong>MLLM-as-a-Judge（大模型裁判员）</strong> 诊断体系。</p>
-<blockquote>
-<p><strong>论文题目</strong>：What Really Works for Universal Multimodal Embeddings? A Controlled Study of Contrastive Training Strategies<br>
-<strong>作者团队</strong>：Duo Li, Haojun Pan, Zuhao Yang, Xintong Wang, Chengfu Huo, Shijian Lu, Liang Ding（南洋理工大学 CCDS、阿里巴巴集团等）<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.15035">https://arxiv.org/abs/2610.15035</a><br>
-<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.15035v1">https://arxiv.org/html/2610.15035v1</a><br>
-<strong>核心领域</strong>：Universal Multimodal Embeddings, Contrastive Learning, MLLM, MMEB Benchmark</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2026/10/30/WhatReallyWorks-UniversalMultimodalEmbeddings/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -790,14 +788,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">272k</span>
+    <span title="站点总字数">275k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">16:28</span>
+    <span title="站点阅读时长">16:41</span>
   </span>
 </div>
 <div class="busuanzi-count">
