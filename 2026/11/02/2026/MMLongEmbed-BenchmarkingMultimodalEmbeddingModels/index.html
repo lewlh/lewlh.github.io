@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在多模态大模型（MLLM）和多模态向量嵌入（Multimodal Embedding Models, MEMs）飞速发展的今天，各大模型厂商的宣发通稿里，“支持 32K 甚至 128K 超长上下文”、“支持全模态统一特征对齐”几乎成了标配。 对于许多想要开发 “多模态输入 + 向量数据库（SQL 混合检索）+ 精准视频片段召回” 产品的软件开发工程师而言，直觉上的架构设计似乎非常简单直接：  “既">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】别被 32K 窗口忽悠了：长视频多模态检索为何频频“翻车”？EMNLP 2026 蚂蚁与苏大新作 MMLongEmbed 深度剖析与工程实战">
+<meta property="og:url" content="https://lewlh.github.io/2026/11/02/2026/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在多模态大模型（MLLM）和多模态向量嵌入（Multimodal Embedding Models, MEMs）飞速发展的今天，各大模型厂商的宣发通稿里，“支持 32K 甚至 128K 超长上下文”、“支持全模态统一特征对齐”几乎成了标配。 对于许多想要开发 “多模态输入 + 向量数据库（SQL 混合检索）+ 精准视频片段召回” 产品的软件开发工程师而言，直觉上的架构设计似乎非常简单直接：  “既">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-02T10:50:00.000Z">
+<meta property="article:modified_time" content="2026-11-03T09:19:31.880Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="EMNLP 2026">
+<meta property="article:tag" content="MMLongEmbed">
+<meta property="article:tag" content="pgvector">
+<meta property="article:tag" content="向量数据库">
+<meta property="article:tag" content="向量检索">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="蚂蚁集团">
+<meta property="article:tag" content="视频检索">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/2026/11/02/2026/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/2026/11/02/2026/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/","path":"2026/11/02/2026/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/","title":"【论文分享】别被 32K 窗口忽悠了：长视频多模态检索为何频频“翻车”？EMNLP 2026 蚂蚁与苏大新作 MMLongEmbed 深度剖析与工程实战"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】别被 32K 窗口忽悠了：长视频多模态检索为何频频“翻车”？EMNLP 2026 蚂蚁与苏大新作 MMLongEmbed 深度剖析与工程实战 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">239</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">67</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E6%8F%AD%E5%BC%80%E7%A5%9E%E8%AF%9D%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E4%BB%AC%E9%9C%80%E8%A6%81-MMLongEmbed%EF%BC%9F"><span class="nav-text">01. 揭开神话：为什么我们需要 MMLongEmbed？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E8%AE%BA%E6%96%87%E5%AE%9E%E9%94%A4%EF%BC%9A%E5%A4%9A%E6%A8%A1%E6%80%81%E9%95%BF%E5%90%91%E9%87%8F%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%9B%9B%E5%A4%A7%E5%B7%A5%E7%A8%8B%E7%BC%BA%E9%99%B7"><span class="nav-text">02. 论文实锤：多模态长向量模型的四大工程缺陷</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%BA%E9%99%B7%E4%B8%80%EF%BC%9A%E8%87%B4%E5%91%BD%E4%BC%A4%E2%80%9C%E6%97%B6%E5%BA%8F%E7%9B%B2%E5%8C%BA%E2%80%9D%EF%BC%88Temporal-Blindness%EF%BC%89"><span class="nav-text">缺陷一：致命伤“时序盲区”（Temporal Blindness）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%BA%E9%99%B7%E4%BA%8C%EF%BC%9A%E4%BD%8D%E7%BD%AE%E5%81%8F%E7%BD%AE%E4%B8%8E%E2%80%9C%E4%B8%AD%E9%97%B4%E9%81%97%E5%BF%98%E2%80%9D%EF%BC%88Lost-in-the-Middle%EF%BC%89"><span class="nav-text">缺陷二：位置偏置与“中间遗忘”（Lost in the Middle）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%BA%E9%99%B7%E4%B8%89%EF%BC%9A%E8%B7%A8%E6%A8%A1%E6%80%81%E5%B9%B2%E6%89%B0%E4%B8%8E%E6%A8%A1%E6%80%81%E5%81%8F%E7%A7%91%EF%BC%88Cross-Modal-Interference%EF%BC%89"><span class="nav-text">缺陷三：跨模态干扰与模态偏科（Cross-Modal Interference）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%BA%E9%99%B7%E5%9B%9B%EF%BC%9A%E6%A8%A1%E5%9E%8B%E8%A7%84%E6%A8%A1%E4%B8%8E%E7%BB%B4%E5%BA%A6%E7%9A%84%E2%80%9C%E6%97%A0%E6%95%88%E5%86%85%E5%8D%B7%E2%80%9D%EF%BC%88Decoupling-of-Scale%EF%BC%89"><span class="nav-text">缺陷四：模型规模与维度的“无效内卷”（Decoupling of Scale）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%8F%AD%E7%A7%98%E6%95%B0%E6%8D%AE%EF%BC%9A%E5%AF%B9%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E6%9E%81%E5%85%B7%E4%BB%B7%E5%80%BC%E7%9A%84%E7%BB%86%E8%8A%82%E5%8F%91%E7%8E%B0"><span class="nav-text">03. 揭秘数据：对系统架构极具价值的细节发现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A4%9A%E6%A8%A1%E6%80%81-Token-%E6%8D%A2%E7%AE%97%E5%85%AC%E5%BC%8F%E4%B8%8E%E8%A7%86%E9%A2%91%E6%8A%BD%E5%B8%A7%E9%A2%84%E7%AE%97"><span class="nav-text">1. 多模态 Token 换算公式与视频抽帧预算</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E5%8A%9B%E9%81%BF%E5%9D%91%E8%AD%A6%E7%A4%BA"><span class="nav-text">算力避坑警示</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-P-1-%E8%99%BD%E6%89%91%E8%A1%97%EF%BC%8C%E4%BD%86-R-10-%E4%BE%9D%E7%84%B6%E9%AB%98%E8%BE%BE-85-%EF%BC%88%E2%80%9C%E7%B2%97%E6%8E%92-%E7%B2%BE%E6%8E%92%E2%80%9D%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%96%B9%E6%A1%88%E4%BE%9D%E6%8D%AE%EF%BC%89"><span class="nav-text">2. P@1 虽扑街，但 R@10 依然高达 85%+（“粗排+精排”两阶段方案依据）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%8F%8D%E7%9B%B4%E8%A7%89%E7%8E%B0%E8%B1%A1%EF%BC%9A%E5%AE%8F%E8%A7%82%E6%91%98%E8%A6%81%E5%9C%A8-16K-%E8%A1%A8%E7%8E%B0%E4%B8%8D%E9%99%8D%E5%8F%8D%E5%8D%87%EF%BC%88%E5%88%86%E5%B1%82%E7%B4%A2%E5%BC%95%E8%AE%BE%E8%AE%A1%EF%BC%89"><span class="nav-text">3. 反直觉现象：宏观摘要在 16K 表现不降反升（分层索引设计）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%B8%8A%E4%B8%8B%E6%96%87%E8%B6%85%E9%99%90%E6%97%B6%E7%9A%84%E5%85%9C%E5%BA%95%E6%B3%95%E5%88%99%EF%BC%9A%E2%80%9C%E4%B8%AD%E9%97%B4%E6%88%AA%E6%96%AD%E2%80%9D%EF%BC%88Middle-Truncation%EF%BC%89"><span class="nav-text">4. 上下文超限时的兜底法则：“中间截断”（Middle Truncation）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%B8%88%E5%AE%9E%E6%88%98%EF%BC%9A%E5%85%A8%E9%93%BE%E8%B7%AF%E5%A4%9A%E6%A8%A1%E6%80%81%E8%A7%86%E9%A2%91%E6%A3%80%E7%B4%A2%E6%9E%B6%E6%9E%84"><span class="nav-text">04. 软件工程师实战：全链路多模态视频检索架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1%EF%BC%88PostgreSQL-pgvector%EF%BC%89"><span class="nav-text">1. 向量数据库表结构设计（PostgreSQL + pgvector）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%8A%A8%E6%80%81%E6%8B%BC%E8%A3%85-SQL-%E4%B8%8E%E6%B7%B7%E5%90%88%E6%90%9C%E7%B4%A2%E6%89%A7%E8%A1%8C"><span class="nav-text">2. 动态拼装 SQL 与混合搜索执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E6%80%BB%E7%BB%93%E4%B8%8E%E9%80%89%E5%9E%8B%E5%BB%BA%E8%AE%AE"><span class="nav-text">05. 总结与选型建议</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">239</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/11/02/2026/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】别被 32K 窗口忽悠了：长视频多模态检索为何频频“翻车”？EMNLP 2026 蚂蚁与苏大新作 MMLongEmbed 深度剖析与工程实战 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】别被 32K 窗口忽悠了：长视频多模态检索为何频频“翻车”？EMNLP 2026 蚂蚁与苏大新作 MMLongEmbed 深度剖析与工程实战
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-02 18:50:00" itemprop="dateCreated datePublished" datetime="2026-11-02T18:50:00+08:00">2026-11-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-03 17:19:31" itemprop="dateModified" datetime="2026-11-03T17:19:31+08:00">2026-11-03</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在多模态大模型（MLLM）和多模态向量嵌入（Multimodal Embedding Models, MEMs）飞速发展的今天，各大模型厂商的宣发通稿里，“支持 32K 甚至 128K 超长上下文”、“支持全模态统一特征对齐”几乎成了标配。</p>
+<p>对于许多想要开发 <strong>“多模态输入 + 向量数据库（SQL 混合检索）+ 精准视频片段召回”</strong> 产品的软件开发工程师而言，直觉上的架构设计似乎非常简单直接：</p>
+<blockquote>
+<p><em>“既然模型支持 32K 超长上下文，那我就把长达 10 分钟甚至 1 小时的长视频直接抽帧，塞给多模态 Embedding 模型提取一个整体高维向量，存入 pgvector 或 Milvus，用户输入一句话或者一张图，直接做余弦相似度查询不就完事了吗？”</em></p>
+</blockquote>
+<p>然而，一旦在真实业务中上线这套方案，系统往往会遭遇密集的 <strong>Bad Case</strong> 轰炸：</p>
+<ol>
+<li><strong>时序动作彻底错乱</strong>：用户搜“先倒油再下锅煎蛋”，排在第一位的视频片段居然是“先下锅煎蛋再倒油”；</li>
+<li><strong>中间时段频繁漏检</strong>：一段 10 分钟的视频，发生在第 5 分钟的核心动作死活搜不出来，反而开头和结尾的无关画面频频被召回；</li>
+<li><strong>图文混合噪点污染</strong>：用户传了一张参考图加一句话，结果检索出的视频被背景里的无关元素带偏；</li>
+<li><strong>算力成本居高不下</strong>：咬牙花大价钱租卡上线了 8B 参数的大模型提向量，检索质量却跟 2B 模型毫无两样。</li>
+</ol>
+<p>难道厂商宣传的长上下文向量模型，在工业落地上真的是一张“空头支票”？</p>
+<p>近日，来自 <strong>苏州大学（Soochow University）与蚂蚁集团（Ant Group）</strong> 的研究团队在自然语言处理顶会 <strong>EMNLP 2026</strong> 上发表了一篇极具工程洞察的重磅论文：</p>
+<blockquote>
+<p><strong>《MMLongEmbed: Benchmarking Multimodal Embedding Models in Long-Context Scenarios》</strong><br>
+<strong>论文链接</strong>：<a target="_blank" href="https://aclanthology.org/2026.emnlp-main.2586.pdf" rel="external nofollow noreferrer noopener">https://aclanthology.org/2026.emnlp-main.2586.pdf</a><br>
+<strong>开源代码</strong>：<a target="_blank" href="https://github.com/AmamiSora1228/MMLongEmbed" rel="external nofollow noreferrer noopener">https://github.com/AmamiSora1228/MMLongEmbed</a><br>
+<strong>评测模型</strong>：Qwen3-VL-Embedding (2B/8B), Ops-MM-embedding (2B/7B), RzenEmbed-v2-7B, Doubao-Seed-1.6, Embed-RL, GME-Qwen2-VL, VLM2Vec 等 11 款主流开源与商用模型</p>
+</blockquote>
+<p>作者设计了一套严密而苛刻的基准测试集 <strong>MMLongEmbed</strong>，不仅用控制变量法彻底“实锤”了当前长多模态向量模型的 <strong>四大核心工程缺陷</strong>，还为真实检索系统的<strong>Token算力规划、两阶段粗排精排、分层索引设计以及数据库表结构</strong>提供了教科书级别的实战指导。</p>
+<p>本文将完全抛弃生涩的算法数学证明，从 <strong>软件开发工程师（后端/全栈/系统架构）</strong> 的视角，深入拆解这篇论文的核心结论，并给出基于 PostgreSQL + pgvector 的全链路落地解决方案。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-揭开神话：为什么我们需要-MMLongEmbed？">01. 揭开神话：为什么我们需要 MMLongEmbed？</h2>
+<p>传统的文本与多模态向量评测基准（如 MTEB、MMEB）存在两大致命盲区：</p>
+<ul>
+<li><strong>输入长度过短</strong>：大多只评测单张图片或几百个 Token 的短文本，完全覆盖不到长视频和长多模态文档；</li>
+<li><strong>测试用例过于简单（缺乏对抗干扰）</strong>：候选池里的负样本差距太大。例如用户搜“小狗接飞盘”，负样本全都是“火箭发射”或“烹饪做菜”。由于画面语义相差十万八千里，即便模型只是个“半吊子”，也能靠几个简单的视觉色块排在前列。</li>
+</ul>
+<p>为了测试出模型的真实极限，MMLongEmbed 引入了两个核心设计理念：</p>
+<ol>
+<li><strong>严格的长度分层（Length Stratification）</strong>：将输入长度严格划分为 <strong>8K、16K、32K Tokens</strong> 等离散区间，把“长度”作为独立自变量单独测量；</li>
+<li><strong>高难度对抗性干扰样本（Hard Distractors）</strong>：保持视觉元素、词汇高度重合，仅仅破坏<strong>时间轴时序、替换关键逻辑证据</strong>。</li>
+</ol>
+<p>正是在这套如同软件单元测试边界用例（Edge Case）的严格检验下，各大顶级多模态向量模型的短板暴露无遗。</p>
+<hr>
+<h2 id="02-论文实锤：多模态长向量模型的四大工程缺陷">02. 论文实锤：多模态长向量模型的四大工程缺陷</h2>
+<p>论文通过详尽的对比实验，向工业界揭示了 4 个直接影响架构选型的缺陷：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                      论文揭示的 4 大核心工程缺陷                       │</span><br><span class="line">├────────────────────────────────────┬───────────────────────────────────┤</span><br><span class="line">│ 缺陷 1：时序盲区（Temporal Blindness）│ 倒放与乱序时，Top-1 准确率暴跌至 10%~20% │</span><br><span class="line">├────────────────────────────────────┼───────────────────────────────────┤</span><br><span class="line">│ 缺陷 2：位置偏置（Lost in the Middle）│ &gt;2K Tokens 持续衰退，两头沉中间丢 (U型) │</span><br><span class="line">├────────────────────────────────────┼───────────────────────────────────┤</span><br><span class="line">│ 缺陷 3：跨模态干扰（Modality Skew） │ 图文交织输入时互斥，文字易带偏画面特征   │</span><br><span class="line">├────────────────────────────────────┼───────────────────────────────────┤</span><br><span class="line">│ 缺陷 4：尺度脱节（Scale Decoupling）│ 8B 与 2B 效果无统计学差异 (p = 0.5375)  │</span><br><span class="line">└────────────────────────────────────┴───────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+<h3 id="缺陷一：致命伤“时序盲区”（Temporal-Blindness）">缺陷一：致命伤“时序盲区”（Temporal Blindness）</h3>
+<p>在长视频动作检索任务（Temporal Summarization，基于 ActivityNet 与优酷视频集 YoukuDC）中：</p>
+<ul>
+<li><strong>基准组（Easy 组）</strong>：把正确视频与完全无关的其他视频混在一起检索，各大模型的 Precision@1 高达 <strong>80% ~ 96%</strong>；</li>
+<li><strong>对抗干扰组（Hard 组）</strong>：<strong>保持视频的所有抽帧画面 100% 完全相同</strong>，仅仅在事件的语义边界处切开，做 <strong>“完全倒放（Chronological Reversal）”</strong> 或 <strong>“前后半段乱序重组（Shuffle）”</strong>。</li>
+</ul>
+<p>此时令人震惊的一幕出现了：各大模型的首位命中率呈现断崖式暴跌！</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型名称</th>
+<th style="text-align:left">优酷视频集 (Easy 组)</th>
+<th style="text-align:left">优酷视频集 (Hard 倒放打乱组)</th>
+<th style="text-align:left">ActivityNet (Easy 组)</th>
+<th style="text-align:left">ActivityNet (Hard 倒放打乱组)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Qwen3-VL-2B</strong></td>
+<td style="text-align:left"><strong>76.00%</strong></td>
+<td style="text-align:left"><strong>13.00%</strong>（暴跌 63%）</td>
+<td style="text-align:left"><strong>89.33%</strong></td>
+<td style="text-align:left"><strong>20.00%</strong>（暴跌 69%）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Qwen3-VL-8B</strong></td>
+<td style="text-align:left"><strong>83.00%</strong></td>
+<td style="text-align:left"><strong>11.33%</strong>（暴跌 71%）</td>
+<td style="text-align:left"><strong>93.33%</strong></td>
+<td style="text-align:left"><strong>20.67%</strong>（暴跌 72%）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Rzen-v2-7B</strong></td>
+<td style="text-align:left"><strong>87.67%</strong></td>
+<td style="text-align:left"><strong>16.00%</strong>（暴跌 71%）</td>
+<td style="text-align:left"><strong>72.67%</strong></td>
+<td style="text-align:left"><strong>20.00%</strong>（暴跌 52%）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Doubao-Seed-1.6</strong></td>
+<td style="text-align:left"><strong>79.67%</strong></td>
+<td style="text-align:left"><strong>18.00%</strong>（暴跌 61%）</td>
+<td style="text-align:left"><strong>96.00%</strong></td>
+<td style="text-align:left"><strong>25.33%</strong>（暴跌 70%）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>工程师结论</strong>：现有模型本质上依然是**“视觉词袋匹配”（Bag-of-Frames）**。它们只能识别画面里有没有“锅、油、鸡蛋”，根本无法建模动作发生的时间先后。<strong>工程上绝不能单靠多模态向量去判断视频的时序先后！</strong></p>
+</blockquote>
+<hr>
+<h3 id="缺陷二：位置偏置与“中间遗忘”（Lost-in-the-Middle）">缺陷二：位置偏置与“中间遗忘”（Lost in the Middle）</h3>
+<p>在多模态“大海捞针”（Visual Grounding）任务中，作者把目标信息（Needle）分别埋在不同长度（256 到 32K）和不同相对位置（0% 最前、20%、40%、60%、80%、100% 最后）的背景中：</p>
+<ol>
+<li><strong>严重的 U 型注意力曲线</strong>：目标信息位于 0%（视频开头）或 100%（视频结尾）时，模型检索成功率极高；一旦信息挪到 <strong>20%~80% 的中间区域</strong>，召回精度几乎断崖跌至谷底；</li>
+<li><strong>2K Tokens 临界衰退点</strong>：在 256 到 2048 Tokens 之间，模型还能维持精细检索；一旦超过 2K Tokens，性能随长度增长出现不可逆的持续下滑。</li>
+</ol>
+<blockquote>
+<p><strong>工程师结论</strong>：千万不要直接拿整段几十分钟的长视频去提一个单一向量，中间 60% 以上的内容在向量表征中会被严重稀释丢失！</p>
+</blockquote>
+<hr>
+<h3 id="缺陷三：跨模态干扰与模态偏科（Cross-Modal-Interference）">缺陷三：跨模态干扰与模态偏科（Cross-Modal Interference）</h3>
+<p>作者将背景干扰划分为<strong>纯文本、纯图片、图文交织</strong>三种模态环境，发现模型存在严重的模态失衡（Modality Skew）：</p>
+<ul>
+<li><strong>偏科严重</strong>：以千问 Qwen3-VL 系列为例，在纯图片背景下的准确率高达 <strong>88.61%</strong>，但一遇到纯文本干扰，准确率骤降至 <strong>63.19%</strong>（标准差 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>σ</mi><mo>=</mo><mn>13.33</mn></mrow><annotation encoding="application/x-tex">\sigma = 13.33</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">σ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">13.33</span></span></span></span>），对文本噪点极其敏感；</li>
+<li><strong>混合互斥</strong>：以 Embed-RL 为例，在纯文本（71.81%）和纯图片（75.35%）下表现均较好，但图文交错混合输入时，精度跌至 <strong>62.43%</strong>。</li>
+</ul>
+<blockquote>
+<p><strong>工程师结论</strong>：在支持“文字 + 图片”多模态查询时，不要把图和文字打包成一个粗暴的整体向量，否则容易引发模态间的特征污染。</p>
+</blockquote>
+<hr>
+<h3 id="缺陷四：模型规模与维度的“无效内卷”（Decoupling-of-Scale）">缺陷四：模型规模与维度的“无效内卷”（Decoupling of Scale）</h3>
+<p>在很多软件团队的认知里，如果 2B 模型效果不够好，升到 8B 准没错。论文使用配对双样本 t 检验（Paired t-test）和 10,000 次 Bootstrap 重抽样，对同一家族的 2B 与 8B/7B 模型进行了同台实测：</p>
+<ul>
+<li><strong>Qwen3-VL-8B vs 2B</strong>：8B 相比 2B，整体微平均命中率仅提升了微弱的 <strong>+0.33%</strong>（53.98% vs 53.65%）；</li>
+<li>统计检验结果显示：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mtext>-value</mtext><mo>=</mo><mn>0.5375</mn></mrow><annotation encoding="application/x-tex">p\text{-value} = 0.5375</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mord text"><span class="mord">-value</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0.5375</span></span></span></span>（远大于 0.05），效应量 Cohen’s <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>0.007</mn></mrow><annotation encoding="application/x-tex">d = 0.007</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord mathnormal">d</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0.007</span></span></span></span>。<strong>在统计学上，参数翻了 4 倍、向量维度翻倍的 8B 模型，在长上下文检索表现上与 2B 模型没有任何显著区别！</strong></li>
+<li>在复杂文档任务 MMDocRAG（Hard 组）中，8B 的得分（25.42%）甚至反向输给了 2B 版本（32.29%）。</li>
+</ul>
+<blockquote>
+<p><strong>工程师结论</strong>：多花 4 倍的显卡显存和推理延迟去上线 8B 模型提取向量，性价比极低。用 2B 模型做向量提取，将昂贵的大算力留给业务理解，是最佳工程实践。</p>
+</blockquote>
+<hr>
+<h2 id="03-揭秘数据：对系统架构极具价值的细节发现">03. 揭秘数据：对系统架构极具价值的细节发现</h2>
+<p>除了四大缺陷，论文的数据表格中还藏着几个直接支撑架构设计的“黄金法则”：</p>
+<h3 id="1-多模态-Token-换算公式与视频抽帧预算">1. 多模态 Token 换算公式与视频抽帧预算</h3>
+<p>论文给出了通用的多模态 Token 计算法则：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>单帧图像 Token 数</mtext><mo>=</mo><mrow><mo fence="true">⌈</mo><mfrac><mi>H</mi><mn>32</mn></mfrac><mo fence="true">⌉</mo></mrow><mo>×</mo><mrow><mo fence="true">⌈</mo><mfrac><mi>W</mi><mn>32</mn></mfrac><mo fence="true">⌉</mo></mrow></mrow><annotation encoding="application/x-tex">\text{单帧图像 Token 数} = \left\lceil \frac{H}{32} \right\rceil \times \left\lceil \frac{W}{32} \right\rceil
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord text"><span class="mord cjk_fallback">单帧图像</span><span class="mord"> Token </span><span class="mord cjk_fallback">数</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.4em;vertical-align:-0.95em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">⌈</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">32</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0813em;">H</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">⌉</span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.4em;vertical-align:-0.95em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">⌈</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">32</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">⌉</span></span></span></span></span></span></span></p>
+<h4 id="算力避坑警示">算力避坑警示</h4>
+<ul>
+<li>如果把未经缩放的 <strong>1080p 原画（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1920</mn><mo>×</mo><mn>1080</mn></mrow><annotation encoding="application/x-tex">1920 \times 1080</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1920</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">1080</span></span></span></span>）</strong> 直接喂给模型，单张图片就会吃掉：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mrow><mo fence="true">⌈</mo><mfrac><mn>1080</mn><mn>32</mn></mfrac><mo fence="true">⌉</mo></mrow><mo>×</mo><mrow><mo fence="true">⌈</mo><mfrac><mn>1920</mn><mn>32</mn></mfrac><mo fence="true">⌉</mo></mrow><mo>=</mo><mn>34</mn><mo>×</mo><mn>60</mn><mo>=</mo><mn>2040</mn><mtext> Tokens</mtext></mrow><annotation encoding="application/x-tex">\left\lceil \frac{1080}{32} \right\rceil \times \left\lceil \frac{1920}{32} \right\rceil = 34 \times 60 = 2040 \text{ Tokens}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:2.4em;vertical-align:-0.95em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">⌈</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">32</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1080</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">⌉</span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.4em;vertical-align:-0.95em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">⌈</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">32</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1920</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">⌉</span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">34</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">60</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord">2040</span><span class="mord text"><span class="mord"> Tokens</span></span></span></span></span></span></p>
+<strong>这意味着仅仅喂 8 帧画面，就会耗尽 16K 上下文！</strong></li>
+<li><strong>工业界标准做法</strong>：在输入模型前，必须统一做 Resize（如等比例缩放到 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>448</mn><mo>×</mo><mn>448</mn></mrow><annotation encoding="application/x-tex">448 \times 448</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">448</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">448</span></span></span></span>）：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mrow><mo fence="true">⌈</mo><mfrac><mn>448</mn><mn>32</mn></mfrac><mo fence="true">⌉</mo></mrow><mo>×</mo><mrow><mo fence="true">⌈</mo><mfrac><mn>448</mn><mn>32</mn></mfrac><mo fence="true">⌉</mo></mrow><mo>=</mo><mn>14</mn><mo>×</mo><mn>14</mn><mo>=</mo><mn>196</mn><mtext> Tokens / 帧</mtext></mrow><annotation encoding="application/x-tex">\left\lceil \frac{448}{32} \right\rceil \times \left\lceil \frac{448}{32} \right\rceil = 14 \times 14 = 196 \text{ Tokens / 帧}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:2.4em;vertical-align:-0.95em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">⌈</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">32</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">448</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">⌉</span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.4em;vertical-align:-0.95em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">⌈</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">32</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">448</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">⌉</span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">14</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">14</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">196</span><span class="mord text"><span class="mord"> Tokens / </span><span class="mord cjk_fallback">帧</span></span></span></span></span></span></p>
+缩放后，<strong>16K 上下文能够容纳约 80 帧画面</strong>。按每秒抽 1 帧（1 FPS）计算，刚好能够完整建模 <strong>1.5 分钟</strong> 的视频片段！</li>
+</ul>
+<hr>
+<h3 id="2-P-1-虽扑街，但-R-10-依然高达-85-（“粗排-精排”两阶段方案依据）">2. P@1 虽扑街，但 R@10 依然高达 85%+（“粗排+精排”两阶段方案依据）</h3>
+<p>查看论文的完整检索指标表（Table 6）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型名称</th>
+<th style="text-align:left">P@1（Top-1 命中率）</th>
+<th style="text-align:left">R@5（Top-5 召回率）</th>
+<th style="text-align:left">R@10（Top-10 召回率）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Embed-RL-2B</strong></td>
+<td style="text-align:left"><strong>39.28%</strong>（很惨）</td>
+<td style="text-align:left">79.91%</td>
+<td style="text-align:left"><strong>87.16%</strong>（非常高）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Qwen3-VL-2B</strong></td>
+<td style="text-align:left"><strong>52.31%</strong></td>
+<td style="text-align:left">79.26%</td>
+<td style="text-align:left"><strong>81.85%</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Doubao-Seed-1.6</strong></td>
+<td style="text-align:left"><strong>52.11%</strong></td>
+<td style="text-align:left">81.22%</td>
+<td style="text-align:left"><strong>84.55%</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Rzen-v2-7B</strong></td>
+<td style="text-align:left"><strong>58.61%</strong></td>
+<td style="text-align:left">82.39%</td>
+<td style="text-align:left"><strong>84.53%</strong></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>为什么 P@1 很低？</strong> 因为双编码器（Bi-Encoder）提取向量时缺乏 Token 级别的交叉交互（Cross-Attention），在极度相似的几个候选片段面前，余弦相似度极易受微小扰动误判；</li>
+<li><strong>为什么 R@10 极高？</strong> 正确的目标虽然没拿到第 1，但其绝对语义强相关性使其稳定落在前 10 名。</li>
+</ul>
+<blockquote>
+<p><strong>架构启示</strong>：绝不要让数据库只 <code>LIMIT 1</code> 返回给前端。必须采用 <strong>“向量数据库 HNSW 粗排召回 Top-20 + 多模态 LLM 精排打分”</strong> 的两阶段标准架构。</p>
+</blockquote>
+<hr>
+<h3 id="3-反直觉现象：宏观摘要在-16K-表现不降反升（分层索引设计）">3. 反直觉现象：宏观摘要在 16K 表现不降反升（分层索引设计）</h3>
+<p>在论文的宏观逻辑摘要（Logical Summarization）实验中，当上下文长度递增时，各大模型的表现呈现独特的倒 U 型：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型名称</th>
+<th style="text-align:left">8K 长度时准确率（约 40 秒视频）</th>
+<th style="text-align:left">16K 长度时准确率（约 1.5 分钟视频）</th>
+<th style="text-align:left">32K 长度时准确率（约 3 分钟以上视频）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Qwen3-VL-2B</strong></td>
+<td style="text-align:left">89.17%</td>
+<td style="text-align:left"><strong>96.25%（上升 7.08%）</strong></td>
+<td style="text-align:left">79.79%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Rzen-v2-7B</strong></td>
+<td style="text-align:left">91.88%</td>
+<td style="text-align:left"><strong>98.96%（上升 7.08%）</strong></td>
+<td style="text-align:left">77.50%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Doubao-Seed-1.6</strong></td>
+<td style="text-align:left">87.92%</td>
+<td style="text-align:left"><strong>97.08%（上升 9.16%）</strong></td>
+<td style="text-align:left">75.83%</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>原因</strong>：微观动作是“孤立证据”，长视频里容易被稀释；但宏观事件是 <strong>“弥散冗余证据”</strong>。
+<ul>
+<li>40 秒的片段（8K）往往只能拍到事件的前半截，故事线残缺；</li>
+<li><strong>1.5 分钟的片段（16K）恰好完整记录了一个闭环事件</strong>（如做菜的前后完整流程），上下文彼此印证，全局向量特征达到最饱满状态；</li>
+<li>超过 3 分钟（32K）后，无关生活杂音涌入，模型注意力才开始溃散。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>架构启示</strong>：在数据库中建立 <strong>“分层索引”</strong>：</p>
+<ul>
+<li><strong>全片/章节层（1.5 分钟切片，16K Tokens）</strong>：提取宏观主题向量，应对用户的模糊意图（如“找做川菜的视频”）；</li>
+<li><strong>微观片段层（5~10 秒切片）</strong>：提取局部动作向量，应对用户的瞬间意图（如“找倒酱油起白烟的那一秒”）。</li>
+</ul>
+</blockquote>
+<hr>
+<h3 id="4-上下文超限时的兜底法则：“中间截断”（Middle-Truncation）">4. 上下文超限时的兜底法则：“中间截断”（Middle Truncation）</h3>
+<p>当视频抽帧数量不可避免地突破模型最大 Token 窗口时，传统的尾部截断（Tail Truncation）会直接抹杀结尾总结。论文在 4.1 节证实了标准的有效做法是<strong>中间截断</strong>：保留头部（前 25%）和尾部（后 25%），截断剔除最容易被注意力遗忘的中间大段内容。</p>
+<hr>
+<h2 id="04-软件工程师实战：全链路多模态视频检索架构">04. 软件工程师实战：全链路多模态视频检索架构</h2>
+<p>结合论文揭示的所有物理规律与避坑指南，我们为“多模态输入 + 动态 SQL 拼装 + 向量库搜索视频片段”产品设计了如下全套工程方案：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[ 离线入库 Pipeline (ETL) ]</span><br><span class="line"> 长视频 ──► 镜头检测 / 场景切片 (5~15s) ──► 画面 Resize (448x448, 1 FPS)</span><br><span class="line">                                     ──► 语音 ASR 提取台词带时间戳</span><br><span class="line">                                     ──► MLLM 提取结构化标签 (物体、动作、场景)</span><br><span class="line">                                     ──► 向量模型抽取视觉与文本特征</span><br><span class="line">                                     ──► 写入 PostgreSQL + pgvector</span><br><span class="line"></span><br><span class="line">[ 在线搜索 Pipeline (Online) ]</span><br><span class="line"> 用户输入：&quot;找一段户外草地上小狗跳起接飞盘的视频,大概5秒&quot; + [飞盘参考图]</span><br><span class="line">   │</span><br><span class="line">   ├──► 1. 特征抽取：轻量模型抽取飞盘参考图为 :query_img_vec</span><br><span class="line">   ├──► 2. Text2SQL 智能体：解析出结构化过滤条件 (duration, scene, objects)</span><br><span class="line">   │       动态拼装带向量余弦计算的 SQL 查询</span><br><span class="line">   ├──► 3. 向量数据库执行 SQL：WHERE 硬过滤 + 向量排序 ──► 快速粗排召回 Top-20</span><br><span class="line">   └──► 4. 多模态 LLM 精排：微观对比 20 个候选切片 ──► 返回 100% 精准的 Top-1</span><br></pre></td></tr></table></figure>
+<h3 id="1-向量数据库表结构设计（PostgreSQL-pgvector）">1. 向量数据库表结构设计（PostgreSQL + pgvector）</h3>
+<p>在数据库层，我们使用结构化字段弥补向量模型的“时序与实体识别盲区”，并引入双向量混合检索：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 启用向量扩展</span></span><br><span class="line"><span class="keyword">CREATE</span> EXTENSION IF <span class="keyword">NOT</span> <span class="keyword">EXISTS</span> vector;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 1. 视频全片元数据表</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> videos (</span><br><span class="line">    id BIGSERIAL <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    title <span class="type">VARCHAR</span>(<span class="number">255</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    video_url TEXT <span class="keyword">NOT NULL</span>,</span><br><span class="line">    total_duration <span class="type">NUMERIC</span>(<span class="number">10</span>, <span class="number">2</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    created_at <span class="type">TIMESTAMP</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 视频微观切片表 (核心检索表)</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> video_clips (</span><br><span class="line">    id BIGSERIAL <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    video_id <span class="type">BIGINT</span> <span class="keyword">REFERENCES</span> videos(id) <span class="keyword">ON</span> <span class="keyword">DELETE</span> CASCADE,</span><br><span class="line">    clip_index <span class="type">INT</span> <span class="keyword">NOT NULL</span>,              <span class="comment">-- 切片序号，保障时序连续性</span></span><br><span class="line">    start_time <span class="type">NUMERIC</span>(<span class="number">8</span>, <span class="number">2</span>) <span class="keyword">NOT NULL</span>,    <span class="comment">-- 起始时间戳 (秒)</span></span><br><span class="line">    end_time <span class="type">NUMERIC</span>(<span class="number">8</span>, <span class="number">2</span>) <span class="keyword">NOT NULL</span>,      <span class="comment">-- 结束时间戳 (秒)</span></span><br><span class="line">    duration <span class="type">NUMERIC</span>(<span class="number">8</span>, <span class="number">2</span>) <span class="keyword">NOT NULL</span>,      <span class="comment">-- 片段时长</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">-- 结构化与文本属性 (供 SQL WHERE 条件硬过滤，解决模型词袋匹配缺陷)</span></span><br><span class="line">    scene_category <span class="type">VARCHAR</span>(<span class="number">64</span>),           <span class="comment">-- 场景：outdoor, kitchen, indoor</span></span><br><span class="line">    detected_objects TEXT[],              <span class="comment">-- 识别物体：[&#x27;dog&#x27;, &#x27;frisbee&#x27;, &#x27;grass&#x27;]</span></span><br><span class="line">    asr_subtitles TEXT,                   <span class="comment">-- 该时间段内的音频台词 (Whisper 提取)</span></span><br><span class="line">    clip_description TEXT,                <span class="comment">-- MLLM 详细文字描述</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">-- 多模态向量字段 (统一使用 1536 维)</span></span><br><span class="line">    visual_embedding vector(<span class="number">1536</span>),        <span class="comment">-- 画面关键帧视觉向量 (以图搜图)</span></span><br><span class="line">    text_embedding vector(<span class="number">1536</span>)           <span class="comment">-- 片段语义描述文本向量 (自然语言搜索)</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 创建高效的 HNSW 向量索引与 B-Tree/GIN 倒排索引</span></span><br><span class="line"><span class="keyword">CREATE</span> INDEX idx_clips_visual <span class="keyword">ON</span> video_clips <span class="keyword">USING</span> hnsw (visual_embedding vector_cosine_ops);</span><br><span class="line"><span class="keyword">CREATE</span> INDEX idx_clips_text <span class="keyword">ON</span> video_clips <span class="keyword">USING</span> hnsw (text_embedding vector_cosine_ops);</span><br><span class="line"><span class="keyword">CREATE</span> INDEX idx_clips_objects <span class="keyword">ON</span> video_clips <span class="keyword">USING</span> gin (detected_objects);</span><br><span class="line"><span class="keyword">CREATE</span> INDEX idx_clips_scene <span class="keyword">ON</span> video_clips (scene_category);</span><br><span class="line"><span class="keyword">CREATE</span> INDEX idx_clips_duration <span class="keyword">ON</span> video_clips (duration);</span><br></pre></td></tr></table></figure>
+<h3 id="2-动态拼装-SQL-与混合搜索执行">2. 动态拼装 SQL 与混合搜索执行</h3>
+<p>当用户输入：“<em>找一段在户外草地上小狗接飞盘的视频，大概 5 到 10 秒</em>”，并上传了一张飞盘参考图时：</p>
+<p>Text2SQL 引擎动态拼装出兼顾 <strong>“硬性元数据过滤”</strong> 与 <strong>“图文多路加权向量打分”</strong> 的复合 SQL：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    v.title,</span><br><span class="line">    v.video_url,</span><br><span class="line">    c.id <span class="keyword">AS</span> clip_id,</span><br><span class="line">    c.start_time,</span><br><span class="line">    c.end_time,</span><br><span class="line">    c.clip_description,</span><br><span class="line">    <span class="comment">-- 混合评分：60% 文本语义匹配度 + 40% 画面视觉匹配度</span></span><br><span class="line">    (<span class="number">0.6</span> <span class="operator">*</span> (<span class="number">1</span> <span class="operator">-</span> (c.text_embedding <span class="operator">&lt;=&gt;</span> :query_text_vec)) <span class="operator">+</span> </span><br><span class="line">     <span class="number">0.4</span> <span class="operator">*</span> (<span class="number">1</span> <span class="operator">-</span> (c.visual_embedding <span class="operator">&lt;=&gt;</span> :query_img_vec))) <span class="keyword">AS</span> hybrid_score</span><br><span class="line"><span class="keyword">FROM</span> video_clips c</span><br><span class="line"><span class="keyword">JOIN</span> videos v <span class="keyword">ON</span> c.video_id <span class="operator">=</span> v.id</span><br><span class="line"><span class="keyword">WHERE</span> </span><br><span class="line">    <span class="comment">-- 1. SQL 硬过滤：时长严格约束在 5~10 秒，场景必须是户外，且包含目标实体</span></span><br><span class="line">    c.duration <span class="keyword">BETWEEN</span> <span class="number">5.0</span> <span class="keyword">AND</span> <span class="number">10.0</span></span><br><span class="line">    <span class="keyword">AND</span> c.scene_category <span class="operator">=</span> <span class="string">&#x27;outdoor&#x27;</span></span><br><span class="line">    <span class="keyword">AND</span> c.detected_objects <span class="operator">&amp;&amp;</span> <span class="keyword">ARRAY</span>[<span class="string">&#x27;dog&#x27;</span>, <span class="string">&#x27;frisbee&#x27;</span>]</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> hybrid_score <span class="keyword">DESC</span></span><br><span class="line"><span class="comment">-- 2. 阶段一粗排：利用 R@20 高召回率特性，快速捞出前 20 个候选片段</span></span><br><span class="line">LIMIT <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+<p>最后，将这 20 个切片的关键帧和描述抛给 Qwen-VL 进行二次精排，直接将正解锁定在第 1 名。</p>
+<hr>
+<h2 id="05-总结与选型建议">05. 总结与选型建议</h2>
+<p>这篇发表于 EMNLP 2026 的论文，对应用层软件开发工程师的最大贡献，在于<strong>彻底打破了算法宣发的迷思，回归工程落地的真实物理世界</strong>：</p>
+<ol>
+<li><strong>选型别当冤大头</strong>：向量抽取环节直接选 <strong>Qwen3-VL-2B</strong> 或 <strong>Ops-MM-2B</strong>，性能与 8B 无统计学差异，显存与吞吐量优势巨大；</li>
+<li><strong>切片必须做 Resize</strong>：视频帧严格缩放到 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>448</mn><mo>×</mo><mn>448</mn></mrow><annotation encoding="application/x-tex">448 \times 448</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">448</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">448</span></span></span></span>，抽帧控制在 1 FPS，用 Token 计算公式做严格的显存预算控制；</li>
+<li><strong>时序与动作靠 SQL 弥补</strong>：多模态向量解决不了复杂的动作先后与精细时长过滤，把时间戳、ASR 语音字幕和实体标签打进结构化表，用 SQL <code>WHERE</code> 条件做保底；</li>
+<li><strong>坚持两阶段检索</strong>：接受单阶段向量搜索 P@1 只有 40%~50% 的现实，采用“向量库 Top-20 粗排 + MLLM 精排”的架构，才是打造极致视频搜索体验的终极解法。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2/" rel="tag"># 向量检索</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E6%A3%80%E7%B4%A2/" rel="tag"># 视频检索</a>
+              <a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 向量数据库</a>
+              <a href="/tags/MMLongEmbed/" rel="tag"># MMLongEmbed</a>
+              <a href="/tags/EMNLP-2026/" rel="tag"># EMNLP 2026</a>
+              <a href="/tags/pgvector/" rel="tag"># pgvector</a>
+              <a href="/tags/%E8%9A%82%E8%9A%81%E9%9B%86%E5%9B%A2/" rel="tag"># 蚂蚁集团</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/11/03/2026/Paper-Reading-Index/" rel="prev" title="【论文分享】索引（持续更新）">
+                  <i class="fa fa-angle-left"></i> 【论文分享】索引（持续更新）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/11/02/2026/MultimodalSynergy-HigherOrderTensorModeling-HRIL/" rel="next" title="【论文分享】多模态融合不仅要防打架，更要化学反应：NeurIPS 2026 新作 HRIL 深度拆解">
+                  【论文分享】多模态融合不仅要防打架，更要化学反应：NeurIPS 2026 新作 HRIL 深度拆解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">286k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">17:20</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
