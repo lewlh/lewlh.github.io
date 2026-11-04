@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">239</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">67</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">243</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">68</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-count">68</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">239</span>
+        <span class="site-state-item-count">243</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,117 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/22/TempoMoE-FastSlowThinkingExperts/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/10/22/TempoMoE-FastSlowThinkingExperts/" class="post-title-link" itemprop="url">【论文分享】给大模型装上“变速箱”：解析 TempoMoE 如何识别并引导快慢思考专家实现高效多模态推理</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-22 09:45:00" itemprop="dateCreated datePublished" datetime="2026-10-22T09:45:00+08:00">2026-10-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-04 23:03:22" itemprop="dateModified" datetime="2026-11-04T23:03:22+08:00">2026-11-04</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在近期大模型领域（尤其是具备长思维链 CoT 深度推理的多模态大模型）的发展中，一个普遍且棘手的痛点逐渐暴露：<strong>“过度思考（Overthinking）”</strong>。</p>
+<p>面对奥数、几何证明等复杂难题时，深度思考（Slow Thinking）确实能显著提升准确率；但在面对海量简单问题（例如“图片里的猫是什么颜色？”、“发票总金额是多少？”）时，大模型依然会不受控地在后台自言自语，生成成百上千字的冗长推理链。这不仅带来了极高的显存延迟和 Token 计费成本，有时甚至会因为“想太多”而把自己绕晕，把简单送分题做错。</p>
+<p>近期发布在 arXiv 上的亮眼前沿工作——<strong>《TempoMoE: Identifying and Steering Fast-Slow Thinking Experts for Efficient Multimodal Reasoning》</strong>（arXiv: 2610.25999），提出了一种极具工程巧思与认知科学隐喻的全新范式：</p>
+<blockquote>
+<p><strong>“大模型内部并不是铁板一块，MoE（专家混合模型）各层网络中自然分化出了擅长直觉感知的‘快思考专家’与擅长严密逻辑推导的‘慢思考专家’。通过一套完全免训练（Training-Free）的两阶段动态调度框架，系统在读题的一瞬间就能通过‘信息熵’度量题目难易度，进而动态调整专家话语权：简单题快答，难题深思——砍掉高达 35.4% 的冗余计算 Token，同时准确率反而提升 2.6%！”</strong></p>
+</blockquote>
+<p>本文将以通俗易懂的系统工程视角，带你彻底拆解 TempoMoE 的内在机理、从自然语言到数学熵值的端到端流水线、核心代码逻辑，以及它给工业级开源模型私有化部署带来的落地启示。</p>
+<blockquote>
+<p><strong>论文题目</strong>：TempoMoE: Identifying and Steering Fast-Slow Thinking Experts for Efficient Multimodal Reasoning<br>
+<strong>作者团队</strong>：Xiyue Zhang, Keru Zhou, Ziyi Wang, Bing Hu, Li Wang<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.25999">https://arxiv.org/abs/2610.25999</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.25999">https://arxiv.org/html/2610.25999</a><br>
+<strong>核心标签</strong>：Training-Free / Multimodal MoE / Fast-Slow Thinking / System 1 &amp; 2 / Inference Steering</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/10/22/TempoMoE-FastSlowThinkingExperts/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +343,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 17:33:02" itemprop="dateModified" datetime="2026-11-04T17:33:02+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-04 23:03:22" itemprop="dateModified" datetime="2026-11-04T23:03:22+08:00">2026-11-04</time>
     </span>
 
   
@@ -358,7 +469,7 @@ Hugging Face 权重：<a target="_blank" rel="noopener" href="https://huggingfac
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 17:33:02" itemprop="dateModified" datetime="2026-11-04T17:33:02+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-04 23:03:22" itemprop="dateModified" datetime="2026-11-04T23:03:22+08:00">2026-11-04</time>
     </span>
 
   
@@ -473,7 +584,7 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 17:33:02" itemprop="dateModified" datetime="2026-11-04T17:33:02+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-04 23:03:22" itemprop="dateModified" datetime="2026-11-04T23:03:22+08:00">2026-11-04</time>
     </span>
 
   
@@ -591,7 +702,7 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 17:33:02" itemprop="dateModified" datetime="2026-11-04T17:33:02+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-04 23:03:22" itemprop="dateModified" datetime="2026-11-04T23:03:22+08:00">2026-11-04</time>
     </span>
 
   
@@ -653,117 +764,6 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/" class="post-title-link" itemprop="url">【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-09-16 10:00:00" itemprop="dateCreated datePublished" datetime="2025-09-16T10:00:00+08:00">2025-09-16</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 17:33:02" itemprop="dateModified" datetime="2026-11-04T17:33:02+08:00">2026-11-04</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.2k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>11 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在大模型研发领域，长期存在着一种说不清道不明的“糊涂账”：很多团队宣称自己的数据清洗天下第一，但在训练时，他们往往悄悄换了更先进的位置编码、加了特殊的优化器、调整了模型超参数。外界根本分不清：<strong>它的模型跑分高，到底是因为数据真的洗干净了，还是因为它的模型架构偷偷占了便宜？</strong></p>
-<p>在我们上一篇探讨的 <a href="/papers/2025/09/14/TheFineWebDatasets-DecantingTheWeb/">【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineWeb）</a> 中，我们见证了 Hugging Face 如何用极具匠心的工艺打造出一套顶级的“数据淘金滤网”。</p>
-<p>而在同一时期，由 <strong>Apple、华盛顿大学（UW）、丰田研究院（TRI）、哥伦比亚大学</strong> 等顶尖机构联合发布的重磅里程碑论文 <strong>《DataComp-LM: In search of the next generation of training sets for language models》（简称 DCLM）</strong>，则带着极其罕见的**“科学洁癖”<strong>，直接为全世界的大模型数据建立了一套绝对公平的</strong>“标准化高考竞技场”**！</p>
-<p>这篇论文最大的特色，就是<strong>彻底排除了一切模型架构的干扰，将神经网络和训练参数全部焊死为唯一的基准控制组，只拿数据说话</strong>。而它交出的最终实验成绩单，更是直接震撼了整个 AI 工业界：</p>
-<blockquote>
-<p><strong>一个标准的 7B（70 亿参数）语言模型，仅仅吃下 3000 亿（300B）精选 Token，在 53 门标准化统考中的表现，直接打平甚至反超了吃了整整 2 万亿（2.0T）Token 的行业标杆（如 LLaMA-2 7B）！</strong></p>
-</blockquote>
-<blockquote>
-<p><strong>论文题目</strong>：DataComp-LM: In search of the next generation of training sets for language models<br>
-<strong>作者团队</strong>：Jeffrey Li, Alex Fang, Georgios Smyrnis, Ludwig Schmidt 等 (Apple, UW, TRI, Columbia)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2406.11794">https://arxiv.org/abs/2406.11794</a><br>
-<strong>HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2406.11794">https://arxiv.org/html/2406.11794</a><br>
-<strong>开源项目主页</strong>：<a target="_blank" rel="noopener" href="https://datacomp.library.cmu.edu/dclm">https://datacomp.library.cmu.edu/dclm</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -788,14 +788,14 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">288k</span>
+    <span title="站点总字数">293k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">17:27</span>
+    <span title="站点阅读时长">17:45</span>
   </span>
 </div>
 <div class="busuanzi-count">
