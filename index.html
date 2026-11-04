@@ -196,7 +196,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/11/03/papers/FE-DETR-FrequencyDomainExpertModeling-VideoMomentRetrieval/">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/03/FE-DETR-FrequencyDomainExpertModeling-VideoMomentRetrieval/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -214,7 +214,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/11/03/papers/FE-DETR-FrequencyDomainExpertModeling-VideoMomentRetrieval/" class="post-title-link" itemprop="url">【论文分享】突破时域低通陷阱：MDPI 2026 论文 FE-DETR 如何用频域专家与区分损失实现毫秒级视频时刻精准定位</a>
+          <a href="/papers/2026/11/03/FE-DETR-FrequencyDomainExpertModeling-VideoMomentRetrieval/" class="post-title-link" itemprop="url">【论文分享】突破时域低通陷阱：MDPI 2026 论文 FE-DETR 如何用频域专家与区分损失实现毫秒级视频时刻精准定位</a>
         </h2>
 
         <div class="post-meta-container">
@@ -232,7 +232,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 17:11:33" itemprop="dateModified" datetime="2026-11-04T17:11:33+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-04 17:33:02" itemprop="dateModified" datetime="2026-11-04T17:33:02+08:00">2026-11-04</time>
     </span>
 
   
@@ -261,7 +261,7 @@
     
     <div class="post-body" itemprop="articleBody">
           <p>在多模态视频检索与长视频理解领域，<strong>视频时刻检索（Video Moment Retrieval, VMR）</strong> 与 <strong>时序视频定位（Temporal Video Grounding, TVG）</strong> 是连接自然语言与海量长视频最核心的“最后一公里”技术：输入一段未剪辑的长视频（从数分钟到数小时不等），外加一句用户的自然语言 Query（如 <em>“穿红衣服的女生打翻了桌面上的水杯”</em>），算法需要在连续的时间轴上秒级锁定该事件发生的<strong>精确起止时间戳（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><msub><mi>t</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[t_{start}, t_{end}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>）</strong>。</p>
-<p>近两年来，随着多模态大模型（MLLM）的爆发，学术界涌现了大量基于大模型生成与强化学习（RL/GRPO）的宏观方案，如通过逆向任务制衡动作理解的 <a href="/2026/10/27/Invert4TVG-TemporalVideoGrounding/">《Invert4TVG》</a>，或是双智能体自演化的 <a href="/2026/11/03/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/">《EvoGround》</a>。</p>
+<p>近两年来，随着多模态大模型（MLLM）的爆发，学术界涌现了大量基于大模型生成与强化学习（RL/GRPO）的宏观方案，如通过逆向任务制衡动作理解的 <a href="/papers/2026/10/27/Invert4TVG-TemporalVideoGrounding/">《Invert4TVG》</a>，或是双智能体自演化的 <a href="/papers/2026/11/03/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/">《EvoGround》</a>。</p>
 <p>然而，在工业界追求<strong>极高 QPS、毫秒级响应、超低计算成本</strong>的在线生产环境中，动辄数十亿参数的自回归大模型往往受困于显存瓶颈与长上下文推理延迟。以 DETR（Detection Transformer）为代表的<strong>专用轻量判别式检测头</strong>，依然是高并发架构下最具落地性价比的利刃。</p>
 <p>近日，发表于 MDPI <em>Electronics</em> 2026 年第 15 卷第 21 期的前沿论文给出了一个极具启发性的物理与信号处理视角：</p>
 <blockquote>
@@ -278,7 +278,7 @@
 </blockquote>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2026/11/03/papers/FE-DETR-FrequencyDomainExpertModeling-VideoMomentRetrieval/#more" rel="contents">
+              <a class="btn" href="/papers/2026/11/03/FE-DETR-FrequencyDomainExpertModeling-VideoMomentRetrieval/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -309,7 +309,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/11/03/papers/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/03/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -327,7 +327,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/11/03/papers/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/" class="post-title-link" itemprop="url">【论文分享】告别昂贵的人工标注：NeurIPS 2026 EvoGround 开启视频时序定位的“双智能体自进化”新范式</a>
+          <a href="/papers/2026/11/03/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/" class="post-title-link" itemprop="url">【论文分享】告别昂贵的人工标注：NeurIPS 2026 EvoGround 开启视频时序定位的“双智能体自进化”新范式</a>
         </h2>
 
         <div class="post-meta-container">
@@ -345,7 +345,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 17:11:33" itemprop="dateModified" datetime="2026-11-04T17:11:33+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-04 17:33:02" itemprop="dateModified" datetime="2026-11-04T17:33:02+08:00">2026-11-04</time>
     </span>
 
   
@@ -392,7 +392,7 @@
 </blockquote>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2026/11/03/papers/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/#more" rel="contents">
+              <a class="btn" href="/papers/2026/11/03/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -423,7 +423,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/11/03/papers/Paper-Reading-Index/">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/03/Paper-Reading-Index/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -441,7 +441,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/11/03/papers/Paper-Reading-Index/" class="post-title-link" itemprop="url">【论文分享】索引（持续更新）</a>
+          <a href="/papers/2026/11/03/Paper-Reading-Index/" class="post-title-link" itemprop="url">【论文分享】索引（持续更新）</a>
         </h2>
 
         <div class="post-meta-container">
@@ -459,7 +459,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 17:11:33" itemprop="dateModified" datetime="2026-11-04T17:11:33+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-04 17:33:02" itemprop="dateModified" datetime="2026-11-04T17:33:02+08:00">2026-11-04</time>
     </span>
 
   
@@ -491,7 +491,7 @@
 <p>“论文日期”指论文原文首次公开的时间：arXiv 论文取 v1 提交日期，期刊与会议论文取正式出版时间。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2026/11/03/papers/Paper-Reading-Index/#more" rel="contents">
+              <a class="btn" href="/papers/2026/11/03/Paper-Reading-Index/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -522,7 +522,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/11/02/papers/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/02/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -540,7 +540,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/11/02/papers/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/" class="post-title-link" itemprop="url">【论文分享】别被 32K 窗口忽悠了：长视频多模态检索为何频频“翻车”？EMNLP 2026 蚂蚁与苏大新作 MMLongEmbed 深度剖析与工程实战</a>
+          <a href="/papers/2026/11/02/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/" class="post-title-link" itemprop="url">【论文分享】别被 32K 窗口忽悠了：长视频多模态检索为何频频“翻车”？EMNLP 2026 蚂蚁与苏大新作 MMLongEmbed 深度剖析与工程实战</a>
         </h2>
 
         <div class="post-meta-container">
@@ -558,7 +558,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 17:11:33" itemprop="dateModified" datetime="2026-11-04T17:11:33+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-04 17:33:02" itemprop="dateModified" datetime="2026-11-04T17:33:02+08:00">2026-11-04</time>
     </span>
 
   
@@ -610,7 +610,7 @@
 <p>本文将完全抛弃生涩的算法数学证明，从 <strong>软件开发工程师（后端/全栈/系统架构）</strong> 的视角，深入拆解这篇论文的核心结论，并给出基于 PostgreSQL + pgvector 的全链路落地解决方案。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2026/11/02/papers/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/#more" rel="contents">
+              <a class="btn" href="/papers/2026/11/02/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -641,7 +641,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/2026/11/02/papers/MultimodalSynergy-HigherOrderTensorModeling-HRIL/">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/02/MultimodalSynergy-HigherOrderTensorModeling-HRIL/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -659,7 +659,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/11/02/papers/MultimodalSynergy-HigherOrderTensorModeling-HRIL/" class="post-title-link" itemprop="url">【论文分享】多模态融合不仅要防打架，更要化学反应：NeurIPS 2026 新作 HRIL 深度拆解</a>
+          <a href="/papers/2026/11/02/MultimodalSynergy-HigherOrderTensorModeling-HRIL/" class="post-title-link" itemprop="url">【论文分享】多模态融合不仅要防打架，更要化学反应：NeurIPS 2026 新作 HRIL 深度拆解</a>
         </h2>
 
         <div class="post-meta-container">
@@ -677,7 +677,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 17:11:33" itemprop="dateModified" datetime="2026-11-04T17:11:33+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-04 17:33:02" itemprop="dateModified" datetime="2026-11-04T17:33:02+08:00">2026-11-04</time>
     </span>
 
   
@@ -705,7 +705,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>在上一篇博文<a href="/2026/03/02/TowardsUniformityAndAlignment-UniAlign/">《告别多模态内耗：为什么传统对比学习会“左右互搏”？ICML 2026 新作 UniAlign 深度拆解》</a>中，我们曾深入剖析过多模态表示学习在<strong>几何受力层面</strong>的噩梦：当模态数量从 2 个扩展到 3 个及以上时，传统的 InfoNCE 对比学习会在空间里引发排斥与拉拢的内耗冲突（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ζ</mi></mrow><annotation encoding="application/x-tex">\zeta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0738em;">ζ</span></span></span></span> 冲突）与多方非共线拔河的撕裂（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>χ</mi></mrow><annotation encoding="application/x-tex">\chi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">χ</span></span></span></span> 冲突），最终导致特征空间四分五裂，形成坚不可摧的“模态鸿沟（Modality Gap）”。</p>
+          <p>在上一篇博文<a href="/papers/2026/03/02/TowardsUniformityAndAlignment-UniAlign/">《告别多模态内耗：为什么传统对比学习会“左右互搏”？ICML 2026 新作 UniAlign 深度拆解》</a>中，我们曾深入剖析过多模态表示学习在<strong>几何受力层面</strong>的噩梦：当模态数量从 2 个扩展到 3 个及以上时，传统的 InfoNCE 对比学习会在空间里引发排斥与拉拢的内耗冲突（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ζ</mi></mrow><annotation encoding="application/x-tex">\zeta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0738em;">ζ</span></span></span></span> 冲突）与多方非共线拔河的撕裂（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>χ</mi></mrow><annotation encoding="application/x-tex">\chi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">χ</span></span></span></span> 冲突），最终导致特征空间四分五裂，形成坚不可摧的“模态鸿沟（Modality Gap）”。</p>
 <p>UniAlign 给出了一套极其优雅的解法——通过解耦模态内排斥与单向锚点对齐，在几何上把扭曲撕裂的空间“熨平”了。</p>
 <p>然而，一个更深层的终极拷问随之而来：<br>
 <strong>如果我们把几何受力调平了、模态鸿沟填上了，多模态融合就算真正成功了吗？</strong></p>
@@ -720,7 +720,7 @@
 <p>本文将结合代码实现、数学推导与实验数据，带你深入拆解这篇刚刚出炉的 NeurIPS 2026 论文，并以程序员的工程视角，冷思考它距离工业级大模型落地究竟还有多远。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2026/11/02/papers/MultimodalSynergy-HigherOrderTensorModeling-HRIL/#more" rel="contents">
+              <a class="btn" href="/papers/2026/11/02/MultimodalSynergy-HigherOrderTensorModeling-HRIL/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>

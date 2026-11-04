@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="对于正在探索 “多模态输入 + 向量提取 + 向量数据库（SQL 混合检索）+ 动态拼装 SQL + 视频片段精准召回” 的软件开发团队而言，2026 年初阿里巴巴通义实验室（Qwen 团队）发布的一篇技术报告堪称一场“及时雨”：  论文题目：《Qwen3-VL-Embedding and Qwen3-VL-Reranker: A Unified Framework for State-of-th">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文深度拆解】阿里千问 Qwen3-VL 检索双子星全景解析：面向视频与多模态检索系统的工程落地实战指南">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="对于正在探索 “多模态输入 + 向量提取 + 向量数据库（SQL 混合检索）+ 动态拼装 SQL + 视频片段精准召回” 的软件开发团队而言，2026 年初阿里巴巴通义实验室（Qwen 团队）发布的一篇技术报告堪称一场“及时雨”：  论文题目：《Qwen3-VL-Embedding and Qwen3-VL-Reranker: A Unified Framework for State-of-th">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-02-03T04:45:00.000Z">
+<meta property="article:modified_time" content="2026-11-04T09:33:02.950Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="Qwen3-VL">
+<meta property="article:tag" content="pgvector">
+<meta property="article:tag" content="向量数据库">
+<meta property="article:tag" content="向量检索">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="工程实战">
+<meta property="article:tag" content="系统架构">
+<meta property="article:tag" content="视频检索">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/","path":"papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/","title":"【论文深度拆解】阿里千问 Qwen3-VL 检索双子星全景解析：面向视频与多模态检索系统的工程落地实战指南"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文深度拆解】阿里千问 Qwen3-VL 检索双子星全景解析：面向视频与多模态检索系统的工程落地实战指南 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">239</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">67</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%E8%AE%A4%E7%9F%A5%EF%BC%9AEmbedding-%E4%B8%8E-Reranker-%E7%9A%84%E5%88%86%E5%B7%A5%E4%B8%8E%E5%BE%AE%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1"><span class="nav-text">01. 核心架构认知：Embedding 与 Reranker 的分工与微服务设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E5%85%B3%E9%94%AE%E8%A7%84%E6%A0%BC%E4%B8%8E%E5%BA%95%E5%B1%82%E6%9C%BA%E5%88%B6%E5%AF%B9%E6%AF%94"><span class="nav-text">1.1 关键规格与底层机制对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E4%B8%A4%E4%B8%AA%E6%A8%A1%E5%9E%8B%E7%9A%84-Prompt-%E6%A8%A1%E6%9D%BF%E4%B8%8E-API-%E6%8E%A5%E5%8F%A3%E8%90%BD%E5%9C%B0"><span class="nav-text">1.2 两个模型的 Prompt 模板与 API 接口落地</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A0-Embedding-%E6%8F%90%E5%8F%96%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3"><span class="nav-text">① Embedding 提取服务接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A1-Reranker-%E9%87%8D%E6%8E%92%E6%89%93%E5%88%86%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3"><span class="nav-text">② Reranker 重排打分服务接口</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E9%80%82%E7%94%A8%E8%BE%B9%E7%95%8C%EF%BC%9A%E7%BA%AF%E6%96%87%E6%9C%AC%E4%B8%8E-1-1-%E6%AF%94%E5%AF%B9%E8%83%BD%E5%8A%9B%E5%89%96%E6%9E%90"><span class="nav-text">1.3 适用边界：纯文本与 1:1 比对能力剖析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-MRL-%E6%8A%80%E6%9C%AF%E6%8B%86%E8%A7%A3%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%AA%E6%96%AD%E5%90%91%E9%87%8F%E4%B8%8D%E4%BC%9A%E6%8D%9F%E5%A4%B1%E7%B2%BE%E5%BA%A6%EF%BC%9F"><span class="nav-text">02. MRL 技术拆解：为什么截断向量不会损失精度？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%95%B0%E5%AD%A6%E5%8E%9F%E7%90%86%EF%BC%9A%E5%B5%8C%E5%A5%97%E5%A4%9A%E5%B0%BA%E5%BA%A6%E6%8D%9F%E5%A4%B1%EF%BC%88Nested-Multi-Scale-Loss%EF%BC%89"><span class="nav-text">2.1 数学原理：嵌套多尺度损失（Nested Multi-Scale Loss）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E6%88%AA%E5%8F%96%E7%BB%B4%E5%BA%A6%E5%BF%85%E9%A1%BB%E6%98%AF-2-%E7%9A%84-N-%E6%AC%A1%E5%B9%82%E5%90%97%EF%BC%9F"><span class="nav-text">2.2 截取维度必须是 2 的 N 次幂吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E8%AE%BA%E6%96%87%E5%AE%9E%E9%AA%8C%E8%AF%81%E6%8D%AE%EF%BC%88Section-7-1-%E4%B8%8E-Figure-6%EF%BC%89"><span class="nav-text">2.3 论文实验证据（Section 7.1 与 Figure 6）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-QAT-%E9%87%8F%E5%8C%96%E6%84%9F%E7%9F%A5%E8%AE%AD%E7%BB%83%E4%B8%8E%E4%BA%8C%E5%80%BC%E5%90%91%E9%87%8F%E7%B4%A2%E5%BC%95"><span class="nav-text">03. QAT 量化感知训练与二值向量索引</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E7%BA%A0%E5%81%8F%EF%BC%9A%E8%BF%99%E9%87%8C%E7%9A%84-QAT-%E9%87%8F%E5%8C%96%E7%9A%84%E6%98%AF%E5%8F%82%E6%95%B0%E8%BF%98%E6%98%AF-Embedding%EF%BC%9F"><span class="nav-text">3.1 纠偏：这里的 QAT 量化的是参数还是 Embedding？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E8%AE%BA%E6%96%87%E5%AE%9E%E9%AA%8C%E5%AF%B9%E6%AF%94%EF%BC%9AINT8-vs-Binary"><span class="nav-text">3.2 论文实验对比：INT8 vs. Binary</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%EF%BC%9A%E5%A6%82%E4%BD%95%E5%B0%86%E8%BE%93%E5%87%BA%E5%90%91%E9%87%8F%E8%BD%AC%E5%8C%96%E4%B8%BA-INT8-%E4%B8%8E-Binary"><span class="nav-text">3.3 代码实现：如何将输出向量转化为 INT8 与 Binary</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E8%A7%86%E9%A2%91%E5%B7%A5%E7%A8%8B%E5%8F%82%E6%95%B0%E8%A7%84%E8%8C%83%EF%BC%9A%E5%8A%A8%E6%80%81%E5%88%86%E8%BE%A8%E7%8E%87%E4%B8%8E%E6%97%B6%E7%A9%BA%E7%B2%92%E5%BA%A6%E6%B6%88%E8%9E%8D"><span class="nav-text">04. 视频工程参数规范：动态分辨率与时空粒度消融</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%8A%A8%E6%80%81%E5%88%86%E8%BE%A8%E7%8E%87%EF%BC%88Dynamic-Resolution%EF%BC%89%EF%BC%9A%E5%BD%BB%E5%BA%95%E6%8A%9B%E5%BC%83%E6%9C%BA%E6%A2%B0%E7%9A%84%E4%B8%AD%E5%BF%83%E8%A3%81%E5%89%AA%E4%B8%8E%E5%A1%AB%E5%85%85"><span class="nav-text">4.1 动态分辨率（Dynamic Resolution）：彻底抛弃机械的中心裁剪与填充</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E6%8A%BD%E5%B8%A7%E7%8E%87%E4%B8%8E%E6%97%B6%E7%A9%BA%E7%B2%92%E5%BA%A6%E6%B6%88%E8%9E%8D%E5%88%86%E6%9E%90"><span class="nav-text">4.2 抽帧率与时空粒度消融分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E9%9D%9E%E5%AF%B9%E7%A7%B0%E6%A3%80%E7%B4%A2%E8%AE%BE%E8%AE%A1%EF%BC%9A%E5%85%A5%E5%BA%93%E4%B8%8E%E5%9C%A8%E7%BA%BF%E6%9F%A5%E8%AF%A2%E7%9A%84%E6%8C%87%E4%BB%A4%E5%88%86%E5%B7%A5%E6%9C%BA%E5%88%B6"><span class="nav-text">05. 非对称检索设计：入库与在线查询的指令分工机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E7%A6%BB%E7%BA%BF%E5%85%A5%E5%BA%93%E7%AB%AF%EF%BC%9A%E9%87%87%E7%94%A8%E6%A0%87%E5%87%86%E9%80%9A%E7%94%A8%E6%8C%87%E4%BB%A4%E4%BF%9D%E8%AF%81%E7%89%B9%E5%BE%81%E5%AE%A2%E8%A7%82%E6%80%A7"><span class="nav-text">5.1 离线入库端：采用标准通用指令保证特征客观性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%9C%A8%E7%BA%BF%E6%9F%A5%E8%AF%A2%E7%AB%AF%EF%BC%9A%E9%80%9A%E8%BF%87-Instruction-%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E8%AF%AD%E4%B9%89%E8%B0%83%E7%84%A6%EF%BC%88Dynamic-Steering%EF%BC%89"><span class="nav-text">5.2 在线查询端：通过 Instruction 实现动态语义调焦（Dynamic Steering）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E7%AE%97%E6%B3%95%E6%B7%B1%E5%BA%A6%EF%BC%9A%E5%81%87%E8%B4%9F%E4%BE%8B%E6%B6%88%E9%99%A4%E3%80%81%E6%A8%A1%E5%9E%8B%E8%92%B8%E9%A6%8F%E4%B8%8E-VisDoc-%E7%9A%84%E8%83%BD%E5%8A%9B%E8%BE%B9%E7%95%8C"><span class="nav-text">06. 算法深度：假负例消除、模型蒸馏与 VisDoc 的能力边界</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-%E5%81%87%E8%B4%9F%E4%BE%8B%E8%BF%87%E6%BB%A4%E6%9C%BA%E5%88%B6%EF%BC%88False-Negative-Masking%EF%BC%89"><span class="nav-text">6.1 假负例过滤机制（False Negative Masking）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F%E4%B8%8E%E6%A8%A1%E5%9E%8B%E5%90%88%E5%B9%B6%EF%BC%88Model-Merging%EF%BC%89"><span class="nav-text">6.2 知识蒸馏与模型合并（Model Merging）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-OCR-Free-%E8%A7%86%E8%A7%89%E6%96%87%E6%A1%A3%E7%9A%84%E8%83%BD%E5%8A%9B%E8%BE%B9%E7%95%8C%E4%B8%8E%E5%A4%9A%E5%B8%A7-A4-%E9%87%8D%E5%BB%BA%E7%9C%9F%E7%9B%B8"><span class="nav-text">6.3 OCR-Free 视觉文档的能力边界与多帧 A4 重建真相</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-4-Moment-Retrieval%EF%BC%88%E8%A7%86%E9%A2%91%E9%AB%98%E5%85%89-%E7%89%B9%E5%AE%9A%E6%97%B6%E5%88%BB%E5%AE%9A%E4%BD%8D%EF%BC%89%E7%9A%84%E4%BB%A3%E7%A0%81%E5%B7%A5%E7%A8%8B%E5%AE%9E%E7%8E%B0"><span class="nav-text">6.4 Moment Retrieval（视频高光&#x2F;特定时刻定位）的代码工程实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E7%BA%A7-Python-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%EF%BC%9A"><span class="nav-text">生产级 Python 代码实现：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E5%85%A8%E9%93%BE%E8%B7%AF%E8%90%BD%E5%9C%B0%E6%9E%B6%E6%9E%84%E5%AE%9E%E6%88%98%EF%BC%88PostgreSQL-pgvector-%E5%8A%A8%E6%80%81-SQL-%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2%EF%BC%89"><span class="nav-text">07. 全链路落地架构实战（PostgreSQL + pgvector 动态 SQL 混合检索）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93-DDL-%E4%B8%8E%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2-SQL"><span class="nav-text">数据库 DDL 与混合检索 SQL</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#08-%E7%BB%93%E8%AF%AD%E4%B8%8E%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E5%B8%88%E5%A4%87%E5%BF%98%E5%BD%95"><span class="nav-text">08. 结语与软件架构师备忘录</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">239</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文深度拆解】阿里千问 Qwen3-VL 检索双子星全景解析：面向视频与多模态检索系统的工程落地实战指南 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文深度拆解】阿里千问 Qwen3-VL 检索双子星全景解析：面向视频与多模态检索系统的工程落地实战指南
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-02-03 12:45:00" itemprop="dateCreated datePublished" datetime="2026-02-03T12:45:00+08:00">2026-02-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-04 17:33:02" itemprop="dateModified" datetime="2026-11-04T17:33:02+08:00">2026-11-04</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>21 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>对于正在探索 <strong>“多模态输入 + 向量提取 + 向量数据库（SQL 混合检索）+ 动态拼装 SQL + 视频片段精准召回”</strong> 的软件开发团队而言，2026 年初阿里巴巴通义实验室（Qwen 团队）发布的一篇技术报告堪称一场“及时雨”：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《Qwen3-VL-Embedding and Qwen3-VL-Reranker: A Unified Framework for State-of-the-Art Multimodal Retrieval and Ranking》<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2601.04720" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2601.04720</a><br>
+<strong>开源地址</strong>：<a target="_blank" href="https://github.com/QwenLM/Qwen3-VL-Embedding" rel="external nofollow noreferrer noopener">https://github.com/QwenLM/Qwen3-VL-Embedding</a><br>
+<strong>核心资产</strong>：Qwen3-VL-Embedding（2B / 8B）与 Qwen3-VL-Reranker（2B / 8B）</p>
+</blockquote>
+<p>这篇技术报告看似是 Qwen3-VL 系列模型“秀肌肉”的性能榜单刷榜文（在 MMEB-V2 综合多模态检索榜单上斩获 77.8 分夺得全球第一），但深入研读其底层设计与消融实验，你会发现它本质上是一份<strong>下一代工业级多模态与视频搜索引擎的架构蓝图</strong>。</p>
+<p>本文立足于 <strong>软件开发工程师（后端/全栈/系统架构）</strong> 的工程视角，全面组织论文的核心原理与工业落地细节，彻底还原技术原貌，帮助研发团队在搭建视频多模态检索系统时少走弯路。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-核心架构认知：Embedding-与-Reranker-的分工与微服务设计">01. 核心架构认知：Embedding 与 Reranker 的分工与微服务设计</h2>
+<p>在工业界，很多人熟悉文本向量模型与文本重排（如 BAAI 的 BGE 系列、Cohere 等），但原生的<strong>工业级端到端多模态 Reranker</strong> 极其罕见。Qwen 团队本次采用的是经典的“漏斗式”检索重排两阶段体系：</p>
+<pre><code class="highlight mermaid">flowchart LR
+    subgraph Stage1[&quot;第一阶段：海量粗筛 (毫秒级)&quot;]
+        UserQuery[&quot;用户查询&lt;br/&gt;(自然语言 / 参考图)&quot;] --&gt; BiEnc[&quot;Qwen3-VL-Embedding&lt;br/&gt;(Bi-Encoder 双塔提取向量)&quot;]
+        BiEnc --&gt; VDB[(&quot;向量数据库 / SQL&lt;br/&gt;(100万+ 视频片段切片)&quot;)]
+        VDB --&gt; TopK[&quot;召回候选集&lt;br/&gt;(Top 30~50 片段)&quot;]
+    end
+
+    subgraph Stage2[&quot;第二阶段：深度精排 (百毫秒级)&quot;]
+        TopK &amp; UserQuery --&gt; CrossEnc[&quot;Qwen3-VL-Reranker&lt;br/&gt;(Cross-Encoder 交叉注意力打分)&quot;]
+        CrossEnc --&gt; FinalSort[&quot;精准排序截取&lt;br/&gt;(Top 3~5 播放片段)&quot;]
+    end</code></pre>
+<h3 id="1-1-关键规格与底层机制对比">1.1 关键规格与底层机制对比</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">对比维度</th>
+<th style="text-align:left">Qwen3-VL-Embedding (双塔特征提取)</th>
+<th style="text-align:left">Qwen3-VL-Reranker (交叉编码打分)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>模型尺寸</strong></td>
+<td style="text-align:left">2B（28层，2048维） / 8B（36层，4096维）</td>
+<td style="text-align:left">2B（28层 Transformer） / 8B（36层 Transformer）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>最大上下文</strong></td>
+<td style="text-align:left">32,768 Tokens（支持长视频切片与文档）</td>
+<td style="text-align:left">32,768 Tokens（支持超长多模态图文对交叉运算）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>网络架构</strong></td>
+<td style="text-align:left"><strong>Bi-Encoder（双塔）</strong>，两端独立编码</td>
+<td style="text-align:left"><strong>Cross-Encoder（单塔交叉编码）</strong>，深度交互</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>推理复杂度</strong></td>
+<td style="text-align:left">单次前向提取，向量存库后离线复用</td>
+<td style="text-align:left">每次查询需计算 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span></span></span></span> 个候选项的前向推理（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>≈</mo><mn>30</mn><mo>∼</mo><mn>50</mn></mrow><annotation encoding="application/x-tex">N \approx 30 \sim 50</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">30</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∼</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">50</span></span></span></span>）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>输出格式</strong></td>
+<td style="text-align:left">稠密向量（2B: 2048维；8B: 4096维 float）</td>
+<td style="text-align:left">相关性概率分标量（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>∈</mo><mo stretchy="false">[</mo><mn>0.0</mn><mo separator="true">,</mo><mn>1.0</mn><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">s \in [0.0, 1.0]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0.0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1.0</span><span class="mclose">]</span></span></span></span>）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>核心算法使命</strong></td>
+<td style="text-align:left">将 Text、Image、Video 映射到同一超球面空间</td>
+<td style="text-align:left">捕捉微观跨模态对齐、时序逻辑反转与排除条件</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-2-两个模型的-Prompt-模板与-API-接口落地">1.2 两个模型的 Prompt 模板与 API 接口落地</h3>
+<p>在软件工程中，两者不能混为一个微服务，其输入输出协议截然不同：</p>
+<h4 id="①-Embedding-提取服务接口">① Embedding 提取服务接口</h4>
+<p>其底层输入遵循 Qwen 的标准 Context 结构，在末尾追加 <code>&lt;|endoftext|&gt;</code> 并提取最后一个 Token 对应的 Hidden State：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;|im_start|&gt;system</span><br><span class="line">&#123;Instruction&#125;</span><br><span class="line">&lt;|im_end|&gt;</span><br><span class="line">&lt;|im_start|&gt;user</span><br><span class="line">&#123;Instance: 文本 / 图片 / 视频切片&#125;</span><br><span class="line">&lt;|im_end|&gt;</span><br><span class="line">&lt;|im_start|&gt;assistant</span><br><span class="line">&lt;|endoftext|&gt;</span><br></pre></td></tr></table></figure>
+<p><em>FastAPI 后端微服务逻辑：</em></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&quot;/v1/multimodal/embedding&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">extract_embedding</span>(<span class="params">req: EmbeddingRequest</span>):</span><br><span class="line">    <span class="comment"># 输入：单体多模态内容（视频帧列表或文本）</span></span><br><span class="line">    inputs = processor(text=req.instruction, videos=req.video_frames, return_tensors=<span class="string">&quot;pt&quot;</span>)</span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        outputs = model(**inputs)</span><br><span class="line">        <span class="comment"># 提取最后一个 token 的特征向量并做 L2 归一化</span></span><br><span class="line">        last_hidden = outputs.last_hidden_state[:, -<span class="number">1</span>, :]</span><br><span class="line">        norm_vector = torch.nn.functional.normalize(last_hidden, p=<span class="number">2</span>, dim=-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;vector&quot;</span>: norm_vector[<span class="number">0</span>].tolist()&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="②-Reranker-重排打分服务接口">② Reranker 重排打分服务接口</h4>
+<p>Reranker 采用 <strong>Pointwise（单点判别式）</strong>，其 Prompt 如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;|im_start|&gt;system</span><br><span class="line">Judge whether the Document meets the requirements based on the Query and the Instruct provided. Note that the answer can only be &quot;yes&quot; or &quot;no&quot;.</span><br><span class="line">&lt;|im_end|&gt;</span><br><span class="line">&lt;|im_start|&gt;user</span><br><span class="line">&lt;Instruct&gt;: &#123;Instruction&#125;</span><br><span class="line">&lt;Query&gt;: &#123;用户查询&#125;</span><br><span class="line">&lt;Document&gt;: &#123;候选视频片段&#125;</span><br><span class="line">&lt;|im_end|&gt;</span><br><span class="line">&lt;|im_start|&gt;assistant</span><br></pre></td></tr></table></figure>
+<p><em>FastAPI 后端微服务逻辑：</em></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&quot;/v1/multimodal/rerank&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rerank_candidates</span>(<span class="params">req: RerankRequest</span>):</span><br><span class="line">    <span class="comment"># 对向量库召回的前 30 个候选进行批处理打分</span></span><br><span class="line">    yes_token_id = tokenizer.convert_tokens_to_ids(<span class="string">&quot;yes&quot;</span>)</span><br><span class="line">    no_token_id = tokenizer.convert_tokens_to_ids(<span class="string">&quot;no&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    scores = []</span><br><span class="line">    <span class="keyword">for</span> doc <span class="keyword">in</span> req.candidate_documents:</span><br><span class="line">        prompt = format_rerank_prompt(req.query, doc, req.instruction)</span><br><span class="line">        inputs = processor(prompt, return_tensors=<span class="string">&quot;pt&quot;</span>)</span><br><span class="line">        <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">            logits = model(**inputs).logits[:, -<span class="number">1</span>, :]</span><br><span class="line">            <span class="comment"># 对 &quot;yes&quot; 和 &quot;no&quot; 的 Logits 执行 Softmax 归一化，提取 yes 的概率作为相关性分数</span></span><br><span class="line">            probs = torch.softmax(logits[:, [no_token_id, yes_token_id]], dim=-<span class="number">1</span>)</span><br><span class="line">            score = probs[:, <span class="number">1</span>].item()</span><br><span class="line">            scores.append(score)</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;scores&quot;</span>: scores&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="1-3-适用边界：纯文本与-1-1-比对能力剖析">1.3 适用边界：纯文本与 1:1 比对能力剖析</h3>
+<ol>
+<li><strong>支持纯文本吗？</strong><br>
+<strong>支持且极佳</strong>。基座源自 Qwen3 语言模型，论文在 6.3 与 6.4 节证明，在 MSMARCO 和 MTEB 纯文本基准上，两者的纯文本检索与重排性能丝毫不逊色于纯文本专用模型。</li>
+<li><strong>支持模糊图/意图找视频吗？</strong><br>
+<strong>这正是其核心优势</strong>。它进行的是“语义概念对齐”（Semantic Alignment），用户只需输入一句话或者一张网图，模型能识别汽车、雨天、夜市、翻车等抽象视觉动作与场景，绝非机械的像素级哈希比对。</li>
+<li><strong>支持 1:1 人脸识别或精确 SKU 比对吗？</strong><br>
+<strong>不支持，也不建议</strong>！多模态大模型属于“语义级”抽象模型。两个发型、服饰、体态相近的人，VLM 往往会给出很高的相似度。如果系统涉及刑侦布控或刷脸核身，必须采用 <strong>专用人脸识别模型（如 ArcFace / InsightFace）</strong> 提取 ID，并在 SQL 的 <code>WHERE</code> 子句中做硬过滤，VLM 只负责场景与动作的匹配。</li>
+</ol>
+<hr>
+<h2 id="02-MRL-技术拆解：为什么截断向量不会损失精度？">02. MRL 技术拆解：为什么截断向量不会损失精度？</h2>
+<p>通常情况下，8B 模型输出的向量为 <strong>4096 维</strong>，2B 模型为 <strong>2048 维</strong>。对于存储千万级视频片段的向量数据库，内存与索引开销极为夸张。Qwen3-VL 引入了 <strong>MRL（Matryoshka Representation Learning，俄罗斯套娃向量表示）</strong>。</p>
+<h3 id="2-1-数学原理：嵌套多尺度损失（Nested-Multi-Scale-Loss）">2.1 数学原理：嵌套多尺度损失（Nested Multi-Scale Loss）</h3>
+<p>常规的向量模型在训练时，反向传播只在完整维度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi></mrow><annotation encoding="application/x-tex">D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">D</span></span></span></span> 上计算对比损失（InfoNCE）：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="script">L</mi><mo>=</mo><mo>−</mo><mi>log</mi><mo>⁡</mo><mfrac><mrow><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">(</mo><mi>q</mi><mo separator="true">,</mo><msup><mi>d</mi><mo>+</mo></msup><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><mi>τ</mi><mo stretchy="false">)</mo></mrow><mrow><mo>∑</mo><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">(</mo><mi>q</mi><mo separator="true">,</mo><mi>d</mi><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><mi>τ</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\mathcal{L} = -\log \frac{\exp(s(q, d^+) / \tau)}{\sum \exp(s(q, d) / \tau)}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathcal">L</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.3843em;vertical-align:-0.936em;"></span><span class="mord">−</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">lo<span style="margin-right:0.0139em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.4483em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">exp</span><span class="mopen">(</span><span class="mord mathnormal">s</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0359em;">q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mclose">)</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">exp</span><span class="mopen">(</span><span class="mord mathnormal">s</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0359em;">q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7713em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">+</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>这导致神经网络把特征<strong>均匀且随机地分散</strong>在 2048 个坐标轴上。如果强行截断前 512 维，丢掉了后 1536 维的信息，向量空间瞬间坍塌。</p>
+<p>MRL 在训练目标中引入了嵌套约束。设定前缀子维度集合 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">M</mi><mo>=</mo><mo stretchy="false">{</mo><mn>64</mn><mo separator="true">,</mo><mn>128</mn><mo separator="true">,</mo><mn>256</mn><mo separator="true">,</mo><mn>512</mn><mo separator="true">,</mo><mn>1024</mn><mo separator="true">,</mo><mn>2048</mn><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">\mathcal{M} = \{64, 128, 256, 512, 1024, 2048\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathcal">M</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord">64</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">128</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">256</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">512</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1024</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">2048</span><span class="mclose">}</span></span></span></span>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="script">L</mi><mtext>MRL</mtext></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>d</mi><mo>∈</mo><mi mathvariant="script">M</mi></mrow></munder><mi mathvariant="script">L</mi><mrow><mo fence="true">(</mo><mfrac><msub><mi>z</mi><mrow><mn>1</mn><mo>:</mo><mi>d</mi></mrow></msub><mrow><mi mathvariant="normal">∥</mi><msub><mi>z</mi><mrow><mn>1</mn><mo>:</mo><mi>d</mi></mrow></msub><msub><mi mathvariant="normal">∥</mi><mn>2</mn></msub></mrow></mfrac><mo fence="true">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{L}_{\text{MRL}} = \sum_{d \in \mathcal{M}} \mathcal{L}\left(\frac{z_{1:d}}{\|z_{1:d}\|_2}\right)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">MRL</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.7795em;vertical-align:-1.3295em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8479em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mrel mtight">∈</span><span class="mord mathcal mtight">M</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.3295em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathcal">L</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1076em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∥</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.044em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mrel mtight">:</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord">∥</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.044em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mrel mtight">:</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span></span></span></span></span></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">【普通模型】</span><br><span class="line">坐标轴:   0   1   2  ...  511  512  513  ...  2047</span><br><span class="line">信息密度: [均匀离散分布] ---------------------&gt; [无法截断]</span><br><span class="line"></span><br><span class="line">【MRL 模型】</span><br><span class="line">坐标轴:   0 ---------- 128 ---------- 512 ---------- 2048</span><br><span class="line">信息密度: [核心主体/大类] ---&gt; [时空场景/动作] ---&gt; [局部光影微观细节]</span><br><span class="line">          (前缀维度已包含主干能量，截断损失极小)</span><br></pre></td></tr></table></figure>
+<p><strong>直观数学解释</strong>：<br>
+这类似于在神经网络内部通过端到端训练实现了自适应的 <strong>PCA（主成分分析）/ SVD 奇异值分解</strong>。强迫模型将信息能量按降序排列在前面的坐标轴中。</p>
+<h3 id="2-2-截取维度必须是-2-的-N-次幂吗？">2.2 截取维度必须是 2 的 N 次幂吗？</h3>
+<ul>
+<li>
+<p><strong>理论层面</strong>：<strong>可以任意截取</strong>！论文在 Section 5.1.1 明确指出：</p>
+<blockquote>
+<p><em>“Empirically, training over a sufficiently dense set of MRL dimensions yields strong generalization, <strong>enabling competitive performance at intermediate dimensions that are not explicitly included during training.</strong>”</em><br>
+（在一个足够密集的维度集合上训练能带来强大泛化，使模型在未明确训练的<strong>中间维度</strong>（如 768、384）上依然具备出色的表现。）</p>
+</blockquote>
+</li>
+<li>
+<p><strong>工程层面</strong>：<strong>强烈建议采用 256、512、768、1024 等规格</strong>。因为现代服务器 CPU 的 AVX-512 指令集、GPU Warp 对齐以及向量数据库（如 pgvector / ClickHouse）在以 64/128 为步长的内存边界对齐时，计算效率与吞吐量最高。</p>
+</li>
+<li>
+<p><strong>工程铁律</strong>：<strong>截断后必须重新做 L2 归一化</strong>！</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">truncate_mrl</span>(<span class="params">vec: np.ndarray, target_dim: <span class="built_in">int</span> = <span class="number">512</span></span>) -&gt; np.ndarray:</span><br><span class="line">    sub_vec = vec[:target_dim]</span><br><span class="line">    <span class="keyword">return</span> sub_vec / np.linalg.norm(sub_vec)  <span class="comment"># 必须归一化，否则余弦距离失真</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="2-3-论文实验证据（Section-7-1-与-Figure-6）">2.3 论文实验证据（Section 7.1 与 Figure 6）</h3>
+<p>在 MSMARCO 文本检索与 VL3-Syn（200 万候选图库）跨模态检索上：</p>
+<ul>
+<li>从 <strong>1024 维截断至 512 维</strong>：MRR@10 检索准确率<strong>仅下滑 1.4%</strong>！</li>
+<li><strong>硬件收益</strong>：<strong>向量数据库存储空间降低 50%，ANN 近邻检索查询延迟直接减半（QPS 提升 100%）</strong>。</li>
+<li>未经过 MRL 专门训练的模型（如普通 CLIP），若截断至 512 维，精度直接腰斩。</li>
+</ul>
+<hr>
+<h2 id="03-QAT-量化感知训练与二值向量索引">03. QAT 量化感知训练与二值向量索引</h2>
+<p>针对向量数据库的成本优化，论文提出了第二大杀器：<strong>QAT（Quantization-Aware Training）</strong>。</p>
+<h3 id="3-1-纠偏：这里的-QAT-量化的是参数还是-Embedding？">3.1 纠偏：这里的 QAT 量化的是参数还是 Embedding？</h3>
+<blockquote>
+<p><strong>极其重要的概念区分</strong>：在 LLM 领域，通常说的 INT4/INT8（如 GPTQ/AWQ）是量化 <strong>模型本身的权重（Weights）</strong> 以节省显卡显存。<br>
+<strong>而在本文中，QAT 量化的是【模型输出的 Embedding 向量本身】（表征量化），旨在降低下游向量数据库的内存消耗！</strong></p>
+</blockquote>
+<p>论文采用 <strong>LSQ（Learned Step Size Quantization）</strong> 和 <strong>STE（Straight-Through Estimator 直通估计器）</strong>，在训练期间对生成的特征向量施加模拟量化惩罚，迫使模型学会输出“抗四舍五入干扰”的鲁棒向量。</p>
+<h3 id="3-2-论文实验对比：INT8-vs-Binary">3.2 论文实验对比：INT8 vs. Binary</h3>
+<p>论文在 7.1 节得出了明确的结论：</p>
+<ol>
+<li><strong>INT8 量化</strong>：表现惊艳，检索衰减<strong>几乎可以忽略不计（Negligible Degradation，降幅 &lt; 0.5%）</strong>。内存节省 <strong>75%</strong>，是生产环境的绝对首选。</li>
+<li><strong>Binary（二值化）量化</strong>：在多模态与视频场景下，<strong>精度出现较为明显的不可逆损伤</strong>，尤其当维度缩减时，曲线急剧下坠。<em>原因</em>：视觉内容信息熵极高，1-bit 符号量化丢弃了所有的模长与强度信息，无法支撑精细的跨模态特征比对。</li>
+</ol>
+<h3 id="3-3-代码实现：如何将输出向量转化为-INT8-与-Binary">3.3 代码实现：如何将输出向量转化为 INT8 与 Binary</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 模拟 Qwen3-VL 吐出的 1024 维 float32 向量</span></span><br><span class="line">float_vector = np.random.randn(<span class="number">1024</span>).astype(np.float32)</span><br><span class="line">float_vector /= np.linalg.norm(float_vector)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ==================== INT8 对称量化 (生产推荐) ====================</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">to_int8_vector</span>(<span class="params">v: np.ndarray</span>):</span><br><span class="line">    max_abs = np.<span class="built_in">max</span>(np.<span class="built_in">abs</span>(v))</span><br><span class="line">    scale = <span class="number">127.0</span> / max_abs <span class="keyword">if</span> max_abs &gt; <span class="number">0</span> <span class="keyword">else</span> <span class="number">1.0</span></span><br><span class="line">    int8_v = np.clip(np.<span class="built_in">round</span>(v * scale), -<span class="number">127</span>, <span class="number">127</span>).astype(np.int8)</span><br><span class="line">    <span class="keyword">return</span> int8_v, scale</span><br><span class="line"></span><br><span class="line">int8_vec, scale_factor = to_int8_vector(float_vector)</span><br><span class="line"><span class="comment"># 内存占用：1024 字节 (原 float32 为 4096 字节，直接缩减 75%)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ==================== Binary 二值化与汉明距离 ====================</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">to_binary_vector</span>(<span class="params">v: np.ndarray</span>):</span><br><span class="line">    <span class="comment"># 符号判定：大于 0 为 1，小于等于 0 为 0</span></span><br><span class="line">    bits = (v &gt; <span class="number">0</span>).astype(np.uint8)</span><br><span class="line">    <span class="comment"># 将 1024 个 bit 压缩进 128 个 uint8 字节</span></span><br><span class="line">    packed_bytes = np.packbits(bits)</span><br><span class="line">    <span class="keyword">return</span> packed_bytes</span><br><span class="line"></span><br><span class="line">bin_vec = to_binary_vector(float_vector)</span><br><span class="line"><span class="comment"># 内存占用：128 字节 (缩减 32 倍)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 汉明距离计算原理：利用 CPU 硬件级的 XOR + POPCNT</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">hamming_distance</span>(<span class="params">bin_a: np.ndarray, bin_b: np.ndarray</span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">    xor_diff = np.bitwise_xor(bin_a, bin_b)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">int</span>(np.unpackbits(xor_diff).<span class="built_in">sum</span>())</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="04-视频工程参数规范：动态分辨率与时空粒度消融">04. 视频工程参数规范：动态分辨率与时空粒度消融</h2>
+<p>在搭建视频预处理与特征提取流水线时，抽帧与分辨率策略直接决定了后端架构的吞吐量与成本。论文在 <strong>Section 4.2 与 Section 7.2（Figure 7）</strong> 给出了阿里巴巴经过海量实验验证的标准工业规范。</p>
+<h3 id="4-1-动态分辨率（Dynamic-Resolution）：彻底抛弃机械的中心裁剪与填充">4.1 动态分辨率（Dynamic Resolution）：彻底抛弃机械的中心裁剪与填充</h3>
+<p>在传统多模态模型（如原始 CLIP、ViT、ResNet）时代，视频预处理存在严重的工程痛点：</p>
+<ul>
+<li><strong>几何失真与边缘截断</strong>：传统视觉编码器强制要求输入固定的正方形分辨率（如 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>224</mn><mo>×</mo><mn>224</mn></mrow><annotation encoding="application/x-tex">224 \times 224</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">224</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">224</span></span></span></span> 或 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>336</mn><mo>×</mo><mn>336</mn></mrow><annotation encoding="application/x-tex">336 \times 336</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">336</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">336</span></span></span></span>）。若采用直接拉伸（Resize），横屏电影画面会被严重挤压变形；若采用中心裁剪（Center Crop），画面四周的关键人物和动作就会被粗暴切除；若采用黑边填充（Letterbox Padding），大量无意义的黑边又会白白浪费注意力算力。</li>
+<li><strong>多画幅兼容灾难</strong>：现代视频源极其繁杂（电影 21:9、宽屏电视 16:9、竖屏短视频 9:16、老录像 4:3）。</li>
+</ul>
+<p><strong>Qwen3-VL 的动态分辨率机制（Dynamic Resolution）</strong>：</p>
+<ol>
+<li><strong>原生保持长宽比（Aspect Ratio Preservation）</strong>：基于视觉 Transformer 的 2D 卷积/Patch 动态网格划分，输入任意长宽比的画面均不改变原始几何比例。</li>
+<li><strong>软性 Token 预算控制（Soft Token Budget）</strong>：
+<ul>
+<li>单张图像视觉 Token 上限为 <strong>1,280</strong>（等效约 130 万像素）；</li>
+<li>64 帧长视频片段的总视觉 Token 预算严格限制在 <strong>4,500</strong>（等效约 920 万像素）。</li>
+</ul>
+</li>
+<li><strong>后端工程收益</strong>：在编写 FFmpeg / OpenCV 解码工作节点时，完全<strong>无需编写复杂的裁剪与黑边填充代码</strong>，直接按原画长宽比抽取原始分辨率图像即可，大幅简化了解码流水线的代码复杂度并节省了图像形变 CPU 开销。</li>
+</ol>
+<h3 id="4-2-抽帧率与时空粒度消融分析">4.2 抽帧率与时空粒度消融分析</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[原始长视频] ---&gt; [切片: 30~60秒] ---&gt; [采样率: 1 FPS] ---&gt; [截取帧上限: 64 帧] ---&gt; [视觉 Token 预算: ≤4,500]</span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>边际收益递减（Diminishing Returns）</strong>：<br>
+帧数从 4 帧提升到 16、32、64 帧时，动作识别指标急剧上升；但<strong>超过 64 帧或提高到 2~5 FPS 时，性能曲线完全走平</strong>。因为常规视频在 1 秒内的连续帧高度冗余，1 FPS 已足够捕获时序变化。</li>
+<li><strong>注意力稀释与反向退化（Performance Regression）</strong>：<br>
+当帧数过多导致 Token 消耗逼近 32K 极限时，<strong>模型检索表现不升反降</strong>。过密、过长的相似帧稀释了 Transformer 的 Self-Attention 权重，使模型在关键时刻产生“走神”。</li>
+<li><strong>单卡显存安全线</strong>：<br>
+4,500 Tokens 的总视觉预算（约 920 万像素），确保了在 RTX 4090 / A10 等 24GB 显存设备上，进行 Batch Inference 时稳定不 OOM。</li>
+</ol>
+<hr>
+<h2 id="05-非对称检索设计：入库与在线查询的指令分工机制">05. 非对称检索设计：入库与在线查询的指令分工机制</h2>
+<p>论文全篇强调 <strong>“Instruction-Aware”</strong>，模型支持在输入中传入定制化的检索指令。在标准的非对称检索（Asymmetric Retrieval）系统架构中，离线库构建与在线查询的指令应采取明确的分工策略：</p>
+<h3 id="5-1-离线入库端：采用标准通用指令保证特征客观性">5.1 离线入库端：采用标准通用指令保证特征客观性</h3>
+<p>视频切片在离线入库时，必须保持其语义表征的<strong>客观性与通用性</strong>。论文在 Section 2 明确指出，系统默认指令为：<br>
+<code>&quot;Represent the user's input.&quot;</code></p>
+<p>如果在离线提取特征时人为加入偏向特定维度的指令（例如强制加入“提取视频中的动作”），该向量就会丧失对背景色彩、人物服饰、视觉风格等维度的感知力。因此，离线库统一使用默认指令或留空，确保向量是该视频片段的高保真通用全局表征。</p>
+<h3 id="5-2-在线查询端：通过-Instruction-实现动态语义调焦（Dynamic-Steering）">5.2 在线查询端：通过 Instruction 实现动态语义调焦（Dynamic Steering）</h3>
+<p>与离线端相反，在线搜索时用户的查询意图各不相同。上层 Agent 网关可以通过动态拼装 System Instruction，像调节相机镜头焦距一样，引导 Query 向量聚焦在特定的语义维度上：</p>
+<ul>
+<li><strong>偏向动作行为检索</strong>：<br>
+<code>Instruction: &quot;Retrieve the video clip where the action is performed.&quot;</code></li>
+<li><strong>偏向视听画风检索</strong>：<br>
+<code>Instruction: &quot;Retrieve the video clip based on visual style and atmosphere.&quot;</code></li>
+<li><strong>偏向实体/物品检索</strong>：<br>
+<code>Instruction: &quot;Retrieve the video clip containing the specified object or entity.&quot;</code></li>
+</ul>
+<p>这种“离线提取通用底库，在线动态指定焦距”的非对称设计，不仅保证了离线特征的零冗余（无需为同一视频存储多份不同视角的向量），又最大化了在线端多意图检索的灵活度。</p>
+<hr>
+<h2 id="06-算法深度：假负例消除、模型蒸馏与-VisDoc-的能力边界">06. 算法深度：假负例消除、模型蒸馏与 VisDoc 的能力边界</h2>
+<h3 id="6-1-假负例过滤机制（False-Negative-Masking）">6.1 假负例过滤机制（False Negative Masking）</h3>
+<p>在对比学习中，批次内的其他样本默认被当成负例。但若批次内恰好存在另一个同样相关的视频，模型就会被误导。论文在损失函数中引入了掩码因子 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">m_{ij}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7167em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">ij</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>m</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mn>0</mn><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if </mtext><msub><mi>s</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>&gt;</mo><mi>s</mi><mo stretchy="false">(</mo><msub><mi>q</mi><mi>i</mi></msub><mo separator="true">,</mo><msubsup><mi>d</mi><mi>i</mi><mo>+</mo></msubsup><mo stretchy="false">)</mo><mo>+</mo><mn>0.1</mn><mtext> or </mtext><msub><mi>d</mi><mi>j</mi></msub><mo>=</mo><msubsup><mi>d</mi><mi>i</mi><mo>+</mo></msubsup></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mn>1</mn><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>otherwise</mtext></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">m_{ij} = \begin{cases} 0, &amp; \text{if } s_{ij} &gt; s(q_i, d_i^+) + 0.1 \text{ or } d_j = d_i^+ \\ 1, &amp; \text{otherwise} \end{cases}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7167em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">ij</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:3em;vertical-align:-1.25em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">0</span><span class="mpunct">,</span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">1</span><span class="mpunct">,</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord">if </span></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">ij</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal">s</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8115em;"><span style="top:-2.4231em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.1031em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">+</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2769em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">0.1</span><span class="mord text"><span class="mord"> or </span></span><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8115em;"><span style="top:-2.4231em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.1031em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">+</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2769em;"><span></span></span></span></span></span></span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord">otherwise</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>若某个未标注候选与 Query 的相似度甚至超过了正样本阈值，<strong>直接剔除惩罚</strong>，避免破坏特征空间。</p>
+<h3 id="6-2-知识蒸馏与模型合并（Model-Merging）">6.2 知识蒸馏与模型合并（Model Merging）</h3>
+<ul>
+<li><strong>蒸馏</strong>：利用精度更高的 Qwen3-VL-Reranker 对候选数据打分，指导并蒸馏 Qwen3-VL-Embedding，打造数据正向循环；</li>
+<li><strong>合并（Model Merging）</strong>：Embedding 经过大量检索微调后，分类和通用问答能力有所下降。团队通过 <strong>权重算术合并（Ties / DARE）</strong>，将专精检索的模型参数与通用基础模型参数相融合，兼顾了所有任务。</li>
+</ul>
+<h3 id="6-3-OCR-Free-视觉文档的能力边界与多帧-A4-重建真相">6.3 OCR-Free 视觉文档的能力边界与多帧 A4 重建真相</h3>
+<p>论文在 6.2 节展现了极强的 <strong>VisDoc 识别能力（表格、图表、密集排版文本检索，平均分 80.3 夺冠）</strong>。但工程师必须认清两个概念的边界：</p>
+<ol>
+<li><strong>论文的 OCR-Free</strong>：是指在<strong>检索任务</strong>中，无需 OCR 预处理即可精准匹配文档图。其输出是向量，<strong>不具备生成文本流的能力</strong>；</li>
+<li><strong>多帧未拍全 A4 纸文字提取需求</strong>：属于<strong>生成式文档重建</strong>任务。<em>解决方案</em>：使用 <strong>Qwen2.5-VL-72B-Instruct / Qwen3-VL-Instruct 生成式大模型</strong>，抽取 6~10 张局部重叠的高清关键帧，利用大模型的跨图上下文理解与语言先验，直接输出合并去重后的完整 Markdown 文档。</li>
+</ol>
+<h3 id="6-4-Moment-Retrieval（视频高光-特定时刻定位）的代码工程实现">6.4 Moment Retrieval（视频高光/特定时刻定位）的代码工程实现</h3>
+<p>论文在 Section 4.1 中明确指出，训练集专门涵盖了 <strong>Moment Retrieval（时刻定位 / Temporal Grounding）</strong> 任务。在实际业务中，用户往往不满足于“只定位到一个 30 秒或 1 分钟的粗切片”，而是希望播放器<strong>直接跳转到发生特定动作的那几秒钟</strong>（例如：“车辆翻车冒烟的瞬间”、“主角拔枪射击的一刹那”）。</p>
+<p>在软件工程中，推荐采用<strong>两阶段分层时序定位流水线</strong>实现高光秒级跳转：</p>
+<pre><code class="highlight mermaid">flowchart LR
+    Clip[&quot;粗粒度候选切片&lt;br/&gt;(30秒视频, 1 FPS 抽帧)&quot;] --&gt; Window[&quot;时序滑动窗口切分子片段&lt;br/&gt;(如 5s 窗口, 50% 重叠步长)&quot;]
+    Window --&gt; Reranker[&quot;Qwen3-VL-Reranker 批处理打分&lt;br/&gt;(逐个子窗口计算匹配概率)&quot;]
+    Reranker --&gt; Merge[&quot;时序平滑与阈值合并&lt;br/&gt;(提取最优起始与结束秒)&quot;]
+    Merge --&gt; Result[&quot;输出精准时刻: 00:14.00 ~ 00:19.50&lt;br/&gt;驱动前端播放器 Seek 跳转&quot;]</code></pre>
+<h4 id="生产级-Python-代码实现：">生产级 Python 代码实现：</h4>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">List</span>, <span class="type">Dict</span>, <span class="type">Tuple</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">VideoMomentLocalizer</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, reranker_model, processor, window_size: <span class="built_in">int</span> = <span class="number">5</span>, stride: <span class="built_in">int</span> = <span class="number">2</span></span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        :param window_size: 子窗口时长（秒），例如每 5 秒一个动作高光</span></span><br><span class="line"><span class="string">        :param stride: 滑动步长（秒），50% 重叠保证动作不被窗口截断</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>.model = reranker_model</span><br><span class="line">        <span class="variable language_">self</span>.processor = processor</span><br><span class="line">        <span class="variable language_">self</span>.window_size = window_size</span><br><span class="line">        <span class="variable language_">self</span>.stride = stride</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">extract_moment</span>(<span class="params">self, </span></span><br><span class="line"><span class="params">                       query: <span class="built_in">str</span>, </span></span><br><span class="line"><span class="params">                       clip_frames: <span class="type">List</span>, </span></span><br><span class="line"><span class="params">                       clip_start_sec: <span class="built_in">float</span>, </span></span><br><span class="line"><span class="params">                       fps: <span class="built_in">int</span> = <span class="number">1</span></span>) -&gt; <span class="type">Dict</span>[<span class="built_in">str</span>, <span class="built_in">any</span>]:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        输入一个 30s 粗候选切片的帧序列，精准定位出高光起止时间戳</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        total_frames = <span class="built_in">len</span>(clip_frames)</span><br><span class="line">        total_duration = total_frames / fps</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 1. 生成时序滑动窗口</span></span><br><span class="line">        windows: <span class="type">List</span>[<span class="type">Tuple</span>[<span class="built_in">float</span>, <span class="built_in">float</span>, <span class="type">List</span>]] = []</span><br><span class="line">        cur_sec = <span class="number">0.0</span></span><br><span class="line">        <span class="keyword">while</span> cur_sec &lt; total_duration:</span><br><span class="line">            end_sec = <span class="built_in">min</span>(cur_sec + <span class="variable language_">self</span>.window_size, total_duration)</span><br><span class="line">            start_idx = <span class="built_in">int</span>(cur_sec * fps)</span><br><span class="line">            end_idx = <span class="built_in">int</span>(end_sec * fps)</span><br><span class="line">            sub_frames = clip_frames[start_idx:end_idx]</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(sub_frames) &gt; <span class="number">0</span>:</span><br><span class="line">                windows.append((cur_sec, end_sec, sub_frames))</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> end_sec &gt;= total_duration:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            cur_sec += <span class="variable language_">self</span>.stride</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 2. 调用 Qwen3-VL-Reranker 进行并发打分</span></span><br><span class="line">        yes_id = <span class="variable language_">self</span>.processor.tokenizer.convert_tokens_to_ids(<span class="string">&quot;yes&quot;</span>)</span><br><span class="line">        no_id = <span class="variable language_">self</span>.processor.tokenizer.convert_tokens_to_ids(<span class="string">&quot;no&quot;</span>)</span><br><span class="line">        window_scores = []</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> w_start, w_end, w_frames <span class="keyword">in</span> windows:</span><br><span class="line">            prompt = (</span><br><span class="line">                <span class="string">&quot;&lt;|im_start|&gt;system\n&quot;</span></span><br><span class="line">                <span class="string">&quot;Judge whether the Document meets the requirements based on the Query and the Instruct provided. &quot;</span></span><br><span class="line">                <span class="string">&quot;Note that the answer can only be &#x27;yes&#x27; or &#x27;no&#x27;.&lt;|im_end|&gt;\n&quot;</span></span><br><span class="line">                <span class="string">f&quot;&lt;|im_start|&gt;user\n&lt;Instruct&gt;: 定位包含指定动作发生的高光时刻\n&quot;</span></span><br><span class="line">                <span class="string">f&quot;&lt;Query&gt;: <span class="subst">&#123;query&#125;</span>\n&lt;Document&gt;: [视频片段]&lt;|im_end|&gt;\n&quot;</span></span><br><span class="line">                <span class="string">&quot;&lt;|im_start|&gt;assistant\n&quot;</span></span><br><span class="line">            )</span><br><span class="line">            inputs = <span class="variable language_">self</span>.processor(text=prompt, videos=w_frames, return_tensors=<span class="string">&quot;pt&quot;</span>)</span><br><span class="line">            <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">                logits = <span class="variable language_">self</span>.model(**inputs).logits[:, -<span class="number">1</span>, :]</span><br><span class="line">                prob = torch.softmax(logits[:, [no_id, yes_id]], dim=-<span class="number">1</span>)[:, <span class="number">1</span>].item()</span><br><span class="line">                window_scores.append(prob)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 3. 寻找峰值窗口并进行时序合并</span></span><br><span class="line">        best_idx = <span class="built_in">int</span>(np.argmax(window_scores))</span><br><span class="line">        best_score = window_scores[best_idx]</span><br><span class="line">        best_w_start, best_w_end, _ = windows[best_idx]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 绝对时间戳对齐 (加上视频原本的切片偏移量)</span></span><br><span class="line">        absolute_start = <span class="built_in">round</span>(clip_start_sec + best_w_start, <span class="number">2</span>)</span><br><span class="line">        absolute_end = <span class="built_in">round</span>(clip_start_sec + best_w_end, <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            <span class="string">&quot;query&quot;</span>: query,</span><br><span class="line">            <span class="string">&quot;moment_confidence&quot;</span>: <span class="built_in">round</span>(best_score, <span class="number">4</span>),</span><br><span class="line">            <span class="string">&quot;start_time&quot;</span>: absolute_start,</span><br><span class="line">            <span class="string">&quot;end_time&quot;</span>: absolute_end,</span><br><span class="line">            <span class="string">&quot;duration&quot;</span>: <span class="built_in">round</span>(absolute_end - absolute_start, <span class="number">2</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模拟业务调用：</span></span><br><span class="line"><span class="comment"># localizer = VideoMomentLocalizer(reranker_model, processor)</span></span><br><span class="line"><span class="comment"># result = localizer.extract_moment(</span></span><br><span class="line"><span class="comment">#     query=&quot;红色跑车在下雨夜市急速漂移&quot;, </span></span><br><span class="line"><span class="comment">#     clip_frames=video_30s_frames, </span></span><br><span class="line"><span class="comment">#     clip_start_sec=120.0</span></span><br><span class="line"><span class="comment"># )</span></span><br><span class="line"><span class="comment"># 结果返回: &#123;&#x27;start_time&#x27;: 124.0, &#x27;end_time&#x27;: 129.0, &#x27;moment_confidence&#x27;: 0.9421&#125;</span></span><br><span class="line"><span class="comment"># 前端视频播放器接收后直接执行: videoPlayer.currentTime = 124.0; videoPlayer.play();</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="07-全链路落地架构实战（PostgreSQL-pgvector-动态-SQL-混合检索）">07. 全链路落地架构实战（PostgreSQL + pgvector 动态 SQL 混合检索）</h2>
+<p>基于论文的所有结论，面向工业落地的完整视频检索后端系统架构如下：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph Ingestion[&quot;视频处理管道 (异步/离线)&quot;]
+        RawVideo[原始视频文件] --&gt; FFmpeg[FFmpeg 切片: 30s 片段&lt;br/&gt;抽帧率: 1 FPS, ≤64帧]
+        FFmpeg --&gt; EmbSvc[&quot;Qwen3-VL-Embedding-2B&lt;br/&gt;(默认指令: &#x27;Represent the user&#x27;s input.&#x27;)&quot;]
+        EmbSvc --&gt; Trunc[&quot;MRL 截取至 1024 维 + L2 重新归一化&quot;]
+        Trunc --&gt; DB[(&quot;PostgreSQL + pgvector 数据库&lt;br/&gt;存储: 标量元数据 + 1024维向量&quot;)]
+    end
+
+    subgraph QueryPipeline[&quot;在线多模态查询链路 (实时)&quot;]
+        UserIn[&quot;用户自然语言查询 + 可选参考图&quot;] --&gt; AgentLLM[&quot;Query 理解 Agent&lt;br/&gt;(拆解结构化过滤条件与语义检索词)&quot;]
+        AgentLLM --&gt; TextSQL[&quot;拼装混合 SQL&lt;br/&gt;WHERE 标量过滤 + 向量近邻排序&quot;]
+        AgentLLM --&gt; QEmb[&quot;Qwen3-VL-Embedding-2B&lt;br/&gt;(提取 Query 向量)&quot;]
+        TextSQL &amp; QEmb --&gt; Exec[&quot;执行 SQL 检索，拉取 Top 30 候选&quot;]
+        Exec --&gt; DB
+        Exec --&gt; Candidates[&quot;Top 30 视频片段候选&quot;]
+        Candidates &amp; UserIn --&gt; RerankSvc[&quot;Qwen3-VL-Reranker-2B&lt;br/&gt;(细粒度交叉注意力打分)&quot;]
+        RerankSvc --&gt; Top5[&quot;最终 Top 5 视频片段推送给前端&quot;]
+    end</code></pre>
+<h3 id="数据库-DDL-与混合检索-SQL">数据库 DDL 与混合检索 SQL</h3>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. 启用 pgvector 扩展</span></span><br><span class="line"><span class="keyword">CREATE</span> EXTENSION IF <span class="keyword">NOT</span> <span class="keyword">EXISTS</span> vector;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 创建视频切片表 (使用 1024 维向量)</span></span><br><span class="line"><span class="keyword">CREATE TABLE</span> video_clips (</span><br><span class="line">    clip_id BIGSERIAL <span class="keyword">PRIMARY KEY</span>,</span><br><span class="line">    video_id <span class="type">VARCHAR</span>(<span class="number">64</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    start_time <span class="type">NUMERIC</span>(<span class="number">8</span>, <span class="number">2</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    end_time <span class="type">NUMERIC</span>(<span class="number">8</span>, <span class="number">2</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    duration <span class="type">NUMERIC</span>(<span class="number">6</span>, <span class="number">2</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">    genre <span class="type">VARCHAR</span>(<span class="number">32</span>),</span><br><span class="line">    release_year <span class="type">INT</span>,</span><br><span class="line">    preview_url TEXT,</span><br><span class="line">    <span class="comment">-- 采用 1024 维向量 (MRL 裁剪后结果)</span></span><br><span class="line">    clip_embedding vector(<span class="number">1024</span>) <span class="keyword">NOT NULL</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 3. 建立标量索引与 HNSW 向量索引</span></span><br><span class="line"><span class="keyword">CREATE</span> INDEX idx_clips_metadata <span class="keyword">ON</span> video_clips(genre, release_year, duration);</span><br><span class="line"><span class="keyword">CREATE</span> INDEX idx_clips_vector <span class="keyword">ON</span> video_clips <span class="keyword">USING</span> hnsw (clip_embedding vector_cosine_ops)</span><br><span class="line"><span class="keyword">WITH</span> (m <span class="operator">=</span> <span class="number">16</span>, ef_construction <span class="operator">=</span> <span class="number">128</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 4. 在线动态拼装的混合检索 SQL</span></span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    clip_id,</span><br><span class="line">    video_id,</span><br><span class="line">    start_time,</span><br><span class="line">    end_time,</span><br><span class="line">    preview_url,</span><br><span class="line">    <span class="comment">-- 计算余弦距离</span></span><br><span class="line">    (clip_embedding <span class="operator">&lt;=&gt;</span> <span class="string">&#x27;[0.0125, -0.0431, ..., 0.0891]&#x27;</span>::vector) <span class="keyword">AS</span> distance</span><br><span class="line"><span class="keyword">FROM</span> video_clips</span><br><span class="line"><span class="keyword">WHERE</span> </span><br><span class="line">    release_year <span class="operator">&gt;=</span> <span class="number">2024</span></span><br><span class="line">    <span class="keyword">AND</span> duration <span class="keyword">BETWEEN</span> <span class="number">10</span> <span class="keyword">AND</span> <span class="number">60</span></span><br><span class="line">    <span class="keyword">AND</span> genre <span class="operator">=</span> <span class="string">&#x27;Action&#x27;</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> distance <span class="keyword">ASC</span></span><br><span class="line">LIMIT <span class="number">30</span>; <span class="comment">-- 取出 Top 30 送入 Qwen3-VL-Reranker 做最后精排</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="08-结语与软件架构师备忘录">08. 结语与软件架构师备忘录</h2>
+<p>Qwen3-VL 检索双子星技术报告的真正价值，在于它没有停留在黑盒算法层面，而是用大量的消融实验为工程落地标定了清晰的边界：</p>
+<ol>
+<li><strong>别上无意义的高维</strong>：利用 MRL 截取至 <strong>1024 维</strong>，精度损失仅 1% 左右，存储与延迟直接减半；</li>
+<li><strong>别盲目二值化</strong>：多模态场景请使用 <strong>INT8 量化</strong>，二值化会伤害跨模态精度；</li>
+<li><strong>别超量抽帧</strong>：严格保持 <strong>1 FPS 且不超过 64 帧</strong>，超过不仅浪费显存，还会引起注意力稀释退化；</li>
+<li><strong>两阶段架构不可动摇</strong>：<strong>Embedding 粗筛 + Reranker 精排</strong>是兼顾高并发吞吐与极致准确率的唯一黄金路径。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2/" rel="tag"># 向量检索</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E6%A3%80%E7%B4%A2/" rel="tag"># 视频检索</a>
+              <a href="/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 向量数据库</a>
+              <a href="/tags/Qwen3-VL/" rel="tag"># Qwen3-VL</a>
+              <a href="/tags/pgvector/" rel="tag"># pgvector</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" rel="tag"># 系统架构</a>
+              <a href="/tags/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E6%88%98/" rel="tag"># 工程实战</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/papers/2026/02/28/ContrastiveSceneGraphs-MultimodalGrounding/" rel="prev" title="【论文分享】告别“近视眼”：对比场景图（Contrastive Scene Graphs）如何用数学与结构重塑多模态认知？">
+                  <i class="fa fa-angle-left"></i> 【论文分享】告别“近视眼”：对比场景图（Contrastive Scene Graphs）如何用数学与结构重塑多模态认知？
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/" rel="next" title="【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？">
+                  【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？ <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">288k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">17:27</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
