@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">243</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">68</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">247</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">69</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">68</span>
+          <span class="site-state-item-count">69</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">243</span>
+        <span class="site-state-item-count">247</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,117 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/22/Video-EMem-WriteOnceQueryMany/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/10/22/Video-EMem-WriteOnceQueryMany/" class="post-title-link" itemprop="url">【论文分享】长视频大模型的“读写分离”革命：解析 Video-EMem 与自进化架构 VideoEvoHarness</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-22 15:08:00" itemprop="dateCreated datePublished" datetime="2026-10-22T15:08:00+08:00">2026-10-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-06 11:29:44" itemprop="dateModified" datetime="2026-11-06T11:29:44+08:00">2026-11-06</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>13 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态长视频大模型领域，我们通常会面临一个非常棘手的矛盾：<strong>视频太长，上下文塞不下；即便勉强塞进去，每次提问都要重复扫描整部视频，算力和显存开销高得令人无法接受。</strong></p>
+<p>近期由 <strong>浙江大学与微软亚洲研究院（MSRA）</strong> 团队联合发布了一篇非常亮眼的前沿工作——《Write Once, Query Many: Evolving Compact Reusable Memory for Long Videos》（引入了 <strong>Video-EMem</strong> 体系），并在开源社区提供了配套的自进化脚手架框架 <strong>VideoEvoHarness</strong>。</p>
+<p>这篇论文最吸引人的地方在于，它并没有一味追求把模型参数堆得更大，而是从<strong>经典软件架构的“读写分离（CQRS）”思想</strong>切入，提出了极具工程智慧的解决思路：</p>
+<blockquote>
+<p><strong>“一次写入，多次查询（Write Once, Query Many）：长视频只做一次轻量化感知编译，提炼为体积削减 99.86% 的多尺度记忆；后续面对成百上千个未知问题，AI 绝不再去碰原视频，只凭精炼记忆秒级作答；更妙的是，整套记笔记与查笔记的 Python 策略代码，还能通过内置的 Coding Agent 自我演变进化！”</strong></p>
+</blockquote>
+<p>在这篇博客中，我们不仅会深入拆解 Video-EMem 的核心架构、双轨生成与召回率保障机制，还会结合工程师视角的深度思辨，探讨<strong>为什么学术界的自进化沙箱在生产线上不能直接动态跑</strong>，以及<strong>如何通过补齐 Embedding 环节结合 MyScaleDB 向量数据库，将这一单视频方案推向海量工业级沉睡视频流的检索实战</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Write Once, Query Many: Evolving Compact Reusable Memory for Long Videos<br>
+<strong>作者团队</strong>：Kerui Chen, Jinglu Wang, Yun Wang, Xinjiang Wang, Yan Lu (浙江大学, 微软亚洲研究院 MSRA)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.24537">https://arxiv.org/abs/2610.24537</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.24537">https://arxiv.org/html/2610.24537</a><br>
+<strong>开源代码库</strong>：<a target="_blank" rel="noopener" href="https://github.com/lewlh/VideoEvoHarness">https://github.com/lewlh/VideoEvoHarness</a> (原版仓库: <a target="_blank" rel="noopener" href="https://github.com/Wei-Xin-Xu/VideoEvoHarness">Wei-Xin-Xu/VideoEvoHarness</a>)</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/10/22/Video-EMem-WriteOnceQueryMany/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +343,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 23:03:22" itemprop="dateModified" datetime="2026-11-04T23:03:22+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-06 11:29:44" itemprop="dateModified" datetime="2026-11-06T11:29:44+08:00">2026-11-06</time>
     </span>
 
   
@@ -343,7 +454,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 23:03:22" itemprop="dateModified" datetime="2026-11-04T23:03:22+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-06 11:29:44" itemprop="dateModified" datetime="2026-11-06T11:29:44+08:00">2026-11-06</time>
     </span>
 
   
@@ -469,7 +580,7 @@ Hugging Face 权重：<a target="_blank" rel="noopener" href="https://huggingfac
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 23:03:22" itemprop="dateModified" datetime="2026-11-04T23:03:22+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-06 11:29:44" itemprop="dateModified" datetime="2026-11-06T11:29:44+08:00">2026-11-06</time>
     </span>
 
   
@@ -584,7 +695,7 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 23:03:22" itemprop="dateModified" datetime="2026-11-04T23:03:22+08:00">2026-11-04</time>
+      <time title="修改时间：2026-11-06 11:29:44" itemprop="dateModified" datetime="2026-11-06T11:29:44+08:00">2026-11-06</time>
     </span>
 
   
@@ -658,112 +769,6 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/" class="post-title-link" itemprop="url">【论文深度拆解】阿里千问 Qwen3-VL 检索双子星全景解析：面向视频与多模态检索系统的工程落地实战指南</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-02-03 12:45:00" itemprop="dateCreated datePublished" datetime="2026-02-03T12:45:00+08:00">2026-02-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-04 23:03:22" itemprop="dateModified" datetime="2026-11-04T23:03:22+08:00">2026-11-04</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>5.7k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>21 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>对于正在探索 <strong>“多模态输入 + 向量提取 + 向量数据库（SQL 混合检索）+ 动态拼装 SQL + 视频片段精准召回”</strong> 的软件开发团队而言，2026 年初阿里巴巴通义实验室（Qwen 团队）发布的一篇技术报告堪称一场“及时雨”：</p>
-<blockquote>
-<p><strong>论文题目</strong>：《Qwen3-VL-Embedding and Qwen3-VL-Reranker: A Unified Framework for State-of-the-Art Multimodal Retrieval and Ranking》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2601.04720">https://arxiv.org/abs/2601.04720</a><br>
-<strong>开源地址</strong>：<a target="_blank" rel="noopener" href="https://github.com/QwenLM/Qwen3-VL-Embedding">https://github.com/QwenLM/Qwen3-VL-Embedding</a><br>
-<strong>核心资产</strong>：Qwen3-VL-Embedding（2B / 8B）与 Qwen3-VL-Reranker（2B / 8B）</p>
-</blockquote>
-<p>这篇技术报告看似是 Qwen3-VL 系列模型“秀肌肉”的性能榜单刷榜文（在 MMEB-V2 综合多模态检索榜单上斩获 77.8 分夺得全球第一），但深入研读其底层设计与消融实验，你会发现它本质上是一份<strong>下一代工业级多模态与视频搜索引擎的架构蓝图</strong>。</p>
-<p>本文立足于 <strong>软件开发工程师（后端/全栈/系统架构）</strong> 的工程视角，全面组织论文的核心原理与工业落地细节，彻底还原技术原貌，帮助研发团队在搭建视频多模态检索系统时少走弯路。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -788,14 +793,14 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">293k</span>
+    <span title="站点总字数">297k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">17:45</span>
+    <span title="站点阅读时长">18:01</span>
   </span>
 </div>
 <div class="busuanzi-count">
