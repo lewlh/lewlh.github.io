@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">261</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">74</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">263</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">75</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-count">75</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">261</span>
+        <span class="site-state-item-count">263</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,108 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/09/Streaming-DVC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/09/Streaming-DVC/" class="post-title-link" itemprop="url">【论文深度拆解】告别全量离线批处理：Google CVPR 顶会 Streaming DVC 如何用在线聚类记忆破除长视频流式切片与显存爆炸魔咒</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-09 18:05:00 / 修改时间：18:41:53" itemprop="dateCreated datePublished" datetime="2026-11-09T18:05:00+08:00">2026-11-09</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态视频理解领域，<strong>密集视频字幕生成（Dense Video Captioning, DVC）</strong> 一直是极具商业价值但也最令工程师头疼的重型任务：系统不仅要把超长视频中的关键事件找出来并标出精确的起止时间戳（<code>[start_time, end_time]</code>），还要为每个片段实时生成通顺且富有上下文细节的自然语言解说。</p>
+<p>然而对于软件开发与系统架构工程师而言，学术界长期以来的主流 SOTA 模型（如 Vid2Seq、PDVC 等）在工业落地时普遍存在致命的 <strong>“批处理原罪”</strong>：它们假设视频文件必须全量落盘并一次性加载，靠全局粗暴下采样将上万帧浓缩为几十帧送入大模型。这种做法在面对 <strong>实时监控、直播推流、车载与机器人边缘视觉</strong>等场景时瞬间失效——显存随视频时长线性甚至二次方膨胀（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>T</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(T)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span><span class="mclose">)</span></span></span></span>），而端到端延迟更是直接无限大（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>→</mo><mi mathvariant="normal">∞</mi></mrow><annotation encoding="application/x-tex">T \to \infty</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord">∞</span></span></span></span>）。</p>
+<p>为了彻底打破“离线批处理”的桎梏，来自 Google Research 的顶级计算机视觉团队（包括 Cordelia Schmid、Xingyi Zhou 等）在 CVPR 上发表了重磅成果：<strong>《Streaming Dense Video Captioning》</strong>。他们摒弃了暴力堆叠上下文的思路，以极其优雅的流式系统思维重构了整套架构——<strong>用“在线聚类记忆模块”将空间复杂度锁死在 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>，配合“基于解码点与 Prefix 游标”的增量消费机制，实现了真正低显存、低延迟的实时因果流式解说与精准切片</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Streaming Dense Video Captioning<br>
+<strong>作者团队</strong>：Google Research (Xingyi Zhou, Anurag Arnab, Shyamal Buch, Shen Yan, Austin Myers, Xuehan Xiong, Arsha Nagrani, Cordelia Schmid)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2404.01297">https://arxiv.org/abs/2404.01297</a><br>
+<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2404.01297">https://arxiv.org/html/2404.01297</a><br>
+<strong>官方源码</strong>：<a target="_blank" rel="noopener" href="https://github.com/google-research/scenic/tree/main/scenic/projects/streaming_dvc">https://github.com/google-research/scenic/tree/main/scenic/projects/streaming_dvc</a><br>
+<strong>发表会议</strong>：IEEE/CVF CVPR 2024</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/09/Streaming-DVC/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +328,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-09 17:35:00 / 修改时间：17:50:53" itemprop="dateCreated datePublished" datetime="2026-11-09T17:35:00+08:00">2026-11-09</time>
+      <time title="创建时间：2026-11-09 17:35:00 / 修改时间：18:41:53" itemprop="dateCreated datePublished" datetime="2026-11-09T17:35:00+08:00">2026-11-09</time>
     </span>
 
   
@@ -338,7 +440,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-09 15:30:00 / 修改时间：17:50:53" itemprop="dateCreated datePublished" datetime="2026-11-09T15:30:00+08:00">2026-11-09</time>
+      <time title="创建时间：2026-11-09 15:30:00 / 修改时间：18:41:53" itemprop="dateCreated datePublished" datetime="2026-11-09T15:30:00+08:00">2026-11-09</time>
     </span>
 
   
@@ -450,7 +552,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-09 12:20:00 / 修改时间：17:50:53" itemprop="dateCreated datePublished" datetime="2026-11-09T12:20:00+08:00">2026-11-09</time>
+      <time title="创建时间：2026-11-09 12:20:00 / 修改时间：18:41:53" itemprop="dateCreated datePublished" datetime="2026-11-09T12:20:00+08:00">2026-11-09</time>
     </span>
 
   
@@ -562,7 +664,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 17:50:53" itemprop="dateModified" datetime="2026-11-09T17:50:53+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-09 18:41:53" itemprop="dateModified" datetime="2026-11-09T18:41:53+08:00">2026-11-09</time>
     </span>
 
   
@@ -630,107 +732,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/companies/2026/11/04/TwelveLabs-Deep-Dive-Video-Native-AI/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/companies/2026/11/04/TwelveLabs-Deep-Dive-Video-Native-AI/" class="post-title-link" itemprop="url">【商业公司深度分析】Twelve Labs：视频原生大模型、推理工程经济学与商业全景</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-04 22:30:00" itemprop="dateCreated datePublished" datetime="2026-11-04T22:30:00+08:00">2026-11-04</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 17:50:53" itemprop="dateModified" datetime="2026-11-09T17:50:53+08:00">2026-11-09</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>5k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>18 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在当今由大语言模型（LLM）主导的多模态浪潮中，视频理解领域长期笼罩在一种“大力出奇迹”的惯性思维之下：各家大厂倾向于把视频机械地按 1 fps 抽帧，将成百上千张静态图片和 ASR 对白一股脑塞进数万甚至数十万 Token 的超长上下文窗口中。</p>
-<p>然而，在面对数万小时级历史资产检索、体育转播毫米级动作定位、广播级剪辑工作流等严苛工业生产场景时，这种“暴力堆上下文”的方案在<strong>时序因果保真度</strong>与<strong>推理工程财务模型</strong>上面临着双重崩塌。</p>
-<p>成立于 2021 年的硅谷 AI 独角兽 <strong>Twelve Labs</strong> 走出了一条截然不同的“非共识”道路：确立 <strong>“生于视频（Born in Video）”</strong> 的技术哲学，构建 <strong>“时空解耦双层认知架构”</strong>，并通过 <strong>“一次索引、持久留存、按需推理”（Index Once, Query Forever）</strong> 的工程经济学范式，撬动了全球体育、广电传媒与云原生湖仓的庞大市场。</p>
-<p>本文将立足于计算机视觉算法、系统工程与商业研报多重视角，深度拆解 Twelve Labs 的技术实现内核、产品矩阵、商业财务表现，并探讨其与学术前沿以及开源方案（如 Qwen3-VL）的异同与博弈。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/companies/2026/11/04/TwelveLabs-Deep-Dive-Video-Native-AI/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -755,14 +756,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">321k</span>
+    <span title="站点总字数">326k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">19:28</span>
+    <span title="站点阅读时长">19:45</span>
   </span>
 </div>
 <div class="busuanzi-count">
