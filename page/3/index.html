@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">258</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">73</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">261</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">74</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-count">74</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">258</span>
+        <span class="site-state-item-count">261</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,118 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/31/EmbeddingGemma2-Multimodal/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/10/31/EmbeddingGemma2-Multimodal/" class="post-title-link" itemprop="url">【论文深度拆解】轻量全模态向量的“瑞士军刀”：Google 新作 EmbeddingGemma 2 如何用 744M 参数与模块化架构破除多模态检索的显存与延迟魔咒</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-31 10:00:00" itemprop="dateCreated datePublished" datetime="2026-10-31T10:00:00+08:00">2026-10-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-09 17:50:53" itemprop="dateModified" datetime="2026-11-09T17:50:53+08:00">2026-11-09</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>20 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在当今企业级多模态检索系统、视频知识库、多模态智能体（Agentic RAG）与本地端侧 AI 应用的研发中，软件工程师与系统架构师们最常遭遇的工程梦魇莫过于——<strong>多模态处理链路的“胶水化”与“臃肿化”</strong>。</p>
+<p>面对音视频、图片与图文混排文档，传统的工程做法往往是将系统拆分为多级微服务流水线：<code>音频 -&gt; ASR 语音识别服务 -&gt; 纯文本 -&gt; 文本向量模型</code>；或者 <code>图片/视频帧 -&gt; Caption 视觉打标服务 -&gt; 文本向量模型</code>。这种架构在工程上带来了灾难性的级联延迟、显存翻倍与网络 I/O 开销，更导致了严重的不可逆信息衰减（ASR 错字导致整条检索失败，Caption 抹杀细粒度几何视觉与背景声音）。而另一派做法——直接调用 8B 乃至几十 B 的重型多模态大模型（MLLM）提取向量，高昂的 GPU 显存门槛和低下的 QPS 吞吐，又让端侧部署与高并发服务化沦为天方夜谭。</p>
+<p>2026 年 10 月底，Google 的 EmbeddingGemma 团队在 arXiv 上发布了最新前沿工作：</p>
+<blockquote>
+<p><strong>《EmbeddingGemma 2: Unified and Efficient Multimodal Representations》</strong> (arXiv:2610.37364, 2026)</p>
+</blockquote>
+<p>论文提出了轻量级、开源全模态向量模型 <strong>EmbeddingGemma 2</strong>。它仅用 <strong>744M 总参数量（纯文本仅 271M，图文仅 439M）</strong>，以极具工业美感的“微内核 + 插件化”架构，将文本、图像、音频、视频乃至任意交错图文音混合数据原生映射至同一个 768 维超球面几何空间。在 Google Pixel 11 Pro 端侧设备上，其 INT4 量化版本的运行时峰值内存<strong>最低仅需 191 MB</strong>，一举打破了多模态表征在大模型时代的“显存墙”与“延迟墙”！</p>
+<blockquote>
+<p><strong>论文题目</strong>：EmbeddingGemma 2: Unified and Efficient Multimodal Representations<br>
+<strong>作者团队</strong>：Henrique Schechter Vera, Sahil Dua, Jovan Andonov, Tom Duerig, Mojtaba Seyedhosseini 等（Google EmbeddingGemma Team）<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.37364">https://arxiv.org/abs/2610.37364</a><br>
+<strong>开源地址</strong>：<a target="_blank" rel="noopener" href="https://ai.google.dev/gemma/docs/embeddinggemma">https://ai.google.dev/gemma/docs/embeddinggemma</a><br>
+<strong>开源协议</strong>：CC BY 4.0（权重与代码完全开源开放）<br>
+<strong>核心领域</strong>：Multimodal Embeddings, Vector Retrieval, Video Moment Retrieval, Audio Understanding, On-Device AI, Matryoshka Representation Learning (MRL)</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/10/31/EmbeddingGemma2-Multimodal/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +344,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 16:02:16" itemprop="dateModified" datetime="2026-11-09T16:02:16+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-09 17:50:53" itemprop="dateModified" datetime="2026-11-09T17:50:53+08:00">2026-11-09</time>
     </span>
 
   
@@ -353,7 +465,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 16:02:16" itemprop="dateModified" datetime="2026-11-09T16:02:16+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-09 17:50:53" itemprop="dateModified" datetime="2026-11-09T17:50:53+08:00">2026-11-09</time>
     </span>
 
   
@@ -471,7 +583,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 16:02:16" itemprop="dateModified" datetime="2026-11-09T16:02:16+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-09 17:50:53" itemprop="dateModified" datetime="2026-11-09T17:50:53+08:00">2026-11-09</time>
     </span>
 
   
@@ -593,7 +705,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 16:02:16" itemprop="dateModified" datetime="2026-11-09T16:02:16+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-09 17:50:53" itemprop="dateModified" datetime="2026-11-09T17:50:53+08:00">2026-11-09</time>
     </span>
 
   
@@ -669,124 +781,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/29/VGIQA-FineGrainedImageQualityAssessment/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/10/29/VGIQA-FineGrainedImageQualityAssessment/" class="post-title-link" itemprop="url">【论文分享】当 AI 图像质检拿上放大镜：VGIQA 如何用“视觉定位奖励”治愈大模型的画质近视？</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-29 14:30:00" itemprop="dateCreated datePublished" datetime="2026-10-29T14:30:00+08:00">2026-10-29</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 16:02:16" itemprop="dateModified" datetime="2026-11-09T16:02:16+08:00">2026-11-09</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.6k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>13 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在 AIGC（AI 生图、视频生成）和智能手机画质增强已经烂大街的今天，我们几乎每天都在和图像修复、超分辨率（Super-Resolution）打交道。但如果让你当裁判，给一张 AI 修复后的图片把关，你会怎么做？</p>
-<p>绝大多数普通人都会<strong>把图片放大，凑近看细节</strong>：</p>
-<ul>
-<li>“这张人脸整体看着挺美，但右下角的手指怎么是扭曲的？”</li>
-<li>“这只小猫的毛发很顺，但耳朵边缘为什么有一团奇怪的塑料噪点？”</li>
-</ul>
-<p>然而令人哭笑不得的是，目前市面上绝大多数基于多模态大模型（MLLM）的图像质量评估系统（IQA, Image Quality Assessment），<strong>表现得就像一个只给宏观总分的“近视眼考官”</strong>——它扫一眼整张图，自信满满地给出一个总分“4.1分（满分5分）”或者一句评语“整体画质良好，轻微模糊”。</p>
-<p>但如果你追问它：<strong>“到底哪儿坏了？能不能把瑕疵用框圈出来？”</strong>——它立刻哑口无言。</p>
-<p>近日，由 <strong>西安电子科技大学 ISN 国家重点实验室</strong> 与 <strong>华为通用大模型团队（Huawei Foundation Model Department）</strong> 联合在 arXiv 上发布了一篇极具实用价值的工作——《VGIQA: Fine-Grained Image Quality Assessment with Visual Grounding Rewards》，提出了一套彻底打破这一僵局的“细粒度视觉定位”新架构：</p>
-<blockquote>
-<p><strong>“让 AI 质检员告别粗枝大叶的概览，学会‘先看细节、再下定论（Look and then judge）’！通过自研的视觉定位强化学习奖励函数与隔离机制，哪怕仅有 7B（70亿）参数的小模型，也能在画框找茬的精准度上大幅碾压 72B 参数的开源大模型巨无霸！”</strong></p>
-</blockquote>
-<p>在这篇博客中，我们将用最通俗易懂的语言，深度拆解 VGIQA 是如何打通“全局打分”与“局部画框找茬”的，并剖析其背后的多任务强化学习隔离设计、人机协同双盲评测集，以及这项技术在下游生成式 AI 闭环修图中的工业想象力。</p>
-<blockquote>
-<p><strong>论文题目</strong>：VGIQA: Fine-Grained Image Quality Assessment with Visual Grounding Rewards<br>
-<strong>作者团队</strong>：Weichang Wang, Liyu Chen, Shuyue Guan, Jie Hu, Fei Gao, Wei Li, Nannan Wang (西安电子科技大学, 华为通用大模型团队)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.37186">https://arxiv.org/abs/2610.37186</a><br>
-<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.37186">https://arxiv.org/html/2610.37186</a><br>
-<strong>核心领域</strong>：Image Quality Assessment (IQA), Multimodal LLM, Visual Grounding, Reinforcement Learning (GRPO)<br>
-<strong>技术亮点</strong>：先看后判 CoT 范式、任务专属奖励隔离机制、首个细粒度局部定位评估数据集 VGSR-2K</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/10/29/VGIQA-FineGrainedImageQualityAssessment/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -811,14 +805,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">316k</span>
+    <span title="站点总字数">321k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">19:09</span>
+    <span title="站点阅读时长">19:28</span>
   </span>
 </div>
 <div class="busuanzi-count">

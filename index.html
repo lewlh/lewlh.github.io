@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">258</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">73</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">261</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">74</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-count">74</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">258</span>
+        <span class="site-state-item-count">261</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,118 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/09/Simulated-Perspectives-Geometry/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/09/Simulated-Perspectives-Geometry/" class="post-title-link" itemprop="url">【论文深度拆解】大模型真的能“感同身受”吗？解密前沿论文《The Geometry of Simulated Perspectives》：多模态大模型中表征与行为的“表里脱节”与工程启示</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-09 17:35:00 / 修改时间：17:50:53" itemprop="dateCreated datePublished" datetime="2026-11-09T17:35:00+08:00">2026-11-09</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>18 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在构建基于大语言模型（LLM）与多模态大模型（VLM）的智能体（AI Agents）、用户画像模拟（Silicon Samples）或内容审核系统时，软件开发工程师与 Prompt 架构师们最常写的一类指令就是<strong>角色设定（Persona Conditioning）</strong>：</p>
+<blockquote>
+<p><em>“你是一个 30 岁的资深程序员，请评估这张代码架构图……”</em><br>
+<em>“想象你是一个极度保守的艺术评论家，请给这张画的趣味度打分（1~5 分）……”</em></p>
+</blockquote>
+<p>然而，在系统实际运行中，工程师们始终面临两个悬而未决的“黑盒”疑问：</p>
+<ol>
+<li><strong>真实机制还是措辞伪装？</strong> 当我们传入这些角色设定时，模型是真的在内部切换了思考视角，还是仅仅在输出阶段换了换语法套话？</li>
+<li><strong>表征变化等于行为变化吗？</strong> 如果两个不同的 Prompt 导致模型内部的特征向量（Hidden States）发生了剧烈偏离，是否意味着它做出的业务决策也一定大相径庭？</li>
+</ol>
+<p>2026 年 11 月，来自德国海德堡大学曼海姆医学院与埃尔朗根-纽伦堡大学的研究团队在 arXiv 上发表了一篇立意深刻的技术论文：</p>
+<blockquote>
+<p><strong>《The Geometry of Simulated Perspectives: Dissociating Representation and Behaviour in a Multimodal Language Model》</strong><br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.08262">https://arxiv.org/abs/2611.08262</a><br>
+<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.08262v1">https://arxiv.org/html/2611.08262v1</a><br>
+<strong>开源仓库</strong>：<a target="_blank" rel="noopener" href="https://github.com/MathisImm/persona-vlm-representations">https://github.com/MathisImm/persona-vlm-representations</a><br>
+<strong>测试靶机</strong>：开源多模态标杆模型 <strong>Qwen3-VL-8B-Instruct</strong></p>
+</blockquote>
+<p>作者团队通过极其严密的矩阵化正交实验，对 <strong>Qwen3-VL-8B</strong> 的 36 层解码器进行了全量激活值采样与行为方差分解，得出了一个颠覆认知的结论：<strong>模型内部的表征几何（Representation Geometry）与最终的业务输出行为（Behaviour）发生了严重的“表里脱节”！</strong></p>
+<p>Prompt 的句式包装（Style）极大地改变了模型底层的向量分布，但对外部业务输出的影响微乎其微；相反，角色的内在属性（Persona）在底层向量中只是微小扰动，却主导了 33.4% 的最终业务决策！</p>
+<p>本文将立足于 <strong>软件开发工程师（后端/架构/AI工程）</strong> 的视角，全面拆解该论文的测试工程架构、核心发现，并复盘由此引发的工程直觉与避坑指南。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/09/Simulated-Perspectives-Geometry/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +338,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-09 15:30:00 / 修改时间：16:02:16" itemprop="dateCreated datePublished" datetime="2026-11-09T15:30:00+08:00">2026-11-09</time>
+      <time title="创建时间：2026-11-09 15:30:00 / 修改时间：17:50:53" itemprop="dateCreated datePublished" datetime="2026-11-09T15:30:00+08:00">2026-11-09</time>
     </span>
 
   
@@ -338,7 +450,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-09 12:20:00 / 修改时间：16:02:16" itemprop="dateCreated datePublished" datetime="2026-11-09T12:20:00+08:00">2026-11-09</time>
+      <time title="创建时间：2026-11-09 12:20:00 / 修改时间：17:50:53" itemprop="dateCreated datePublished" datetime="2026-11-09T12:20:00+08:00">2026-11-09</time>
     </span>
 
   
@@ -450,7 +562,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 16:02:16" itemprop="dateModified" datetime="2026-11-09T16:02:16+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-09 17:50:53" itemprop="dateModified" datetime="2026-11-09T17:50:53+08:00">2026-11-09</time>
     </span>
 
   
@@ -562,7 +674,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 16:02:16" itemprop="dateModified" datetime="2026-11-09T16:02:16+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-09 17:50:53" itemprop="dateModified" datetime="2026-11-09T17:50:53+08:00">2026-11-09</time>
     </span>
 
   
@@ -619,119 +731,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/03/FE-DETR-FrequencyDomainExpertModeling-VideoMomentRetrieval/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/03/FE-DETR-FrequencyDomainExpertModeling-VideoMomentRetrieval/" class="post-title-link" itemprop="url">【论文分享】突破时域低通陷阱：MDPI 2026 论文 FE-DETR 如何用频域专家与区分损失实现毫秒级视频时刻精准定位</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-03 13:40:00" itemprop="dateCreated datePublished" datetime="2026-11-03T13:40:00+08:00">2026-11-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 16:02:16" itemprop="dateModified" datetime="2026-11-09T16:02:16+08:00">2026-11-09</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.8k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>14 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在多模态视频检索与长视频理解领域，<strong>视频时刻检索（Video Moment Retrieval, VMR）</strong> 与 <strong>时序视频定位（Temporal Video Grounding, TVG）</strong> 是连接自然语言与海量长视频最核心的“最后一公里”技术：输入一段未剪辑的长视频（从数分钟到数小时不等），外加一句用户的自然语言 Query（如 <em>“穿红衣服的女生打翻了桌面上的水杯”</em>），算法需要在连续的时间轴上秒级锁定该事件发生的<strong>精确起止时间戳（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><msub><mi>t</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[t_{start}, t_{end}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>）</strong>。</p>
-<p>近两年来，随着多模态大模型（MLLM）的爆发，学术界涌现了大量基于大模型生成与强化学习（RL/GRPO）的宏观方案，如通过逆向任务制衡动作理解的 <a href="/papers/2026/10/27/Invert4TVG-TemporalVideoGrounding/">《Invert4TVG》</a>，或是双智能体自演化的 <a href="/papers/2026/11/03/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/">《EvoGround》</a>。</p>
-<p>然而，在工业界追求<strong>极高 QPS、毫秒级响应、超低计算成本</strong>的在线生产环境中，动辄数十亿参数的自回归大模型往往受困于显存瓶颈与长上下文推理延迟。以 DETR（Detection Transformer）为代表的<strong>专用轻量判别式检测头</strong>，依然是高并发架构下最具落地性价比的利刃。</p>
-<p>近日，发表于 MDPI <em>Electronics</em> 2026 年第 15 卷第 21 期的前沿论文给出了一个极具启发性的物理与信号处理视角：</p>
-<blockquote>
-<p><strong>《Expert-Driven Frequency-Domain Modeling for Video Moment Retrieval》</strong> (Electronics 2026, 15(21), 5080)</p>
-</blockquote>
-<p>该研究敏锐地指出了传统时域 Transformer 在视频定位上的物理缺陷——<strong>自注意力机制在时间轴上本质是一个“低通平滑滤波器”</strong>，容易将瞬间爆发的高频动作抹平，并在冗长背景中迷失。为此，作者团队提出了 <strong>FE-DETR（频域专家驱动的 DETR 模型）</strong>，利用一维快速傅里叶分解、多跨度频域专家（MFE）以及专家定向区分损失（Distinction Loss），在保持极低推理延迟的同时，实现了对微观时序边界的刀锋级精准切片。</p>
-<blockquote>
-<p><strong>论文题目</strong>：Expert-Driven Frequency-Domain Modeling for Video Moment Retrieval<br>
-<strong>作者团队</strong>：Jingxi Xie, Ran Ran, Yang Yang, et al.<br>
-<strong>发表期刊</strong>：MDPI <em>Electronics</em> (Vol. 15, Issue 21, Article 5080, Published Nov 2026)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://www.mdpi.com/2079-9292/15/21/5080">https://www.mdpi.com/2079-9292/15/21/5080</a><br>
-<strong>DOI 标识</strong>：<a target="_blank" rel="noopener" href="https://doi.org/10.3390/electronics15215080">10.3390/electronics15215080</a><br>
-<strong>核心领域</strong>：Video Moment Retrieval (VMR), Temporal Video Grounding, DETR, Frequency Domain, Mixture of Experts (MoE)</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/03/FE-DETR-FrequencyDomainExpertModeling-VideoMomentRetrieval/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -756,14 +755,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">316k</span>
+    <span title="站点总字数">321k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">19:09</span>
+    <span title="站点阅读时长">19:28</span>
   </span>
 </div>
 <div class="busuanzi-count">
