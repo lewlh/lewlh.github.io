@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">264</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">76</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">267</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">77</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">77</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">264</span>
+        <span class="site-state-item-count">267</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,115 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/" class="post-title-link" itemprop="url">【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training)</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-23 13:56:00" itemprop="dateCreated datePublished" datetime="2026-10-23T13:56:00+08:00">2026-10-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>继前几天研读了通过超网络前向生成权重的前沿论文 <a href="/papers/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/">《打破长视频的显存与计算魔咒：解析前沿论文 WIRE》</a> 之后，今天我们来深入探讨同一时期在计算机视觉顶会开源社区引发广泛讨论的另一篇重量级论文——《Memory Internalization via Test-Time Training for Long-Video Understanding》（引入了 <strong>MIT³</strong> 框架）。</p>
+<p>如果说上一篇 WIRE 走的是“极速流式压缩、输入端保留压缩 Token、超网络毫秒级生成补丁”的工程路线；那么这篇来自<strong>上海交通大学与同济大学团队</strong>的 MIT³ 则走了一条更为激进且极具科幻感的“内化”路线：</p>
+<blockquote>
+<p><strong>“拿到一部长视频，AI 先通过测试时训练（Test-Time Training）把整部视频的记忆一次性‘刻’进脑神经网络；记完之后，彻底销毁原视频！后续不管你问 10 个还是 1000 个问题，AI 全程两手空空，以纯文本（Video-free）模式闭卷秒回。”</strong></p>
+</blockquote>
+<p>在这篇分享中，我们将摒弃晦涩抽象的数学黑话，系统拆解 MIT³ 的核心哲学、破解的工业难题、因果追踪与视觉记忆蒸馏的底层原理、工程复现细节以及与 WIRE 的横向架构对比。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Memory Internalization via Test-Time Training for Long-Video Understanding<br>
+<strong>作者团队</strong>：Haonan Zhao, Jiaxuan Chen, Qingyang Liu, Shuochen Chang, Siyu Sun, Jiangtong Li, Li Niu (上海交通大学、同济大学)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.26910">https://arxiv.org/abs/2610.26910</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.26910">https://arxiv.org/html/2610.26910</a></p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +341,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 19:05:22" itemprop="dateModified" datetime="2026-11-09T19:05:22+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
     </span>
 
   
@@ -343,7 +452,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 19:05:22" itemprop="dateModified" datetime="2026-11-09T19:05:22+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
     </span>
 
   
@@ -454,7 +563,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 19:05:22" itemprop="dateModified" datetime="2026-11-09T19:05:22+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
     </span>
 
   
@@ -565,7 +674,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 19:05:22" itemprop="dateModified" datetime="2026-11-09T19:05:22+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
     </span>
 
   
@@ -634,132 +743,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/05/13/BeyondChainOfThought-RewriteMultimodalEmbeddings-RIME/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/05/13/BeyondChainOfThought-RewriteMultimodalEmbeddings-RIME/" class="post-title-link" itemprop="url">【论文分享】告别思维链内耗：为什么检索不需要“做题家逻辑”？腾讯微信 ACM MM 2026 新作 RIME 深度拆解</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-05-13 17:15:00" itemprop="dateCreated datePublished" datetime="2026-05-13T17:15:00+08:00">2026-05-13</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 19:05:22" itemprop="dateModified" datetime="2026-11-09T19:05:22+08:00">2026-11-09</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>6.6k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>24 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在大模型时代，<strong>思维链（Chain-of-Thought, CoT）</strong> 几乎成了提升模型智能的“灵丹妙药”——无论是数学题、写代码，还是通用推理，让模型先在 <code>&lt;think&gt;</code> 里走一遍“心路历程”，最后再给出 <code>&lt;answer&gt;</code> 结论，模型能力往往能得到质的飞跃。</p>
-<p>当这股浪潮席卷到多模态向量检索（Multimodal Embedding &amp; Retrieval）领域时，学术界也顺理成章地涌现出了一批 <strong>“生成式向量模型”</strong>：在生成图文、视频的向量特征前，先逼着大模型推导一通，再拿总结句的隐藏状态做 Embedding。</p>
-<p>然而，当工程师真正把这套逻辑搬进线上检索系统（如视频搜索、图搜、相册检索、多模态 RAG）时，却遭遇了残酷的现实毒打：</p>
-<ol>
-<li><strong>废话冗余（Thinking Redundancy）</strong>：搜一张“小狗在草坪玩球”的图，大模型却在草稿纸上洋洋洒洒推导了 400 多个字，算力吃紧、延迟爆炸；</li>
-<li><strong>强行下结论反而误导检索（Target Ambiguity）</strong>：检索不是单选题！画面明明包含了人物、服饰、动作、道具和环境，CoT 却在最后强行总结了一句狭隘的结论，反而把原本丰富的多维语义“以偏概全”给阉割了；</li>
-<li><strong>线上高并发彻底趴窝</strong>：面对用户几十毫秒级的高并发搜索请求，每次检索让大模型先吐几百个字，线上集群成本直接失控。</li>
-</ol>
-<p>难道在向量检索的世界里，思维链真的是一剂“方向错误”的猛药？</p>
-<p>近日，来自<strong>腾讯微信视觉团队（WeChat Vision）、浙江大学、清华大学</strong>等机构的研究人员在多媒体顶会 <strong>ACM MM 2026</strong> 发表了一篇反思之作，给出了颠覆性的新范式：</p>
-<blockquote>
-<p><strong>《Beyond Chain-of-Thought: Rewrite as a Universal Interface for Generative Multimodal Embeddings》</strong> (arXiv:2604.22280)<br>
-GitHub 源码：<a target="_blank" rel="noopener" href="https://github.com/PeppaWu/RIME">https://github.com/PeppaWu/RIME</a><br>
-Hugging Face 权重：<a target="_blank" rel="noopener" href="https://huggingface.co/leafyseay/RIME-7B">leafyseay/RIME-7B</a> | <a target="_blank" rel="noopener" href="https://huggingface.co/leafyseay/RIME-2B">leafyseay/RIME-2B</a></p>
-</blockquote>
-<p>作者一针见血地指出：<strong>向量检索不需要“解题式推导”，而是需要“客观结构化的事实重构”！</strong> 论文提出了全新的 <strong>RIME（Rewrite-driven Multimodal Embedding）</strong> 框架：</p>
-<ul>
-<li>坚决丢弃 <code>&lt;answer&gt;</code> 总结标签，用模态感知的 <strong>结构化客观重写（Rewrite）</strong> 替代主观 CoT；</li>
-<li>独创 <strong>跨模式对齐（CMA）</strong> 机制，打通离线高精度重写与线上 0 延迟秒搜；</li>
-<li>配合 <strong>精炼强化学习（Refine-RL）</strong> 以判别式特征为基准底线，<strong>砍掉约 50% 的思考长度</strong>，并在权威基准 MMEB-V2、视频基准 UVRB 上全面刷新开源 7B 模型的最高纪录！</li>
-</ul>
-<p>本文将为你深度拆解 RIME 的核心痛点诊断、三大数学创新机制、官方源码实现，以及对实际工业级视频/图文搜索系统的落地指导。</p>
-<blockquote>
-<p><strong>论文题目</strong>：Beyond Chain-of-Thought: Rewrite as a Universal Interface for Generative Multimodal Embeddings<br>
-<strong>作者团队</strong>：Peixi Wu, Ke Mei, Feipeng Ma, Bosong Chai, Zhibin Lan, Chenxi Zhao, Shannan Yan, Jie Chen, Zhangchi Hu, Yansong Peng, Bo Lin, Junjie Zhou, Dacheng Yin, Tianyi Wang, Fengyun Rao, Jing Lyu, Hebei Li, Xiaoyan Sun（腾讯微信团队、浙江大学、清华大学、合肥综合性国家科学中心等）<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2604.22280">https://arxiv.org/abs/2604.22280</a><br>
-<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/PeppaWu/RIME">https://github.com/PeppaWu/RIME</a><br>
-<strong>核心领域</strong>：多模态表征学习、向量检索、查询重写、强化学习、视频搜索</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/05/13/BeyondChainOfThought-RewriteMultimodalEmbeddings-RIME/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/8/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -784,14 +767,14 @@ Hugging Face 权重：<a target="_blank" rel="noopener" href="https://huggingfac
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">330k</span>
+    <span title="站点总字数">334k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">19:59</span>
+    <span title="站点阅读时长">20:13</span>
   </span>
 </div>
 <div class="busuanzi-count">

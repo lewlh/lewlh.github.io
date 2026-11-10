@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">264</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">76</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">267</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">77</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">77</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">264</span>
+        <span class="site-state-item-count">267</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,125 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/02/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/02/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/" class="post-title-link" itemprop="url">【论文分享】别被 32K 窗口忽悠了：长视频多模态检索为何频频“翻车”？EMNLP 2026 蚂蚁与苏大新作 MMLongEmbed 深度剖析与工程实战</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-02 18:50:00" itemprop="dateCreated datePublished" datetime="2026-11-02T18:50:00+08:00">2026-11-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态大模型（MLLM）和多模态向量嵌入（Multimodal Embedding Models, MEMs）飞速发展的今天，各大模型厂商的宣发通稿里，“支持 32K 甚至 128K 超长上下文”、“支持全模态统一特征对齐”几乎成了标配。</p>
+<p>对于许多想要开发 <strong>“多模态输入 + 向量数据库（SQL 混合检索）+ 精准视频片段召回”</strong> 产品的软件开发工程师而言，直觉上的架构设计似乎非常简单直接：</p>
+<blockquote>
+<p><em>“既然模型支持 32K 超长上下文，那我就把长达 10 分钟甚至 1 小时的长视频直接抽帧，塞给多模态 Embedding 模型提取一个整体高维向量，存入 pgvector 或 Milvus，用户输入一句话或者一张图，直接做余弦相似度查询不就完事了吗？”</em></p>
+</blockquote>
+<p>然而，一旦在真实业务中上线这套方案，系统往往会遭遇密集的 <strong>Bad Case</strong> 轰炸：</p>
+<ol>
+<li><strong>时序动作彻底错乱</strong>：用户搜“先倒油再下锅煎蛋”，排在第一位的视频片段居然是“先下锅煎蛋再倒油”；</li>
+<li><strong>中间时段频繁漏检</strong>：一段 10 分钟的视频，发生在第 5 分钟的核心动作死活搜不出来，反而开头和结尾的无关画面频频被召回；</li>
+<li><strong>图文混合噪点污染</strong>：用户传了一张参考图加一句话，结果检索出的视频被背景里的无关元素带偏；</li>
+<li><strong>算力成本居高不下</strong>：咬牙花大价钱租卡上线了 8B 参数的大模型提向量，检索质量却跟 2B 模型毫无两样。</li>
+</ol>
+<p>难道厂商宣传的长上下文向量模型，在工业落地上真的是一张“空头支票”？</p>
+<p>近日，来自 <strong>苏州大学（Soochow University）与蚂蚁集团（Ant Group）</strong> 的研究团队在自然语言处理顶会 <strong>EMNLP 2026</strong> 上发表了一篇极具工程洞察的重磅论文：</p>
+<blockquote>
+<p><strong>《MMLongEmbed: Benchmarking Multimodal Embedding Models in Long-Context Scenarios》</strong><br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://aclanthology.org/2026.emnlp-main.2586.pdf">https://aclanthology.org/2026.emnlp-main.2586.pdf</a><br>
+<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/AmamiSora1228/MMLongEmbed">https://github.com/AmamiSora1228/MMLongEmbed</a><br>
+<strong>评测模型</strong>：Qwen3-VL-Embedding (2B/8B), Ops-MM-embedding (2B/7B), RzenEmbed-v2-7B, Doubao-Seed-1.6, Embed-RL, GME-Qwen2-VL, VLM2Vec 等 11 款主流开源与商用模型</p>
+</blockquote>
+<p>作者设计了一套严密而苛刻的基准测试集 <strong>MMLongEmbed</strong>，不仅用控制变量法彻底“实锤”了当前长多模态向量模型的 <strong>四大核心工程缺陷</strong>，还为真实检索系统的<strong>Token算力规划、两阶段粗排精排、分层索引设计以及数据库表结构</strong>提供了教科书级别的实战指导。</p>
+<p>本文将完全抛弃生涩的算法数学证明，从 <strong>软件开发工程师（后端/全栈/系统架构）</strong> 的视角，深入拆解这篇论文的核心结论，并给出基于 PostgreSQL + pgvector 的全链路落地解决方案。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/02/MMLongEmbed-BenchmarkingMultimodalEmbeddingModels/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +351,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 19:05:22" itemprop="dateModified" datetime="2026-11-09T19:05:22+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
     </span>
 
   
@@ -342,7 +461,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 19:05:22" itemprop="dateModified" datetime="2026-11-09T19:05:22+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
     </span>
 
   
@@ -454,7 +573,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 19:05:22" itemprop="dateModified" datetime="2026-11-09T19:05:22+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
     </span>
 
   
@@ -575,7 +694,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 19:05:22" itemprop="dateModified" datetime="2026-11-09T19:05:22+08:00">2026-11-09</time>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
     </span>
 
   
@@ -649,128 +768,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/30/WhatReallyWorks-UniversalMultimodalEmbeddings/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/10/30/WhatReallyWorks-UniversalMultimodalEmbeddings/" class="post-title-link" itemprop="url">【论文分享】AI“炼丹”流言终结者：通用多模态向量到底怎样训练才真正有效？（NTU & 阿里新作硬核拆解）</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-30 11:05:00" itemprop="dateCreated datePublished" datetime="2026-10-30T11:05:00+08:00">2026-10-30</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 19:05:22" itemprop="dateModified" datetime="2026-11-09T19:05:22+08:00">2026-11-09</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.1k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>15 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在大模型与多模态检索（Multimodal Retrieval）领域，<strong>对比学习（Contrastive Learning）</strong> 几乎是所有人都在使用的标准训练范式——将文字、图像或图文混合输入映射到同一个向量空间中，<strong>“拉近同义正样本，推开无关负样本”</strong>。</p>
-<p>在过去几年里，学术界和各大机构围绕对比学习卷出了无数眼花缭乱的“微调技巧”：</p>
-<ul>
-<li><strong>梯度调节（Gradient Modulation）</strong>：遇到高相似度的难样本？加大惩罚权重狠狠推开！</li>
-<li><strong>假负例缓解（False-Negative Mitigation）</strong>：标注有噪声？用各种阈值动态过滤假错题！</li>
-<li><strong>智能批次构建（Batch Construction）</strong>：随机打包 Batch 太粗糙？用花式采样法重构训练题库！</li>
-</ul>
-<p>每一篇顶会论文发表时，都在各自的实验设定下宣称 <strong>“涨点显著”</strong>。但当你真正把这些技巧拿来落地，或是想在自己的多模态大模型基座上复现时，往往会遭遇当头棒喝：<strong>为什么不仅没涨点，反而性能雪崩了？这些技巧到底是真突破，还是超参数精调出来的“幸存者偏差”？</strong></p>
-<p>近日，来自<strong>南洋理工大学（NTU）与阿里巴巴集团</strong>的研究团队发表了一篇堪称 <strong>“算法界《流言终结者》”</strong> 的重磅严谨对比论文：</p>
-<blockquote>
-<p><strong>《What Really Works for Universal Multimodal Embeddings? A Controlled Study of Contrastive Training Strategies》</strong> (arXiv:2610.15035)</p>
-</blockquote>
-<p>作者团队统一了基座模型（Qwen2-VL-2B/7B、Qwen3.5-2B）、对齐了所有超参数与提示词格式，在包含 36 个评测数据集的权威基准 <strong>MMEB</strong> 上进行了一场彻底的 <strong>“无滤镜大阅兵”</strong>。</p>
-<p>实验结果给整个多模态向量研究领域泼了一盆透心凉的冷水：</p>
-<blockquote>
-<p><strong>绝大多数曾被顶会吹上天的“花哨技巧”，单用几乎全部无效甚至带来明显负优化；而真正能够稳定带来 6.0% 显著提升的，唯有一套被长期忽视的系统工程打法——“假负例清洗 + 难负例提炼 + 图结构智能批次”的三位一体协同设计（B3 范式）。</strong></p>
-</blockquote>
-<p>本文将为你深度拆解这篇论文的核心实验、颠覆性洞察，以及作者为了彻底查清“模型到底错在哪”而独创的 <strong>MLLM-as-a-Judge（大模型裁判员）</strong> 诊断体系。</p>
-<blockquote>
-<p><strong>论文题目</strong>：What Really Works for Universal Multimodal Embeddings? A Controlled Study of Contrastive Training Strategies<br>
-<strong>作者团队</strong>：Duo Li, Haojun Pan, Zuhao Yang, Xintong Wang, Chengfu Huo, Shijian Lu, Liang Ding（南洋理工大学 CCDS、阿里巴巴集团等）<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.15035">https://arxiv.org/abs/2610.15035</a><br>
-<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.15035v1">https://arxiv.org/html/2610.15035v1</a><br>
-<strong>核心领域</strong>：Universal Multimodal Embeddings, Contrastive Learning, MLLM, MMEB Benchmark</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/10/30/WhatReallyWorks-UniversalMultimodalEmbeddings/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -795,14 +792,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">330k</span>
+    <span title="站点总字数">334k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">19:59</span>
+    <span title="站点阅读时长">20:13</span>
   </span>
 </div>
 <div class="busuanzi-count">

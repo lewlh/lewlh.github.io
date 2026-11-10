@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">264</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">76</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">267</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">77</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">76</span>
+          <span class="site-state-item-count">77</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">264</span>
+        <span class="site-state-item-count">267</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,111 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/10/PixelBench-LLM-Pixel/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/10/PixelBench-LLM-Pixel/" class="post-title-link" itemprop="url">【论文分享】不装外挂、不改词表，大模型真能“逐像素”画图吗？解密 PixelBench：文本自回归的空间瓶颈与视觉正则化启示</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-10 12:35:00 / 修改时间：12:53:10" itemprop="dateCreated datePublished" datetime="2026-11-10T12:35:00+08:00">2026-11-10</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>13 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在当前的多模态大模型（VLM）与图像生成系统中，如果要让 AI “画出一张图”，工业界和开源社区的标准工程路径几乎已经固化：要么通过 API 调度专门的扩散模型（如 Stable Diffusion、Flux、Midjourney），要么让语言模型输出高阶的矢量几何描述（如 SVG 或 CAD 代码）。</p>
+<p>但学术界与前沿实验室始终保留着一个纯粹、甚至带有一丝极客偏执的底层疑问：<br>
+<strong>如果不给大模型外挂任何图像解码器（Decoder），也不扩充新的视觉词表，仅凭它现有的纯文本输入输出接口（Text In / Text Out），大模型能不能像终端打印机一样，在内存里逐个像素地把栅格图像（Raster Bitmap）“打”出来？它脑子里真的具备二维微观空间坐标感吗？</strong></p>
+<p>2026 年 11 月，来自香港中文大学（CUHK）、华南理工大学（SCUT）与南洋理工大学（NTU Singapore）的联合研究团队在 arXiv 上发表了前沿研究：</p>
+<blockquote>
+<p><strong>论文题目</strong>：PixelBench: Can LLMs Understand and Generate Images Pixel by Pixel?<br>
+<strong>作者团队</strong>：Haoquan Zhang, Feiyang Liu, Juanxi Tian, Wanhua Li, Haodong Duan, Weiyang Liu (CUHK, SCUT, NTU Singapore)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.02540">https://arxiv.org/abs/2611.02540</a><br>
+<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.02540">https://arxiv.org/html/2611.02540</a><br>
+<strong>核心资产</strong>：PixelBench 评测基准、PRT（Pixel Reconstruction Tuning）后训练增强配方</p>
+</blockquote>
+<p>研究团队通过设计一套极其紧凑的<strong>调色板像素序列化协议</strong>，对 GPT-6 Astra、GPT-5.6 Sol、Claude Opus 5、Gemini 3.6 Flash、Kimi K3、Seed-2.1 Pro 等顶级前沿模型进行了全方位压力测试，并由此揭示出自回归大模型在处理二维空间结构时的 <strong>“分辨率悖论”</strong> 与 <strong>三种经典崩溃故障</strong>。</p>
+<p>更为关键的是，研究团队把这一看似玩票的机制转化为了实用的训练范式：<strong>仅用 0.4% 的像素重建数据作为轻量正则化辅助任务，便在 16 个权威视觉基准上全面提升了多模态模型表现</strong>。</p>
+<p>本文将立足于 <strong>软件开发工程师（后端/架构/AI工程）</strong> 的视角，全面拆解 PixelBench 的协议契约设计、底层局限性机制，以及这一探索给通用软件工程带来的范式启发与避坑指南。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/10/PixelBench-LLM-Pixel/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -224,9 +329,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-09 18:05:00 / 修改时间：19:05:22" itemprop="dateCreated datePublished" datetime="2026-11-09T18:05:00+08:00">2026-11-09</time>
+      <time title="创建时间：2026-11-09 18:05:00" itemprop="dateCreated datePublished" datetime="2026-11-09T18:05:00+08:00">2026-11-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
     </span>
 
   
@@ -326,9 +437,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-09 17:35:00 / 修改时间：19:05:22" itemprop="dateCreated datePublished" datetime="2026-11-09T17:35:00+08:00">2026-11-09</time>
+      <time title="创建时间：2026-11-09 17:35:00" itemprop="dateCreated datePublished" datetime="2026-11-09T17:35:00+08:00">2026-11-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
     </span>
 
   
@@ -438,9 +555,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-09 15:30:00 / 修改时间：19:05:22" itemprop="dateCreated datePublished" datetime="2026-11-09T15:30:00+08:00">2026-11-09</time>
+      <time title="创建时间：2026-11-09 15:30:00" itemprop="dateCreated datePublished" datetime="2026-11-09T15:30:00+08:00">2026-11-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
     </span>
 
   
@@ -550,9 +673,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-09 12:20:00 / 修改时间：19:05:22" itemprop="dateCreated datePublished" datetime="2026-11-09T12:20:00+08:00">2026-11-09</time>
+      <time title="创建时间：2026-11-09 12:20:00" itemprop="dateCreated datePublished" datetime="2026-11-09T12:20:00+08:00">2026-11-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
     </span>
 
   
@@ -620,118 +749,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/06/TensorCompression-ScalableEmbeddingRetrieval-StreamingSystems/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/06/TensorCompression-ScalableEmbeddingRetrieval-StreamingSystems/" class="post-title-link" itemprop="url">【论文分享】破除十亿级向量检索的内存与带宽墙：IntechOpen 2026 论文如何用张量压缩与无解压收缩实现流式增量高吞吐</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-06 09:00:00" itemprop="dateCreated datePublished" datetime="2026-11-06T09:00:00+08:00">2026-11-06</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-09 19:05:22" itemprop="dateModified" datetime="2026-11-09T19:05:22+08:00">2026-11-09</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>16 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在当今的大模型（LLM）、检索增强生成（RAG）、多模态搜索以及大规模推荐系统中，<strong>基于向量的检索（Embedding-based Retrieval, EBR）</strong> 已经成为整个现代 AI 基础设施的底层基石。系统通过深度编码器将文本、图片、音视频、图谱等多源异构数据映射到统一的高维稠密向量空间，并通过内积（IP）或余弦相似度在毫秒级内完成最近邻检索（ANN）。</p>
-<p>然而，随着业务底库规模迈入 <strong>十亿级（Billion-scale）</strong>，以及现代检索模型从“单文档单向量”向 <strong>“多向量交互（如 ColBERT 等 Late-Interaction 模型）”</strong> 和 <strong>“多模态时空特征”</strong> 演进，系统底层面临着前所未有的物理挑战：<strong>极其昂贵的物理内存开销（RAM Footprint）</strong>、<strong>受限的存储总线带宽（PCIe/DRAM Bandwidth）</strong>，以及在<strong>高频实时流式增删（Streaming FIFO）场景下频繁全量重构导致的算力灾难</strong>。</p>
-<p>近日，华盛顿大学 Solmaz Seyed Monir 等学者在学术专著《Tensor Methods and Applications》中发表了一篇极具工程指导意义的长篇著作：</p>
-<blockquote>
-<p><strong>《Tensor Compression for Scalable Embedding Retrieval and Streaming Systems》</strong> (IntechOpen, 2026)</p>
-</blockquote>
-<p>该研究架起了经典多线性代数（张量方法）与现代大规模向量存储系统之间的桥梁：提出了利用 <strong>CP、Tucker、Tensor-Train (TT)</strong> 等多维低秩张量分解，对海量高维及多向量数据进行结构化压缩。更关键的是，它揭示了如何在 <strong>完全不需要将数据解压还原为原始高维向量</strong> 的前提下，利用 <strong>张量收缩（Tensor Contraction）</strong> 在纳秒级直接完成相似度打分，并给出了流式增量维护的生产级架构实践。</p>
-<blockquote>
-<p><strong>论文题目</strong>：Tensor Compression for Scalable Embedding Retrieval and Streaming Systems<br>
-<strong>作者团队</strong>：Solmaz Seyed Monir (University of Washington, Tacoma)<br>
-<strong>发表出处</strong>：IntechOpen (<em>Tensor Methods and Applications</em>, Book Chapter, Published Oct 2026)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://www.intechopen.com/chapters/1253482">https://www.intechopen.com/chapters/1253482</a><br>
-<strong>DOI 标识</strong>：<a target="_blank" rel="noopener" href="https://doi.org/10.5772/intechopen.1253482">10.5772/intechopen.1253482</a><br>
-<strong>核心领域</strong>：Embedding-based Retrieval (EBR), Vector Databases, Tensor Decomposition, Approximate Nearest Neighbor (ANN), RAG, Streaming Maintenance</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/06/TensorCompression-ScalableEmbeddingRetrieval-StreamingSystems/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -756,14 +773,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">330k</span>
+    <span title="站点总字数">334k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">19:59</span>
+    <span title="站点阅读时长">20:13</span>
   </span>
 </div>
 <div class="busuanzi-count">
