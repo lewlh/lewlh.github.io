@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在视频多模态大模型（Video-VLM）领域，视频时序定位（Temporal Video Grounding, TVG） 是评估模型是否真正“看懂时间”的核心标尺：给定一段长视频与一句用户自然语言查询（例如“找出小猫跳进纸箱的瞬间”），模型需要精准返回目标事件在时间轴上的物理起止点 [s,e][s, e][s,e]（秒）。 尽管当前的通用视频大模型（如 Qwen2.5-VL、InternVL 等）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】模型心里门儿清，嘴上说不出？上交大与蚂蚁新作 SAPO：无需人工标注，用内部注意力与 GRPO 破解视频大模型时序定位鸿沟">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/11/10/SAPO-VideoGrounding/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在视频多模态大模型（Video-VLM）领域，视频时序定位（Temporal Video Grounding, TVG） 是评估模型是否真正“看懂时间”的核心标尺：给定一段长视频与一句用户自然语言查询（例如“找出小猫跳进纸箱的瞬间”），模型需要精准返回目标事件在时间轴上的物理起止点 [s,e][s, e][s,e]（秒）。 尽管当前的通用视频大模型（如 Qwen2.5-VL、InternVL 等）">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-10T09:50:00.000Z">
+<meta property="article:modified_time" content="2026-11-10T09:59:57.953Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="GRPO">
+<meta property="article:tag" content="Qwen2.5-VL">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="强化学习">
+<meta property="article:tag" content="蚂蚁集团">
+<meta property="article:tag" content="视频时序定位">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/11/10/SAPO-VideoGrounding/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/11/10/SAPO-VideoGrounding/","path":"papers/2026/11/10/SAPO-VideoGrounding/","title":"【论文分享】模型心里门儿清，嘴上说不出？上交大与蚂蚁新作 SAPO：无需人工标注，用内部注意力与 GRPO 破解视频大模型时序定位鸿沟"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】模型心里门儿清，嘴上说不出？上交大与蚂蚁新作 SAPO：无需人工标注，用内部注意力与 GRPO 破解视频大模型时序定位鸿沟 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">276</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">82</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E6%A0%B9%E5%9B%A0%E5%89%96%E6%9E%90%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%A4%A7%E6%A8%A1%E5%9E%8B%E2%80%9C%E5%BF%83%E9%87%8C%E6%87%82%EF%BC%8C%E5%98%B4%E4%B8%8A%E9%A3%98%E2%80%9D%EF%BC%9F"><span class="nav-text">01. 根因剖析：为什么大模型“心里懂，嘴上飘”？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%97%B6%E5%BA%8F%E7%94%9F%E6%88%90%E9%B8%BF%E6%B2%9F%EF%BC%88Temporal-Generation-Gap%EF%BC%89"><span class="nav-text">1. 时序生成鸿沟（Temporal Generation Gap）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BA%A7%E7%94%9F%E9%B8%BF%E6%B2%9F%E7%9A%84%E5%B7%A5%E7%A8%8B%E6%9C%AC%E8%B4%A8"><span class="nav-text">2. 产生鸿沟的工程本质</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%EF%BC%9ASAPO-%E8%87%AA%E7%9B%91%E7%9D%A3%E5%AF%B9%E9%BD%90%E9%97%AD%E7%8E%AF"><span class="nav-text">02. 系统设计：SAPO 自监督对齐闭环</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6%E6%8B%86%E8%A7%A3%EF%BC%9A%E5%9B%9B%E4%B8%AA%E6%9E%81%E5%85%B7%E5%90%AF%E5%8F%91%E6%80%A7%E7%9A%84%E5%B7%A5%E7%A8%8B%E6%96%B9%E6%A1%88"><span class="nav-text">03. 核心机制拆解：四个极具启发性的工程方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%97%A0%E7%9C%9F%E5%80%BC%E9%AB%98%E4%BB%B7%E5%80%BC%E6%A0%B7%E6%9C%AC%E7%AD%9B%E9%80%89%EF%BC%88JS-%E6%95%A3%E5%BA%A6%E5%86%B2%E7%AA%81%E6%A3%80%E6%B5%8B%E5%99%A8%EF%BC%89"><span class="nav-text">1. 无真值高价值样本筛选（JS 散度冲突检测器）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B7%A5%E7%A8%8B%E5%AE%9E%E7%8E%B0"><span class="nav-text">工程实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E7%9B%B4%E8%A7%89%E9%AA%8C%E8%AF%81"><span class="nav-text">实验直觉验证</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A4%8D%E5%90%88-Reward-%E5%BC%95%E6%93%8E%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%85%E9%A1%BB%E5%BC%95%E5%85%A5-Wasserstein-%E8%B7%9D%E7%A6%BB%EF%BC%9F"><span class="nav-text">2. 复合 Reward 引擎：为什么必须引入 Wasserstein 距离？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A8%80%E7%96%8F%E5%A5%96%E5%8A%B1%E7%9A%84%E6%AD%BB%E7%A9%B4"><span class="nav-text">稀疏奖励的死穴</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Wasserstein-1-%E8%B7%9D%E7%A6%BB%E7%9A%84%E5%B9%B3%E6%BB%91%E6%A2%AF%E5%BA%A6%E6%95%91%E6%8F%B4"><span class="nav-text">Wasserstein-1 距离的平滑梯度救援</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%8F%8D%E4%BD%9C%E5%BC%8A%E6%9C%BA%E5%88%B6%EF%BC%9A%E5%AF%B9%E6%8A%97-RL-%E7%9A%84%E2%80%9C%E6%8A%95%E6%9C%BA%E5%8F%96%E5%B7%A7%E2%80%9D"><span class="nav-text">3. 反作弊机制：对抗 RL 的“投机取巧”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89-GRPO-%E8%80%8C%E4%B8%8D%E6%98%AF%E7%9B%91%E7%9D%A3%E5%BE%AE%E8%B0%83%EF%BC%88SFT%EF%BC%89%E4%BC%AA%E6%A0%87%E7%AD%BE%EF%BC%9F"><span class="nav-text">4. 为什么选 GRPO 而不是监督微调（SFT）伪标签？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-SFT-%E4%BC%9A%E8%BE%93%E7%BB%99-GRPO%EF%BC%9F"><span class="nav-text">为什么 SFT 会输给 GRPO？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E5%AE%9E%E9%AA%8C%E5%85%A8%E6%99%AF%EF%BC%9A%E6%80%A7%E8%83%BD%E8%B7%83%E5%8D%87%E3%80%81%E6%B3%9B%E5%8C%96%E6%80%A7%E4%B8%8E%E9%80%9A%E7%94%A8%E8%83%BD%E5%8A%9B%E4%BF%9D%E5%85%A8"><span class="nav-text">04. 实验全景：性能跃升、泛化性与通用能力保全</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AE%9A%E4%BD%8D%E7%B2%BE%E5%BA%A6%E5%85%A8%E9%9D%A2%E5%88%B7%E6%96%B0"><span class="nav-text">1. 定位精度全面刷新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%81%BF%E5%85%8D%E7%81%BE%E9%9A%BE%E6%80%A7%E9%81%97%E5%BF%98%EF%BC%9A%E9%80%9A%E7%94%A8%E8%A7%86%E9%A2%91%E7%90%86%E8%A7%A3%E8%83%BD%E5%8A%9B%E5%AE%9E%E6%B5%8B"><span class="nav-text">2. 避免灾难性遗忘：通用视频理解能力实测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%90%BD%E5%9C%B0%E6%9D%80%E6%89%8B%E9%94%8F%EF%BC%9A%E6%97%A0%E6%A0%87%E6%B3%A8%E7%9B%AE%E6%A0%87%E5%9F%9F%E8%BD%AC%E5%AF%BC%E5%BC%8F%E8%87%AA%E9%80%82%E5%BA%94%EF%BC%88Transductive-Adaptation%EF%BC%89"><span class="nav-text">3. 落地杀手锏：无标注目标域转导式自适应（Transductive Adaptation）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E6%9E%B6%E6%9E%84%E5%B8%88%E4%B8%8E%E7%B3%BB%E7%BB%9F%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84%E5%AE%9E%E6%88%98%E5%90%AF%E7%A4%BA"><span class="nav-text">05. 架构师与系统工程师的实战启示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9D%9A%E6%8C%81%E2%80%9C%E8%AE%AD%E7%BB%83%E7%AB%AF%E6%B6%88%E5%8C%96%E5%A4%8D%E6%9D%82%E5%BA%A6%EF%BC%8C%E6%8E%A8%E7%90%86%E7%AB%AF%E6%9E%81%E7%AE%80%E4%BA%A4%E4%BB%98%E2%80%9D"><span class="nav-text">1. 坚持“训练端消化复杂度，推理端极简交付”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%8B%A5%E6%8A%B1%E2%80%9C%E8%BF%9E%E7%BB%AD%E5%87%A0%E4%BD%95%E6%8D%9F%E5%A4%B1%E2%80%9D%EF%BC%8C%E8%AD%A6%E6%83%95%E2%80%9C%E7%A6%BB%E6%95%A3-0-1-%E9%99%B7%E9%98%B1%E2%80%9D"><span class="nav-text">2. 拥抱“连续几何损失”，警惕“离散 0&#x2F;1 陷阱”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%95%B0%E6%8D%AE%E9%A3%9E%E8%BD%AE%E4%B8%8D%E5%BF%85%E4%BE%9D%E8%B5%96%E2%80%9C%E5%85%A8%E9%87%8F%E5%A0%86%E7%A0%8C%E2%80%9D"><span class="nav-text">3. 数据飞轮不必依赖“全量堆砌”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E7%BB%93%E8%AF%AD"><span class="nav-text">06. 结语</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">82</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">276</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/10/SAPO-VideoGrounding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】模型心里门儿清，嘴上说不出？上交大与蚂蚁新作 SAPO：无需人工标注，用内部注意力与 GRPO 破解视频大模型时序定位鸿沟 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】模型心里门儿清，嘴上说不出？上交大与蚂蚁新作 SAPO：无需人工标注，用内部注意力与 GRPO 破解视频大模型时序定位鸿沟
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-10 17:50:00 / 修改时间：17:59:57" itemprop="dateCreated datePublished" datetime="2026-11-10T17:50:00+08:00">2026-11-10</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在视频多模态大模型（Video-VLM）领域，<strong>视频时序定位（Temporal Video Grounding, TVG）</strong> 是评估模型是否真正“看懂时间”的核心标尺：给定一段长视频与一句用户自然语言查询（例如“<em>找出小猫跳进纸箱的瞬间</em>”），模型需要精准返回目标事件在时间轴上的物理起止点 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><mi>s</mi><mo separator="true">,</mo><mi>e</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[s, e]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord mathnormal">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">e</span><span class="mclose">]</span></span></span></span>（秒）。</p>
+<p>尽管当前的通用视频大模型（如 Qwen2.5-VL、InternVL 等）在长视频问答、事件摘要上表现惊艳，但在输出具体起止时间戳时却<strong>频频翻车、误差巨大</strong>。</p>
+<p>为了提升定位精度，传统工业界与学术界不得不陷入两难泥潭：要么斥巨资雇佣大量人工“逐秒逐帧打标起止边界”，搞昂贵的监督微调（SFT）；要么在推理端挂上一堆繁琐特征提取与滑动窗口聚类等外挂后处理流水线（Training-free 方案），导致线上服务延迟爆炸、运维成本失控。</p>
+<p>难道离开昂贵的人工标注，大模型就真的无法学会精准感知时间吗？</p>
+<p>近日，来自<strong>上海交通大学与蚂蚁集团</strong>的研究团队在 arXiv 上公开了一篇兼具敏锐直觉与工程巧思的前沿成果：</p>
+<blockquote>
+<p><strong>《SAPO: Self-Supervised Attention Policy Optimization for Improving Temporal Video Grounding in Vision–Language Models》</strong> (arXiv:2610.25923)<br>
+论文链接：<a target="_blank" href="https://arxiv.org/abs/2610.25923" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2610.25923</a><br>
+HTML 格式：<a target="_blank" href="https://arxiv.org/html/2610.25923" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2610.25923</a><br>
+核心关键词：视频时序定位、自监督对齐、强化学习微调、GRPO、时序注意力</p>
+</blockquote>
+<p>作者通过严谨的白盒解剖提出了一个颠覆性的发现：<strong>大模型其实“心里门儿清，只是嘴上说不出来”！</strong> 模型内部的跨模态注意力早在浅中层就已经锁定了正确的时间区间，只是在自回归解码为文本字符时丢失了精度。</p>
+<p>基于这一洞察，作者提出了 <strong>SAPO（Self-Supervised Attention Policy Optimization）</strong> 框架：<strong>全程无需任何人工起止标注（Zero Ground Truth）</strong>，巧妙地将模型自身的内部注意力作为自我监督信号，引入组相对策略优化（GRPO），仅凭区区 <strong>2,000 条未标注视频</strong>，便让 Qwen2.5-VL-3B 定位精度暴涨 <strong>33.7%</strong>，且在生产端具备 <strong>0 额外推理延迟</strong>！</p>
+<p>本文将从系统架构与工程实现的视角，深度拆解 SAPO 的核心诊断、奖励引擎机制、高价值样本筛选算法与工业落地价值。</p>
+<blockquote>
+<p><strong>论文题目</strong>：SAPO: Self-Supervised Attention Policy Optimization for Improving Temporal Video Grounding in Vision–Language Models<br>
+<strong>作者团队</strong>：Zixuan Chen, Depeng Wang, Wei Chen, Ke Xu, Ya Guo, Huijia Zhu, Tanfeng Sun, Xinghao Jiang（上海交通大学、蚂蚁集团）<br>
+<strong>收录情况</strong>：arXiv 预印本（2026年10月）<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2610.25923" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2610.25923</a></p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-根因剖析：为什么大模型“心里懂，嘴上飘”？">01. 根因剖析：为什么大模型“心里懂，嘴上飘”？</h2>
+<p>在剖析解决方案前，必须先理清视频大模型在预测时间戳时的底层生理缺陷。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">+-------------------------------------------------------------------------+</span><br><span class="line">|                  大模型时序生成的断层现象 (Generation Gap)                |</span><br><span class="line">|                                                                         |</span><br><span class="line">|  1. 内部注意力 (Attention Profile): [======== 目标动作发生区 ========]   |</span><br><span class="line">|     (直接作用于 Token 连续物理空间，时序定位极准)                            |</span><br><span class="line">|                                         |                               |</span><br><span class="line">|                                         v 自回归解码（字符离散化+时间校准）|</span><br><span class="line">|  2. 显式文本输出 (Predicted Timestamps):       [==== 生成文字偏离 ====]   |</span><br><span class="line">|     (模型输出字符串 &quot;15.3s - 22.1s&quot;，量化与标定误差剧烈)                  |</span><br><span class="line">+-------------------------------------------------------------------------+</span><br></pre></td></tr></table></figure>
+<h3 id="1-时序生成鸿沟（Temporal-Generation-Gap）">1. 时序生成鸿沟（Temporal Generation Gap）</h3>
+<p>传统算法工程师往往假设：模型如果输出了错误的数字时间戳，说明模型没有看懂这段视频。</p>
+<p>但论文作者设计了一个对照实验：</p>
+<ol>
+<li><strong>预测区间 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>p</mi></msub></mrow><annotation encoding="application/x-tex">I_p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span></strong>：让模型自回归生成的时间戳文本字符串（例如 <code>[12.4, 18.2]</code>）；</li>
+<li><strong>注意力区间 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">I_a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">a</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></strong>：从模型中后层直接提取 Prompt 最后一个 Token 对所有视频帧 Token 的跨模态交叉注意力（Cross-Modal Attention），滤除首帧 Attention Sink，取累积权重达到 50% 的最短连续时间窗口，映射为物理秒数区间。</li>
+</ol>
+<p>作者在 Qwen2.5-VL-3B/7B、InternVL3-2B、Qwen3-VL-4B 等主流模型上与人工标注真值（Ground Truth, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>g</mi></msub></mrow><annotation encoding="application/x-tex">I_g</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span>）计算交并比（IoU），得出了令人震惊的一致规律：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>IoU</mtext><mo stretchy="false">(</mo><msub><mi>I</mi><mi>a</mi></msub><mo separator="true">,</mo><msub><mi>I</mi><mi>g</mi></msub><mo stretchy="false">)</mo><mo>&gt;</mo><mtext>IoU</mtext><mo stretchy="false">(</mo><msub><mi>I</mi><mi>p</mi></msub><mo separator="true">,</mo><msub><mi>I</mi><mi>g</mi></msub><mo stretchy="false">)</mo><mspace width="1em"/><mtext>在超过 </mtext><mrow><mn mathvariant="bold">66</mn><mi mathvariant="bold">%</mi></mrow><mtext> 的有效样本中成立！</mtext></mrow><annotation encoding="application/x-tex">\text{IoU}(I_a, I_g) &gt; \text{IoU}(I_p, I_g) \quad \text{在超过 } \mathbf{66\%} \text{ 的有效样本中成立！}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord text"><span class="mord">IoU</span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">a</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord text"><span class="mord">IoU</span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:1em;"></span><span class="mord text"><span class="mord cjk_fallback">在超过</span><span class="mord"> </span></span><span class="mord"><span class="mord mathbf">66%</span></span><span class="mord text"><span class="mord"> </span><span class="mord cjk_fallback">的有效样本中成立！</span></span></span></span></span></span></p>
+<p>无论模型初始定位能力强弱，<strong>底层注意力区间在绝大多数样本上均显著优于显式文本输出！</strong></p>
+<h3 id="2-产生鸿沟的工程本质">2. 产生鸿沟的工程本质</h3>
+<p>为什么会出现这种“表里不一”？</p>
+<ul>
+<li><strong>坐标空间差异</strong>：底层注意力直接作用于视频帧在 Transformer 内部的位置编码空间（Position Space），具有天然的连续物理邻近性；</li>
+<li><strong>离散化与绝对值标定损耗</strong>：大模型的底层并非回归器，当它试图用自回归的字符序列（如数字字符 <code>'1'</code>, <code>'5'</code>, <code>'.'</code>, <code>'3'</code>）来表达连续物理量时，必须在缺乏强先验的情况下强行将视觉 Token 跨度映射到抽象标量秒数上，带来了严重的累计失真。</li>
+</ul>
+<p>既然模型自身已经蕴含了精准的时序先验，核心工程命题就变成了：<strong>如何搭建一条低成本的自校准流水线，把模型“内部的懂”无损传导到“外部的嘴”？</strong></p>
+<hr>
+<h2 id="02-系统设计：SAPO-自监督对齐闭环">02. 系统设计：SAPO 自监督对齐闭环</h2>
+<p>针对上述痛点，SAPO 构建了一套完全抛弃人工边界标注的<strong>自监督强化学习微调流水线</strong>。</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph OfflineSelection[&quot;一、 离线无监督高价值样本挖掘（JS 散度冲突检测）&quot;]
+        RawPool[&quot;原始未标注视频库 (Unlabeled Pool)&quot;] --&gt; BaselineInference[&quot;冻结基座单次前向推理&quot;]
+        BaselineInference --&gt; ExtractPair[&quot;提取: 预测时序分布 p 与 注意力分布 a&quot;]
+        ExtractPair --&gt; CalcJS[&quot;计算 JS 散度: d = JS(p || a)&quot;]
+        CalcJS --&gt; TopKFilter[&quot;Top-K 过滤 (锁定内部认知冲突最强样本)&quot;]
+    end
+
+    subgraph RLLoop[&quot;二、 强化学习策略对齐循环 (GRPO Loop)&quot;]
+        TopKFilter --&gt; QueryBatch[&quot;高价值数据批次 (Batch)&quot;]
+        QueryBatch --&gt; PolicyActor[&quot;可训练策略模型 (Actor Policy)&quot;]
+        QueryBatch --&gt; FrozenRef[&quot;冻结参考模型 (Frozen Ref)&quot;]
+
+        PolicyActor --&gt; Rollouts[&quot;采样 K=8 组时间戳候选 [s_k, e_k]&quot;]
+        FrozenRef --&gt; StableAttn[&quot;提供稳定的参考注意力分布 a 与区间 I_a&quot;]
+
+        Rollouts &amp; StableAttn --&gt; RewardCalc[&quot;复合多维 Reward 引擎&quot;]
+        
+        RewardCalc --&gt;|连续平滑| W1_Term[&quot;Wasserstein-1 距离分布损失 (-W1)&quot;]
+        RewardCalc --&gt;|离散边界| IoU_Term[&quot;注意力区间 IoU 奖励 (+IoU)&quot;]
+        RewardCalc --&gt;|格式防错| Fmt_Term[&quot;起止点合法性奖励 (+r_fmt)&quot;]
+        RewardCalc --&gt;|防作弊| Width_Term[&quot;全长过度扩展惩罚 (-p_width)&quot;]
+
+        W1_Term &amp; IoU_Term &amp; Fmt_Term &amp; Width_Term --&gt; Advantage[&quot;组相对优势标准化 (GRPO Advantage)&quot;]
+        Advantage --&gt; UpdateWeights[&quot;策略梯度反向传播 + KL 正则化更新&quot;]
+    end
+
+    subgraph OnlineServing[&quot;三、 生产部署与零开销推理 (Zero-Overhead Serving)&quot;]
+        UpdateWeights --&gt; DeployModel[&quot;产出微调模型权重&quot;]
+        DeployModel --&gt; StandardAPI[&quot;标准推理服务接口 (vLLM / SGLang)&quot;]
+        StandardAPI --&gt; Output[&quot;直接输出最终高精度时间戳 [s, e] (0 额外耗时)&quot;]
+    end</code></pre>
+<p>整套系统由<strong>离线无监督样本挖掘</strong>与<strong>在线 GRPO 强化学习循环</strong>两个核心构件组成。</p>
+<hr>
+<h2 id="03-核心机制拆解：四个极具启发性的工程方案">03. 核心机制拆解：四个极具启发性的工程方案</h2>
+<h3 id="1-无真值高价值样本筛选（JS-散度冲突检测器）">1. 无真值高价值样本筛选（JS 散度冲突检测器）</h3>
+<p>在无标注数据池中，并不是所有样本都值得拿来训练：</p>
+<ul>
+<li>如果模型原本的输出就和内部注意力高度吻合，没有校准空间；</li>
+<li>如果内部注意力本身存在严重噪点，盲目拟合会把模型带偏。</li>
+</ul>
+<p>在 <strong>完全没有 Ground Truth（真值）</strong> 的前提下，如何精准挑选出“最值得训练”的黄金样本？</p>
+<h4 id="工程实现">工程实现</h4>
+<ol>
+<li>将模型预测的离散区间 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><mi>s</mi><mo separator="true">,</mo><mi>e</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[s, e]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord mathnormal">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">e</span><span class="mclose">]</span></span></span></span> 转化为一维高斯时序分布 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>p</mi><mo>=</mo><mi>g</mi><mo stretchy="false">(</mo><mo stretchy="false">[</mo><mi>s</mi><mo separator="true">,</mo><mi>e</mi><mo stretchy="false">]</mo><mo stretchy="false">)</mo><mo separator="true">,</mo><mspace width="1em"/><mtext>均值 </mtext><mi>μ</mi><mo>=</mo><mfrac><mrow><mi>s</mi><mo>+</mo><mi>e</mi></mrow><mn>2</mn></mfrac><mo separator="true">,</mo><mspace width="1em"/><mtext>方差 </mtext><mi>σ</mi><mo>=</mo><mn>0.15</mn><mo>×</mo><mi>max</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>e</mi><mo>−</mo><mi>s</mi><mo separator="true">,</mo><mi mathvariant="normal">Δ</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">p = g([s, e]), \quad \text{均值 } \mu = \frac{s + e}{2}, \quad \text{方差 } \sigma = 0.15 \times \max(e - s, \Delta)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">g</span><span class="mopen">([</span><span class="mord mathnormal">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">e</span><span class="mclose">])</span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord cjk_fallback">均值</span><span class="mord"> </span></span><span class="mord mathnormal">μ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.9463em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.2603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">e</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord cjk_fallback">方差</span><span class="mord"> </span></span><span class="mord mathnormal" style="margin-right:0.0359em;">σ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">0.15</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">max</span><span class="mopen">(</span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">Δ</span><span class="mclose">)</span></span></span></span></span></p>
+</li>
+<li>将内部校准后的注意力权重归一化为时序分布 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi></mrow><annotation encoding="application/x-tex">a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span></span></span></span>；</li>
+<li>计算两者的 <strong>Jensen-Shannon 散度（JS 散度）</strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>d</mi><mi>i</mi></msub><mo>=</mo><mtext>JS</mtext><mo stretchy="false">(</mo><msub><mi>p</mi><mi>i</mi></msub><mo>∥</mo><msub><mi>a</mi><mi>i</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">d_i = \text{JS}(p_i \parallel a_i)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">JS</span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+</li>
+<li>按照 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">d_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 降序排列，取 Top-<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span> 样本（实验中仅需 2,000 个样本）构建训练集。</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[Attention 与 Prediction 吻合]   --&gt; JS 散度极小 --&gt; 内部已对齐，无需重复强化</span><br><span class="line">[Attention 与 Prediction 剧烈冲突] --&gt; JS 散度极大 --&gt; 存在严重认知断层，极高训练价值！</span><br></pre></td></tr></table></figure>
+<h4 id="实验直觉验证">实验直觉验证</h4>
+<p>论文实测证明：<strong>JS 散度越大的样本，注意力战胜预测值（Attention Lead Rate）的比例越高</strong>。通过 JS 散度不仅避开了无意义样本的算力浪费，而且以零真值成本筛出了最有效的监督信号。</p>
+<hr>
+<h3 id="2-复合-Reward-引擎：为什么必须引入-Wasserstein-距离？">2. 复合 Reward 引擎：为什么必须引入 Wasserstein 距离？</h3>
+<p>在强化学习中，直接用区间 IoU 做奖励是许多算法工程师的本能反应。但在时序定位任务中，<strong>单一使用 IoU 具有致命的工程缺陷：反馈极度稀疏（Sparse Feedback）</strong>。</p>
+<h4 id="稀疏奖励的死穴">稀疏奖励的死穴</h4>
+<p>假设真实事件位于 <code>[10s, 20s]</code>：</p>
+<ul>
+<li>采样 A 猜在 <code>[30s, 40s]</code>（距离真实区域仅相差 10 秒）；</li>
+<li>采样 B 猜在 <code>[80s, 90s]</code>（南辕北辙，差了 60 秒）。</li>
+<li><strong>在 IoU 指标下，两者的得分全部精确为 0！</strong> 策略梯度根本无法区分采样 A 和采样 B 谁更好，优化陷入盲目游走。</li>
+</ul>
+<h4 id="Wasserstein-1-距离的平滑梯度救援">Wasserstein-1 距离的平滑梯度救援</h4>
+<p>SAPO 采用<strong>密集分布度量 + 稀疏边界度量</strong>结合的双层奖励：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>r</mi><mo stretchy="false">(</mo><mover accent="true"><mi>y</mi><mo>^</mo></mover><mo stretchy="false">)</mo><mo>=</mo><mo>−</mo><msub><mi>w</mi><mtext>dist</mtext></msub><mo>⋅</mo><msub><mi>W</mi><mn>1</mn></msub><mo fence="false" stretchy="true" minsize="1.2em" maxsize="1.2em">(</mo><mi>g</mi><mo stretchy="false">(</mo><msub><mi>I</mi><mover accent="true"><mi>y</mi><mo>^</mo></mover></msub><mo stretchy="false">)</mo><mo separator="true">,</mo><mi>a</mi><mo fence="false" stretchy="true" minsize="1.2em" maxsize="1.2em">)</mo><mo>+</mo><msub><mi>w</mi><mtext>IoU</mtext></msub><mo>⋅</mo><mtext>IoU</mtext><mo stretchy="false">(</mo><msub><mi>I</mi><mover accent="true"><mi>y</mi><mo>^</mo></mover></msub><mo separator="true">,</mo><msub><mi>I</mi><mi>a</mi></msub><mo stretchy="false">)</mo><mo>+</mo><msub><mi>λ</mi><mtext>fmt</mtext></msub><msub><mi>r</mi><mtext>fmt</mtext></msub><mo>−</mo><msub><mi>λ</mi><mtext>width</mtext></msub><msub><mi>p</mi><mtext>width</mtext></msub></mrow><annotation encoding="application/x-tex">r(\hat{y}) = -w_{\text{dist}} \cdot W_1\big(g(I_{\hat{y}}), a\big) + w_{\text{IoU}} \cdot \text{IoU}(I_{\hat{y}}, I_a) + \lambda_{\text{fmt}} r_{\text{fmt}} - \lambda_{\text{width}} p_{\text{width}}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="mopen">(</span><span class="mord katex-accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7333em;vertical-align:-0.15em;"></span><span class="mord">−</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">dist</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.2em;vertical-align:-0.35em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="delimsizing size1">(</span></span><span class="mord mathnormal" style="margin-right:0.0359em;">g</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord katex-accent mtight"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-2.7em;"><span class="pstrut" style="height:2.7em;"></span><span class="mord mathnormal mtight" style="margin-right:0.0359em;">y</span></span><span style="top:-2.7em;"><span class="pstrut" style="height:2.7em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord mtight">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">a</span><span class="mord"><span class="delimsizing size1">)</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.5945em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">IoU</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord text"><span class="mord">IoU</span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord katex-accent mtight"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-2.7em;"><span class="pstrut" style="height:2.7em;"></span><span class="mord mathnormal mtight" style="margin-right:0.0359em;">y</span></span><span style="top:-2.7em;"><span class="pstrut" style="height:2.7em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord mtight">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">a</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">fmt</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">fmt</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">width</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">width</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+<p>其中各项权重设置为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mtext>dist</mtext></msub><mo>=</mo><mn>1.0</mn><mo separator="true">,</mo><msub><mi>w</mi><mtext>IoU</mtext></msub><mo>=</mo><mn>0.5</mn><mo separator="true">,</mo><msub><mi>λ</mi><mtext>fmt</mtext></msub><mo>=</mo><mn>0.1</mn><mo separator="true">,</mo><msub><mi>λ</mi><mtext>width</mtext></msub><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">w_{\text{dist}} = 1.0, w_{\text{IoU}} = 0.5, \lambda_{\text{fmt}} = 0.1, \lambda_{\text{width}} = 0.5</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">dist</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">1.0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">IoU</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">0.5</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">fmt</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord">0.1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">λ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">width</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0.5</span></span></span></span>。</p>
+<ol>
+<li><strong>推土机距离 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">W_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>（密集连续奖励）</strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>W</mi><mn>1</mn></msub><mo stretchy="false">(</mo><mi>p</mi><mo separator="true">,</mo><mi>q</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><mi>T</mi></mfrac><munder><mo>∑</mo><mi>i</mi></munder><mi mathvariant="normal">∣</mi><msub><mtext>CDF</mtext><mi>p</mi></msub><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo><mo>−</mo><msub><mtext>CDF</mtext><mi>q</mi></msub><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">W_1(p, q) = \frac{1}{T} \sum_{i} |\text{CDF}_p(i) - \text{CDF}_q(i)|
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">p</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">q</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.5991em;vertical-align:-1.2777em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">T</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8723em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2777em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">∣</span><span class="mord"><span class="mord text"><span class="mord">CDF</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">i</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord text"><span class="mord">CDF</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">i</span><span class="mclose">)</span><span class="mord">∣</span></span></span></span></span></p>
+利用累积分布函数（CDF）的差值绝对值求和，保留了时间轴上的<strong>绝对几何空间距离</strong>。即使预测区间与目标完全无重叠，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">W_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 也能明确告诉模型“猜在 30 秒比猜在 80 秒好得多”，提供了平滑且有方向性的指引梯度。</li>
+<li><strong>注意力解码区间 IoU（稀疏精细奖励）</strong>：在重叠区域提供高精度边界收敛的推力。</li>
+</ol>
+<hr>
+<h3 id="3-反作弊机制：对抗-RL-的“投机取巧”">3. 反作弊机制：对抗 RL 的“投机取巧”</h3>
+<p>强化学习策略在优化过程中极其善于寻找损失函数的数学漏洞。</p>
+<p>在时序定位中，模型很快会发现一条通往高分的捷径：<strong>“只要我把预测区间从第 0 秒一直拉到视频结束，那么无论目标在哪，我都至少能混到一定的 IoU 分数，且永远不会扑空！”</strong></p>
+<p>为杜绝这种投机，SAPO 引入了<strong>区间宽度正则化惩罚</strong>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>p</mi><mtext>width</mtext></msub><mo>=</mo><mi>max</mi><mo>⁡</mo><mrow><mo fence="true">(</mo><mn>0</mn><mo separator="true">,</mo><mfrac><mrow><mi>e</mi><mo>−</mo><mi>s</mi></mrow><mtext>dur</mtext></mfrac><mo>−</mo><mn>0.5</mn><mo fence="true">)</mo></mrow></mrow><annotation encoding="application/x-tex">p_{\text{width}} = \max\left(0, \frac{e - s}{\text{dur}} - 0.5\right)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">width</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.4em;vertical-align:-0.95em;"></span><span class="mop">max</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.2603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord">dur</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">s</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">0.5</span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span></span></span></span></span></p>
+<p>一旦预测区间宽度超过视频总时长的 50%，模型将受到线性比例惩罚。消融实验证明，若移除该约束，模型在严格精度指标（R@0.7）上的定位表现会发生断崖式暴跌。</p>
+<hr>
+<h3 id="4-为什么选-GRPO-而不是监督微调（SFT）伪标签？">4. 为什么选 GRPO 而不是监督微调（SFT）伪标签？</h3>
+<p>直觉上最简单的工程做法是：既然解码出的注意力区间 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">I_a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">a</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 这么好，直接把 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>a</mi></msub></mrow><annotation encoding="application/x-tex">I_a</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">a</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 存成 JSON 伪标签，用普通的 Cross-Entropy 做一次 SFT 不行吗？</p>
+<p>论文在表 5 中进行了严格对照：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">训练范式</th>
+<th style="text-align:center">Charades-STA mIoU</th>
+<th style="text-align:center">ActivityNet mIoU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">初始基座 (Zero-shot)</td>
+<td style="text-align:center">36.5%</td>
+<td style="text-align:center">24.6%</td>
+</tr>
+<tr>
+<td style="text-align:left">注意力伪标签 + SFT</td>
+<td style="text-align:center">39.5%</td>
+<td style="text-align:center">31.5%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>SAPO 强化学习 (GRPO)</strong></td>
+<td style="text-align:center"><strong>41.0%</strong> (+12.3%)</td>
+<td style="text-align:center"><strong>32.9%</strong> (+33.7%)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="为什么-SFT-会输给-GRPO？">为什么 SFT 会输给 GRPO？</h4>
+<ol>
+<li><strong>硬截断的信息丢失</strong>：注意力本身是一个波峰平缓过渡的连续概率云，强制用 50% 阈值切成一个硬性的 <code>[s, e]</code> 伪标签，丢失了大量不确定性信息；一旦硬伪标签切偏，SFT 会强迫模型死记硬背错误答案。</li>
+<li><strong>探索与全局对比机制（Exploration &amp; Group Ranking）</strong>：GRPO 在同一个 Query 下采样 8 个 Rollout，配合连续的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">W_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 奖励在候选分布之间进行相对比较与优势加权。模型不仅是在“模仿”注意力，而是在策略探索中学会了时序语义校正，<strong>最终预测精度甚至超越了原本作为参考的注意力本身！</strong></li>
+</ol>
+<hr>
+<h2 id="04-实验全景：性能跃升、泛化性与通用能力保全">04. 实验全景：性能跃升、泛化性与通用能力保全</h2>
+<p>论文在 <strong>Charades-STA</strong>（室内细粒度动作）和 <strong>ActivityNet-Captions</strong>（开放式长动作）两个经典基准上进行了端到端验证，底座覆盖了小、中、强三档模型。</p>
+<h3 id="1-定位精度全面刷新">1. 定位精度全面刷新</h3>
+<p>无论底座原本定位能力如何，SAPO 均实现了立竿见影的持续增益：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">基础模型</th>
+<th style="text-align:left">训练配置</th>
+<th style="text-align:center">Charades mIoU</th>
+<th style="text-align:center">提升幅度</th>
+<th style="text-align:center">ActivityNet mIoU</th>
+<th style="text-align:center">提升幅度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Qwen2.5-VL-3B</strong></td>
+<td style="text-align:left">Zero-shot</td>
+<td style="text-align:center">36.5%</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">24.6%</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><strong>+ SAPO (联合数据)</strong></td>
+<td style="text-align:center"><strong>41.0%</strong></td>
+<td style="text-align:center"><strong>+12.3%</strong></td>
+<td style="text-align:center"><strong>32.9%</strong></td>
+<td style="text-align:center"><strong>+33.7%</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Qwen2.5-VL-7B</strong></td>
+<td style="text-align:left">Zero-shot</td>
+<td style="text-align:center">43.6%</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">27.4%</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><strong>+ SAPO (联合数据)</strong></td>
+<td style="text-align:center"><strong>46.2%</strong></td>
+<td style="text-align:center"><strong>+6.0%</strong></td>
+<td style="text-align:center"><strong>33.4%</strong></td>
+<td style="text-align:center"><strong>+21.9%</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Time-R1-7B</strong> (强底座)</td>
+<td style="text-align:left">Zero-shot</td>
+<td style="text-align:center">52.5%</td>
+<td style="text-align:center">—</td>
+<td style="text-align:center">44.8%</td>
+<td style="text-align:center">—</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"><strong>+ SAPO (联合数据)</strong></td>
+<td style="text-align:center"><strong>53.3%</strong></td>
+<td style="text-align:center"><strong>+1.5%</strong></td>
+<td style="text-align:center"><strong>47.2%</strong></td>
+<td style="text-align:center"><strong>+5.4%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>即使在本身就经过深度时序微调的顶尖模型 <strong>Time-R1-7B</strong> 上，SAPO 依然在 ActivityNet 上实现了 +5.4% 的净增益，充分证明了内部注意力对齐的普适上限。</p>
+<h3 id="2-避免灾难性遗忘：通用视频理解能力实测">2. 避免灾难性遗忘：通用视频理解能力实测</h3>
+<p>很多面向特定任务的强化学习微调，往往会以破坏大模型的通用语义为代价。</p>
+<p>作者在长视频权威评测基准 <strong>Video-MME</strong> 上测试了微调前后的通用能力：</p>
+<ul>
+<li><strong>Qwen2.5-VL-3B</strong>：原始准确率 58.0%，SAPO 微调后保持在 57.4%（轻微波动 &lt; 1%）；</li>
+<li><strong>Time-R1-7B</strong>：原始准确率 60.1%，SAPO 微调后微升至 <strong>60.3%</strong>。</li>
+</ul>
+<p>这意味着 SAPO 仅仅校准了模型的时序字符标定偏差，并没有破坏底层的通用视频理解表征。</p>
+<h3 id="3-落地杀手锏：无标注目标域转导式自适应（Transductive-Adaptation）">3. 落地杀手锏：无标注目标域转导式自适应（Transductive Adaptation）</h3>
+<p>这是最具工业落地价值的一项测试：假设业务突然面临一个全新的无标注业务场景（如监控回放、无人机视频检索），如何在 0 人工标注的前提下迅速冷启动？</p>
+<p>作者直接拿测试集的 1,000 条未标注样本进行 SAPO 离线对齐：</p>
+<ul>
+<li>Charades-STA 的 mIoU 进一步跃升至 <strong>42.1%</strong>（+15.3%）；</li>
+<li>ActivityNet 的 mIoU 进一步跃升至 <strong>34.1%</strong>（<strong>+38.6%</strong>）。</li>
+</ul>
+<p><strong>只要有一批未标注视频日志，系统便可在数小时内完成对新业务领域的无监督定向适配！</strong></p>
+<hr>
+<h2 id="05-架构师与系统工程师的实战启示">05. 架构师与系统工程师的实战启示</h2>
+<p>跳出学术指标，从分布式系统与机器学习工程落地的角度，SAPO 提供了极具参考价值的范式沉淀：</p>
+<h3 id="1-坚持“训练端消化复杂度，推理端极简交付”">1. 坚持“训练端消化复杂度，推理端极简交付”</h3>
+<p>许多学术工作（如 ChatVTG、TFVTG）为了刷榜，在推理期设计复杂的滑动窗口、注意力截断与矩阵重排。在工程架构上，这种把高复杂度甩给线上网关和 Serving 容器的做法是灾难性的：它会导致 P99 延迟飙升、显存暴涨、批处理并发吞吐（Batching）急剧受限。</p>
+<ul>
+<li><strong>SAPO 的工程优雅性</strong>：所有注意力提取与分布计算只发生在离线 RL 训练阶段。微调完成后，模型权重直接交付线上，以标准 HuggingFace / SGLang / vLLM 原生框架 Serving，<strong>线上推理 0 毫秒额外耗时、0 额外代码侵入</strong>。</li>
+</ul>
+<h3 id="2-拥抱“连续几何损失”，警惕“离散-0-1-陷阱”">2. 拥抱“连续几何损失”，警惕“离散 0/1 陷阱”</h3>
+<p>在微服务和大数据系统的异常检测、监控报警或排序打分中，很多工程师习惯于设定硬阈值匹配。但在强化学习与连续优化中，硬匹配会导致大面积的梯度死区。学习 SAPO 将离散的时间戳用高斯核连续化、并用 <strong>Wasserstein 距离计算物理位移</strong> 的思路，能极大提升各种优化型系统的收敛效率与平滑度。</p>
+<h3 id="3-数据飞轮不必依赖“全量堆砌”">3. 数据飞轮不必依赖“全量堆砌”</h3>
+<p>SAPO 全程仅使用了 <strong>2,000 个未标注样本</strong>。通过 <strong>JS 散度度量“表里冲突”</strong>，将宝贵算力集中在信息增益最大的高价值样本上。在算力吃紧的私有化交付或垂直领域落地上，这种主动筛选范式远胜于无脑堆砌海量低质样本。</p>
+<hr>
+<h2 id="06-结语">06. 结语</h2>
+<p>SAPO 给出了一种令人耳目一新的解题视角：<strong>提升大模型的能力，不一定非要向外索求更多的数据标注，也可以向内审视，通过机制设计唤醒模型自身沉睡的潜力。</strong></p>
+<p>通过将内部注意力作为参考基准，用强化学习对齐离散生成，再以严密的防作弊与平滑奖励约束边界，SAPO 为多模态视频检索、时刻定位与视频智能分析系统的工业化落地提供了一条极具性价比的轻量化路径。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag"># 强化学习</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E6%97%B6%E5%BA%8F%E5%AE%9A%E4%BD%8D/" rel="tag"># 视频时序定位</a>
+              <a href="/tags/Qwen2-5-VL/" rel="tag"># Qwen2.5-VL</a>
+              <a href="/tags/GRPO/" rel="tag"># GRPO</a>
+              <a href="/tags/%E8%9A%82%E8%9A%81%E9%9B%86%E5%9B%A2/" rel="tag"># 蚂蚁集团</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/10/ProQuant-EdgeMLLM/" rel="next" title="【论文分享】端侧多模态如何压到 4-Bit 还不崩？解密港科大与清华新作 ProQuant 的渐进式量化与自重标注范式">
+                  【论文分享】端侧多模态如何压到 4-Bit 还不崩？解密港科大与清华新作 ProQuant 的渐进式量化与自重标注范式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">356k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">21:35</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
