@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在多模态大模型（MLLM，如 Qwen-VL、InternVL、LLaVA）加速走向端侧智能硬件（智能手机、车机座舱、具身机器人、AI 智能眼镜与工业边缘网关）的过程中，每一位负责模型工程化部署的软件工程师都会撞上一堵冰冷的物理现实之墙： 16-bit 浮点（BF16&#x2F;FP16）模型太重了，既吃光了端侧极为拮据的板载内存（DRAM），又在端侧无风扇散热被动受限的微瓦&#x2F;毫瓦级功耗下频繁触发热降频。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】端侧多模态如何压到 4-Bit 还不崩？解密港科大与清华新作 ProQuant 的渐进式量化与自重标注范式">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/11/10/ProQuant-EdgeMLLM/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在多模态大模型（MLLM，如 Qwen-VL、InternVL、LLaVA）加速走向端侧智能硬件（智能手机、车机座舱、具身机器人、AI 智能眼镜与工业边缘网关）的过程中，每一位负责模型工程化部署的软件工程师都会撞上一堵冰冷的物理现实之墙： 16-bit 浮点（BF16&#x2F;FP16）模型太重了，既吃光了端侧极为拮据的板载内存（DRAM），又在端侧无风扇散热被动受限的微瓦&#x2F;毫瓦级功耗下频繁触发热降频。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-10T05:50:00.000Z">
+<meta property="article:modified_time" content="2026-11-10T06:11:12.932Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="QAT">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="性能优化">
+<meta property="article:tag" content="模型量化">
+<meta property="article:tag" content="端侧部署">
+<meta property="article:tag" content="系统工程">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/11/10/ProQuant-EdgeMLLM/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/11/10/ProQuant-EdgeMLLM/","path":"papers/2026/11/10/ProQuant-EdgeMLLM/","title":"【论文分享】端侧多模态如何压到 4-Bit 还不崩？解密港科大与清华新作 ProQuant 的渐进式量化与自重标注范式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】端侧多模态如何压到 4-Bit 还不崩？解密港科大与清华新作 ProQuant 的渐进式量化与自重标注范式 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">273</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">79</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#00-%E6%A0%B8%E5%BF%83%E7%97%9B%E7%82%B9%E4%B8%8E%E5%B7%A5%E7%A8%8B%E6%AD%BB%E7%A9%B4%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E7%AB%AF%E4%BE%A7%E5%A4%9A%E6%A8%A1%E6%80%81%E4%B8%80%E9%87%8F%E5%8C%96%E5%B0%B1%E2%80%9C%E5%8F%8C%E9%87%8D%E9%9B%AA%E5%B4%A9%E2%80%9D%EF%BC%9F"><span class="nav-text">00. 核心痛点与工程死穴：为什么端侧多模态一量化就“双重雪崩”？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E2%80%9C%E4%BB%85%E9%87%8F%E5%8C%96%E6%9D%83%E9%87%8D%EF%BC%88Weight-Only%EF%BC%89%E2%80%9D%E5%9C%A8%E7%AB%AF%E4%BE%A7%E8%A1%8C%E4%B8%8D%E9%80%9A%EF%BC%9F"><span class="nav-text">1. 为什么“仅量化权重（Weight-Only）”在端侧行不通？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BC%A0%E7%BB%9F%E9%87%8F%E5%8C%96%E6%96%B9%E6%A1%88%E5%9C%A8%E5%A4%9A%E6%A8%A1%E6%80%81%E5%B0%8F%E6%A8%A1%E5%9E%8B%E4%B8%8A%E7%9A%84%E4%B8%89%E5%A4%A7%E5%B7%A5%E7%A8%8B%E7%BC%BA%E9%99%B7"><span class="nav-text">2. 传统量化方案在多模态小模型上的三大工程缺陷</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B%E8%8C%83%E5%BC%8F%EF%BC%9A%E8%87%AA%E9%87%8D%E6%A0%87%E6%B3%A8%EF%BC%88SRL%EF%BC%89%E2%80%94%E2%80%94-%E7%94%A8%E2%80%9C%E8%87%AA%E8%BA%AB%E5%85%88%E9%AA%8C%E2%80%9D%E6%B6%88%E9%99%A4%E8%B7%A8%E6%A8%A1%E5%9E%8B%E9%A3%8E%E6%A0%BC%E5%86%B2%E7%AA%81"><span class="nav-text">01. 数据工程范式：自重标注（SRL）—— 用“自身先验”消除跨模型风格冲突</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%8F%91%E7%8E%B0%E6%9A%97%E5%9D%91%EF%BC%9A%E5%BC%80%E6%BA%90%E6%95%B0%E6%8D%AE%E9%9B%86%E8%83%8C%E5%90%8E%E7%9A%84%E2%80%9C%E9%A3%8E%E6%A0%BC%E5%81%8F%E8%A7%81%E2%80%9D"><span class="nav-text">1. 发现暗坑：开源数据集背后的“风格偏见”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%B7%A5%E7%A8%8B%E7%9B%B4%E8%A7%89%EF%BC%9A%E4%B8%8D%E8%A6%81%E8%AE%A9%E5%BF%8D%E5%8F%97-4-Bit-%E5%99%AA%E5%A3%B0%E7%9A%84%E5%AD%A6%E7%94%9F%E5%8E%BB%E5%AD%A6%E5%88%AB%E4%BA%BA%E7%9A%84%E6%96%B9%E8%A8%80"><span class="nav-text">2. 工程直觉：不要让忍受 4-Bit 噪声的学生去学别人的方言</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E8%AE%AD%E7%BB%83%E8%B0%83%E5%BA%A6%E8%8C%83%E5%BC%8F%EF%BC%9A%E6%B8%90%E8%BF%9B%E5%BC%8F%E5%88%86%E5%9D%97%E6%BF%80%E6%B4%BB%EF%BC%88PBA%EF%BC%89%E2%80%94%E2%80%94-%E7%B3%BB%E7%BB%9F%E7%BA%A7%E2%80%9C%E5%88%86%E9%98%B6%E6%AE%B5%E7%81%B0%E5%BA%A6%E5%8F%91%E5%B8%83%E2%80%9D"><span class="nav-text">02. 训练调度范式：渐进式分块激活（PBA）—— 系统级“分阶段灰度发布”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%8E%A2%E9%92%88%E5%BA%A6%E9%87%8F%EF%BC%9A%E5%AE%9A%E4%BD%8D%E8%B0%81%E6%98%AF%E2%80%9C%E8%A7%86%E8%A7%89%E6%9C%80%E6%95%8F%E6%84%9F%E6%A8%A1%E5%9D%97%E2%80%9D%EF%BC%88-vec-tau-%E5%9B%A0%E5%AD%90%EF%BC%89"><span class="nav-text">1. 探针度量：定位谁是“视觉最敏感模块”（τ⃗\vec{\tau}τ 因子）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%B0%83%E5%BA%A6%E6%89%A7%E8%A1%8C%EF%BC%9ALogarithm-%E6%B8%90%E8%BF%9B%E5%BC%8F%E6%BF%80%E6%B4%BB%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-text">2. 调度执行：Logarithm 渐进式激活流水线</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%88%86%E5%9D%97%E7%B2%92%E5%BA%A6%E7%9A%84%E5%B7%A5%E7%A8%8B%E5%86%B3%E7%AD%96%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%85%E9%A1%BB%E6%98%AF-1-%E4%B8%AA-Decoding-Layer%EF%BC%9F"><span class="nav-text">3. 分块粒度的工程决策：为什么必须是 1 个 Decoding Layer？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E7%AB%AF%E5%88%B0%E7%AB%AF%E5%AE%9E%E7%8E%B0%E7%AE%97%E6%B3%95%E4%B8%8E%E5%BC%80%E9%94%80%E8%B4%A6%E5%8D%95%EF%BC%88Implementation-Details%EF%BC%89"><span class="nav-text">03. 端到端实现算法与开销账单（Implementation Details）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%95%B4%E4%BD%93%E8%AE%AD%E7%BB%83%E4%B8%BB%E5%BE%AA%E7%8E%AF%EF%BC%88%E4%BC%AA%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%EF%BC%89"><span class="nav-text">1. 整体训练主循环（伪代码实现）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%B7%A5%E7%A8%8B%E8%90%BD%E5%9C%B0%E5%8F%82%E6%95%B0%E4%B8%8E%E7%A1%AC%E4%BB%B6%E8%B4%A6%E5%8D%95"><span class="nav-text">2. 工程落地参数与硬件账单</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E7%9C%9F%E5%AE%9E%E8%8A%AF%E7%89%87%E6%89%93%E6%A1%A9%E5%AE%9E%E6%B5%8B%EF%BC%9A22nm-ASIC-%E4%B8%8A%E7%9A%84%E6%80%A7%E8%83%BD%E7%A1%AC%E6%A0%B8%E8%A7%A3%E6%9E%84"><span class="nav-text">04. 真实芯片打桩实测：22nm ASIC 上的性能硬核解构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%AF%84%E6%B5%8B%E6%88%90%E7%BB%A9%E5%8D%95%EF%BC%9A%E5%9F%BA%E5%87%86%E5%87%86%E7%A1%AE%E7%8E%87%E4%B8%8E%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94"><span class="nav-text">1. 评测成绩单：基准准确率与性能对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%A1%AC%E4%BB%B6%E8%A1%8C%E4%B8%BA%E8%A7%A3%E5%AF%86%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88-Decode-%E9%98%B6%E6%AE%B5%E6%8F%90%E9%80%9F%E5%A6%82%E6%AD%A4%E7%A8%B3%E5%AE%9A%EF%BC%9F"><span class="nav-text">2. 硬件行为解密：为什么 Decode 阶段提速如此稳定？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%B8%BA%E4%BB%80%E4%B9%88-Prefill-%E9%98%B6%E6%AE%B5-W4A4-%E8%83%BD%E6%89%93%E5%87%BA-3-28%C3%97-3-64%C3%97-%E7%9A%84%E9%A3%9E%E8%B7%83%EF%BC%9F"><span class="nav-text">3. 为什么 Prefill 阶段 W4A4 能打出 3.28×~3.64× 的飞跃？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E8%AD%A6%E6%83%95%E2%80%9C%E9%98%BF%E5%A7%86%E8%BE%BE%E5%B0%94%E5%AE%9A%E5%BE%8B%EF%BC%88Amdahl%E2%80%99s-law%EF%BC%89%E2%80%9D%E6%9C%A8%E6%A1%B6%E7%9F%AD%E6%9D%BF%EF%BC%9AViT-%E7%93%B6%E9%A2%88"><span class="nav-text">4. 警惕“阿姆达尔定律（Amdahl’s law）”木桶短板：ViT 瓶颈</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E7%BB%99%E8%BD%AF%E4%BB%B6%E4%B8%8E%E7%B3%BB%E7%BB%9F%E5%BC%80%E5%8F%91%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84%E6%9E%B6%E6%9E%84%E5%90%AF%E7%A4%BA"><span class="nav-text">05. 给软件与系统开发工程师的架构启示</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">79</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">273</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/10/ProQuant-EdgeMLLM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】端侧多模态如何压到 4-Bit 还不崩？解密港科大与清华新作 ProQuant 的渐进式量化与自重标注范式 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】端侧多模态如何压到 4-Bit 还不崩？解密港科大与清华新作 ProQuant 的渐进式量化与自重标注范式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-10 13:50:00 / 修改时间：14:11:12" itemprop="dateCreated datePublished" datetime="2026-11-10T13:50:00+08:00">2026-11-10</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>19 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在多模态大模型（MLLM，如 Qwen-VL、InternVL、LLaVA）加速走向端侧智能硬件（智能手机、车机座舱、具身机器人、AI 智能眼镜与工业边缘网关）的过程中，每一位负责模型工程化部署的软件工程师都会撞上一堵冰冷的物理现实之墙：</p>
+<p><strong>16-bit 浮点（BF16/FP16）模型太重了，既吃光了端侧极为拮据的板载内存（DRAM），又在端侧无风扇散热被动受限的微瓦/毫瓦级功耗下频繁触发热降频。</strong></p>
+<p>以一个典型的 2B~3B 端侧多模态模型为例，仅权重本身就需要 4GB~6GB 存储，加上 KV Cache 和激活值，在边缘设备上几乎无法常驻；而端侧边缘 AI 芯片（NPU / ASIC）往往只配置了低功耗的整数计算单元（INT MACs），浮点算力极为昂贵。因此，<strong>将模型做权重与激活值的“双低比特量化”（如 W4A8、W4A4）是端侧部署的必经之路</strong>。</p>
+<p>然而，一旦将模型从 8-bit（W8A8）进一步下压到 4-bit（W4A8/W4A4），工程师们会遭遇灾难性的“量化雪崩”：</p>
+<ul>
+<li><strong>小尺寸模型容错率极低</strong>：在 70B 大模型上表现良好的量化技巧，用到 2B 模型上会瞬间瘫痪；</li>
+<li><strong>视觉认知彻底失控</strong>：直接量化后，语言生成能力尚存，但<strong>多模态图表理解与细粒度感知准确率直接归零（0%）</strong>；</li>
+<li><strong>学术界既有方案的工程落地困境</strong>：许多算法论文引入复杂的在线旋转矩阵（如 Hadamard Rotation），看似刷高了准确率，但在端侧专用芯片上却需要专门开辟硬件逻辑或引入昂贵的额外算子，带来严重的运行时延迟与硬件开销。</li>
+</ul>
+<p>2026 年 11 月，来自香港科技大学（HKUST）、西北工业大学（NWPU）、中国电信人工智能研究院（TeleAI）与清华大学（Tsinghua）的联合研究团队在 arXiv 上发表了针对端侧多模态量化训练的破局之作：</p>
+<blockquote>
+<p><strong>论文题目</strong>：ProQuant: Progressive Quantization-aware Training for Edge MLLMs<br>
+<strong>论文作者</strong>：Yufei Xue, Yushi Huang, Jiawei Shao, Pingcheng Dong, Yonghao Tan, Shiyao Li, Kwang-Ting Cheng, Jun Zhang<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2611.08216" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2611.08216</a><br>
+<strong>HTML 格式</strong>：<a target="_blank" href="https://arxiv.org/html/2611.08216" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2611.08216</a><br>
+<strong>开源代码</strong>：<a target="_blank" href="https://github.com/yufeixue-ai/ProQuant/" rel="external nofollow noreferrer noopener">https://github.com/yufeixue-ai/ProQuant/</a><br>
+<strong>核心成果</strong>：面向端侧多模态的低比特量化感知训练框架 ProQuant，提出自重标注（SRL）消灭数据风格偏差，首创解耦视觉与语言能力的渐进式分块激活（PBA），并在台积电 22nm 真实流片 ASIC 芯片上验证了最高 3.64× 的 Prefill 提速与 3.9× 的 Decode 稳定提速。</p>
+</blockquote>
+<p>本文将摒弃复杂的算法公式堆砌，立足于 <strong>软件开发工程师、系统架构师与后端研发</strong> 的视角，从数据契约对齐、系统分阶段灰度调度、端侧硬件 Memory-bound / Compute-bound 物理瓶颈等工程维度，深度拆解这一极具实用价值的工程落地范式。</p>
+<span id="more"></span>
+<hr>
+<h2 id="00-核心痛点与工程死穴：为什么端侧多模态一量化就“双重雪崩”？">00. 核心痛点与工程死穴：为什么端侧多模态一量化就“双重雪崩”？</h2>
+<p>在软件工程中，遇到系统性能瓶颈，首要任务是明确其物理约束。将大模型从云端机房搬到边缘设备，我们面临的约束发生了本质变化：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">                    【端侧设备的两大物理死穴】</span><br><span class="line">                                │</span><br><span class="line">        ┌───────────────────────┴───────────────────────┐</span><br><span class="line">        ▼                                               ▼</span><br><span class="line">1. 内存带宽与容量墙 (Memory Wall)              2. 算力与能耗墙 (Compute &amp; Power)</span><br><span class="line">• 板载 LPDDR 仅 2GB~8GB (系统与应用共享)         • 无风扇被动散热，TDP 仅数瓦至十几瓦</span><br><span class="line">• 内存总线位宽窄 (仅数十 GB/s vs 云端 HBM 数 TB/s) • 芯片面积受限，浮点运算单元 (FP-MAC) 极其昂贵</span><br></pre></td></tr></table></figure>
+<h3 id="1-为什么“仅量化权重（Weight-Only）”在端侧行不通？">1. 为什么“仅量化权重（Weight-Only）”在端侧行不通？</h3>
+<p>业界很多轻量方案采用 W4A16（权重 4-bit，激活值维持 16-bit 浮点）。这种做法在 PC 端或云端 GPU 上很受欢迎，但在定制化边缘芯片（ASIC/NPU）上却是一个“伪命题”：</p>
+<ul>
+<li><strong>硬件代价高昂</strong>：只要激活值依然是浮点数，芯片内部的核心乘加阵列（MAC）就必须做成浮点计算单元。而一个浮点乘加器的硅片面积和动态功耗是纯整数（INT）乘加器的数倍。</li>
+<li><strong>双量化是硬性要求</strong>：端侧专用芯片若想追求极致性价比与能效比，必须做到<strong>权重与激活值全整型化（W4A8 或 W4A4）</strong>，才能让高密度的整数计算流水线满载狂奔。</li>
+</ul>
+<h3 id="2-传统量化方案在多模态小模型上的三大工程缺陷">2. 传统量化方案在多模态小模型上的三大工程缺陷</h3>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph P1[&quot;缺陷 1：非对称崩溃 (Asymmetric Collapse)&quot;]
+        direction TB
+        M1[&quot;全精度 BF16 模型&quot;] --&gt;|粗暴 4-bit 量化| M2[&quot;低比特学生模型&quot;]
+        M2 --&gt;|语言基座先验依然保留| R1[&quot;文本问答准确率 ~47%&quot;]
+        M2 --&gt;|跨模态对齐链路瞬间崩塌| R2[&quot;图表理解 AI2D 直接归零 (0%)&quot;]
+    end
+
+    subgraph P2[&quot;缺陷 2：数据契约漂移 (Distribution Shift)&quot;]
+        direction TB
+        D1[&quot;开源 LLaVA-680K 数据集&quot;] --&gt;|由外部 GPT-4 标注生成| D2[&quot;偏好绝对空间坐标与刻板词句&quot;]
+        T1[&quot;目标微调模型 (如 Qwen)&quot;] --&gt;|天然具备宏观综合语义偏好| D3[&quot;二者监督信号内在冲突，Loss 震荡&quot;]
+    end
+
+    subgraph P3[&quot;缺陷 3：运行时引入额外算子负债 (Runtime Overhead)&quot;]
+        direction TB
+        A1[&quot;学术界旋转矩阵方案 (Hadamard/Rotation)&quot;] --&gt; A2[&quot;需要在网络层间动态插入在线变换算子&quot;]
+        A2 --&gt; A3[&quot;端侧 ASIC 缺少原生硬件指令，流水线频繁停顿&quot;]
+    end</code></pre>
+<p>针对上述三大工程痛点，论文提出了 <strong>ProQuant（Progressive Quantization-aware Training）</strong> 框架。其核心思想可以用两句话概括：</p>
+<ol>
+<li><strong>在数据端</strong>：用模型自身的 Golden Response 重写训练集，消除风格撕裂（自重标注 SRL）；</li>
+<li><strong>在训练管线端</strong>：像复杂系统灰度上线一样，按模块视觉敏感度分阶段激活量化，优先保住最脆弱的视觉感知路径（渐进式分块激活 PBA）。</li>
+</ol>
+<hr>
+<h2 id="01-数据工程范式：自重标注（SRL）——-用“自身先验”消除跨模型风格冲突">01. 数据工程范式：自重标注（SRL）—— 用“自身先验”消除跨模型风格冲突</h2>
+<p>在分布式系统重构中，最稳妥的回归测试方案不是拿竞品服务的输出来做断言，而是先拿自己重构前的高保真基准版本录制一套“流量回放快照”。</p>
+<p>多模态小模型的量化训练，在本质上也是一场<strong>极端恶劣条件下的模型重构</strong>。</p>
+<h3 id="1-发现暗坑：开源数据集背后的“风格偏见”">1. 发现暗坑：开源数据集背后的“风格偏见”</h3>
+<p>目前学术界与工业界通用的多模态微调语料（如 LLaVA-680K），其标注绝大多数来源于 GPT-4。作者对比了 GPT-4 与目标模型（Qwen3-VL-2B-Instruct）在面对完全相同图像时的生成文本：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">【输入图像】：一张桌子上摆放着各式各样、烘焙精致的花式甜甜圈展示盘</span><br><span class="line">────────────────────────────────────────────────────────────────────────</span><br><span class="line">【GPT-4 标注风格】：强调绝对机械空间与物理坐标</span><br><span class="line">&quot;The image features an assortment of many different types of pastries...</span><br><span class="line"> some in the center of the table, a few closer to the top left corner, </span><br><span class="line"> and several more arranged along the top edge of the scene...&quot;</span><br><span class="line"> (极度偏向“左上角、桌子正中央、右下边缘”，机械死板)</span><br><span class="line"></span><br><span class="line">【Qwen3-VL 自身风格】：强调宏观语义概括与色彩质感</span><br><span class="line">&quot;This photo is about a display of an assortment of colorful and creatively </span><br><span class="line"> decorated donuts... presented in a visually appealing way... different flavors, </span><br><span class="line"> toppings, and textures such as coconut and purple glazed donut...&quot;</span><br><span class="line"> (偏向“场景概括、装饰风格、色彩与口味纹理”，富含高级语义)</span><br><span class="line">────────────────────────────────────────────────────────────────────────</span><br></pre></td></tr></table></figure>
+<h3 id="2-工程直觉：不要让忍受-4-Bit-噪声的学生去学别人的方言">2. 工程直觉：不要让忍受 4-Bit 噪声的学生去学别人的方言</h3>
+<p>在全精度微调时，模型的参数容量巨大，能够勉强兼顾“学习视觉”与“模仿 GPT-4 的口吻”。但在 W4A8 / W4A4 的极端约束下，学生的权重被粗暴压缩到仅有 16 个离散量化阶，此时如果监督信号还在强迫它扭转原本的语言习惯，就会产生剧烈的梯度冲突与振荡：</p>
+<ul>
+<li><strong>自重标注方案（Self-Relabeling, SRL）</strong>：在微调开始前，直接将开源训练集（如 LLaVA-680K）中的 Prompt 和 Image 输入到全精度的目标模型本身中，使用随机采样（Temperature=0.7, Top-p=0.8, Top-k=20）离线全量生成一套全新的监督目标 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mrow><mi>S</mi><mi>R</mi><mi>L</mi></mrow></msub></mrow><annotation encoding="application/x-tex">Y_{SRL}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.2222em;">Y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0576em;">S</span><span class="mord mathnormal mtight" style="margin-right:0.0077em;">R</span><span class="mord mathnormal mtight">L</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>。</li>
+<li><strong>工程收益</strong>：
+<ul>
+<li><strong>完全对齐学生原本的先验分布</strong>：模型微调时无需分心适应陌生口吻，所有的梯度更新全力用于弥合量化带来的精度损伤；</li>
+<li><strong>消灭长尾死循环</strong>：通过设定 <code>max_token_len=512</code> 截断无效长尾输出，大幅提升后续训练流水线的 Batch 吞吐量；</li>
+<li><strong>单机极速生成</strong>：在单台 8×H200 机器上用 vLLM 离线跑完整个 68 万样本仅需约 <strong>2.5 个 GPU 天</strong>。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="02-训练调度范式：渐进式分块激活（PBA）——-系统级“分阶段灰度发布”">02. 训练调度范式：渐进式分块激活（PBA）—— 系统级“分阶段灰度发布”</h2>
+<p>如果一个复杂单体系统要重构降级，最忌讳的做法就是“Big Bang”（一次性在生产环境全量切开关）。明智的架构师一定会先给最脆弱、依赖最多的核心服务做灰度演练。</p>
+<p>传统的 QAT 训练就是典型的 Big Bang 方案：第 0 步就把几十层 Transformer 的权重和激活全部挂上量化伪算子，结果原本脆弱的视觉投影路径瞬间休克。</p>
+<h3 id="1-探针度量：定位谁是“视觉最敏感模块”（-vec-tau-因子）">1. 探针度量：定位谁是“视觉最敏感模块”（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover accent="true"><mi>τ</mi><mo>⃗</mo></mover></mrow><annotation encoding="application/x-tex">\vec{\tau}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.714em;"></span><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.714em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2077em;"><span class="katex-overlay" style="height:0.714em;width:0.471em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.471em" height="0.714em" style="width:0.471em" viewBox="0 0 471 714" preserveAspectRatio="xMinYMin"><path d="M377 20c0-5.333 1.833-10 5.5-14S391 0 397 0c4.667 0 8.667 1.667 12 5
+3.333 2.667 6.667 9 10 19 6.667 24.667 20.333 43.667 41 57 7.333 4.667 11
+10.667 11 18 0 6-1 10-3 12s-6.667 5-14 9c-28.667 14.667-53.667 35.667-75 63
+-1.333 1.333-3.167 3.5-5.5 6.5s-4 4.833-5 5.5c-1 .667-2.5 1.333-4.5 2s-4.333 1
+-7 1c-4.667 0-9.167-1.833-13.5-5.5S337 184 337 178c0-12.667 15.667-32.333 47-59
+H213l-171-1c-8.667-6-13-12.333-13-19 0-4.667 4.333-11.333 13-20h359
+c-16-25.333-24-45-24-59z"/></svg></span></span></span></span></span></span></span></span></span></span> 因子）</h3>
+<p>多模态大模型的 Transformer 每一层内部都同时流淌着视觉 Token 和文本 Token。为了定量探查每一层到底有多依赖视觉，论文设计了一个轻量级梯度探针——<strong>视觉敏感度因子 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi></mrow><annotation encoding="application/x-tex">\tau</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span></span></span></strong>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msup><mi>τ</mi><mi>i</mi></msup><mo>=</mo><mfrac><mi>K</mi><msub><mi>K</mi><mi>v</mi></msub></mfrac><mo>⋅</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>K</mi><mi>v</mi></msub></munderover><mi mathvariant="normal">∥</mi><msubsup><mi mathvariant="bold">G</mi><mi>v</mi><mi>i</mi></msubsup><mo stretchy="false">[</mo><mi>k</mi><mo separator="true">,</mo><mo>:</mo><mo stretchy="false">]</mo><msub><mi mathvariant="normal">∥</mi><msub><mi mathvariant="normal">ℓ</mi><mn>1</mn></msub></msub></mrow><mrow><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>K</mi></munderover><mi mathvariant="normal">∥</mi><msup><mi mathvariant="bold">G</mi><mi>i</mi></msup><mo stretchy="false">[</mo><mi>j</mi><mo separator="true">,</mo><mo>:</mo><mo stretchy="false">]</mo><msub><mi mathvariant="normal">∥</mi><msub><mi mathvariant="normal">ℓ</mi><mn>1</mn></msub></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">\tau^i = \frac{K}{K_v} \cdot \frac{\sum_{k=1}^{K_v} \|\mathbf{G}_{v}^i[k, :]\|_{\ell_1}}{\sum_{j=1}^{K} \|\mathbf{G}^i[j, :]\|_{\ell_1}}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8747em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8747em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.1963em;vertical-align:-0.836em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">v</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.836em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.978em;vertical-align:-1.307em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6709em;"><span style="top:-2.1288em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9812em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0715em;">K</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4358em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">∥</span><span class="mord"><span class="mord mathbf">G</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7507em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.0572em;">j</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mclose">]</span><span class="mord"><span class="mord">∥</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mtight">ℓ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.6897em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9812em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0715em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1645em;"><span style="top:-2.357em;margin-left:-0.0715em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">v</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">∥</span><span class="mord"><span class="mord mathbf">G</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8247em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">v</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.0315em;">k</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">:</span><span class="mclose">]</span><span class="mord"><span class="mord">∥</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mtight">ℓ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.307em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>K</mi><mi>v</mi></msub></mrow><annotation encoding="application/x-tex">K_v</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">v</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 与 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span> 分别为视觉 Token 数和全局 Token 总数；</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi mathvariant="bold">G</mi><mi>v</mi><mi>i</mi></msubsup></mrow><annotation encoding="application/x-tex">\mathbf{G}_{v}^i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0717em;vertical-align:-0.247em;"></span><span class="mord"><span class="mord mathbf">G</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8247em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">v</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span></span></span></span> 是该层对视觉 Token 的输出梯度，分母是该层全部 Token 的输出梯度总模长。</li>
+<li><strong>物理含义</strong>：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>τ</mi><mi>i</mi></msup><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\tau^i &gt; 1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8638em;vertical-align:-0.0391em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8247em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span> 说明该层视觉 Token 引起的梯度波动显著高于平均值，是典型的<strong>视觉敏感块（VSB, Vision-Sensitive Block）</strong>；反之则是<strong>文本敏感块（TSB）</strong>。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">【Qwen3-VL-2B 共 28 层 Decoding Layers 的敏感度实测分布】</span><br><span class="line"></span><br><span class="line"> 层号:   Layer 0 ──► Layer 8 ──────► Layer 18 ──────► Layer 27</span><br><span class="line">        [ 浅层输入区 ]        [ 核心中层融合区 ]         [ 深层输出决策区 ]</span><br><span class="line"> 属性:      TSB                   VSB                     TSB</span><br><span class="line"> τ 曲线:  低 (文本为主)       高峰凸起 (视觉敏感主干)      低 (文本生成为主)</span><br></pre></td></tr></table></figure>
+<p><strong>关键事实</strong>：模型对图像的深层理解完全锚定在<strong>网络的中部层</strong>。浅层主要做局部特征初筛，深层已经收敛到具体的文字 Token 预测上。</p>
+<h3 id="2-调度执行：Logarithm-渐进式激活流水线">2. 调度执行：Logarithm 渐进式激活流水线</h3>
+<p>ProQuant 提出了 <strong>渐进式分块激活（Progressive Block Activation, PBA）</strong> 机制。训练不再一视同仁，而是严格按照 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi></mrow><annotation encoding="application/x-tex">\tau</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span></span></span> 值的降序，先将量化加在最脆弱的中层（VSB），其余层保持 BF16 精度作为“绝缘保护伞”，随后逐步灰度到外围层：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph S1[&quot;阶段 1：0% ~ 30% 训练步数 (先攻坚最脆弱模块)&quot;]
+        direction LR
+        L_mid1[&quot;前 50% 视觉敏感中层 (高 τ)&quot;] --&gt;|开启 4-bit 量化| O1[&quot;在 BF16 稳定保护下优先修复跨模态对齐&quot;]
+        L_side1[&quot;浅层 &amp; 深层 (50%)&quot;] --&gt;|保持 BF16 高精度| O1
+    end
+
+    subgraph S2[&quot;阶段 2 &amp; 3：30% ~ 50% 步数 (对数级灰度推进)&quot;]
+        direction LR
+        P2[&quot;30% 步数: 激活至 75% 层&quot;] --&gt; P3[&quot;40% 步数: 激活至 88% 层&quot;] --&gt; P4[&quot;50% 步数: 激活至 100% 层&quot;]
+    end
+
+    subgraph S3[&quot;阶段 4：50% ~ 100% 步数 (全局端到端收敛)&quot;]
+        direction LR
+        P_all[&quot;100% 层全量处于低比特状态&quot;] --&gt;|统一 Post-hoc 收尾微调| Final[&quot;最终产出极致稳健的量化模型&quot;]
+    end
+
+    S1 ==&gt; S2 ==&gt; S3</code></pre>
+<h3 id="3-分块粒度的工程决策：为什么必须是-1-个-Decoding-Layer？">3. 分块粒度的工程决策：为什么必须是 1 个 Decoding Layer？</h3>
+<p>作者在消融实验中探索了分块粒度对系统收敛的影响：</p>
+<ul>
+<li><strong>0.5 层（拆分 Attention 与 FFN）</strong>：导致同一层内部 Attention 和 FFN 激活时机不同步，引入层内相位差，最终准确率反而下降 0.39%；</li>
+<li><strong>2 层打包（Coarse-grained）</strong>：粒度太粗，导致高敏感层和钝感层被强行绑定在同一个阶段降级，准确率骤降 2.26%；</li>
+<li><strong>1 个 Decoding Layer（Fine-grained）</strong>：<strong>最佳甜蜜点</strong>。既保证了单层模块内张量变换的自洽性，又精准隔离了层间的敏感度梯度。</li>
+</ul>
+<hr>
+<h2 id="03-端到端实现算法与开销账单（Implementation-Details）">03. 端到端实现算法与开销账单（Implementation Details）</h2>
+<p>对于工程团队来说，技术方案能否落地，不仅看理论上限，更看<strong>研发开销、训练时长与依赖复杂度</strong>。</p>
+<h3 id="1-整体训练主循环（伪代码实现）">1. 整体训练主循环（伪代码实现）</h3>
+<p>ProQuant 的训练逻辑高度精简，在现有 HuggingFace / DeepSpeed 训练管线上改造成本极低：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 算法核心流程：ProQuant Trainer 简化逻辑</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">proquant_training_loop</span>(<span class="params">teacher_model_fp, student_model_q, dataloader, total_steps</span>):</span><br><span class="line">    <span class="comment"># 灰度激活时间节点与目标层数预算 (对数调度)</span></span><br><span class="line">    schedule_steps = [<span class="number">0</span>, <span class="built_in">int</span>(<span class="number">0.3</span> * total_steps), <span class="built_in">int</span>(<span class="number">0.4</span> * total_steps), <span class="built_in">int</span>(<span class="number">0.5</span> * total_steps)]</span><br><span class="line">    block_budgets = [<span class="number">0.50</span>, <span class="number">0.75</span>, <span class="number">0.88</span>, <span class="number">1.00</span>]</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 预先根据少量样本前向反向，计算每层的视觉敏感度 tau 向量</span></span><br><span class="line">    tau_scores = compute_vision_sensitivity(student_model_q, dataloader)</span><br><span class="line">    sorted_layer_indices = argsort_descending(tau_scores)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> step, batch <span class="keyword">in</span> <span class="built_in">enumerate</span>(dataloader):</span><br><span class="line">        <span class="comment"># 1. 如果到达灰度晋级节点，扩展量化层范围</span></span><br><span class="line">        <span class="keyword">if</span> step <span class="keyword">in</span> schedule_steps:</span><br><span class="line">            stage_idx = schedule_steps.index(step)</span><br><span class="line">            num_quant_layers = <span class="built_in">int</span>(total_layers * block_budgets[stage_idx])</span><br><span class="line">            active_layers = sorted_layer_indices[:num_quant_layers]</span><br><span class="line">            student_model_q.activate_quantization(active_layers)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 2. 教师模型 (BF16) 与 学生模型 (低比特) 同步前向</span></span><br><span class="line">        logits_fp = teacher_model_fp(batch)</span><br><span class="line">        logits_q = student_model_q(batch)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 3. 计算三元多目标损失函数 (Eq. A2)</span></span><br><span class="line">        <span class="comment"># 前向 KL (覆盖多样性) + 反向 KL (聚焦模式) + 交叉熵 (真实标签约束)</span></span><br><span class="line">        loss = alpha * F.kl_div(logits_q, logits_fp) + \</span><br><span class="line">               (<span class="number">1</span> - alpha) * F.kl_div(logits_fp, logits_q) + \</span><br><span class="line">               beta * F.cross_entropy(logits_q, batch[<span class="string">&quot;y_srl&quot;</span>])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 4. 梯度反传与参数更新</span></span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line">        optimizer.zero_grad()</span><br></pre></td></tr></table></figure>
+<h3 id="2-工程落地参数与硬件账单">2. 工程落地参数与硬件账单</h3>
+<ul>
+<li><strong>技术栈依赖</strong>：标准 PyTorch + DeepSpeed，完全兼容主流大模型训练生态。</li>
+<li><strong>显存节约技巧</strong>：<strong>完全冻结视觉编码器（ViT）</strong>，只训练 LLM 语言骨干网络及其量化 Scale 参数，显存开销大幅下降。</li>
+<li><strong>算力开销总账单（以 2B 模型为例）</strong>：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">阶段</th>
+<th style="text-align:left">执行内容</th>
+<th style="text-align:left">使用硬件</th>
+<th style="text-align:left">耗时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>数据准备 (SRL)</strong></td>
+<td style="text-align:left">使用全精度模型重标注 680K 样本</td>
+<td style="text-align:left" rowspan="2">单节点 8 × H200</td>
+<td style="text-align:left">~2.5 GPU 天</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>量化训练 (PBA)</strong></td>
+<td style="text-align:left">5 个 Epoch 低比特微调 (Batch Size=32)</td>
+<td style="text-align:left">~2.0 GPU 天</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>总计成本</strong></td>
+<td style="text-align:left"><strong>端到端一站式交付高保真 W4A8 模型</strong></td>
+<td style="text-align:left"><strong>单机 8 卡</strong></td>
+<td style="text-align:left"><strong>4.5 GPU 天（约 14 小时即可跑完）</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="04-真实芯片打桩实测：22nm-ASIC-上的性能硬核解构">04. 真实芯片打桩实测：22nm ASIC 上的性能硬核解构</h2>
+<p>不同于许多仅在 GPU 上模拟浮点时延的论文，作者团队将量化模型真正烧录进了<strong>台积电（TSMC）22nm 工艺定制流片的端侧 MLLM 专用加速芯片（ASIC）</strong>，配合 Linux FPGA 平台完成了真实闭环测量。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────────────────────────────────────────────────────────┐</span><br><span class="line">│             测试硬件规格：TSMC 22nm 边缘多模态专用加速芯片 (ASIC)          │</span><br><span class="line">├────────────────────────────────────────────────────────────────────────┤</span><br><span class="line">│ • 算力阵列：2 个混合精度张量引擎 (MPTE)，含 2048 个 MACs，INT8 算力 2.46 TOPS │</span><br><span class="line">│ • 精度支持：原生支持 BF16、INT8、INT4 权重与激活矩阵运算                │</span><br><span class="line">│ • 片上存储：4MB 全局 Token 缓存 + 4MB 权重缓存                         │</span><br><span class="line">│ • 板载内存：8GB 外部 DDR4，提供 38.4 GB/s 内存带宽                     │</span><br><span class="line">└────────────────────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+<p>在这块真实的端侧硬件上，测试结果生动地展现了体系结构中的经典规律：</p>
+<h3 id="1-评测成绩单：基准准确率与性能对比">1. 评测成绩单：基准准确率与性能对比</h3>
+<p>在涵盖文档理解（DocVQA）、图表解析（ChartQA）、综合推理（MMMU, ScienceQA）等多项基准上，Qwen3-VL-2B-Instruct 的实测表现如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">量化模式</th>
+<th style="text-align:left">量化方案</th>
+<th style="text-align:left">平均准确率 (Avg Acc)</th>
+<th style="text-align:left">相对 BF16 跌幅</th>
+<th style="text-align:left">端侧硬件适配度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>全精度 BF16</strong></td>
+<td style="text-align:left">Baseline 基线</td>
+<td style="text-align:left">73.57%</td>
+<td style="text-align:left">-</td>
+<td style="text-align:left">内存超标，功耗过大</td>
+</tr>
+<tr>
+<td style="text-align:left" rowspan="2"><strong>W4A8 (中度压缩)</strong></td>
+<td style="text-align:left">传统 PTQ (MBQ)</td>
+<td style="text-align:left">65.94%</td>
+<td style="text-align:left">-7.63% (严重退化)</td>
+<td style="text-align:left">优</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>ProQuant (本文)</strong></td>
+<td style="text-align:left"><strong>72.54%</strong></td>
+<td style="text-align:left"><strong>仅 -1.03% (几乎无损)</strong></td>
+<td style="text-align:left"><strong>极佳 (零额外算子)</strong></td>
+</tr>
+<tr>
+<td style="text-align:left" rowspan="2"><strong>W4A4 (极致低比特)</strong></td>
+<td style="text-align:left">传统 PTQ (MBQ)</td>
+<td style="text-align:left">39.81%</td>
+<td style="text-align:left">-33.76% (模型彻底报废)</td>
+<td style="text-align:left">优</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>ProQuant (本文)</strong></td>
+<td style="text-align:left"><strong>59.83%</strong></td>
+<td style="text-align:left"><strong>稳健可用 (+20.02% 绝对反超)</strong></td>
+<td style="text-align:left"><strong>极佳 (纯整数阵列)</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-硬件行为解密：为什么-Decode-阶段提速如此稳定？">2. 硬件行为解密：为什么 Decode 阶段提速如此稳定？</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">【输入配置：256 图像 Token + 256 文本 Token 下的实测数据 (Qwen2.5-VL-3B)】</span><br><span class="line"></span><br><span class="line">┌─────────────────┬───────────────────┬───────────────────┐</span><br><span class="line">│ 运行阶段        │ W4A8 表现         │ W4A4 表现         │</span><br><span class="line">├─────────────────┼───────────────────┼───────────────────┤</span><br><span class="line">│ Prefill (首字)  │ 提速 1.89×, 省能 3.04×│ 提速 3.28×, 省能 4.66×│</span><br><span class="line">├─────────────────┼───────────────────┼───────────────────┤</span><br><span class="line">│ Decode (吐字)   │ 提速 3.93×, 省能 3.97×│ 提速 3.98×, 省能 3.99×│</span><br><span class="line">└─────────────────┴───────────────────┴───────────────────┘</span><br></pre></td></tr></table></figure>
+<p>仔细观察上表，会发现一个极具工程趣味的现象：<strong>在 Decode 阶段，无论是 W4A8 还是 W4A4，提速比都整整齐齐地收敛在 ~3.9× 左右，为什么？</strong></p>
+<ul>
+<li><strong>Decode 是典型的 Memory-Bound 场景</strong>：大模型生成时逐字吐 Token，计算强度（FLOPs/Byte）极低，每个 Token 都要将全量权重从板载 DDR 搬进片上 SRAM。</li>
+<li><strong>物理带宽直接翻倍</strong>：原本 16-bit（2 字节）的权重在 4-bit（0.5 字节）下体积直接缩水至 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>4</mn></mfrac></mrow><annotation encoding="application/x-tex">\frac{1}{4}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.1901em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">4</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>。受限的总线带宽搬运耗时瞬间压缩至 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>25</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">25\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">25%</span></span></span></span>，因此吞吐直接逼近理论极限的 <strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mo>×</mo></mrow><annotation encoding="application/x-tex">4\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">4</span><span class="mord">×</span></span></span></span>（实测 3.9×~3.98×）</strong>。此时激活值是 8-bit 还是 4-bit，对显存带宽的冲击已经微乎其微。</li>
+</ul>
+<h3 id="3-为什么-Prefill-阶段-W4A4-能打出-3-28×-3-64×-的飞跃？">3. 为什么 Prefill 阶段 W4A4 能打出 3.28×~3.64× 的飞跃？</h3>
+<ul>
+<li><strong>Prefill 是典型的 Compute-Bound 场景</strong>：在处理几百上千个视觉提示词时，矩阵维度变大，芯片进入高度密集的矩阵乘法状态。</li>
+<li><strong>INT4 纯整型乘加器的威力</strong>：芯片内部的计算单元在 INT4 模式下的吞吐能力是 INT8 的两倍。算力瓶颈被有效打破，直接拉升了整体推理时效。</li>
+</ul>
+<h3 id="4-警惕“阿姆达尔定律（Amdahl’s-law）”木桶短板：ViT-瓶颈">4. 警惕“阿姆达尔定律（Amdahl’s law）”木桶短板：ViT 瓶颈</h3>
+<p>在实测中，作者指出了一条极其珍贵的部署陷阱：<strong>当输入图像分辨率增加、视觉 Token 从 256 增加到 1024 时，整机的端到端加速比反而下降了（例如从 1.89× 掉到 1.70×）！</strong></p>
+<ul>
+<li><strong>原因揭秘</strong>：为了保住精细视觉特征，前端的 ViT 图像编码器被保留在 BF16 精度。</li>
+<li><strong>阿姆达尔定律生效</strong>：当图像变大，运行在低算力 BF16 模式下的 ViT 耗时占比从原本的 5% 激增到 30% 以上。即便后面的 LLM 提速了 4 倍，整体速度依然被未经量化的 ViT 短板无情拖累。这提示我们在未来的端侧全链路优化中，前端视觉编码器的轻量化同样至关重要。</li>
+</ul>
+<hr>
+<h2 id="05-给软件与系统开发工程师的架构启示">05. 给软件与系统开发工程师的架构启示</h2>
+<p>ProQuant 不仅是一篇模型量化论文，其蕴含的方法论对于分布式系统研发、复杂业务重构与高性能服务治理同样具备高度的指导意义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────────────────────────────────────────┐</span><br><span class="line">│                ProQuant 的四大系统工程哲学              │</span><br><span class="line">├────────────────────────────────────────────────────────┤</span><br><span class="line">│ 1. 契约一致性高于数据规模 (Contract Alignment Over Scale) │</span><br><span class="line">│ 2. 区分脆弱度灰度降级 (Vulnerability-Aware Canary)     │</span><br><span class="line">│ 3. 运行期零额外负债 (Zero Runtime Overhead)             │</span><br><span class="line">│ 4. 体系结构瓶颈的精准把控 (IO-bound vs CPU-bound)       │</span><br><span class="line">└────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>协议/契约一致性高于单纯的数据堆砌（SRL 的哲学）</strong>：
+<ul>
+<li>许多工程师在做模型微调或 Agent 提示词工程时，迷信“调用最强模型生成海量数据”。然而，如果上游生成的数据风格与下游模型内在的先验协议不一致，这种“脏数据”带来的噪音可能远大于增益。<strong>优先保证端到端上下文协议的纯净与同构，往往能用极小的数据量取得最高质量的系统表现</strong>。</li>
+</ul>
+</li>
+<li><strong>高风险技术改造必须有“敏感度探针”与“灰度调度器”（PBA 的哲学）</strong>：
+<ul>
+<li>在涉及核心数据库分库分表、底座网络协议重构等系统级“降级/重构”操作时，切忌全量切换。应该像 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>τ</mi></mrow><annotation encoding="application/x-tex">\tau</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span></span></span> 探针一样，先在监控中识别出对变更最敏感的核心业务链路，给次要模块保留高可用保护伞，优先将关键路径适配完成，再逐步推进全量灰度。</li>
+</ul>
+</li>
+<li><strong>不要为了算法指标向运行期转移技术负债（Zero Runtime Overhead）</strong>：
+<ul>
+<li>优秀的技术架构绝不应该把复杂度抛给下游运行时。ProQuant 宁可在离线训练期多花几天时间跑 SRL 和 PBA，也坚决不在推理期增加任何非标算子（如旋转矩阵）。<strong>把复杂度吃在离线编译期，把极简留给线上执行路径</strong>，是高性能工业系统永远的设计准则。</li>
+</ul>
+</li>
+<li><strong>性能排查先定性：永远分清是带宽墙还是算力墙</strong>：
+<ul>
+<li>当服务吞吐上不去时，先看火焰图：是类似于 Decode 的高频微小 IO 搬运（Memory/Network-bound），还是类似于 Prefill 的重度批量运算（Compute-bound）？前者靠压缩协议体积与批量聚合（Batching/Quantization）解题，后者靠并发流水线与低精度整型算力提升解题。对症下药，方能事半功倍。</li>
+</ul>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" rel="tag"># 性能优化</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%B7%A5%E7%A8%8B/" rel="tag"># 系统工程</a>
+              <a href="/tags/%E6%A8%A1%E5%9E%8B%E9%87%8F%E5%8C%96/" rel="tag"># 模型量化</a>
+              <a href="/tags/QAT/" rel="tag"># QAT</a>
+              <a href="/tags/%E7%AB%AF%E4%BE%A7%E9%83%A8%E7%BD%B2/" rel="tag"># 端侧部署</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/10/UMBench-EvidenceFirstCoT/" rel="next" title="【论文分享】大模型也会“凭经验瞎猜”？解密 UMBench 与 Evidence-First CoT 的零微调契约式推理范式">
+                  【论文分享】大模型也会“凭经验瞎猜”？解密 UMBench 与 Evidence-First CoT 的零微调契约式推理范式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">343k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">20:46</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>

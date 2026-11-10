@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">270</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">78</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">273</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">79</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">78</span>
+          <span class="site-state-item-count">79</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">270</span>
+        <span class="site-state-item-count">273</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,124 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/09/THG-Omni-VideoReasoning/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/09/THG-Omni-VideoReasoning/" class="post-title-link" itemprop="url">【论文分享】告别多模态黑盒“盲猜”：解密 THG-Omni 如何用时空实体图破除长视频因果推理的“不可追溯魔咒”</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-09 15:30:00" itemprop="dateCreated datePublished" datetime="2026-11-09T15:30:00+08:00">2026-11-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-10 14:11:12" itemprop="dateModified" datetime="2026-11-10T14:11:12+08:00">2026-11-10</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态大模型（Omni-Modal / Video-LLMs）大行其道的今天，软件开发工程师与系统架构师们在尝试将其引入生产业务（如复杂视频审核、审讯记录分析、金融理赔验真、社交智能体）时，最常遭遇的生产级困境就是——<strong>大模型像一个庞大而混乱的“单体黑盒（Monolithic Black Box）”，做出了决策却完全无法给出可靠的调用栈与证据链。</strong></p>
+<p>一段涉及多人复杂互动的监控或会议视频，当模型给出结论：“候选人在第 5 分钟给出了虚假陈述”时：</p>
+<ul>
+<li>它究竟依据了哪一个人的动作？</li>
+<li>依赖了画面里的哪几秒时间切片？</li>
+<li>是因为眼神游移的微表情、手部动作的小幅颤抖，还是语音语调的迟疑？</li>
+</ul>
+<p>传统端到端多模态大模型对此一概 <strong>“无法回答”</strong>。在严肃的企业级生产环境中，一个 <strong>没有 Stack Trace、没有 Span ID、无法被单步断点调试与审计复核</strong> 的黑盒模型，是极度危险且难以落地的。</p>
+<p>2026 年 11 月，来自兰州大学、中山大学、北京理工大学、华为云人工智能团队与新加坡国立大学（NUS）的联合研究团队在 arXiv 上发表了前沿重磅论文：</p>
+<blockquote>
+<p><strong>《THG-Omni: Traceable Human-Centric Graph Supervision for Video Reasoning》</strong> (arXiv:2611.07836, 2026)</p>
+</blockquote>
+<p>论文提出了 <strong>THG-Omni（基于可追溯人本时空图监督的视频推理框架）</strong>。作者团队跳出了“全靠大模型硬吞像素像素”的传统思维，引入了编译原理中的<strong>中间表示（IR）<strong>思想：利用 SAM-3 实现物理实体的时空追踪，结合 Qwen3-VL 进行原子级语义切片提炼，并通过严格的音视频交叉断言校验，在感知与推理之间构建了一座</strong>“确定性时空实体关系图”</strong>。</p>
+<p>这套架构不仅让长视频多模态推理具备了清晰的<strong>端到端链路追踪能力</strong>，在 NExT-QA 和 IntentBench 等硬核基准上斩获显著突破（准确率最高达 <strong>89.54%</strong>），更为 <strong>60 分钟以上超长视频的万倍信息降维与检索推理</strong> 提供了兼具工程美感与工业可行性的架构范本！</p>
+<blockquote>
+<p><strong>论文题目</strong>：THG-Omni: Traceable Human-Centric Graph Supervision for Video Reasoning<br>
+<strong>作者团队</strong>：Jisheng Dang, Kai Wei, Ronghao Lin, Bimei Wang, Hong Peng, Wei-Shi Zheng, Bin Hu, Qi Tian, Tat-Seng Chua (Lanzhou Univ, SYSU, BIT, Huawei Cloud, NUS)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.07836">https://arxiv.org/abs/2611.07836</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.07836v1">https://arxiv.org/html/2611.07836v1</a><br>
+<strong>核心领域</strong>：Omni-modal Models, Video Reasoning, Human-Centric Video Understanding, Spatio-Temporal Scene Graphs, Traceability, Explainable AI</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/09/THG-Omni-VideoReasoning/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +350,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 14:11:12" itemprop="dateModified" datetime="2026-11-10T14:11:12+08:00">2026-11-10</time>
     </span>
 
   
@@ -344,7 +462,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 14:11:12" itemprop="dateModified" datetime="2026-11-10T14:11:12+08:00">2026-11-10</time>
     </span>
 
   
@@ -456,7 +574,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 14:11:12" itemprop="dateModified" datetime="2026-11-10T14:11:12+08:00">2026-11-10</time>
     </span>
 
   
@@ -557,7 +675,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 14:11:12" itemprop="dateModified" datetime="2026-11-10T14:11:12+08:00">2026-11-10</time>
     </span>
 
   
@@ -626,120 +744,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/03/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/03/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/" class="post-title-link" itemprop="url">【论文分享】告别昂贵的人工标注：NeurIPS 2026 EvoGround 开启视频时序定位的“双智能体自进化”新范式</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-03 11:25:00" itemprop="dateCreated datePublished" datetime="2026-11-03T11:25:00+08:00">2026-11-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.5k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>13 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在多模态视频理解与检索领域，<strong>视频时序定位（Video Temporal Grounding, VTG）</strong> 一直是连接自然语言与长视频语义的核心纽带：给定一段未经剪辑的原始长视频，外加一句自然语言查询（如 <em>“小女孩吹灭生日蛋糕上的蜡烛”</em>），算法需要精确输出该事件在视频时间轴上的<strong>起始与结束时间戳（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><msub><mi>t</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[t_{start}, t_{end}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>）</strong>。</p>
-<p>这项技术是短视频切片、长视频精准定位搜索、安防事件追踪以及多模态 RAG 的核心底座。然而，长期制约该领域工业化落地与学术演进的最大枷锁只有四个字——<strong>人工标注</strong>。</p>
-<p>为一段未剪辑长视频标注毫秒级起止点和精准描述（Query-Moment Pair），其时间与金钱成本极为高昂，且遇到特定行业（如工业流水线、医疗手术、私有业务监控）时，市面上根本没有现成标注可用。</p>
-<p>近日，首尔大学与达特茅斯学院团队在被 <strong>NeurIPS 2026</strong> 录用的重磅论文中交出了一份惊艳的答卷：</p>
-<blockquote>
-<p><strong>《EvoGround: Self-Evolving Video Agents for Video Temporal Grounding》</strong> (arXiv: 2605.13803v2)</p>
-</blockquote>
-<p>该论文提出了一种全新的 <strong>自进化强化学习训练范式</strong>：模型无需任何人手标注的训练集，只需给它“喂”未经标注的原始裸视频，系统内部的 <strong>出题人（Proposer）</strong> 与 <strong>解题人（Solver）</strong> 双智能体便能通过强化学习自我对弈、双向演化。其零样本定位能力甚至超越了许多完全依赖人工高成本训练的有监督主流模型。</p>
-<blockquote>
-<p><strong>论文题目</strong>：EvoGround: Self-Evolving Video Agents for Video Temporal Grounding<br>
-<strong>作者团队</strong>：Minjoon Jung, Byoung-Tak Zhang, Lorenzo Torresani (Seoul National University, Dartmouth College)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2605.13803">https://arxiv.org/abs/2605.13803</a><br>
-<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2605.13803v2">https://arxiv.org/html/2605.13803v2</a><br>
-<strong>项目主页</strong>：<a target="_blank" rel="noopener" href="https://minjoong507.github.io/projects/EvoGround/">https://minjoong507.github.io/projects/EvoGround/</a><br>
-<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/minjoong507/EvoGround">https://github.com/minjoong507/EvoGround</a><br>
-<strong>核心领域</strong>：Video Temporal Grounding, Multimodal LLMs, Reinforcement Learning, Self-Evolving Agents, GRPO</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/03/EvoGround-SelfEvolvingVideoAgents-TemporalGrounding/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -764,14 +768,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">337k</span>
+    <span title="站点总字数">343k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">20:27</span>
+    <span title="站点阅读时长">20:46</span>
   </span>
 </div>
 <div class="busuanzi-count">
