@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在多模态与长视频处理领域，时序定位（Temporal Grounding） 是一项至关重要的核心基础设施能力：给定一段长视频和一个自然语言查询（例如：“讲师是在哪一分哪一秒第一次引入反向传播概念的？”），系统需要精准返回事件发生的起止时间戳 [tstart,tend][t_{start}, t_{end}][tstart​,tend​]。 然而，过去的学术研究长期陷入了 “短视频刷榜的虚假繁荣”—">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】长视频定位不是识别而是搜索：ExtremeWhenBench 揭秘小时级时序定位的工程断层与两阶段破局">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/07/12/ExtremeWhenBench-HourVideoGrounding/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在多模态与长视频处理领域，时序定位（Temporal Grounding） 是一项至关重要的核心基础设施能力：给定一段长视频和一个自然语言查询（例如：“讲师是在哪一分哪一秒第一次引入反向传播概念的？”），系统需要精准返回事件发生的起止时间戳 [tstart,tend][t_{start}, t_{end}][tstart​,tend​]。 然而，过去的学术研究长期陷入了 “短视频刷榜的虚假繁荣”—">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-12T10:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-10T10:21:48.251Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="ExtremeWhenBench">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="架构设计">
+<meta property="article:tag" content="系统工程">
+<meta property="article:tag" content="视频时序定位">
+<meta property="article:tag" content="视频检索">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/07/12/ExtremeWhenBench-HourVideoGrounding/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/07/12/ExtremeWhenBench-HourVideoGrounding/","path":"papers/2026/07/12/ExtremeWhenBench-HourVideoGrounding/","title":"【论文分享】长视频定位不是识别而是搜索：ExtremeWhenBench 揭秘小时级时序定位的工程断层与两阶段破局"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】长视频定位不是识别而是搜索：ExtremeWhenBench 揭秘小时级时序定位的工程断层与两阶段破局 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">277</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">83</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%A1%8C%E4%B8%9A%E7%97%9B%E7%82%B9%EF%BC%9A%E5%8D%95%E4%BD%93%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9C%A8%E9%95%BF%E8%A7%86%E9%A2%91%E4%B8%AD%E7%9A%84%E2%80%9C%E5%85%A8%E8%A1%A8%E6%89%AB%E6%8F%8F%E7%81%BE%E9%9A%BE%E2%80%9D"><span class="nav-text">01. 行业痛点：单体大模型在长视频中的“全表扫描灾难”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E9%A2%A0%E8%A6%86%E7%9B%B4%E8%A7%89%E7%9A%84%E5%AE%9E%E6%B5%8B%EF%BC%9A2021-%E5%B9%B4%E7%9A%84-CLIP-%E4%B8%BA%E4%BD%95%E5%8F%8D%E6%9D%80%E4%BA%86%E6%89%80%E6%9C%89%E5%A4%A7%E6%A8%A1%E5%9E%8B%EF%BC%9F"><span class="nav-text">02. 颠覆直觉的实测：2021 年的 CLIP 为何反杀了所有大模型？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%AE%9E%E9%AA%8C%E6%8C%87%E6%A0%87%E5%AF%B9%E6%AF%94%EF%BC%88Charades-STA-vs-ExtremeWhenBench%EF%BC%89"><span class="nav-text">核心实验指标对比（Charades-STA vs. ExtremeWhenBench）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E5%87%BA%E7%8E%B0%E8%BF%99%E7%A7%8D%E2%80%9C%E5%80%92%E6%8C%82%E2%80%9D%EF%BC%9F%E6%95%85%E9%9A%9C%E5%BD%92%E5%9B%A0%E5%88%86%E6%9E%90%EF%BC%88Failure-Taxonomy%EF%BC%89"><span class="nav-text">为什么会出现这种“倒挂”？故障归因分析（Failure Taxonomy）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%A0%B8%E5%BF%83%E9%87%8D%E7%82%B9%EF%BC%9AExtremeWhenBench-%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90"><span class="nav-text">03. 核心重点：ExtremeWhenBench 深度剖析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E7%9B%B4%E6%8E%A5%E6%8B%BF%E7%9F%AD%E8%A7%86%E9%A2%91%E5%8A%A0-Padding-%E5%87%91%E6%95%B0%EF%BC%9F"><span class="nav-text">1. 为什么不能直接拿短视频加 Padding 凑数？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%95%B0%E6%8D%AE%E9%9B%86%E6%A0%B8%E5%BF%83%E8%B5%84%E4%BA%A7%E4%B8%8E%E7%BB%9F%E8%AE%A1%E8%A7%84%E6%A8%A1"><span class="nav-text">2. 数据集核心资产与统计规模</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%B8%83%E9%98%B6%E6%AE%B5%EF%BC%88P0-P6%EF%BC%89%E5%B7%A5%E4%B8%9A%E7%BA%A7%E6%95%B0%E6%8D%AE%E7%94%9F%E4%BA%A7%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-text">3. 七阶段（P0~P6）工业级数据生产流水线</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E9%98%B6%E6%AE%B5%E7%9A%84%E5%B7%A5%E7%A8%8B%E8%90%BD%E5%9C%B0%E5%B7%A7%E6%80%9D"><span class="nav-text">关键阶段的工程落地巧思</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E7%A0%B4%E5%B1%80%E4%B9%8B%E9%81%93%EF%BC%9ARetrieve-then-Ground-%E6%B7%B7%E5%90%88%E6%9E%B6%E6%9E%84"><span class="nav-text">04. 破局之道：Retrieve-then-Ground 混合架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%A4%E9%98%B6%E6%AE%B5%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%B7%A5%E7%A8%8B%E6%94%B6%E7%9B%8A"><span class="nav-text">两阶段系统的工程收益</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E8%BF%9B%E9%98%B6%E8%AF%84%E6%B5%8B%E6%8C%87%E5%8D%97%EF%BC%9A%E6%97%A5%E5%90%8E%E5%A6%82%E4%BD%95%E7%94%A8-ExtremeWhenBench-%E5%8E%8B%E6%B5%8B%E8%87%AA%E7%A0%94%E8%A7%86%E9%A2%91%E6%B5%81%E5%B7%A5%E5%85%B7%EF%BC%9F"><span class="nav-text">05. 进阶评测指南：日后如何用 ExtremeWhenBench 压测自研视频流工具？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%A0%B8%E5%BF%83%E6%8C%87%E6%A0%87%E4%B8%8E%E8%AE%A1%E7%AE%97%E6%96%B9%E5%BC%8F%EF%BC%88Evaluation-Metrics%EF%BC%89"><span class="nav-text">1. 核心指标与计算方式（Evaluation Metrics）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A0-mIoU%EF%BC%88Mean-Intersection-over-Union%EF%BC%8C%E5%B9%B3%E5%9D%87%E4%BA%A4%E5%B9%B6%E6%AF%94%EF%BC%89"><span class="nav-text">① mIoU（Mean Intersection over Union，平均交并比）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A1-Top-K-%E5%80%99%E9%80%89%E7%AA%97%E5%8F%A3%E5%8F%AC%E5%9B%9E%E7%8E%87%EF%BC%88Recall-Top-K-Windows%EF%BC%89%E2%80%94%E2%80%94%E9%87%8D%E7%82%B9%E5%85%B3%E6%B3%A8"><span class="nav-text">② Top-K 候选窗口召回率（Recall @ Top-K Windows）——重点关注</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%AE%BA%E6%96%87%E7%BB%99%E5%87%BA%E7%9A%84%E5%AE%98%E6%96%B9%E6%B6%88%E8%9E%8D-Baseline-%E6%95%B0%E6%8D%AE%EF%BC%88%E5%AF%B9%E6%A0%87%E9%9D%B6%E5%BF%83%EF%BC%89"><span class="nav-text">2. 论文给出的官方消融 Baseline 数据（对标靶心）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E6%9E%B6%E6%9E%84%E5%90%AF%E7%A4%BA%EF%BC%9A%E7%BB%99%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84-4-%E4%B8%AA%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E7%9B%B4%E8%A7%89"><span class="nav-text">06. 架构启示：给软件开发工程师的 4 个系统设计直觉</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%8B%86%E9%99%A4%E2%80%9C%E5%B7%A8%E7%9F%B3%E2%80%9D%EF%BC%8C%E6%8B%A5%E6%8A%B1%E2%80%9C%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%B5%81%E6%B0%B4%E7%BA%BF%E2%80%9D"><span class="nav-text">1. 拆除“巨石”，拥抱“微服务流水线”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%AF%BB%E6%89%BE%E7%B3%BB%E7%BB%9F%E7%9A%84%E2%80%9C%E6%80%A7%E8%83%BD%E4%BA%A4%E5%8F%89%E7%82%B9%EF%BC%88Cross-Over-Point%EF%BC%89%E2%80%9D"><span class="nav-text">2. 寻找系统的“性能交叉点（Cross-Over Point）”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%B0%B8%E8%BF%9C%E8%AD%A6%E6%83%95%E2%80%9C%E9%95%BF%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%88Long-Context%EF%BC%89%E2%80%9D%E7%9A%84%E5%AE%A3%E4%BC%A0%E6%B3%A1%E6%B2%AB"><span class="nav-text">3. 永远警惕“长上下文（Long-Context）”的宣传泡沫</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%BB%89%E4%BB%B7%E7%9A%84%E9%9D%99%E6%80%81%E7%89%B9%E5%BE%81-%E6%98%82%E8%B4%B5%E7%9A%84%E9%AB%98%E7%BB%B4%E6%8E%A8%E7%90%86"><span class="nav-text">4. 廉价的静态特征 + 昂贵的高维推理</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">83</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">277</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/07/12/ExtremeWhenBench-HourVideoGrounding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】长视频定位不是识别而是搜索：ExtremeWhenBench 揭秘小时级时序定位的工程断层与两阶段破局 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】长视频定位不是识别而是搜索：ExtremeWhenBench 揭秘小时级时序定位的工程断层与两阶段破局
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-07-12 18:00:00" itemprop="dateCreated datePublished" datetime="2026-07-12T18:00:00+08:00">2026-07-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-10 18:21:48" itemprop="dateModified" datetime="2026-11-10T18:21:48+08:00">2026-11-10</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在多模态与长视频处理领域，<strong>时序定位（Temporal Grounding）</strong> 是一项至关重要的核心基础设施能力：给定一段长视频和一个自然语言查询（例如：“<em>讲师是在哪一分哪一秒第一次引入反向传播概念的？</em>”），系统需要精准返回事件发生的起止时间戳 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><msub><mi>t</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[t_{start}, t_{end}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>。</p>
+<p>然而，过去的学术研究长期陷入了 <strong>“短视频刷榜的虚假繁荣”</strong>——绝大多数基准（如 Charades-STA、QVHighlights）时长仅有 30 秒到 2 分钟。在 30 秒的片段里定位一个 7 秒的动作，事件本身就占据了 25% 的视频长度，大模型根本不需要真正的全局寻址与搜索，凭单帧目标识别就能蒙对答案。</p>
+<p>面对真实工业场景下动辄 <strong>1 小时至数小时</strong> 的长录像、长会议与监控视频，如果直接把几十万帧视频数据硬塞给当红的多模态大模型（Video-LLM），会发生什么？</p>
+<p>来自 <strong>NAVER Cloud AI 与 KAIST AI</strong> 的研究团队在论文 <strong>《Natural-Language Temporal Grounding in Hour-Long Videos is a Search Problem: A Benchmark and Empirical Decomposition》</strong> 中给出了极其震撼的实验实测：<strong>所有开源与商业单体视频大模型在小时级长视频上全面雪崩；而一个 2021 年老旧、甚至连语言模型都没有的纯逐帧 CLIP 向量检索 Baseline，竟然将最先进的视频大模型全方位吊打！</strong></p>
+<p>为了系统性拆解这一工程断层，论文发布了首个真正意义上的开放小时级时序定位基准——<strong>ExtremeWhenBench</strong>，并通过实证证明：<strong>长视频定位不是识别算法问题，而是经典的“两阶段检索（Search + Localize）”工程架构问题</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Natural-Language Temporal Grounding in Hour-Long Videos is a Search Problem: A Benchmark and Empirical Decomposition<br>
+<strong>论文作者</strong>：Sukmin Seo, Geewook Kim (NAVER Cloud AI &amp; KAIST AI)<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2606.12300" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2606.12300</a><br>
+<strong>HTML 格式</strong>：<a target="_blank" href="https://arxiv.org/html/2606.12300" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2606.12300</a><br>
+<strong>开源代码与评测集</strong>：<a target="_blank" href="https://github.com/naver-ai/ExtremeWhenBench" rel="external nofollow noreferrer noopener">https://github.com/naver-ai/ExtremeWhenBench</a></p>
+</blockquote>
+<span id="more"></span>
+<hr>
+<h2 id="01-行业痛点：单体大模型在长视频中的“全表扫描灾难”">01. 行业痛点：单体大模型在长视频中的“全表扫描灾难”</h2>
+<p>要理解论文的核心贡献，首先必须从系统工程的角度审视当前视频大模型（Video-LLM）在长视频处理上的死胡同。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">【单体大模型端到端暴力硬吞 (Monolithic Paradigm)】</span><br><span class="line">用户 Query: &quot;何时讨论了预算?&quot; ──┐</span><br><span class="line">                               ▼</span><br><span class="line">76 分钟原始视频 (4500+ 帧) ───&gt; [ 巨型 Video-LLM (如 Qwen-VL / Gemini) ] ──&gt; 预测起止点: [1420s, 1435s]</span><br><span class="line">                               ▲</span><br><span class="line">                               │ 致命瓶颈: </span><br><span class="line">                               │ 1. 显存与计算成本随 Context 线性/二次方暴增</span><br><span class="line">                               │ 2. 85% 概率注意力涣散，在错误的片区瞎蒙 (mIoU 仅 0.053)</span><br></pre></td></tr></table></figure>
+<p>在许多算法工程师眼里，大模型厂商不断宣称的“支持 100 万甚至 1000 万 Token 上下文”仿佛是解决一切长文本/长音视频的银弹。但对于后端开发工程师而言，这种做法等同于：<strong>“数据库有 1000 万行未建立索引的大表，每次查询都执行 <code>SELECT * WHERE content LIKE '%xxx%'</code> 做全表扫描”</strong>。</p>
+<p>在长视频场景下，这种单体（Monolithic）暴力硬吞带来了三大系统硬伤：</p>
+<ol>
+<li><strong>信噪比断崖式跌落</strong>：真实场景中，76 分钟（4,560 秒）的视频里，目标事件往往只有 <strong>9 秒</strong>。搜索空间相比短视频放大了 <strong>153 倍</strong>，有用信号被稀释到了万分之几。</li>
+<li><strong>算力与延迟雪崩</strong>：处理一小时的高清视频输入需要抽取数千帧，推理延迟从秒级拉长到分钟级，API 调用与显存成本高昂得无法商用。</li>
+<li><strong>85% 死于寻址错误（Addressing Error）</strong>：大模型不是在视野范围内“认不出目标动作”，而是在漫长的时间轴里“找错了地方”。</li>
+</ol>
+<hr>
+<h2 id="02-颠覆直觉的实测：2021-年的-CLIP-为何反杀了所有大模型？">02. 颠覆直觉的实测：2021 年的 CLIP 为何反杀了所有大模型？</h2>
+<p>研究团队在统一的标准评测环境（<code>lmms-eval</code> + vLLM）下，压测了包含 Qwen3.5-9B、InternVL3.5、LLaVA-OneVision、GPT-5.4、Gemini-3.5-flash 以及经典的 CLIP ViT-L 帧检索基线。实验结果给整个多模态社区敲响了警钟：</p>
+<h3 id="核心实验指标对比（Charades-STA-vs-ExtremeWhenBench）">核心实验指标对比（Charades-STA vs. ExtremeWhenBench）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型 / 方案</th>
+<th style="text-align:left">架构类型</th>
+<th style="text-align:left">30 秒短视频 (mIoU)</th>
+<th style="text-align:left">76 分钟长视频 (mIoU)</th>
+<th style="text-align:left">性能缩水幅值</th>
+<th style="text-align:left">关键现象</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Qwen3.5-9B</strong> (N=2048帧)</td>
+<td style="text-align:left" rowspan="3">单体 Video-LLM</td>
+<td style="text-align:left"><strong>0.579</strong></td>
+<td style="text-align:left">0.110</td>
+<td style="text-align:left">跌 5.3x</td>
+<td style="text-align:left">上下文拉满依然严重退化</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>InternVL3.5-8B</strong></td>
+<td style="text-align:left">0.359</td>
+<td style="text-align:left" rowspan="2">0.003</td>
+<td style="text-align:left"><strong>跌 120x</strong></td>
+<td style="text-align:left">显存与长序列注意力溢出崩溃</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>LLaVA-OneVision-7B</strong></td>
+<td style="text-align:left">0.226</td>
+<td style="text-align:left"><strong>跌 75x</strong></td>
+<td style="text-align:left">长上下文定位功能失效</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>GPT-5.4</strong> (64帧拼图)</td>
+<td style="text-align:left">商业闭源多模态</td>
+<td style="text-align:left">0.299</td>
+<td style="text-align:left">0.013</td>
+<td style="text-align:left">跌 23x</td>
+<td style="text-align:left">稀疏抽帧严重丢失细节</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Gemini-3.5-flash</strong> (原生视频)</td>
+<td style="text-align:left">商业长文本大模型</td>
+<td style="text-align:left">0.466</td>
+<td style="text-align:left">0.115</td>
+<td style="text-align:left">跌 4.1x</td>
+<td style="text-align:left">顶尖长上下文大模型依然吃力</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>CLIP ViT-L/14-336</strong> (1 fps)</td>
+<td style="text-align:left"><strong>纯单帧向量内积检索</strong></td>
+<td style="text-align:left">0.332</td>
+<td style="text-align:left"><strong>0.269</strong></td>
+<td style="text-align:left"><strong>仅降 1.2x</strong></td>
+<td style="text-align:left"><strong>全方位击败所有单体大模型！</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!CAUTION]<br>
+<strong>颠覆工程直觉的残酷现实</strong>：<br>
+一个甚至没有接入任何大语言模型、没有时序感知能力、纯靠单帧图像和 Query 计算余弦相似度的 2021 年老模型 CLIP，在 76 分钟真实长视频里的定位准确率（0.269），达到了开源最强单体大模型（0.110）的 <strong>2.4 倍</strong>，更是商业旗舰 Gemini-3.5-flash（0.115）的 <strong>2.3 倍</strong>！</p>
+</blockquote>
+<h3 id="为什么会出现这种“倒挂”？故障归因分析（Failure-Taxonomy）">为什么会出现这种“倒挂”？故障归因分析（Failure Taxonomy）</h3>
+<p>作者随机抽查了 100 个大模型预测交并比彻底扑街（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>IoU</mtext><mo>&lt;</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">\text{IoU} &lt; 0.05</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7224em;vertical-align:-0.0391em;"></span><span class="mord text"><span class="mord">IoU</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0.05</span></span></span></span>）的案例，进行了严密归因：</p>
+<pre><code class="highlight mermaid">pie title 大模型在长视频定位中的失败归因 (Qwen3.5-9B N=2048)
+    &quot;搜索失败 (选错片区，偏离真实目标 &gt; 5分钟)&quot; : 85
+    &quot;定位微调失败 (选对片区，但毫秒级边缘切不准)&quot; : 11
+    &quot;样本歧义 / 噪点&quot; : 4
+    &quot;格式解析错误 / 拒答&quot; : 0</code></pre>
+<ul>
+<li><strong>85% 是 <code>search_fail</code>（搜索失败）</strong>：模型给出的时间戳，距离真正发生的时间偏离超过了 5 分钟！它在错误的时区里煞有介事地分析。</li>
+<li><strong>11% 是 <code>localization_fail</code>（定位失败）</strong>：模型正确落在了目标事件前后 5 分钟的窄区间内，只是边缘切分微调不够完美。</li>
+<li><strong>0% 是输出解析与拒答</strong>：模型严格遵守了 JSON/时间戳输出格式，但内容全错。</li>
+</ul>
+<p><strong>这一实验彻底证明：在小时级视频中，大模型的认知瓶颈根本不是“目标识别”，而是“空间搜索”。</strong></p>
+<hr>
+<h2 id="03-核心重点：ExtremeWhenBench-深度剖析">03. 核心重点：ExtremeWhenBench 深度剖析</h2>
+<p>为了能准确衡量并测试长视频检索与时序处理工具，论文耗时打造并开源了 <strong>ExtremeWhenBench</strong>。未来如果我们要自研视频流切分引擎、实时流式检索工具或多模态时空索引库，这个 Benchmark 是绝佳的磨刀石。</p>
+<h3 id="1-为什么不能直接拿短视频加-Padding-凑数？">1. 为什么不能直接拿短视频加 Padding 凑数？</h3>
+<p>在构建基准时，很多团队喜欢“偷懒”：把 30 秒的短视频前后拼上 10 分钟无关的空镜头或随机视频来模拟长视频。论文作者用实验严厉反驳了这种做法：</p>
+<ul>
+<li>短视频数据集（如 Charades-STA）的查询极为宽泛（例如：“<em>a person walks through the doorway</em>”）。</li>
+<li>当你填充了 20 分钟随机素材后，大模型预测出的错误结果中，<strong>有 74.5% 落在了填充区域里</strong>——因为填充素材里碰巧也有人走过门！</li>
+<li><strong>结论</strong>：基准必须使用<strong>天然的长视频（Naturally Long Videos）</strong>，且每一个自然语言提问必须在整部视频中具备<strong>绝对的全局唯一指代性</strong>。</li>
+</ul>
+<h3 id="2-数据集核心资产与统计规模">2. 数据集核心资产与统计规模</h3>
+<ul>
+<li><strong>数据来源</strong>：从 LVBench、MLVU、VideoMME 中筛选出 194 部具有永久公开稳定直链的长视频（总计 195 个视频源，最终保留 194 部）。</li>
+<li><strong>视频长度</strong>：平均时长 <strong>75.7 分钟</strong>，最短不低于 30 分钟，最长达 <strong>9.04 小时</strong>。</li>
+<li><strong>标注用例数</strong>：<strong>2,273 个</strong> 精确标注的（自然语言 Query, 起止时间戳 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><msub><mi>t</mi><mi>s</mi></msub><mo separator="true">,</mo><msub><mi>t</mi><mi>e</mi></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[t_s, t_e]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">s</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">e</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>）数据对。</li>
+<li><strong>事件持续时间</strong>：中位数为 <strong>9 秒</strong>。9 秒的目标事件置身于 76 分钟的海洋中，真实还原了极低信噪比下的工业检索场景。</li>
+<li><strong>语言丰富度（Query Diversity）</strong>：
+<ul>
+<li>对比以往高度模板化的基准（例如 TVBench 的 5 个前缀套话覆盖了 99.9% 的问题），ExtremeWhenBench 拥有 <strong>1,578 个独特的 4-gram 句首词根</strong>，词汇移动平均丰富度（MATTR）高达 <strong>0.78</strong>（TVBench 仅 0.60，Charades 仅 0.54），完全拟真人类的自然提问。</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-七阶段（P0-P6）工业级数据生产流水线">3. 七阶段（P0~P6）工业级数据生产流水线</h3>
+<p>论文构建该 Benchmark 的 7 阶段自动化流水线极其漂亮，整套处理 195 部超长视频的 API 总花销仅约 <strong>$200</strong>，非常值得工程数据清洗与自动化测试集构建参考：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph Phase1[&quot;Phase 1: 候选事件挖掘 (Event Mining)&quot;]
+        V[&quot;195 部原生超长视频 (LVBench/MLVU/VideoMME)&quot;] --&gt; P0[&quot;P0: 1 fps 密集抽帧 + Qwen3-VL-8B 生成逐秒 Caption 流&quot;]
+        P0 --&gt; P1[&quot;P1: GPT-5-mini 阅读纯文本流，合并动作生成粗粒度事件 (41,139 个)&quot;]
+        P1 --&gt; P2[&quot;P2: GPT-5.1 视觉边界重校验 (8x8 网格拼图抽查 ±5s 缓冲，纠偏率 20.6%)&quot;]
+        P2 --&gt; P3[&quot;P3: GPT-5-mini 视频内三维语义去重 (保留 37,599 个独立事件)&quot;]
+    end
+
+    subgraph Phase2[&quot;Phase 2: 提问生成 (Question Generation)&quot;]
+        P3 --&gt; P4[&quot;P4: GPT-5-mini 生成自然提问 (8~18词，禁镜头术语，强制增加序数词消除歧义)&quot;]
+    end
+
+    subgraph Phase3[&quot;Phase 3: 严格质检与主动学习协同 (Quality Control)&quot;]
+        P4 --&gt; P5[&quot;P5: GPT-5.4 视觉打分准则过滤 (打压静态单帧题，优选强动态时序题，保留 Top 30%)&quot;]
+        P5 --&gt; P6[&quot;P6: Targeted Human Review (用 CLIP 粗筛，仅对召回失败的 164 个边缘 Case 人肉排查)&quot;]
+    end
+
+    P6 --&gt; OUT[&quot;最终发布: ExtremeWhenBench (2,273 题 / 194 部长视频)&quot;]</code></pre>
+<h4 id="关键阶段的工程落地巧思">关键阶段的工程落地巧思</h4>
+<ul>
+<li><strong>P2（8x8 缩略拼图省钱法）</strong>：不要向大模型单帧单帧地传图！流水线将候选时间段前后抽出的 64 帧拼成一张 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>8</mn><mo>×</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">8 \times 8</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">8</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">8</span></span></span></span> 的九宫格马赛克大图，一次 API 调用就让大模型同时观察 64 帧时序。这一步不仅将成本削减了 98%，还对 <strong>20.6% 的粗糙时间边界进行了精准平移纠偏</strong>。</li>
+<li><strong>P4（消除歧义的设计准则）</strong>：严禁模型使用影视术语（如“镜头切换”、“特写”等），因为真实用户不知道运镜；如果同一视频内出现多次类似动作，强制追加序数词（如“<em>the first time</em>”、“<em>when finally</em>”）以确保时间戳在全局的绝对唯一。</li>
+<li><strong>P6（主动学习式人机协作）</strong>：面对 2,375 个候选用例，全量人工排查极耗时间。作者用 CLIP 算 Top-10 召回窗口，<strong>只把 CLIP 完全没覆盖到的 164 个离群样本交给人肉审核</strong>，作者手动排查剔除了 102 个边界模糊的坏样本，最终敲定 2,273 个高质量真值。</li>
+</ul>
+<hr>
+<h2 id="04-破局之道：Retrieve-then-Ground-混合架构">04. 破局之道：Retrieve-then-Ground 混合架构</h2>
+<p>既然单体大模型在搜索上溃败，而向量检索在细粒度时间戳切分上不够精准，那么最顺理成章的工程架构就是<strong>分层解耦</strong>。</p>
+<p>论文提出并验证了无须训练的极简两阶段方案——<strong>Retrieve-then-Ground（先粗排检索，后精细定位）</strong>：</p>
+<pre><code class="highlight mermaid">flowchart LR
+    subgraph Stage1[&quot;Stage 1: 粗排检索 (Coarse Retrieval)&quot;]
+        Q[&quot;用户自然语言 Query&quot;] --&gt; EMB[&quot;文本向量化&quot;]
+        VID[&quot;76 分钟视频 (4500+ 帧)&quot;] --&gt; CLIP[&quot;1 fps 抽帧 + CLIP 提取向量&quot;]
+        EMB &amp; CLIP --&gt; SIM[&quot;余弦相似度时序滑窗打分&quot;]
+        SIM --&gt; NMS[&quot;NMS (非极大值抑制，抑制步长 60s)&quot;]
+        NMS --&gt; CAND[&quot;挑出 Top-K 候选窗口 (每个窗口 ±1 分钟)&quot;]
+    end
+
+    subgraph Stage2[&quot;Stage 2: 精细定位 (Fine Grounding)&quot;]
+        CAND --&gt; CONCAT[&quot;剪切并拼接候选片段 (K=3 时仅需 6 分钟)&quot;]
+        CONCAT &amp; Q --&gt; VLM[&quot;Video-LLM (Qwen3.5-9B, 768 帧)&quot;]
+        VLM --&gt; TS[&quot;高置信度秒级起止时间戳 [ts, te]&quot;]
+    end</code></pre>
+<h3 id="两阶段系统的工程收益">两阶段系统的工程收益</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">系统方案</th>
+<th style="text-align:left">输入给大模型的上下文时长</th>
+<th style="text-align:left">真实定位准确率 (mIoU)</th>
+<th style="text-align:left">相对单体大模型的增益</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>单体 Video-LLM (Qwen3.5-9B)</strong></td>
+<td style="text-align:left" rowspan="2">76 分钟全片</td>
+<td style="text-align:left">0.053</td>
+<td style="text-align:left">基准 (1.0x)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>纯 CLIP 向量检索 + 规则阈值</strong></td>
+<td style="text-align:left">0.269</td>
+<td style="text-align:left">提升 5.0x</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Retrieve-then-Ground 混合系统</strong></td>
+<td style="text-align:left"><strong>仅 6 分钟 (K=3)</strong></td>
+<td style="text-align:left"><strong>0.354</strong></td>
+<td style="text-align:left"><strong>暴增 6.7x</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>仅仅喂给大模型 6 分钟经过粗排清洗的片段，大模型的推理算力与显存开销暴降了 90% 以上，准确率反而实现了 6.7 倍的惊人反弹！</strong></p>
+<hr>
+<h2 id="05-进阶评测指南：日后如何用-ExtremeWhenBench-压测自研视频流工具？">05. 进阶评测指南：日后如何用 ExtremeWhenBench 压测自研视频流工具？</h2>
+<p>如果你正在开发自研的<strong>视频流切分引擎、实时流式检索服务、时空向量数据库或监控视频分析中间件</strong>，想要用 ExtremeWhenBench 检验自己的检索召回率和时序切分能力，请重点关注以下评测协议与核心指标：</p>
+<h3 id="1-核心指标与计算方式（Evaluation-Metrics）">1. 核心指标与计算方式（Evaluation Metrics）</h3>
+<p>在时序定位（Temporal Grounding）任务中，衡量算法优劣的核心指标有两个：</p>
+<h4 id="①-mIoU（Mean-Intersection-over-Union，平均交并比）">① mIoU（Mean Intersection over Union，平均交并比）</h4>
+<p>对于每一个测试用例，真实标注区间为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mrow><mi>g</mi><mi>t</mi></mrow></msub><mo>=</mo><mo stretchy="false">[</mo><msub><mi>s</mi><mrow><mi>g</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>e</mi><mrow><mi>g</mi><mi>t</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">I_{gt} = [s_{gt}, e_{gt}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>，你的工具预测出的区间为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>d</mi></mrow></msub><mo>=</mo><mo stretchy="false">[</mo><msub><mi>s</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>d</mi></mrow></msub><mo separator="true">,</mo><msub><mi>e</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>d</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">I_{pred} = [s_{pred}, e_{pred}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>。两者的交并比计算公式为：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>IoU</mtext><mo>=</mo><mfrac><mrow><mi>max</mi><mo>⁡</mo><mo stretchy="false">(</mo><mn>0</mn><mo separator="true">,</mo><mi>min</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>e</mi><mrow><mi>g</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>e</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>d</mi></mrow></msub><mo stretchy="false">)</mo><mo>−</mo><mi>max</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>s</mi><mrow><mi>g</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>s</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>d</mi></mrow></msub><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><mrow><mi>max</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>e</mi><mrow><mi>g</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>e</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>d</mi></mrow></msub><mo stretchy="false">)</mo><mo>−</mo><mi>min</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>s</mi><mrow><mi>g</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>s</mi><mrow><mi>p</mi><mi>r</mi><mi>e</mi><mi>d</mi></mrow></msub><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\text{IoU} = \frac{\max(0, \min(e_{gt}, e_{pred}) - \max(s_{gt}, s_{pred}))}{\max(e_{gt}, e_{pred}) - \min(s_{gt}, s_{pred})}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord text"><span class="mord">IoU</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.3991em;vertical-align:-0.9721em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">max</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mop">min</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">max</span><span class="mopen">(</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">min</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mop">max</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">p</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">))</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9721em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p>对全量 2,273 个用例求均值即为 <strong>mIoU</strong>。这是考验端到端边界精准度的最硬指标。</p>
+<h4 id="②-Top-K-候选窗口召回率（Recall-Top-K-Windows）——重点关注">② Top-K 候选窗口召回率（Recall @ Top-K Windows）——<strong>重点关注</strong></h4>
+<p>如果你自研的是前置的<strong>流式切分与检索召回工具</strong>，可以完全撇开下游大模型，只测你的工具在前 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span> 个候选区间内能否<strong>命中</strong>真实区间：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>Recall</mtext><mo>=</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mi mathvariant="double-struck">I</mi><mo stretchy="false">(</mo><mtext>至少有一个候选窗口与 </mtext><msub><mi>I</mi><mrow><mi>g</mi><mi>t</mi></mrow></msub><mtext> 有重叠</mtext><mo stretchy="false">)</mo></mrow><mi>N</mi></mfrac><mo>×</mo><mn>100</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">\text{Recall} = \frac{\sum_{i=1}^{N} \mathbb{I}(\text{至少有一个候选窗口与 } I_{gt} \text{ 有重叠})}{N} \times 100\%
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord text"><span class="mord">Recall</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.3569em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6709em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.6897em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9812em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.109em;">N</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathbb">I</span><span class="mopen">(</span><span class="mord text"><span class="mord cjk_fallback">至少有一个候选窗口与</span><span class="mord"> </span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mord text"><span class="mord"> </span><span class="mord cjk_fallback">有重叠</span></span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">100%</span></span></span></span></span></p>
+<h3 id="2-论文给出的官方消融-Baseline-数据（对标靶心）">2. 论文给出的官方消融 Baseline 数据（对标靶心）</h3>
+<p>在评测你的自研召回引擎时，可以直接拿论文附录 Table 6 的数据作为对标参考物：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">粗排检索配置</th>
+<th style="text-align:left">送入下游的上下文总长</th>
+<th style="text-align:left">真实区间召回率 (Recall)</th>
+<th style="text-align:left">最终级联 mIoU</th>
+<th style="text-align:left">工业工程评价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>CLIP Top-1</strong> (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>±</mo><mn>2.5</mn><mtext> min</mtext></mrow><annotation encoding="application/x-tex">\pm 2.5\text{ min}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7512em;vertical-align:-0.0833em;"></span><span class="mord">±</span><span class="mord">2.5</span><span class="mord text"><span class="mord"> min</span></span></span></span></span>)</td>
+<td style="text-align:left">5 分钟</td>
+<td style="text-align:left"><strong>62.8%</strong></td>
+<td style="text-align:left">0.302</td>
+<td style="text-align:left">漏检严重，初筛过于严苛</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>CLIP Top-3</strong> (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>±</mo><mn>1</mn><mtext> min</mtext></mrow><annotation encoding="application/x-tex">\pm 1\text{ min}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7512em;vertical-align:-0.0833em;"></span><span class="mord">±</span><span class="mord">1</span><span class="mord text"><span class="mord"> min</span></span></span></span></span>, NMS 60s)</td>
+<td style="text-align:left"><strong>6 分钟</strong></td>
+<td style="text-align:left"><strong>81.6%</strong></td>
+<td style="text-align:left"><strong>0.354 (峰值)</strong></td>
+<td style="text-align:left"><strong>工程黄金平衡点 (Goldilocks Zone)</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>CLIP Top-10</strong> (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>±</mo><mn>1</mn><mtext> min</mtext></mrow><annotation encoding="application/x-tex">\pm 1\text{ min}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7512em;vertical-align:-0.0833em;"></span><span class="mord">±</span><span class="mord">1</span><span class="mord text"><span class="mord"> min</span></span></span></span></span>)</td>
+<td style="text-align:left">20 分钟</td>
+<td style="text-align:left"><strong>96.7%</strong></td>
+<td style="text-align:left">0.295</td>
+<td style="text-align:left">召回率虽高，但 20 分钟噪声反噬了大模型</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!TIP]<br>
+<strong>测试自研工具的核心目标</strong>：</p>
+<ol>
+<li><strong>召回率突破线</strong>：在总片段时长控制在 5~6 分钟的前提下，你的自研检索工具能否将 Top-3 召回率做到高于 <strong>81.6%</strong>？</li>
+<li><strong>信噪比控制</strong>：不要盲目追求 99% 的极限召回率。如果为了提高召回把候选集撑到了 20 分钟以上，下游大模型的注意力发散会直接导致最终 mIoU 倒退。</li>
+</ol>
+</blockquote>
+<hr>
+<h2 id="06-架构启示：给软件开发工程师的-4-个系统设计直觉">06. 架构启示：给软件开发工程师的 4 个系统设计直觉</h2>
+<p>这篇论文虽然发表在多模态与计算机视觉领域，但其底层闪耀着极其纯粹的软件系统架构智慧：</p>
+<h3 id="1-拆除“巨石”，拥抱“微服务流水线”">1. 拆除“巨石”，拥抱“微服务流水线”</h3>
+<p>在 Web 后端，我们绝不会用一个巨型单体进程去兼顾高并发连接网关、核心业务计算和海量冷热存储。在多模态领域亦是如此：<strong>不要试图用一个参数越来越大、上下文越来越长的超级单体大模型去承包所有数据层级</strong>。建立“粗排召回 + 精排推理”的分层流水线，永远是吞吐量与成本的最优解。</p>
+<h3 id="2-寻找系统的“性能交叉点（Cross-Over-Point）”">2. 寻找系统的“性能交叉点（Cross-Over Point）”</h3>
+<p>任何技术方案都有其最佳工作边界（Regime）：</p>
+<ul>
+<li>在 <strong>1 分钟以内</strong> 的短视频剪辑中，单体端到端大模型是王者；</li>
+<li>但当视频长度突破 <strong>10~20 分钟</strong> 的临界点时，向量检索的优势开始凸显；</li>
+<li>超过 <strong>30 分钟</strong>，单体方案彻底崩塌。在设计网关或调度路由时，应依据输入视频时长动态降级或切换管道，而不是一套配置走到底。</li>
+</ul>
+<h3 id="3-永远警惕“长上下文（Long-Context）”的宣传泡沫">3. 永远警惕“长上下文（Long-Context）”的宣传泡沫</h3>
+<p>支持 100 万 Token 的上下文窗口，仅仅意味着模型“显存不报错”，并不意味着模型能“有效维持高质量自注意力”。当非结构化的音视频噪点铺天盖地而来时，注意力发散是不可避免的物理规律。<strong>能用 6 分钟解决的问题，在架构上永远不要传 1 小时。</strong></p>
+<h3 id="4-廉价的静态特征-昂贵的高维推理">4. 廉价的静态特征 + 昂贵的高维推理</h3>
+<p>离线批量利用轻量模型抽取帧向量、建立倒排或向量索引，成本极低且能水平扩展；在线查询时毫秒级缩小问题空间，最后只把最核心的高价值数据交给昂贵的 GPU 大模型进行推断。这种“好钢用在刀刃上”的设计，才是经得起高并发、低成本考验的成熟工业系统。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E6%A3%80%E7%B4%A2/" rel="tag"># 视频检索</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="tag"># 架构设计</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%B7%A5%E7%A8%8B/" rel="tag"># 系统工程</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E6%97%B6%E5%BA%8F%E5%AE%9A%E4%BD%8D/" rel="tag"># 视频时序定位</a>
+              <a href="/tags/ExtremeWhenBench/" rel="tag"># ExtremeWhenBench</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/papers/2026/09/09/VideoChat3/" rel="prev" title="【论文分享】告别暴力堆帧与时空冗余：南大等新作 VideoChat3 如何用 I3D-ViT 与自适应流式状态机重塑视频多模态大模型">
+                  <i class="fa fa-angle-left"></i> 【论文分享】告别暴力堆帧与时空冗余：南大等新作 VideoChat3 如何用 I3D-ViT 与自适应流式状态机重塑视频多模态大模型
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/05/13/BeyondChainOfThought-RewriteMultimodalEmbeddings-RIME/" rel="next" title="【论文分享】告别思维链内耗：为什么检索不需要“做题家逻辑”？腾讯微信 ACM MM 2026 新作 RIME 深度拆解">
+                  【论文分享】告别思维链内耗：为什么检索不需要“做题家逻辑”？腾讯微信 ACM MM 2026 新作 RIME 深度拆解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">361k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">21:52</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
