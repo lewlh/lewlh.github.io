@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">267</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">77</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">270</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">78</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">267</span>
+        <span class="site-state-item-count">270</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,112 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/10/UMBench-EvidenceFirstCoT/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/10/UMBench-EvidenceFirstCoT/" class="post-title-link" itemprop="url">【论文分享】大模型也会“凭经验瞎猜”？解密 UMBench 与 Evidence-First CoT 的零微调契约式推理范式</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-10 13:10:00 / 修改时间：13:21:35" itemprop="dateCreated datePublished" datetime="2026-11-10T13:10:00+08:00">2026-11-10</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>13 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态大模型（MLLM）落地到工业质检、安防巡检、无人机航拍监测等实际业务场景中时，许多算法和软件工程师都会遇到一个令人极其头疼的“隐形 Bug”：</p>
+<p><strong>模型说起话来头头是道，全局场景描述得极其优雅，但在面对“微观细节决策”时却错得一塌糊涂。</strong></p>
+<p>比如一张航拍路口图：路面整体崭新宽阔、绿树成荫、人行横道清晰无暇。如果你问模型“路面是否存在损坏？”，它会毫不犹豫地回答“平整完好”——然而，只要放大画面，就会发现路口正中央横亘着一片蛛网状的局部沥青开裂。</p>
+<p>为什么连 GPT-4o、Gemini 3 Flash、Qwen3-VL 这样的顶级多模态大模型，都会出现这种低级失误？</p>
+<p><strong>根本原因在于：大模型在超大规模预训练中形成了根深蒂固的“大场景先验（Scene-level Priors）”。它们极度倾向于凭借“宏观常识直觉”去猜答案，而不是真正去调动注意力看图像底层的微观物证（Fine-grained Visual Evidence）。</strong></p>
+<p>2026 年 11 月，来自哈尔滨工业大学（HIT）与华为国际（Huawei International Singapore）的联合研究团队在 arXiv 上发表了针对这一痛点的前沿研究：</p>
+<blockquote>
+<p><strong>论文题目</strong>：BENCHMARKING FINE-GRAINED VISUAL REASONING FOR REMOTE SENSING IN URBAN MANAGEMENT<br>
+<strong>作者团队</strong>：Jiawei Zhang, Rizhao Cai, Dayan Guan (Harbin Institute of Technology, Huawei International PTE Ltd)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.06770">https://arxiv.org/abs/2611.06770</a><br>
+<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.06770">https://arxiv.org/html/2611.06770</a><br>
+<strong>核心资产</strong>：UMBench 微观遥感评测基准（583 张无人机图像、2,733 个强诱导对抗 QA）、Evidence-First CoT（零微调证据先行契约式提示法）</p>
+</blockquote>
+<p>作者团队不仅构建了一个专门抓大模型“靠经验作弊”的严苛评测集 <strong>UMBench</strong>，更提出了一套<strong>无需重新训练、无需修改权重、纯推理期干预（Training-free）的“证据先行思维链（Evidence-First CoT）”</strong>，在开源与商业大模型上实现了普遍 2%~5% 的准确率稳健提升。</p>
+<p>本文将立足于 <strong>软件开发工程师（后端/架构/AI应用工程）</strong> 的视角，从契约式设计、控制流拦截器以及系统解耦的角度，深度拆解这一工程落地范式。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/10/UMBench-EvidenceFirstCoT/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +332,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-10 12:35:00 / 修改时间：12:53:10" itemprop="dateCreated datePublished" datetime="2026-11-10T12:35:00+08:00">2026-11-10</time>
+      <time title="创建时间：2026-11-10 12:35:00 / 修改时间：13:21:35" itemprop="dateCreated datePublished" datetime="2026-11-10T12:35:00+08:00">2026-11-10</time>
     </span>
 
   
@@ -337,7 +443,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
     </span>
 
   
@@ -445,7 +551,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
     </span>
 
   
@@ -563,7 +669,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
     </span>
 
   
@@ -637,118 +743,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/09/SpecOPD-BranchParallel-OnPolicyDistillation-SpeculativeDecoding/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/09/SpecOPD-BranchParallel-OnPolicyDistillation-SpeculativeDecoding/" class="post-title-link" itemprop="url">【论文分享】给大模型推理安上“并发预读器”：解密阿里通义新作 SpecOPD 如何用分支并行在线蒸馏破除推测解码吞吐魔咒</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-09 12:20:00" itemprop="dateCreated datePublished" datetime="2026-11-09T12:20:00+08:00">2026-11-09</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.7k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>17 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在大语言模型（LLM）与复杂的智能体系统（Agentic Workloads、代码生成、长链条推理）走向企业级生产落地的过程中，软件工程师与系统架构师们最常遭遇的性能梦魇就是——<strong>大模型“逐字蹦”带来的高交互延迟</strong>。</p>
-<p>即使后端硬件堆满了顶级的企业级 GPU，显卡算力往往依然被严重闲置。大模型自回归（Autoregressive）串行生成的本质，使得推理过程极度受限于显存带宽（Memory-Bound）。为了打破这一物理枷锁，<strong>推测解码（Speculative Decoding, SD）</strong> 成为了近年来大模型服务层（如 vLLM、SGLang、TensorRT-LLM）的核心标配：由轻量级“草稿小模型（Drafter）”极速草拟一批候选 Token，再由高精度“目标大模型（Target）”在单次前向计算中批量核验。</p>
-<p>然而，推测解码在迈向超高加速比的过程中遇到了新的死穴：<strong>小模型的采纳率（Acceptance Length）极易撞上天花板，而为了突破天花板所必需的“在线策略蒸馏（On-Policy Distillation）”，其数据采集过程又陷入了严重的串行循环，导致 GPU 利用率低下、训练吞吐量惨不忍睹。</strong></p>
-<p>2026 年 11 月，阿里巴巴通义团队（Qwen Business Unit）联合中科大、浙大、CMU、爱丁堡大学等顶尖机构，在 arXiv 上发布了重磅前沿论文：</p>
-<blockquote>
-<p><strong>《SpecOPD: Branch-Parallel On-Policy Distillation for Speculative Decoding》</strong> (arXiv:2611.02846, 2026)</p>
-</blockquote>
-<p>论文提出了 <strong>SpecOPD（基于分支并行的在线策略蒸馏）</strong> 框架。研究团队深刻洞察到：在线策略监督并不依赖于传统“猜一步-验一步”的串行回放，而是可以从基准上下文锚点并发派生独立分支。通过<strong>候选树前缀计算复用</strong>与<strong>直接面向连续采纳长度优化的 E2E-TV 目标</strong>，SpecOPD 实现了 <strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>16.09</mn><mo>×</mo></mrow><annotation encoding="application/x-tex">16.09\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">16.09</span><span class="mord">×</span></span></span></span> 的训练数据吞吐量暴增</strong>，使草稿模型的平均采纳长度最高跃升 <strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>41.45</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">41.45\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">41.45%</span></span></span></span></strong>，并为大模型推理带来了最高 <strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3.56</mn><mo>×</mo></mrow><annotation encoding="application/x-tex">3.56\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">3.56</span><span class="mord">×</span></span></span></span> 的端到端推理加速</strong>！</p>
-<blockquote>
-<p><strong>论文题目</strong>：SpecOPD: Branch-Parallel On-Policy Distillation for Speculative Decoding<br>
-<strong>作者团队</strong>：Tianyu Liu, Jun Zhang, Wenjie Huang, Yuhao Shen, Tianqi Xu, Xinyue Hao, Hongyaoxing Gu, Xuyang Liu, Baolin Zhang, Yating Zhu, Shuang Ge, Jun Dai, Lei Chen, Yue Li, Mingchen Wan (Alibaba Qwen, USTC, ZJU, CMU, Edinburgh, HK PolyU)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.02846">https://arxiv.org/abs/2611.02846</a><br>
-<strong>开源生态基线</strong>：<a target="_blank" rel="noopener" href="https://github.com/z-lab/dflash">DFlash (GitHub)</a> | <a target="_blank" rel="noopener" href="https://github.com/Simplified-Reasoning/Draft-OPD">Draft-OPD (GitHub)</a> | <a target="_blank" rel="noopener" href="https://huggingface.co/z-lab/Qwen3.8-27B-DFlash2">Qwen3.8-27B-DFlash2 (HuggingFace)</a><br>
-<strong>核心领域</strong>：Large Language Models (LLM), Speculative Decoding, On-Policy Distillation, Inference Serving, Agentic Workloads, Training Efficiency</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/09/SpecOPD-BranchParallel-OnPolicyDistillation-SpeculativeDecoding/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -773,14 +767,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">334k</span>
+    <span title="站点总字数">337k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">20:13</span>
+    <span title="站点阅读时长">20:27</span>
   </span>
 </div>
 <div class="busuanzi-count">

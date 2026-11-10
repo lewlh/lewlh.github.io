@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">267</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">77</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">270</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">78</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">267</span>
+        <span class="site-state-item-count">270</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,118 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/09/SpecOPD-BranchParallel-OnPolicyDistillation-SpeculativeDecoding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/09/SpecOPD-BranchParallel-OnPolicyDistillation-SpeculativeDecoding/" class="post-title-link" itemprop="url">【论文分享】给大模型推理安上“并发预读器”：解密阿里通义新作 SpecOPD 如何用分支并行在线蒸馏破除推测解码吞吐魔咒</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-09 12:20:00" itemprop="dateCreated datePublished" datetime="2026-11-09T12:20:00+08:00">2026-11-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>17 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在大语言模型（LLM）与复杂的智能体系统（Agentic Workloads、代码生成、长链条推理）走向企业级生产落地的过程中，软件工程师与系统架构师们最常遭遇的性能梦魇就是——<strong>大模型“逐字蹦”带来的高交互延迟</strong>。</p>
+<p>即使后端硬件堆满了顶级的企业级 GPU，显卡算力往往依然被严重闲置。大模型自回归（Autoregressive）串行生成的本质，使得推理过程极度受限于显存带宽（Memory-Bound）。为了打破这一物理枷锁，<strong>推测解码（Speculative Decoding, SD）</strong> 成为了近年来大模型服务层（如 vLLM、SGLang、TensorRT-LLM）的核心标配：由轻量级“草稿小模型（Drafter）”极速草拟一批候选 Token，再由高精度“目标大模型（Target）”在单次前向计算中批量核验。</p>
+<p>然而，推测解码在迈向超高加速比的过程中遇到了新的死穴：<strong>小模型的采纳率（Acceptance Length）极易撞上天花板，而为了突破天花板所必需的“在线策略蒸馏（On-Policy Distillation）”，其数据采集过程又陷入了严重的串行循环，导致 GPU 利用率低下、训练吞吐量惨不忍睹。</strong></p>
+<p>2026 年 11 月，阿里巴巴通义团队（Qwen Business Unit）联合中科大、浙大、CMU、爱丁堡大学等顶尖机构，在 arXiv 上发布了重磅前沿论文：</p>
+<blockquote>
+<p><strong>《SpecOPD: Branch-Parallel On-Policy Distillation for Speculative Decoding》</strong> (arXiv:2611.02846, 2026)</p>
+</blockquote>
+<p>论文提出了 <strong>SpecOPD（基于分支并行的在线策略蒸馏）</strong> 框架。研究团队深刻洞察到：在线策略监督并不依赖于传统“猜一步-验一步”的串行回放，而是可以从基准上下文锚点并发派生独立分支。通过<strong>候选树前缀计算复用</strong>与<strong>直接面向连续采纳长度优化的 E2E-TV 目标</strong>，SpecOPD 实现了 <strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>16.09</mn><mo>×</mo></mrow><annotation encoding="application/x-tex">16.09\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">16.09</span><span class="mord">×</span></span></span></span> 的训练数据吞吐量暴增</strong>，使草稿模型的平均采纳长度最高跃升 <strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>41.45</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">41.45\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">41.45%</span></span></span></span></strong>，并为大模型推理带来了最高 <strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3.56</mn><mo>×</mo></mrow><annotation encoding="application/x-tex">3.56\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">3.56</span><span class="mord">×</span></span></span></span> 的端到端推理加速</strong>！</p>
+<blockquote>
+<p><strong>论文题目</strong>：SpecOPD: Branch-Parallel On-Policy Distillation for Speculative Decoding<br>
+<strong>作者团队</strong>：Tianyu Liu, Jun Zhang, Wenjie Huang, Yuhao Shen, Tianqi Xu, Xinyue Hao, Hongyaoxing Gu, Xuyang Liu, Baolin Zhang, Yating Zhu, Shuang Ge, Jun Dai, Lei Chen, Yue Li, Mingchen Wan (Alibaba Qwen, USTC, ZJU, CMU, Edinburgh, HK PolyU)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.02846">https://arxiv.org/abs/2611.02846</a><br>
+<strong>开源生态基线</strong>：<a target="_blank" rel="noopener" href="https://github.com/z-lab/dflash">DFlash (GitHub)</a> | <a target="_blank" rel="noopener" href="https://github.com/Simplified-Reasoning/Draft-OPD">Draft-OPD (GitHub)</a> | <a target="_blank" rel="noopener" href="https://huggingface.co/z-lab/Qwen3.8-27B-DFlash2">Qwen3.8-27B-DFlash2 (HuggingFace)</a><br>
+<strong>核心领域</strong>：Large Language Models (LLM), Speculative Decoding, On-Policy Distillation, Inference Serving, Agentic Workloads, Training Efficiency</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/09/SpecOPD-BranchParallel-OnPolicyDistillation-SpeculativeDecoding/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +344,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
     </span>
 
   
@@ -344,7 +456,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
     </span>
 
   
@@ -445,7 +557,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
     </span>
 
   
@@ -558,7 +670,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
     </span>
 
   
@@ -628,105 +740,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/03/Paper-Reading-Index/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/03/Paper-Reading-Index/" class="post-title-link" itemprop="url">【论文分享】索引（持续更新）</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-03 09:30:00" itemprop="dateCreated datePublished" datetime="2026-11-03T09:30:00+08:00">2026-11-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.5k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>17 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>论文分享栏目索引，按主题分类，随论文笔记持续增量更新，各分类内按论文原文日期降序排列。</p>
-<p>“论文日期”指论文原文首次公开的时间：arXiv 论文取 v1 提交日期，期刊与会议论文取正式出版时间。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/03/Paper-Reading-Index/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -751,14 +764,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">334k</span>
+    <span title="站点总字数">337k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">20:13</span>
+    <span title="站点阅读时长">20:27</span>
   </span>
 </div>
 <div class="busuanzi-count">

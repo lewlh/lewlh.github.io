@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">267</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">77</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">270</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">78</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">77</span>
+          <span class="site-state-item-count">78</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">267</span>
+        <span class="site-state-item-count">270</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,124 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/30/PhysTrace-InterpretableTemporalPhysicalConsistency/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/10/30/PhysTrace-InterpretableTemporalPhysicalConsistency/" class="post-title-link" itemprop="url">【论文分享】给视频生成模型做“物理质检”与“脑部CT”：arXiv 2026 新作 PhysTrace 架构与工程落地拆解</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-30 13:20:00" itemprop="dateCreated datePublished" datetime="2026-10-30T13:20:00+08:00">2026-10-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在具身智能（Embodied AI）与机器人规划控制领域，<strong>视频生成模型（Video Generative Models）</strong> 正在扮演越来越核心的角色。从 Sora、Wan2.1 到英伟达的 Cosmos-Predict2，业界越来越倾向于直接把预训练的视频模型作为<strong>世界模型（World Models）</strong> 或动作策略骨干——让机器人在物理交互前，先在脑海中“生成未来的动作模拟视频”。</p>
+<p>但这种范式存在一个致命前提：<strong>生成的视频必须严格遵守现实世界的物理定律。</strong> 如果生成的预测视频里，小球凭空蒸发、机械臂穿透了桌子（穿模）、物体毫无重力地浮空瞬移，基于此做规划的机器人就会在现实执行中遭遇灾难性的翻车。</p>
+<p>如何自动检测视频生成模型“懂不懂物理”？传统的评测方法存在严重的硬伤：</p>
+<ul>
+<li><strong>粗粒度黑盒评分</strong>：只给整段视频打一个“是否合规”的布尔值或模糊的分数，根本看不出哪里违规；</li>
+<li><strong>无法时间定位</strong>：一段 10 秒的视频，前 8 秒都正常，第 9 秒突然穿模，现有基准无法给出违规发生的具体起止秒数；</li>
+<li><strong>直接询问视觉大模型基本靠猜</strong>：直接把视频扔给 GPT-4o 或 Gemini 问“这符合物理吗？”，权威测试表明准确率只有 <strong>52% 左右</strong>——几乎跟抛硬币无异。</li>
+</ul>
+<p>近日，来自韩国釜山大学与独立研究团队发表了一篇构思极为巧妙的最新论文：</p>
+<blockquote>
+<p><strong>《PhysTrace: Interpretable Temporal Evaluation of Physical Consistency in Video Generative Models》</strong> (arXiv:2610.31429)</p>
+</blockquote>
+<p>作者团队提出了一个<strong>无需微调重新训练（Training-free）<strong>的创新评测框架 <strong>PhysTrace</strong>。更引人入胜的是，作者不仅实现了对任意视频物理违规的</strong>秒级定位与文字可解释归因</strong>，还设计了一套“逆向 CT 机”，首次完整透视了 Wan2.1 和 Cosmos 等生成模型在擦除噪点的数十步过程中，<strong>其脑海中的物理常识究竟是在哪个时间步逐步成型、又在哪些定律上终生残疾</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：PhysTrace: Interpretable Temporal Evaluation of Physical Consistency in Video Generative Models<br>
+<strong>作者团队</strong>：Taekoan Yoo, Wonkyung Jung, Kyunghun Kim, Kyeongbo Kong（釜山大学 等）<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.31429">https://arxiv.org/abs/2610.31429</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.31429">https://arxiv.org/html/2610.31429</a><br>
+<strong>代码开源</strong>：<a target="_blank" rel="noopener" href="https://github.com/PhysTrace/PhysTrace">https://github.com/PhysTrace/PhysTrace</a><br>
+<strong>核心领域</strong>：Video Generative Models, Physical Consistency, Temporal Evaluation, World Models, Diffusion Models</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/10/30/PhysTrace-InterpretableTemporalPhysicalConsistency/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +350,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
     </span>
 
   
@@ -354,7 +472,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
     </span>
 
   
@@ -474,7 +592,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
     </span>
 
   
@@ -592,7 +710,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-10 13:21:35" itemprop="dateModified" datetime="2026-11-10T13:21:35+08:00">2026-11-10</time>
     </span>
 
   
@@ -658,126 +776,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/28/MATR-AligningMomentsInTime-VideoQueries/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/10/28/MATR-AligningMomentsInTime-VideoQueries/" class="post-title-link" itemprop="url">【论文分享】以视频搜视频的“时间橡皮筋”：解析 ICCV 顶会《MATR》如何用 Soft-DTW 与向量数据库重塑海量视频秒级定位</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-28 18:30:00" itemprop="dateCreated datePublished" datetime="2026-10-28T18:30:00+08:00">2026-10-28</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 12:53:10" itemprop="dateModified" datetime="2026-11-10T12:53:10+08:00">2026-11-10</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.9k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>18 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在我们之前对 Yogesh Kumar 博士论文三部曲的研读中：</p>
-<ul>
-<li>第一篇 <a href="/papers/2026/10/28/QDETRv-QueryGuidedDETR-VideoObjectLocalization/">《QDETRv》</a> 解决了 <strong>“Where（它在哪儿）”</strong> —— 用时序记忆矩阵让 AI 在长视频中死咬住未知物体；</li>
-<li>第二篇 <a href="/papers/2026/10/28/FewShotReferringRelationships-Videos/">《Few-Shot RRV》</a> 解决了 <strong>“How（怎么互动）”</strong> —— 用时空随机场看清主宾之间的动态动作因果。</li>
-</ul>
-<p>今天，我们终于迎来了整套体系的终极压轴之作 —— <strong>解决“When（关键事件在时间轴的几分几秒发生）”</strong>！</p>
-<p>这篇发表于顶级计算机视觉会议 <strong>ICCV 2025</strong> 的前沿论文 —— <strong>《Aligning Moments in Time using Video Queries》</strong>（提出了大名鼎鼎的 <strong>MATR</strong> 架构，即 <strong>Moment Alignment Transformer</strong>），彻底颠覆了传统的以文搜视频范式：</p>
-<blockquote>
-<p><strong>“无需苍白的文字提示，直接甩给 AI 一段 5 秒的短视频（Video Query），利用可微动态时间规整（Soft-DTW）拉齐时间快慢，在数小时的长视频甚至全网海量视频库中，秒级锁定相同动作或战术发生的起止时间戳（精确到 0.1 秒）！”</strong></p>
-</blockquote>
-<p>更让软件工程师兴奋的是：<strong>这项研究与现代软件工程中的“读写分离（CQRS）”以及我们之前探讨的 <a href="/2024/05/30/MyScaleDBDockerCompose/">MyScaleDB 向量数据库</a> 可以产生极其强悍的生产级工业联动！</strong></p>
-<p>在这篇博客中，我们将彻底拆解 MATR 的数学原理、PyTorch 代码实现，并结合软件架构视角，给出 <strong>“向量数据库海量粗筛 + MATR 时序弹性精排”</strong> 的万小时视频检索全套落地架构。</p>
-<blockquote>
-<p><strong>论文题目</strong>：Aligning Moments in Time using Video Queries<br>
-<strong>作者团队</strong>：Yogesh Kumar, Uday Agarwal, Manish Gupta, Anand Mishra (IIT Jodhpur, Microsoft)<br>
-<strong>收录会议</strong>：ICCV 2025 (IEEE/CVF International Conference on Computer Vision)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content/ICCV2025/html/Kumar_Aligning_Moments_in_Time_using_Video_Queries_ICCV_2025_paper.html">https://openaccess.thecvf.com/content/ICCV2025/html/Kumar_Aligning_Moments_in_Time_using_Video_Queries_ICCV_2025_paper.html</a><br>
-<strong>博士毕业论文汇总 (arXiv)</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.21422">https://arxiv.org/abs/2610.21422</a> (Chapter 4 / Survey)<br>
-<strong>arXiv HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.21422v1">https://arxiv.org/html/2610.21422v1</a><br>
-<strong>开源代码库</strong>：<a target="_blank" rel="noopener" href="https://github.com/vl2g/MATR">https://github.com/vl2g/MATR</a><br>
-<strong>核心领域</strong>：Video-to-Video Moment Retrieval (Vid2VidMR), Temporal Grounding, Differentiable DTW, Action Spotting<br>
-<strong>技术亮点</strong>：可微软动态时间规整 (Soft-DTW)、双阶段序列对齐 (Dual-Stage Alignment)、自监督时序增广预训练</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/10/28/MATR-AligningMomentsInTime-VideoQueries/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -802,14 +800,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">334k</span>
+    <span title="站点总字数">337k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">20:13</span>
+    <span title="站点阅读时长">20:27</span>
   </span>
 </div>
 <div class="busuanzi-count">
