@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">282</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">85</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">289</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">87</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">85</span>
+          <span class="site-state-item-count">87</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">282</span>
+        <span class="site-state-item-count">289</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,232 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/08/10/MoD-VLLM-LongVideo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/08/10/MoD-VLLM-LongVideo/" class="post-title-link" itemprop="url">【论文分享】长视频Token预算与级联雪崩如何破？清华新作 MoD-VLLM：动态粒度调度与闭环反思重构多事件理解</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-08-10 18:45:00" itemprop="dateCreated datePublished" datetime="2026-08-10T18:45:00+08:00">2026-08-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态视频大模型（Video-LLM）领域，长视频理解（从 10 分钟到 2 小时）一直是一块极其难啃的硬骨头。与短视频不同，超长视频往往包含多个<strong>在时间轴上高度稀疏分散的关键事件</strong>（例如：“<em>在长达 90 分钟的监控里，嫌疑人一共从包里掏出了几次工具？</em>”、“<em>事件 A 和事件 B 发生的先后顺序是什么？</em>”）。</p>
+<p>面对这类任务，现有的视频大模型方案普遍面临无法回避的<strong>资源死锁与工程架构缺陷</strong>：</p>
+<ol>
+<li><strong>静态均匀降采样 / Token 剪枝</strong>：为了不撑爆大模型的上下文窗口（Token Budget），粗暴地对整段视频降低帧率或剪裁 Token。结果是高频关键细节被严重抹杀，连画面里拿的是手机还是钱包都看不清。</li>
+<li><strong>两阶段检索级联流水线（Filter &amp; Process）</strong>：先用轻量模型筛出候选关键帧，再喂给大模型做深度推理。这种单向数据流水线最大的工程死穴是<strong>没有容错补偿机制</strong>——只要前置粗筛环节漏检了一个微小事件，下游的大模型就永远失去补救机会，造成灾难性的级联误差（Error Propagation）。</li>
+</ol>
+<p>为了打破长视频 Token 预算受限与多事件细节捕捉的对立，来自<strong>清华大学计算机系朱文武教授团队</strong>在 arXiv 上公开了一篇兼具系统调度思维与算法深度的成果：</p>
+<blockquote>
+<p><strong>《Modularized Dynamic-Granularity Video LLM for Multi-Event Long Video Understanding》</strong> (arXiv:2607.15778)<br>
+论文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.15778">https://arxiv.org/abs/2607.15778</a><br>
+HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2607.15778">https://arxiv.org/html/2607.15778</a><br>
+核心关键词：长视频理解、动态粒度调度、反事实校验、强化学习、DPO、MEventBench</p>
+</blockquote>
+<p>作者提出了 <strong>MoD-VLLM（模块化动态粒度视频大模型）</strong>：将单向流水线重构成一个<strong>带自省机制的闭环反馈控制系统</strong>。系统通过动态粒度调度器，将 98% 的冗余背景压缩为极低码率（1 小时背景仅耗费约 900 Token 保留全局时间骨架），腾出超过 85% 的 Token 预算对核心关注区实施超密集、超高分辨率重采样；同时引入反事实探针双路复核攻克漏检死锁，并利用下游问答损失反向驱动端到端 DPO 策略学习。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Modularized Dynamic-Granularity Video LLM for Multi-Event Long Video Understanding<br>
+<strong>作者团队</strong>：Wei Feng, Xin Wang, Yu-Wei Zhan, Yuwei Zhou, Wenwu Zhu (Tsinghua University)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.15778">https://arxiv.org/abs/2607.15778</a><br>
+<strong>代码与数据</strong>：包含 1,200 组复杂多事件视频长基准 MEventBench</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/08/10/MoD-VLLM-LongVideo/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/07/12/ExtremeWhenBench-HourVideoGrounding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/07/12/ExtremeWhenBench-HourVideoGrounding/" class="post-title-link" itemprop="url">【论文分享】长视频定位不是识别而是搜索：ExtremeWhenBench 揭秘小时级时序定位的工程断层与两阶段破局</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-07-12 18:00:00" itemprop="dateCreated datePublished" datetime="2026-07-12T18:00:00+08:00">2026-07-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态与长视频处理领域，<strong>时序定位（Temporal Grounding）</strong> 是一项至关重要的核心基础设施能力：给定一段长视频和一个自然语言查询（例如：“<em>讲师是在哪一分哪一秒第一次引入反向传播概念的？</em>”），系统需要精准返回事件发生的起止时间戳 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><msub><mi>t</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[t_{start}, t_{end}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>。</p>
+<p>然而，过去的学术研究长期陷入了 <strong>“短视频刷榜的虚假繁荣”</strong>——绝大多数基准（如 Charades-STA、QVHighlights）时长仅有 30 秒到 2 分钟。在 30 秒的片段里定位一个 7 秒的动作，事件本身就占据了 25% 的视频长度，大模型根本不需要真正的全局寻址与搜索，凭单帧目标识别就能蒙对答案。</p>
+<p>面对真实工业场景下动辄 <strong>1 小时至数小时</strong> 的长录像、长会议与监控视频，如果直接把几十万帧视频数据硬塞给当红的多模态大模型（Video-LLM），会发生什么？</p>
+<p>来自 <strong>NAVER Cloud AI 与 KAIST AI</strong> 的研究团队在论文 <strong>《Natural-Language Temporal Grounding in Hour-Long Videos is a Search Problem: A Benchmark and Empirical Decomposition》</strong> 中给出了极其震撼的实验实测：<strong>所有开源与商业单体视频大模型在小时级长视频上全面雪崩；而一个 2021 年老旧、甚至连语言模型都没有的纯逐帧 CLIP 向量检索 Baseline，竟然将最先进的视频大模型全方位吊打！</strong></p>
+<p>为了系统性拆解这一工程断层，论文发布了首个真正意义上的开放小时级时序定位基准——<strong>ExtremeWhenBench</strong>，并通过实证证明：<strong>长视频定位不是识别算法问题，而是经典的“两阶段检索（Search + Localize）”工程架构问题</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Natural-Language Temporal Grounding in Hour-Long Videos is a Search Problem: A Benchmark and Empirical Decomposition<br>
+<strong>论文作者</strong>：Sukmin Seo, Geewook Kim (NAVER Cloud AI &amp; KAIST AI)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2606.12300">https://arxiv.org/abs/2606.12300</a><br>
+<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2606.12300">https://arxiv.org/html/2606.12300</a><br>
+<strong>开源代码与评测集</strong>：<a target="_blank" rel="noopener" href="https://github.com/naver-ai/ExtremeWhenBench">https://github.com/naver-ai/ExtremeWhenBench</a></p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/07/12/ExtremeWhenBench-HourVideoGrounding/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +458,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 19:07:32" itemprop="dateModified" datetime="2026-11-10T19:07:32+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
     </span>
 
   
@@ -347,7 +573,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/260
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 19:07:32" itemprop="dateModified" datetime="2026-11-10T19:07:32+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
     </span>
 
   
@@ -473,7 +699,7 @@ Hugging Face 权重：<a target="_blank" rel="noopener" href="https://huggingfac
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 19:07:32" itemprop="dateModified" datetime="2026-11-10T19:07:32+08:00">2026-11-10</time>
+      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
     </span>
 
   
@@ -539,233 +765,8 @@ Hugging Face 权重：<a target="_blank" rel="noopener" href="https://huggingfac
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/03/10/MeCo-TemporalLocalization/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/03/10/MeCo-TemporalLocalization/" class="post-title-link" itemprop="url">【论文分享】告别数字时间戳暴力硬猜：ICLR 顶会 MeCo 如何用“两次测量一次裁切”重构视频大模型时序定位范式</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-03-10 16:00:00" itemprop="dateCreated datePublished" datetime="2026-03-10T16:00:00+08:00">2026-03-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 19:07:32" itemprop="dateModified" datetime="2026-11-10T19:07:32+08:00">2026-11-10</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>14 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在视频多模态理解与长视频检索领域，<strong>视频时序定位（Video Temporal Localization / Grounding）</strong> 是一项基础且核心的基础设施能力：给定一段长视频和一句用户自然语言查询（如“找出厨师切洋葱的片段”或“定位小狗抓飞盘的时间”），系统需要精准定位出目标动作在视频中的起止时间戳 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><msub><mi>t</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[t_{start}, t_{end}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>。</p>
-<p>然而，对于算法落地与后端系统工程师而言，过去两年主流的 Video-LLM 方案（如 TimeChat、VTG-LLM、TRACE 等）在架构上存在严重的 <strong>“职责错配”</strong>：它们强行要求擅长自然语言语义理解的大模型，直接吐出无语义的浮点数字符串（如 <code>12.5s - 18.2s</code>）。这种让语言模型硬做标量回归的逆天设计，不仅需要耗费上百万条标注数据和大量 GPU 算力进行强行拟合，还在长视频和未见场景下展现出极差的鲁棒性。</p>
-<p>为了彻底打破“逼大模型盲猜数字时间戳”的恶性循环，来自大阪大学与 CyberAgent 的研究团队在 ICLR 上发表了前瞻性成果：<strong>《Measure Twice, Cut Once: Grasping Video Structures and Event Semantics with LLMs for Video Temporal Localization》（MeCo）</strong>。</p>
-<p>他们汲取木工“量两次，切一次，避免切错”的古老智慧，从系统架构层面重构了整套流水线：<strong>不让大模型预测任何时间戳数值，而是让大模型专注于全局结构感知与细粒度语义提纯（Measure Twice），最终通过极简高效的矩阵内积相似度计算完成物理区间的精准切割（Cut Once）</strong>。该方法凭借轻量级的 3.8B 小模型和仅仅 1 轮 LoRA 微调，全面击败了动辄 7B/13B 全量微调的旧时代 SOTA 模型。</p>
-<blockquote>
-<p><strong>论文题目</strong>：Measure Twice, Cut Once: Grasping Video Structures and Event Semantics with LLMs for Video Temporal Localization<br>
-<strong>论文代码</strong>：MeCo (Measure Twice, Cut Once)<br>
-<strong>作者团队</strong>：Zongshang Pang, Mayu Otani, Yuta Nakashima (Osaka University &amp; CyberAgent)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2503.09027">https://arxiv.org/abs/2503.09027</a><br>
-<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2503.09027">https://arxiv.org/html/2503.09027</a><br>
-<strong>官方源码</strong>：<a target="_blank" rel="noopener" href="https://github.com/pangzss/MeCo">https://github.com/pangzss/MeCo</a><br>
-<strong>收录会议</strong>：ICLR 2025</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/03/10/MeCo-TemporalLocalization/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/03/02/TowardsUniformityAndAlignment-UniAlign/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/03/02/TowardsUniformityAndAlignment-UniAlign/" class="post-title-link" itemprop="url">【论文分享】告别多模态内耗：为什么传统对比学习会“左右互搏”？ICML 2026 新作 UniAlign 深度拆解</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-03-02 17:00:00" itemprop="dateCreated datePublished" datetime="2026-03-02T17:00:00+08:00">2026-03-02</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 19:07:32" itemprop="dateModified" datetime="2026-11-10T19:07:32+08:00">2026-11-10</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.2k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>15 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在大模型与多模态表征（Multimodal Representation Learning）领域，<strong>对比学习（Contrastive Learning，以 InfoNCE 目标为代表）</strong> 无疑是过去几年最辉煌的技术基石之一。从 OpenAI 的 CLIP 凭借图文双塔席卷全球开始，到后来的 ImageBind、LanguageBind、VAST，研究者们顺理成章地将这套方法拓展到视频、音频、深度图、热成像等更多模态——<strong>“正样本拉近（Alignment 对齐），负样本推开（Uniformity 均匀性）”</strong>，似乎成了多模态表示学习的不二法门。</p>
-<p>然而，当大家满心欢喜地把模态数量从 2 个（图+文）拓展到 3 个甚至更多（图+文+音+视）时，一个令人头疼的幽灵却始终挥之不去：<strong>模态鸿沟（Modality Gap）</strong>。</p>
-<p>即使损失函数已经收敛、多模态检索指标看起来还不错，但如果你把学出来的特征投射到空间中，会赫然发现：<strong>图片缩在一座岛上，文字缩在第二座岛上，声音缩在第三座岛上</strong>。各模态之间看似在同一个空间，实则“老死不相往来”。这导致如果你直接把一段音频的特征向量喂给用图片训练好的生成模型（如 UnCLIP / Kandinsky），生成器就像收到了乱码，画出来的图彻底崩坏变形。</p>
-<p>为什么两模态下行之有效的方法，到了三模态、四模态就不好使了？大家一直把这归咎于“数据不平衡”或“模型容量不足”。</p>
-<p>近日，来自<strong>阿姆斯特丹大学、荷兰癌症研究所等机构</strong>的研究团队在机器学习顶会 <strong>ICML 2026</strong> 发表了一篇直击多模态表征灵魂的重磅新作：</p>
-<blockquote>
-<p><strong>《Towards Uniformity and Alignment for Multimodal Representation Learning》</strong> (arXiv:2602.09507)<br>
-OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum?id=im2Dw94HjX">https://openreview.net/forum?id=im2Dw94HjX</a></p>
-</blockquote>
-<p>作者用严谨的数学几何推导揭开了多模态对比学习的遮羞布：<strong>传统 InfoNCE 只要扩展到 3 个及以上模态，其内部就必然滋生两大数学层面的物理内耗，而且模态越多、打架越凶！</strong> 与此同时，论文给出了一套干净纯粹的极简解法 <strong>UniAlign</strong>，在完全不增加额外参数、不堆算力的前提下，直接刷爆检索指标，并实现了<strong>仅凭声音特征就能直接驱动未微调的图像生成器画出逼真大图</strong>！</p>
-<p>本文将为你深度拆解这篇论文的核心痛点诊断、数学几何直觉、架构实现细节与震撼的跨模态实验。</p>
-<blockquote>
-<p><strong>论文题目</strong>：Towards Uniformity and Alignment for Multimodal Representation Learning<br>
-<strong>作者团队</strong>：Wenzhe Yin, Pan Zhou, Zehao Xiao, Jie Liu, Shujian Yu, Jan-Jakob Sonke, Efstratios Gavves（阿姆斯特丹大学、新加坡科技研究局、荷兰癌症研究所等）<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2602.09507">https://arxiv.org/abs/2602.09507</a><br>
-<strong>代码与主页</strong>：<a target="_blank" rel="noopener" href="https://openreview.net/forum?id=im2Dw94HjX">ICML 2026 OpenReview</a><br>
-<strong>核心领域</strong>：多模态表示学习、对比学习、模态鸿沟、零样本检索、无先验跨模态生成</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/03/02/TowardsUniformityAndAlignment-UniAlign/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/8/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/10/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/8/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/10/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>
@@ -788,14 +789,14 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">369k</span>
+    <span title="站点总字数">391k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">22:22</span>
+    <span title="站点阅读时长">23:43</span>
   </span>
 </div>
 <div class="busuanzi-count">

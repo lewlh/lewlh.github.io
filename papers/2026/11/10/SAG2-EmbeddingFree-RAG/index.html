@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在当前大模型检索增强生成（RAG）与智能体（Agent）知识库的工程实践中，整个技术圈几乎陷入了一种 “重型基础设施内卷”： 只要遇到复杂的知识检索或多跳推理需求，团队的第一反应往往是：上昂贵的 Embedding 向量模型、上分布式向量数据库（Milvus &#x2F; Qdrant）、甚至耗费数十万次 LLM 调用提取离线知识三元组去堆砌复杂的 GraphRAG。 然而，当系统真正进入生产运维阶段，软件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】反向内卷的极简主义：单机 SQLite + BM25 如何干翻重型向量库与 GraphRAG？深度拆解 SAG2 与开源 SAG-Wiki">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/11/10/SAG2-EmbeddingFree-RAG/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在当前大模型检索增强生成（RAG）与智能体（Agent）知识库的工程实践中，整个技术圈几乎陷入了一种 “重型基础设施内卷”： 只要遇到复杂的知识检索或多跳推理需求，团队的第一反应往往是：上昂贵的 Embedding 向量模型、上分布式向量数据库（Milvus &#x2F; Qdrant）、甚至耗费数十万次 LLM 调用提取离线知识三元组去堆砌复杂的 GraphRAG。 然而，当系统真正进入生产运维阶段，软件">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-10T11:25:00.000Z">
+<meta property="article:modified_time" content="2026-11-11T09:33:26.879Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="BM25">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="SQLite">
+<meta property="article:tag" content="多跳推理">
+<meta property="article:tag" content="工程落地">
+<meta property="article:tag" content="检索增强生成">
+<meta property="article:tag" content="系统架构">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/11/10/SAG2-EmbeddingFree-RAG/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/11/10/SAG2-EmbeddingFree-RAG/","path":"papers/2026/11/10/SAG2-EmbeddingFree-RAG/","title":"【论文分享】反向内卷的极简主义：单机 SQLite + BM25 如何干翻重型向量库与 GraphRAG？深度拆解 SAG2 与开源 SAG-Wiki"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】反向内卷的极简主义：单机 SQLite + BM25 如何干翻重型向量库与 GraphRAG？深度拆解 SAG2 与开源 SAG-Wiki | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">289</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">87</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E6%9E%B6%E6%9E%84%E7%90%86%E5%BF%B5%E7%9A%84%E5%8F%8D%E5%B7%AE%EF%BC%9A%E9%87%8D%E7%A6%BB%E7%BA%BF-vs-%E9%87%8D%E5%9C%A8%E7%BA%BF"><span class="nav-text">01. 架构理念的反差：重离线 vs 重在线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E7%BB%9F%E6%96%B9%E6%A1%88%E5%9C%A8%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%89%E5%BA%A7%E5%A4%A7%E5%B1%B1"><span class="nav-text">传统方案在软件工程中的三座大山</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6%EF%BC%9AQuery-Time-%E5%8A%A8%E6%80%81%E7%8A%B6%E6%80%81%E6%9C%BA%E5%BE%AA%E7%8E%AF"><span class="nav-text">02. 核心机制：Query-Time 动态状态机循环</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E6%9C%BA%E4%B8%89%E6%AD%A5%E8%B7%B3"><span class="nav-text">状态机三步跳</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E7%AE%97%E6%B3%95%E4%B8%8E%E5%B7%A5%E7%A8%8B%E7%9B%B4%E8%A7%89%E6%8B%86%E8%A7%A3"><span class="nav-text">03. 算法与工程直觉拆解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BB%BA%E5%BA%93%E5%8F%AA%E8%A6%81-2-36-%E7%A7%92%EF%BC%9F%EF%BC%88Section-3-1%EF%BC%89"><span class="nav-text">1. 为什么建库只要 2.36 秒？（Section 3.1）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A1%A5%E6%8E%A5%E8%AF%8D%E4%BC%98%E5%85%88%E7%BA%A7%E5%85%AC%E5%BC%8F%E8%83%8C%E5%90%8E%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%9B%B4%E8%A7%89%EF%BC%88Section-3-3%EF%BC%89"><span class="nav-text">2. 桥接词优先级公式背后的工程直觉（Section 3.3）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%BE%B9%E7%95%8C%E7%BA%A6%E6%9D%9F%E8%AE%BE%E8%AE%A1%EF%BC%88Bounded-Retrieval%EF%BC%8CSection-3-5%EF%BC%89"><span class="nav-text">3. 边界约束设计（Bounded Retrieval，Section 3.5）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%9C%AC%E5%9C%B0%E5%A4%9A%E6%A0%B7%E6%80%A7%E9%87%8D%E6%8E%92%EF%BC%88DPP-%E7%AE%97%E6%B3%95%EF%BC%8CSection-3-4%EF%BC%89"><span class="nav-text">4. 本地多样性重排（DPP 算法，Section 3.4）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E6%BA%90%E7%A0%81%E5%AE%9E%E6%88%98%EF%BC%9A%E5%BC%80%E6%BA%90-SAG-Wiki-%E7%9A%84%E6%9E%B6%E6%9E%84%E5%AE%9E%E7%8E%B0"><span class="nav-text">04. 源码实战：开源 SAG-Wiki 的架构实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E4%BA%AE%E7%82%B9"><span class="nav-text">核心工程亮点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E5%AE%A2%E8%A7%82%E5%8F%8D%E6%80%9D%E4%B8%8E%E6%8A%80%E6%9C%AF%E5%80%BA%EF%BC%9AJEV-%E9%97%AD%E6%BA%90%E4%BE%9D%E8%B5%96%E7%9A%84%E6%AD%BB%E7%A9%B4%E4%B8%8E%E8%87%AA%E7%A0%94%E5%B9%B3%E6%9B%BF"><span class="nav-text">05. 客观反思与技术债：JEV 闭源依赖的死穴与自研平替</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%87%B4%E5%91%BD%E8%BD%AF%E8%82%8B%EF%BC%9A%E5%BC%BA%E4%BE%9D%E8%B5%96%E7%AC%AC%E4%B8%89%E6%96%B9%E6%89%98%E7%AE%A1-API"><span class="nav-text">1. 致命软肋：强依赖第三方托管 API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-JEV-%E7%A9%B6%E7%AB%9F%E5%9C%A8%E5%B9%B2%E4%BB%80%E4%B9%88%EF%BC%9F%EF%BC%88%E6%92%95%E4%B8%8B%E7%8E%84%E5%AD%A6%E5%A4%96%E8%A1%A3%EF%BC%89"><span class="nav-text">2. JEV 究竟在干什么？（撕下玄学外衣）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%B7%A5%E7%A8%8B%E5%B8%88%E5%A6%82%E4%BD%95%E7%A0%B4%E5%B1%80%EF%BC%9F3-%E6%9D%A1%E5%AE%8C%E5%85%A8%E8%87%AA%E4%B8%BB%E5%8F%AF%E6%8E%A7%E7%9A%84%E5%BC%80%E6%BA%90%E6%9B%BF%E4%BB%A3%E8%B7%AF%E7%BA%BF"><span class="nav-text">3. 工程师如何破局？3 条完全自主可控的开源替代路线</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E6%9E%B6%E6%9E%84%E6%B3%9B%E5%8C%96%EF%BC%9A%E8%83%BD%E5%90%A6%E5%B0%86-SAG2-%E8%BF%81%E7%A7%BB%E8%87%B3%E2%80%9C%E8%A7%86%E9%A2%91%E6%96%87%E5%AD%97%E6%A3%80%E7%B4%A2%E2%80%9D%EF%BC%9F"><span class="nav-text">06. 架构泛化：能否将 SAG2 迁移至“视频文字检索”？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%97%9B%E7%82%B9%E9%99%8D%E7%BB%B4%EF%BC%9A%E8%A7%A3%E5%86%B3%E8%A7%86%E9%A2%91%E4%B8%AD%E7%9A%84%E2%80%9C%E6%97%B6%E5%BA%8F%E5%A4%9A%E8%B7%B3%E5%9B%A0%E6%9E%9C%E2%80%9D"><span class="nav-text">1. 痛点降维：解决视频中的“时序多跳因果”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%A7%86%E9%A2%91%E8%90%BD%E5%9C%B0%E7%9A%84%E5%B7%A5%E7%A8%8B%E6%94%B9%E9%80%A0%E8%A6%81%E7%82%B9"><span class="nav-text">2. 视频落地的工程改造要点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E8%AF%84%E6%B5%8B%E5%9F%BA%E5%87%86%E4%B8%8E%E5%AE%9E%E6%B5%8B%E6%95%B0%E6%8D%AE"><span class="nav-text">07. 评测基准与实测数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#08-%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84%E6%80%BB%E7%BB%93%E4%B8%8E%E5%90%AF%E7%A4%BA"><span class="nav-text">08. 软件工程师的总结与启示</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">289</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/10/SAG2-EmbeddingFree-RAG/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】反向内卷的极简主义：单机 SQLite + BM25 如何干翻重型向量库与 GraphRAG？深度拆解 SAG2 与开源 SAG-Wiki | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】反向内卷的极简主义：单机 SQLite + BM25 如何干翻重型向量库与 GraphRAG？深度拆解 SAG2 与开源 SAG-Wiki
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-10 19:25:00" itemprop="dateCreated datePublished" datetime="2026-11-10T19:25:00+08:00">2026-11-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在当前大模型检索增强生成（RAG）与智能体（Agent）知识库的工程实践中，整个技术圈几乎陷入了一种 <strong>“重型基础设施内卷”</strong>：</p>
+<p>只要遇到复杂的知识检索或多跳推理需求，团队的第一反应往往是：上昂贵的 Embedding 向量模型、上分布式向量数据库（Milvus / Qdrant）、甚至耗费数十万次 LLM 调用提取离线知识三元组去堆砌复杂的 GraphRAG。</p>
+<p>然而，当系统真正进入生产运维阶段，软件开发工程师很快就会遭遇残酷的工程痛点：</p>
+<ol>
+<li><strong>离线建库成本爆炸</strong>：成千上万篇文档切片向量化和图抽取极度缓慢，耗尽 GPU 算力；</li>
+<li><strong>增量维护是一场噩梦</strong>：业务文档改动频繁，知识图谱或稠密向量只要修改一行，全局拓扑与索引的一致性维护让人痛苦不堪；</li>
+<li><strong>多跳逻辑严重脱节</strong>：向量相似度本质是“表面语义匹配”，根本无法解决诸如“A 关联 B，B 关联 C，但 A 与 C 语义差异极大”的隐式多跳事实链。</li>
+</ol>
+<p>近日，来自 <strong>Zleap AI（智跃深空）</strong> 的独立研究者 <strong>吴宇超（Yuchao Wu）</strong> 发表了一篇极具反叛精神与工程启发性的论文：</p>
+<blockquote>
+<p><strong>《SAG2: Embedding-Free Multi-Hop Retrieval with BM25 and JEV》</strong> (arXiv:2610.22588)<br>
+论文链接：<a target="_blank" href="https://arxiv.org/abs/2610.22588" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2610.22588</a><br>
+HTML 格式：<a target="_blank" href="https://arxiv.org/html/2610.22588" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2610.22588</a><br>
+开源项目：<a target="_blank" href="https://github.com/Zleap-AI/SAG-Wiki" rel="external nofollow noreferrer noopener">https://github.com/Zleap-AI/SAG-Wiki</a><br>
+基准评测：<a target="_blank" href="https://github.com/Zleap-AI/SAG-Benchmark" rel="external nofollow noreferrer noopener">https://github.com/Zleap-AI/SAG-Benchmark</a><br>
+核心结论：<strong>彻底抛弃向量（Embedding-Free），不做离线图抽取，仅依靠单文件 SQLite 倒排索引（BM25）与轻量判别模型 JEV 的在线扩展，在 MuSiQue、2WikiMultiHopQA 等多个多跳基准上全面超越传统向量 RAG 与 GraphRAG！</strong></p>
+</blockquote>
+<p>本文将站在<strong>软件开发工程师、系统架构师与后端研发</strong>的视角，深入剖析 SAG2 的问题解决范式、状态机检索循环、工程直觉，并对其闭源 JEV 依赖的局限性、自研开源替代方案，以及向<strong>视频文字多跳检索</strong>的架构泛化进行深度探讨。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-架构理念的反差：重离线-vs-重在线">01. 架构理念的反差：重离线 vs 重在线</h2>
+<p>要理解 SAG2 的突破，首先必须对比它与传统主流方案在“计算工作负载分配（Workload Allocation）”上的根本分野：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">【传统向量 RAG / GraphRAG：重离线，轻在线】</span><br><span class="line">原始文档 ──► [ 昂贵 GPU 离线抽取 / Embedding ] ──► 庞大向量库 / 静态全局图 ──► [ 单次余弦相似度匹配 ]</span><br><span class="line">             (耗费数小时、极度昂贵、增量更新困难)                                   (无法解决隐式多跳)</span><br><span class="line"></span><br><span class="line">【SAG2 范式：极轻离线，在线动态扩展】</span><br><span class="line">原始文档 ──► [ SQLite FTS5 倒排索引 (纯 CPU，零模型计算) ] ──► 仅几十 MB 单文件</span><br><span class="line">             (1.1 万段落建库仅需 2.36 秒！增量更新就是标准 SQL 写)</span><br><span class="line">                                │</span><br><span class="line">                                ▼</span><br><span class="line">                       [ 在线 Query 驱动的状态机 ]</span><br><span class="line">              BM25 粗筛 ◄──► 决策剪枝 ◄──► 桥接词抽取 ◄──► 动态超边关联</span><br></pre></td></tr></table></figure>
+<h3 id="传统方案在软件工程中的三座大山">传统方案在软件工程中的三座大山</h3>
+<ol>
+<li><strong>语义碎片化（Semantic Fragmentation）</strong>：GraphRAG 强行把连贯的文章切碎为 <code>(主语, 谓语, 宾语)</code> 三元组，丢失了完整的叙事上下文和细节事实；</li>
+<li><strong>图谱维护的雪崩效应</strong>：在真实企业内网中，文件每天都在频繁增删改查。维护一个静态全局知识图谱，其增量 ACID 事务和去重合并成本是指数级的；</li>
+<li><strong>多跳逻辑阻抗失配</strong>：单纯依赖向量空间内积计算，命中相关段落就像在盲盒中摸奖，对于有前因后果链条（Cause-and-Effect Chain）的复杂问题极其脆弱。</li>
+</ol>
+<p>SAG2 提出了逆向思维：<strong>离线不做任何不可逆的语义压缩或图抽取，把一切关联计算推迟到查询时（Query-Time），通过在线循环启发式搜索动态构筑证据超边。</strong></p>
+<hr>
+<h2 id="02-核心机制：Query-Time-动态状态机循环">02. 核心机制：Query-Time 动态状态机循环</h2>
+<p>SAG2 的完整流程由<strong>极速离线倒排索引</strong>与<strong>在线三轮受限扩展</strong>构成：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph Offline[&quot;1. 极速离线建库 (Pure Local)&quot;]
+        D[&quot;本地文档 / 代码 / 笔记&quot;] --&gt; FTS[&quot;SQLite FTS5 倒排索引 (BM25)&quot;]
+    end
+
+    subgraph Online[&quot;2. 在线有限状态机检索 (Query-Time)&quot;]
+        Q[&quot;用户原始查询 q&quot;] --&gt; R0[&quot;Round 0: 词法粗筛 (BM25 Top 100)&quot;]
+        R0 --&gt; J0[&quot;JEV 证据决策打分 (空上下文)&quot;]
+        
+        J0 --&gt; S0[&quot;提取 Top 10 证据段落作为 Seeds&quot;]
+        S0 --&gt; Term[&quot;计算扩展优先级 ➔ 提取 Top 20 桥接词&quot;]
+        
+        Term --&gt; R1[&quot;Round 1: 带着桥接词回 SQLite 交错检索&quot;]
+        R1 --&gt; J1[&quot;JEV 再次决策打分 (携带已知上下文评估)&quot;]
+        
+        J1 --&gt; Cond&#123;&quot;达到最大轮次? (H=2)&quot;&#125;
+        Cond -- 否 --&gt; S1[&quot;提取新 Seeds 再次展开&quot;]
+        Cond -- 是 --&gt; DPP[&quot;本地 DPP 多样性重排 (消除冗余)&quot;]
+        DPP --&gt; Out[&quot;输出最终 Top 10 紧凑证据&quot;]
+    end</code></pre>
+<h3 id="状态机三步跳">状态机三步跳</h3>
+<ul>
+<li><strong>Round 0（初始命中）</strong>：用户问题直接在 SQLite FTS5 中做 BM25 检索，拿到初步候选池（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">B=100</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0502em;">B</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">100</span></span></span></span>），并锁定绝对靠前的 5 个结果受保护（Protected Seeds）；</li>
+<li><strong>Round 1（一跳穿透）</strong>：从高分段落中发掘“桥接词”，拿着词回 SQLite 检索出未见过的新段落，并携带 Round 0 的证据作为 Context 重新打分；</li>
+<li><strong>Round 2（二跳收敛）</strong>：进行最后一轮补充，历史高分段落与新候选合并，严格截断预算，输出最终证据链。</li>
+</ul>
+<hr>
+<h2 id="03-算法与工程直觉拆解">03. 算法与工程直觉拆解</h2>
+<p>论文第三章给出了严谨的数学表达。我们剥离学术符号，从软件工程师的实现直觉去解读每一处设计：</p>
+<h3 id="1-为什么建库只要-2-36-秒？（Section-3-1）">1. 为什么建库只要 2.36 秒？（Section 3.1）</h3>
+<ul>
+<li><strong>实现方案</strong>：直接利用 SQLite 原生自带的 <code>FTS5</code> 全文检索虚拟表。</li>
+<li><strong>字段权重</strong>：<code>title: 2, heading: 2, body: 1</code>。</li>
+<li><strong>工程收益</strong>：在包含 11,656 个段落的 MuSiQue 数据集上，<strong>建库耗时仅 2.36 秒，生成的单文件仅 25.87 MiB，离线模型调用次数为 0，成本 $0</strong>。没有向量分块对齐，没有 GPU 预热，单机多线程 CPU 即刻完成。</li>
+</ul>
+<h3 id="2-桥接词优先级公式背后的工程直觉（Section-3-3）">2. 桥接词优先级公式背后的工程直觉（Section 3.3）</h3>
+<p>从证据段落向外发掘下一个线索时，系统根据以下公式给候选词 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi></mrow><annotation encoding="application/x-tex">t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6151em;"></span><span class="mord mathnormal">t</span></span></span></span> 打分：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>a</mi><mi>r</mi></msub><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><munder><mrow><mi>max</mi><mo>⁡</mo></mrow><mrow><mi>d</mi><mo>∈</mo><msub><mi>S</mi><mi>r</mi></msub></mrow></munder><mo fence="false" stretchy="true" minsize="1.8em" maxsize="1.8em">[</mo><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><mi>ln</mi><mo>⁡</mo><mtext>tf</mtext><mo stretchy="false">(</mo><mi>t</mi><mo separator="true">,</mo><mi>d</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>⋅</mo><mi>I</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>⋅</mo><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><msub><mi>g</mi><mi>q</mi></msub><mo stretchy="false">(</mo><mi>t</mi><mo separator="true">,</mo><mi>d</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>⋅</mo><msub><mi>w</mi><mi>r</mi></msub><mo stretchy="false">(</mo><mi>d</mi><mo stretchy="false">)</mo><mo fence="false" stretchy="true" minsize="1.8em" maxsize="1.8em">]</mo></mrow><annotation encoding="application/x-tex">a_r(t) = \max_{d \in S_r} \Big[ (1 + \ln \text{tf}(t, d)) \cdot I(t) \cdot (1 + g_q(t, d)) \cdot w_r(d) \Big]
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.0022em;vertical-align:-0.8522em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.4306em;"><span style="top:-2.3479em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mrel mtight">∈</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1645em;"><span style="top:-2.357em;margin-left:-0.0576em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop">max</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.8522em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="delimsizing size2">[</span></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">ln</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">tf</span></span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mclose">))</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mclose">))</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.8em;vertical-align:-0.65em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">d</span><span class="mclose">)</span><span class="mord"><span class="delimsizing size2">]</span></span></span></span></span></span></p>
+<p>工程师的直觉逻辑：</p>
+<ol>
+<li><strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>tf</mtext><mo stretchy="false">(</mo><mi>t</mi><mo separator="true">,</mo><mi>d</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\text{tf}(t, d)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">tf</span></span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mclose">)</span></span></span></span>（局部重要性）</strong>：词语在当前命中断落中出现越多次，越可能是该段落讨论的核心实体；</li>
+<li><strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">I(t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span>（全局罕见度 / 逆文档频率 IDF）</strong>：如果该词全库到处都是（如“系统”、“公司”），直接权重归零；如果它是独特专有名词（人名、型号、地名），权重极高；</li>
+<li><strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mi>q</mi></msub><mo stretchy="false">(</mo><mi>t</mi><mo separator="true">,</mo><mi>d</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">g_q(t, d)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mclose">)</span></span></span></span>（句子级查询重合度，最核心精髓）</strong>：<strong>若词 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi></mrow><annotation encoding="application/x-tex">t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6151em;"></span><span class="mord mathnormal">t</span></span></span></span> 所在的那个句子，刚好包含原问题中的词</strong>，说明这个词是原问题实体向外延展的“强力跳板”（Bridge Term）；</li>
+<li><strong><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>r</mi></msub><mo stretchy="false">(</mo><mi>d</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">w_r(d)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">d</span><span class="mclose">)</span></span></span></span>（段落置信度）</strong>：来自高分段落的词权重高，低分段落的词被阻尼衰减。</li>
+</ol>
+<blockquote>
+<p><strong>典型案例</strong>：<br>
+用户问：“<em>Erik Hort 出生地的县治（County Seat）是哪里？</em>”</p>
+<ul>
+<li>初始命中段落：提到“<em>Erik Hort 出生于 Montebello, New York</em>”；</li>
+<li>桥接词提纯：在与“Erik Hort”同一句中，罕见地名“<strong>Montebello</strong>”以极高权重入选；</li>
+<li>状态机二跳：以“Montebello”为 Key 再次查库，立刻命中第二跳段落：“<em>Montebello 属于 Rockland County……</em>”。原本两篇毫不相关的文档，在毫秒级内通过动态关联拼接完成。</li>
+</ul>
+</blockquote>
+<h3 id="3-边界约束设计（Bounded-Retrieval，Section-3-5）">3. 边界约束设计（Bounded Retrieval，Section 3.5）</h3>
+<p>工程系统最忌讳无休止递归与雪崩。SAG2 在边界控制上极其克制：</p>
+<ul>
+<li><strong>最大跳数限制</strong>：写死最多扩展两轮（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">H=2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0813em;">H</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">2</span></span></span></span>），即至多 3 轮打分；</li>
+<li><strong>打分预算硬截断</strong>：单次用户查询的全局模型调用次数被硬限制在 <strong>340 次以内</strong>，杜绝并发风暴。</li>
+</ul>
+<h3 id="4-本地多样性重排（DPP-算法，Section-3-4）">4. 本地多样性重排（DPP 算法，Section 3.4）</h3>
+<ul>
+<li>搜出来的 Top 10 如果全在讲同一件事怎么办？</li>
+<li>系统利用行列式点过程（DPP）在本地用稀疏 TF-IDF 向量投影消除语义重叠，强制选出能互补拼图的跨领域证据。</li>
+<li><strong>纯本地 CPU 矩阵运算，耗时不到 1ms，完全不调用模型。</strong></li>
+</ul>
+<hr>
+<h2 id="04-源码实战：开源-SAG-Wiki-的架构实现">04. 源码实战：开源 SAG-Wiki 的架构实现</h2>
+<p>SAG2 对应的开源项目是 <strong><a target="_blank" href="https://github.com/Zleap-AI/SAG-Wiki" rel="external nofollow noreferrer noopener">Zleap-AI/SAG-Wiki</a></strong>。其代码库展现了极高水平的系统级 Rust 与前端工程化素养：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SAG-Wiki/</span><br><span class="line">├── core/                # 核心检索引擎 (Rust)</span><br><span class="line">│   ├── src/retrieval.rs # 论文中的有限状态机、扩展词提取与调度循环</span><br><span class="line">│   ├── src/sag2_v10.rs  # 内存安全词表构建、别名修复、DPP 重排</span><br><span class="line">│   ├── src/store.rs     # SQLite FTS5 封装、ACID 监听与段落拆分</span><br><span class="line">│   └── src/models.rs    # Jev / OpenAI 接口封装、批处理与取消控制</span><br><span class="line">├── cli/                 # 独立的 Node / Rust CLI 工具与 Agent Skill</span><br><span class="line">├── src-tauri/           # 跨平台桌面外壳 (Tauri 2)</span><br><span class="line">└── src/                 # 现代化用户界面 (Svelte 5)</span><br></pre></td></tr></table></figure>
+<h3 id="核心工程亮点">核心工程亮点</h3>
+<ol>
+<li><strong>轻巧极致的发行体积</strong>：
+<ul>
+<li>传统带向量数据库的 RAG 桌面工具动辄 500MB 到数 GB；</li>
+<li>SAG-Wiki 凭借 <strong>Rust + SQLite + Tauri 2</strong>，整个桌面端安装包仅约 <strong>14 MB</strong>，启动即搜。</li>
+</ul>
+</li>
+<li><strong>防御性内存设计（<code>VocabularyBuilder</code>）</strong>：
+<ul>
+<li>在 [<code>core/src/sag2_v10.rs</code>](file:///tmp/sag2_v10.rs) 中，为了防止大文件导致内存 OOM，专门实现了流式词表构建器，设定了严格的字符预算保护，单文件超出限额即熔断。</li>
+</ul>
+</li>
+<li><strong>Agent 优先（Agent-Native）协议</strong>：
+<ul>
+<li>随仓库发布了 [<code>cli/skills/sag/SKILL.md</code>](file:///tmp/README-CN.md)，支持直接把 CLI 作为独立 Skill 挂载到 Claude Code、Codex 等 AI 智能体中，人机共用同一个单机 SQLite 知识库。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="05-客观反思与技术债：JEV-闭源依赖的死穴与自研平替">05. 客观反思与技术债：JEV 闭源依赖的死穴与自研平替</h2>
+<p>任何客观的系统分析都必须正视架构的短板。在这篇论文中，最受争议也最具商业风险的设计就是 <strong>JEV 模型</strong>。</p>
+<h3 id="1-致命软肋：强依赖第三方托管-API">1. 致命软肋：强依赖第三方托管 API</h3>
+<p>论文作者在 <strong>5.5 节（Discussion and limitations）</strong> 明确坦承：</p>
+<blockquote>
+<p><em>JEV 目前是 TypeSafe AI 的云端闭源模型，模型结构与权重并未公开。这导致虽然本地检索索引是轻量的 SQLite，但整套系统目前<strong>无法完全离线在企业私有化内网独立部署</strong>。</em></p>
+</blockquote>
+<h3 id="2-JEV-究竟在干什么？（撕下玄学外衣）">2. JEV 究竟在干什么？（撕下玄学外衣）</h3>
+<p>看穿 JEV 的本质，它并不是一个深奥的黑盒，而是一个<strong>带上下文的二分类判别器（Binary Classification Verifier）</strong>：</p>
+<ul>
+<li><strong>输入</strong>：<code>[原始问题, 已知上下文证据, 当前候选段落]</code>；</li>
+<li><strong>输出</strong>：直接通过单一 Forward Pass 输出 0.0 到 1.0 的概率浮点数（<code>type: &quot;noul&quot;</code>），判断该段落是否是必要证据。</li>
+<li><strong>优点</strong>：不需要生成多余文字，解码开销几乎为零，吞吐极高。</li>
+</ul>
+<h3 id="3-工程师如何破局？3-条完全自主可控的开源替代路线">3. 工程师如何破局？3 条完全自主可控的开源替代路线</h3>
+<p>若要在私有化环境真正独立落地 SAG2 架构，我们可以用以下三种方案平替 JEV：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">【路线 A：开源小模型 Logits 抽取 (推荐，极致兼容)】</span><br><span class="line">部署 Qwen2.5-3B/7B ──► 开启 logprobs ──► 单 Step 推理 P(&quot;Yes&quot;) ──► 0.0~1.0 概率输出</span><br><span class="line"></span><br><span class="line">【路线 B：Cross-Encoder 交叉重排器微调】</span><br><span class="line">采用 bge-reranker-large ──► 拼接 [Context + Query, Candidate] ──► Sigmoid 输出得分</span><br><span class="line"></span><br><span class="line">【路线 C：回退至 SAG 1.0 (纯单机无卡环境)】</span><br><span class="line">采用关系表 (事件表+实体表) ──► 纯 SQL JOIN 关联 ──► 零大模型调用</span><br></pre></td></tr></table></figure>
+<p>在 SAG-Wiki 源码 [<code>core/src/service.rs</code>](file:///tmp/service.rs) 中，系统原生支持挂载自定义端点（<code>sag config --url http://127.0.0.1:8000/v1 --auth none</code>）。用 Python FastAPI + vLLM 封装几十行代码，就能实现 100% 独立内网闭环。</p>
+<hr>
+<h2 id="06-架构泛化：能否将-SAG2-迁移至“视频文字检索”？">06. 架构泛化：能否将 SAG2 迁移至“视频文字检索”？</h2>
+<p>当前视频检索领域对长视频通常采用：<strong>时间切片 ➔ 提取 ASR 对白 + OCR 画面字 + VLM 密集动作描述（Visual Caption）</strong>。既然切片已经被降维成了文字事实描述，SAG2 的算法是否适用？</p>
+<p><strong>答案是：不仅完全适用，而且天生契合视频长时序因果检索的痛点！</strong></p>
+<h3 id="1-痛点降维：解决视频中的“时序多跳因果”">1. 痛点降维：解决视频中的“时序多跳因果”</h3>
+<ul>
+<li><strong>典型查询</strong>：“<em>那个在走廊摔倒的白衣护士，后来把病历交给了谁？</em>”</li>
+<li>纯向量搜索：摔倒片段没有提病历，交付片段没有提摔倒，两头落空；</li>
+<li><strong>SAG2 范式</strong>：
+<ol>
+<li>初始检索定位“摔倒”切片；</li>
+<li>提取局部特征桥接词“白衣护士”；</li>
+<li>状态机在时序片段中扩展检索，无缝串联起病历交付的后续切片。</li>
+</ol>
+</li>
+</ul>
+<h3 id="2-视频落地的工程改造要点">2. 视频落地的工程改造要点</h3>
+<ol>
+<li><strong>引入时间衰减先验（Temporal Locality Boost）</strong>：文本没有物理距离，但视频切片有明确的时间戳。在计算扩展词优先级时，对时间临近（如前后 5 分钟内）的候选切片赋予更高的关联权重；</li>
+<li><strong>防御 VLM 同义词漂移</strong>：不同镜头的大模型描述可能出现词汇不一致（“红衣服” vs “朱红色夹克”）。可在预处理切片时打上规范化的目标检测实体标签（Tags），弥补纯词法分词的不足；</li>
+<li><strong>两阶段架构终审</strong>：前 99% 的时序切片依靠 SQLite 毫秒级锁定到 Top 5，最后仅将这 5 个关键片段的关键帧喂给小型多模态大模型做单次视觉确认（Visual Grounding）。</li>
+</ol>
+<hr>
+<h2 id="07-评测基准与实测数据">07. 评测基准与实测数据</h2>
+<p>在经典多跳问答基准与企业级数据集上的评测充分证明了这套架构的强悍生命力：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">检索方案</th>
+<th style="text-align:left">索引准备耗时</th>
+<th style="text-align:center">MuSiQue (困难多跳) R@10</th>
+<th style="text-align:center">2WikiMultiHopQA R@10</th>
+<th style="text-align:center">HotpotQA R@10</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>纯 BM25</strong></td>
+<td style="text-align:left">极快（秒级）</td>
+<td style="text-align:center">54.41%</td>
+<td style="text-align:center">71.50%</td>
+<td style="text-align:center">86.90%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>BGE-Large-EN</strong> (顶流向量模型)</td>
+<td style="text-align:left">慢（全量向量化）</td>
+<td style="text-align:center">64.08%</td>
+<td style="text-align:center">73.75%</td>
+<td style="text-align:center">93.35%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>NV-Embed-v2</strong> (7B 顶级向量模型)</td>
+<td style="text-align:left">极慢（需大显存 GPU）</td>
+<td style="text-align:center">77.27%</td>
+<td style="text-align:center">80.75%</td>
+<td style="text-align:center">97.70%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>HippoRAG 2</strong> (知识图谱方案)</td>
+<td style="text-align:left">极慢（庞大离线抽取）</td>
+<td style="text-align:center">73.76%</td>
+<td style="text-align:center">93.40%</td>
+<td style="text-align:center">97.15%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>SAG2 (本文)</strong></td>
+<td style="text-align:left"><strong>极快（2.36 秒，纯 SQLite）</strong></td>
+<td style="text-align:center"><strong>86.62%</strong></td>
+<td style="text-align:center"><strong>97.43%</strong></td>
+<td style="text-align:center"><strong>99.00%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>在 MuSiQue 上，完整证据链覆盖率（All-Evidence Coverage）从传统 BM25 的 <strong>17.4%</strong> 飙升到了 SAG2 的 <strong>69.5%</strong>；跑完 1000 个复杂多跳问题的总线上模型账单仅为 <strong>$4.32</strong>（单次查询仅约合人民币 3 分钱）。</p>
+<hr>
+<h2 id="08-软件工程师的总结与启示">08. 软件工程师的总结与启示</h2>
+<p>从软件工程实现与系统设计的维度来看，SAG2 与 SAG-Wiki 带来了极其宝贵的方法论沉淀：</p>
+<ol>
+<li><strong>破除对新技术的盲信</strong>：向量数据库和图数据库并非解决知识检索的唯一解，甚至是很多场景下的“过度工程化”。老当益壮的 <strong>SQLite FTS5 / BM25 倒排索引</strong>，在灵活性、稳定性和极致成本上依然无可替代；</li>
+<li><strong>将模型从“生成器”降级为“判别剪枝器”</strong>：不要让大模型去写长篇大论来做中间推理，把它作为带上下文的二分类校验器，配合状态机剪枝，系统具备确定性、高吞吐和强可观测性；</li>
+<li><strong>极简主义是软件交付的最高准则</strong>：单文件存储、无守护进程依赖、14MB 极速安装，能用经典算法解决的问题绝不堆砌庞大的基础设施。这才是真正经得起生产环境考验的工程艺术。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/RAG/" rel="tag"># RAG</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%B7%A5%E7%A8%8B%E8%90%BD%E5%9C%B0/" rel="tag"># 工程落地</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" rel="tag"># 系统架构</a>
+              <a href="/tags/%E6%A3%80%E7%B4%A2%E5%A2%9E%E5%BC%BA%E7%94%9F%E6%88%90/" rel="tag"># 检索增强生成</a>
+              <a href="/tags/%E5%A4%9A%E8%B7%B3%E6%8E%A8%E7%90%86/" rel="tag"># 多跳推理</a>
+              <a href="/tags/SQLite/" rel="tag"># SQLite</a>
+              <a href="/tags/BM25/" rel="tag"># BM25</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/11/2026VideoAtomicChunking/" rel="prev" title="【深度研究】2026年多模态视频湖原子化切片新范式与工程架构评估报告">
+                  <i class="fa fa-angle-left"></i> 【深度研究】2026年多模态视频湖原子化切片新范式与工程架构评估报告
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/10/SAPO-VideoGrounding/" rel="next" title="【论文分享】模型心里门儿清，嘴上说不出？上交大与蚂蚁新作 SAPO：无需人工标注，用内部注意力与 GRPO 破解视频大模型时序定位鸿沟">
+                  【论文分享】模型心里门儿清，嘴上说不出？上交大与蚂蚁新作 SAPO：无需人工标注，用内部注意力与 GRPO 破解视频大模型时序定位鸿沟 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">391k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">23:43</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>

@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">282</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">85</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">289</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">87</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">85</span>
+          <span class="site-state-item-count">87</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">282</span>
+        <span class="site-state-item-count">289</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,344 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/11/2026VideoAtomicChunking/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/11/2026VideoAtomicChunking/" class="post-title-link" itemprop="url">【深度研究】2026年多模态视频湖原子化切片新范式与工程架构评估报告</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-11 14:40:00 / 修改时间：17:33:26" itemprop="dateCreated datePublished" datetime="2026-11-11T14:40:00+08:00">2026-11-11</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>18k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1:06</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="01-长视频多模态切片的核心矛盾与2026年学术界范式转移">01. 长视频多模态切片的核心矛盾与2026年学术界范式转移</h2>
+<p>在构建基于多模态大语言模型（Qwen3-VL）、多模态向量化模型（Qwen3-VL-Embedding / Qwen3-Embedding）、支持结构化与非结构化混合存储的OLAP向量数据库（MyScaleDB）以及模型上下文协议（MCP）的视频湖数据分析系统时，<strong>长视频的时序切片（Video Chunking / Temporal Segmentation）</strong> 是决定整个系统检索召回率（Recall）、时序定位精度（Temporal Grounding mIoU）以及离线算力成本上限的咽喉工程。</p>
+<p>工程实践表明，将完整长视频直接送入多模态大语言模型会导致灾难性的 <strong>“上下文Token爆炸”</strong> 与显存溢出。以 Qwen3-VL 的视觉分词器（Visual Tokenizer）为例，其Token计算逻辑近似遵循帧数与时间戳及单帧视觉Token乘积的线性扩张关系，即 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Token总数</mtext><mo>≈</mo><msub><mi>N</mi><mtext>frames</mtext></msub><mo>×</mo><mo stretchy="false">(</mo><msub><mi>N</mi><mtext>timestamp</mtext></msub><mo>+</mo><msub><mi>N</mi><mtext>visual_tokens_per_frame</mtext></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\text{Token总数} \approx N_{\text{frames}} \times (N_{\text{timestamp}} + N_{\text{visual\_tokens\_per\_frame}})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord text"><span class="mord">Token</span><span class="mord cjk_fallback">总数</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">frames</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3175em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">timestamp</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.117em;vertical-align:-0.367em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">visual_tokens_per_frame</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.367em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>。当以 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mtext> FPS</mtext></mrow><annotation encoding="application/x-tex">1\text{ FPS}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">1</span><span class="mord text"><span class="mord"> FPS</span></span></span></span></span> 的基础采样率处理一段2小时的长视频时，系统将产生 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7</mn><mo separator="true">,</mo><mn>200</mn></mrow><annotation encoding="application/x-tex">7,200</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">7</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">200</span></span></span></span> 帧图像，经过 Qwen3-VL 视觉编码后会膨胀至 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo separator="true">,</mo><mn>620</mn><mo separator="true">,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">1,620,000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">620</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">000</span></span></span></span>（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.62</mn><mtext>M</mtext></mrow><annotation encoding="application/x-tex">1.62\text{M}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">1.62</span><span class="mord text"><span class="mord">M</span></span></span></span></span>）个视觉Token，远超常规单次推理的上下文预算（如 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>224</mn><mtext>K</mtext></mrow><annotation encoding="application/x-tex">224\text{K}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">224</span><span class="mord text"><span class="mord">K</span></span></span></span></span> 至 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>256</mn><mtext>K</mtext></mrow><annotation encoding="application/x-tex">256\text{K}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">256</span><span class="mord text"><span class="mord">K</span></span></span></span></span> 上下文上限）。即便针对一段仅 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>61</mn></mrow><annotation encoding="application/x-tex">61</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">61</span></span></span></span> 秒、分辨率为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>720</mn><mo>×</mo><mn>1280</mn></mrow><annotation encoding="application/x-tex">720 \times 1280</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">720</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">1280</span></span></span></span> 的短视频，在 vLLM 在线推理环境下以 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mtext> FPS</mtext></mrow><annotation encoding="application/x-tex">1\text{ FPS}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">1</span><span class="mord text"><span class="mord"> FPS</span></span></span></span></span> 抽帧，其输入Prompt Token数量亦高达 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>11</mn><mo separator="true">,</mo><mn>981</mn></mrow><annotation encoding="application/x-tex">11,981</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">11</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">981</span></span></span></span> 个（合每秒约 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>196</mn></mrow><annotation encoding="application/x-tex">196</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">196</span></span></span></span> 个视觉Token），且 Qwen3-VL 引入的时间戳编码与动态分辨率缩放（smart_resize）进一步增加了在线推理调度的复杂性。</p>
+<p>因此，<strong>将单个视频切片严格限制在 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mtext>s</mtext></mrow><annotation encoding="application/x-tex">10\text{s}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">10</span><span class="mord text"><span class="mord">s</span></span></span></span></span> 至 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>15</mn><mtext>s</mtext></mrow><annotation encoding="application/x-tex">15\text{s}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">15</span><span class="mord text"><span class="mord">s</span></span></span></span></span> 以内</strong>，是将单切片视觉Token稳定控制在 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo separator="true">,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">2,000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">2</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">000</span></span></span></span> 至 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo separator="true">,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">3,000</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">3</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">000</span></span></span></span> 区间、防止模型静默截断（Silent Truncation）并实现高吞吐并发特征提取的刚性物理约束。</p>
+<p>然而，如何在满足 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mtext>s</mtext></mrow><annotation encoding="application/x-tex">10\text{s}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">10</span><span class="mord text"><span class="mord">s</span></span></span></span></span>–<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>15</mn><mtext>s</mtext></mrow><annotation encoding="application/x-tex">15\text{s}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">15</span><span class="mord text"><span class="mord">s</span></span></span></span></span> 刚性时长上限的同时，确保每个切片在语义上是高内聚、细粒度的原子叙事事件（Atomic Narrative Unit），学术界在2025年至2026年11月期间经历了一场深刻的反思与范式重构。</p>
+<div class="video-chunking-dashboard" style="background:#13151b; border:1px solid #2b303c; border-radius:14px; padding:24px; margin:28px 0; color:#e2e8f0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; box-shadow:0 10px 30px rgba(0,0,0,0.45);">
+<div style="font-size:20px; font-weight:700; color:#ffffff; margin-bottom:20px; line-height:1.4;">控制 Qwen3-VL 视觉Token膨胀并引入多模态叙事边界可显著提升检索精度</div>
+<div style="background:#1a1e27; border:1px solid #2f3645; border-radius:10px; padding:20px; margin-bottom:18px;">
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:14px;">
+<span style="font-size:15px; font-weight:600; color:#f8fafc;">Qwen3-VL 视觉 Token 开销与视频时长对比（1 FPS 采样，对数尺度）</span>
+<span style="font-size:12px; background:#451a1a; color:#f87171; border:1px solid #b91c1c; border-radius:4px; padding:2px 8px; font-weight:500;">硬件上限: 224,000 Tokens</span>
+</div>
+<div style="display:flex; flex-wrap:wrap; gap:16px; font-size:12px; color:#94a3b8; margin-bottom:18px;">
+<span><span style="display:inline-block; width:10px; height:10px; background:#66bb6a; border-radius:2px; margin-right:5px;"></span>10–15s 推荐原子切片 (安全区)</span>
+<span><span style="display:inline-block; width:10px; height:10px; background:#ffa726; border-radius:2px; margin-right:5px;"></span>61s 镜头片段 (短片段)</span>
+<span><span style="display:inline-block; width:10px; height:10px; background:#ef5350; border-radius:2px; margin-right:5px;"></span>2小时完整长视频 (上下文爆炸)</span>
+<span><span style="display:inline-block; width:12px; border-bottom:2px dashed #f87171; vertical-align:middle; margin-right:5px;"></span>224K 硬约束阈值</span>
+</div>
+<div style="position:relative; padding-top:6px; padding-bottom:8px;">
+<div style="position:absolute; left:71%; top:0; bottom:28px; width:0; border-left:2px dashed #ef5350; z-index:3;"></div>
+<div style="position:absolute; left:71%; bottom:4px; transform:translateX(-50%); font-size:11px; background:#b91c1c; color:#ffffff; padding:1px 6px; border-radius:3px; z-index:4; white-space:nowrap;">Qwen3-VL 上限: 224K</div>
+<div style="display:flex; align-items:center; margin-bottom:18px; font-size:13px;">
+<div style="width:160px; min-width:160px; color:#cbd5e1; text-align:right; padding-right:14px;">10–15s 原子切片 (目标12s)</div>
+<div style="flex:1; display:flex; align-items:center;">
+<div style="width:14%; height:24px; background:#66bb6a; border-radius:4px; box-shadow:0 2px 6px rgba(102,187,106,0.25);"></div>
+<span style="font-size:12px; font-weight:600; color:#86efac; margin-left:10px; white-space:nowrap;">2,400 Tokens</span>
+</div>
+</div>
+<div style="display:flex; align-items:center; margin-bottom:18px; font-size:13px;">
+<div style="width:160px; min-width:160px; color:#cbd5e1; text-align:right; padding-right:14px;">61s 镜头片段 (720p)</div>
+<div style="flex:1; display:flex; align-items:center;">
+<div style="width:34%; height:24px; background:#ffa726; border-radius:4px; box-shadow:0 2px 6px rgba(255,167,38,0.25);"></div>
+<span style="font-size:12px; font-weight:600; color:#fdba74; margin-left:10px; white-space:nowrap;">11,981 Tokens</span>
+</div>
+</div>
+<div style="display:flex; align-items:center; margin-bottom:28px; font-size:13px;">
+<div style="width:160px; min-width:160px; color:#cbd5e1; text-align:right; padding-right:14px;">2小时完整长视频</div>
+<div style="flex:1; display:flex; align-items:center;">
+<div style="width:96%; height:24px; background:#ef5350; border-radius:4px; box-shadow:0 2px 6px rgba(239,83,80,0.35);"></div>
+<span style="font-size:12px; font-weight:600; color:#fca5a5; margin-left:10px; white-space:nowrap;">1.62M Tokens</span>
+</div>
+</div>
+<div style="margin-left:174px; border-top:1px solid #334155; position:relative; height:20px; font-size:11px; color:#64748b;">
+<span style="position:absolute; left:0; transform:translateX(-50%);">1K</span>
+<span style="position:absolute; left:30%; transform:translateX(-50%);">10K</span>
+<span style="position:absolute; left:60%; transform:translateX(-50%);">100K</span>
+<span style="position:absolute; left:90%; transform:translateX(-50%);">1M</span>
+</div>
+</div>
+</div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:18px;">
+<div style="background:#1a1e27; border:1px solid #2f3645; border-radius:10px; padding:18px;">
+<div style="font-size:15px; font-weight:600; color:#f8fafc; margin-bottom:4px;">叙事切分: Scene-VLM 相对增益</div>
+<div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">MovieNet-318 测试集（视觉+字幕多模态）</div>
+<div style="display:flex; justify-content:flex-end; gap:14px; font-size:11px; color:#cbd5e1; margin-bottom:16px;">
+<span><span style="display:inline-block; width:10px; height:10px; background:#8ab4f8; border-radius:2px; margin-right:5px;"></span>F1 增益 (+pt)</span>
+<span><span style="display:inline-block; width:10px; height:10px; background:#4dd0e1; border-radius:2px; margin-right:5px;"></span>AP 增益 (+pt)</span>
+</div>
+<div style="margin-bottom:18px;">
+<div style="font-size:12px; color:#cbd5e1; margin-bottom:6px; font-weight:500;">对比 Trans4mer</div>
+<div style="margin-bottom:6px; display:flex; align-items:center;">
+<div style="width:85.6%; height:18px; background:#8ab4f8; border-radius:3px;"></div>
+<span style="font-size:11px; font-weight:600; color:#93c5fd; margin-left:8px;">+13.7</span>
+</div>
+<div style="display:flex; align-items:center;">
+<div style="width:37.5%; height:18px; background:#4dd0e1; border-radius:3px;"></div>
+<span style="font-size:11px; font-weight:600; color:#67e8f9; margin-left:8px;">+6.0</span>
+</div>
+</div>
+<div style="margin-bottom:16px;">
+<div style="font-size:12px; color:#cbd5e1; margin-bottom:6px; font-weight:500;">对比 MEGA</div>
+<div style="margin-bottom:6px; display:flex; align-items:center;">
+<div style="width:42.5%; height:18px; background:#8ab4f8; border-radius:3px;"></div>
+<span style="font-size:11px; font-weight:600; color:#93c5fd; margin-left:8px;">+6.8</span>
+</div>
+<div style="display:flex; align-items:center;">
+<div style="width:51.2%; height:18px; background:#4dd0e1; border-radius:3px;"></div>
+<span style="font-size:11px; font-weight:600; color:#67e8f9; margin-left:8px;">+8.2</span>
+</div>
+</div>
+<div style="border-top:1px solid #334155; position:relative; height:18px; font-size:11px; color:#64748b; margin-top:8px;">
+<span style="position:absolute; left:0;">+0</span>
+<span style="position:absolute; left:31.25%;">+5</span>
+<span style="position:absolute; left:62.5%;">+10</span>
+<span style="position:absolute; right:0;">+16</span>
+</div>
+</div>
+<div style="background:#1a1e27; border:1px solid #2f3645; border-radius:10px; padding:18px;">
+<div style="font-size:15px; font-weight:600; color:#f8fafc; margin-bottom:4px;">时序定位: Movie RAG + 动态窗口扩展</div>
+<div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">CoM²-Bench (Qwen3-VL-Embedding-2B)</div>
+<div style="display:flex; justify-content:flex-end; gap:14px; font-size:11px; color:#cbd5e1; margin-bottom:16px;">
+<span><span style="display:inline-block; width:10px; height:10px; background:#78909c; border-radius:2px; margin-right:5px;"></span>固定切片基线</span>
+<span><span style="display:inline-block; width:10px; height:10px; background:#82b1ff; border-radius:2px; margin-right:5px;"></span>+ AWS 动态扩展</span>
+</div>
+<div style="margin-bottom:18px;">
+<div style="font-size:12px; color:#cbd5e1; margin-bottom:6px; font-weight:500;">mIoU (平均交并比)</div>
+<div style="margin-bottom:6px; display:flex; align-items:center;">
+<div style="width:35.6%; height:18px; background:#78909c; border-radius:3px;"></div>
+<span style="font-size:11px; font-weight:600; color:#cbd5e1; margin-left:8px;">18.5%</span>
+</div>
+<div style="display:flex; align-items:center;">
+<div style="width:51.5%; height:18px; background:#82b1ff; border-radius:3px;"></div>
+<span style="font-size:11px; font-weight:600; color:#93c5fd; margin-left:8px;">26.8%</span>
+</div>
+</div>
+<div style="margin-bottom:16px;">
+<div style="font-size:12px; color:#cbd5e1; margin-bottom:6px; font-weight:500;">R@1@0.7 (高召回率)</div>
+<div style="margin-bottom:6px; display:flex; align-items:center;">
+<div style="width:66.9%; height:18px; background:#78909c; border-radius:3px;"></div>
+<span style="font-size:11px; font-weight:600; color:#cbd5e1; margin-left:8px;">34.8%</span>
+</div>
+<div style="display:flex; align-items:center;">
+<div style="width:83.1%; height:18px; background:#82b1ff; border-radius:3px;"></div>
+<span style="font-size:11px; font-weight:600; color:#93c5fd; margin-left:8px;">43.2%</span>
+</div>
+</div>
+<div style="border-top:1px solid #334155; position:relative; height:18px; font-size:11px; color:#64748b; margin-top:8px;">
+<span style="position:absolute; left:0;">0%</span>
+<span style="position:absolute; left:38.5%;">20%</span>
+<span style="position:absolute; left:76.9%;">40%</span>
+<span style="position:absolute; right:0;">52%</span>
+</div>
+</div>
+</div>
+</div>
+<blockquote>
+<p><strong>说明与数据来源</strong>：</p>
+<ul>
+<li><strong>说明</strong>：上半部分展示在 1 FPS 采样率下不同视频时长对应的 Qwen3-VL 视觉 Token 消耗量，将切片控制在 10 至 15 秒可将单次推理负载压缩至 2,000–3,000 Token 安全区间。下半部分展示 2026 年代表性范式的实测增益：左侧为 Scene-VLM 相比传统编码器方法在 MovieNet-318 上的 F1 与 AP 提升百分点；右侧为基于 Qwen3-VL-Embedding-2B 的 Movie RAG 引入动态窗口搜索（AWS）前后的时序定位精度对比。</li>
+<li><strong>Data sources</strong>: <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2512.21778">arXiv: Scene-VLM</a>, ResearchGate: Grounding Confusable Movie Moments, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.23910">arXiv: Movie RAG (CoM²-Bench)</a>, Shimmyo Lab (Token 计算), Qwen3-VL 规格 (Issue #1540), Qwen3-VL 实测 (Issue #1795)。</li>
+</ul>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/11/2026VideoAtomicChunking/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/10/SAG2-EmbeddingFree-RAG/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/10/SAG2-EmbeddingFree-RAG/" class="post-title-link" itemprop="url">【论文分享】反向内卷的极简主义：单机 SQLite + BM25 如何干翻重型向量库与 GraphRAG？深度拆解 SAG2 与开源 SAG-Wiki</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-10 19:25:00" itemprop="dateCreated datePublished" datetime="2026-11-10T19:25:00+08:00">2026-11-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在当前大模型检索增强生成（RAG）与智能体（Agent）知识库的工程实践中，整个技术圈几乎陷入了一种 <strong>“重型基础设施内卷”</strong>：</p>
+<p>只要遇到复杂的知识检索或多跳推理需求，团队的第一反应往往是：上昂贵的 Embedding 向量模型、上分布式向量数据库（Milvus / Qdrant）、甚至耗费数十万次 LLM 调用提取离线知识三元组去堆砌复杂的 GraphRAG。</p>
+<p>然而，当系统真正进入生产运维阶段，软件开发工程师很快就会遭遇残酷的工程痛点：</p>
+<ol>
+<li><strong>离线建库成本爆炸</strong>：成千上万篇文档切片向量化和图抽取极度缓慢，耗尽 GPU 算力；</li>
+<li><strong>增量维护是一场噩梦</strong>：业务文档改动频繁，知识图谱或稠密向量只要修改一行，全局拓扑与索引的一致性维护让人痛苦不堪；</li>
+<li><strong>多跳逻辑严重脱节</strong>：向量相似度本质是“表面语义匹配”，根本无法解决诸如“A 关联 B，B 关联 C，但 A 与 C 语义差异极大”的隐式多跳事实链。</li>
+</ol>
+<p>近日，来自 <strong>Zleap AI（智跃深空）</strong> 的独立研究者 <strong>吴宇超（Yuchao Wu）</strong> 发表了一篇极具反叛精神与工程启发性的论文：</p>
+<blockquote>
+<p><strong>《SAG2: Embedding-Free Multi-Hop Retrieval with BM25 and JEV》</strong> (arXiv:2610.22588)<br>
+论文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.22588">https://arxiv.org/abs/2610.22588</a><br>
+HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.22588">https://arxiv.org/html/2610.22588</a><br>
+开源项目：<a target="_blank" rel="noopener" href="https://github.com/Zleap-AI/SAG-Wiki">https://github.com/Zleap-AI/SAG-Wiki</a><br>
+基准评测：<a target="_blank" rel="noopener" href="https://github.com/Zleap-AI/SAG-Benchmark">https://github.com/Zleap-AI/SAG-Benchmark</a><br>
+核心结论：<strong>彻底抛弃向量（Embedding-Free），不做离线图抽取，仅依靠单文件 SQLite 倒排索引（BM25）与轻量判别模型 JEV 的在线扩展，在 MuSiQue、2WikiMultiHopQA 等多个多跳基准上全面超越传统向量 RAG 与 GraphRAG！</strong></p>
+</blockquote>
+<p>本文将站在<strong>软件开发工程师、系统架构师与后端研发</strong>的视角，深入剖析 SAG2 的问题解决范式、状态机检索循环、工程直觉，并对其闭源 JEV 依赖的局限性、自研开源替代方案，以及向<strong>视频文字多跳检索</strong>的架构泛化进行深度探讨。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/10/SAG2-EmbeddingFree-RAG/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -224,9 +562,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-10 17:50:00 / 修改时间：19:07:32" itemprop="dateCreated datePublished" datetime="2026-11-10T17:50:00+08:00">2026-11-10</time>
+      <time title="创建时间：2026-11-10 17:50:00" itemprop="dateCreated datePublished" datetime="2026-11-10T17:50:00+08:00">2026-11-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
     </span>
 
   
@@ -335,9 +679,15 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-10 13:50:00 / 修改时间：19:07:32" itemprop="dateCreated datePublished" datetime="2026-11-10T13:50:00+08:00">2026-11-10</time>
+      <time title="创建时间：2026-11-10 13:50:00" itemprop="dateCreated datePublished" datetime="2026-11-10T13:50:00+08:00">2026-11-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
     </span>
 
   
@@ -445,9 +795,15 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-10 13:10:00 / 修改时间：19:07:32" itemprop="dateCreated datePublished" datetime="2026-11-10T13:10:00+08:00">2026-11-10</time>
+      <time title="创建时间：2026-11-10 13:10:00" itemprop="dateCreated datePublished" datetime="2026-11-10T13:10:00+08:00">2026-11-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
     </span>
 
   
@@ -515,221 +871,8 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/10/PixelBench-LLM-Pixel/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/10/PixelBench-LLM-Pixel/" class="post-title-link" itemprop="url">【论文分享】不装外挂、不改词表，大模型真能“逐像素”画图吗？解密 PixelBench：文本自回归的空间瓶颈与视觉正则化启示</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2026-11-10 12:35:00 / 修改时间：19:07:32" itemprop="dateCreated datePublished" datetime="2026-11-10T12:35:00+08:00">2026-11-10</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.6k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>13 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在当前的多模态大模型（VLM）与图像生成系统中，如果要让 AI “画出一张图”，工业界和开源社区的标准工程路径几乎已经固化：要么通过 API 调度专门的扩散模型（如 Stable Diffusion、Flux、Midjourney），要么让语言模型输出高阶的矢量几何描述（如 SVG 或 CAD 代码）。</p>
-<p>但学术界与前沿实验室始终保留着一个纯粹、甚至带有一丝极客偏执的底层疑问：<br>
-<strong>如果不给大模型外挂任何图像解码器（Decoder），也不扩充新的视觉词表，仅凭它现有的纯文本输入输出接口（Text In / Text Out），大模型能不能像终端打印机一样，在内存里逐个像素地把栅格图像（Raster Bitmap）“打”出来？它脑子里真的具备二维微观空间坐标感吗？</strong></p>
-<p>2026 年 11 月，来自香港中文大学（CUHK）、华南理工大学（SCUT）与南洋理工大学（NTU Singapore）的联合研究团队在 arXiv 上发表了前沿研究：</p>
-<blockquote>
-<p><strong>论文题目</strong>：PixelBench: Can LLMs Understand and Generate Images Pixel by Pixel?<br>
-<strong>作者团队</strong>：Haoquan Zhang, Feiyang Liu, Juanxi Tian, Wanhua Li, Haodong Duan, Weiyang Liu (CUHK, SCUT, NTU Singapore)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.02540">https://arxiv.org/abs/2611.02540</a><br>
-<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.02540">https://arxiv.org/html/2611.02540</a><br>
-<strong>核心资产</strong>：PixelBench 评测基准、PRT（Pixel Reconstruction Tuning）后训练增强配方</p>
-</blockquote>
-<p>研究团队通过设计一套极其紧凑的<strong>调色板像素序列化协议</strong>，对 GPT-6 Astra、GPT-5.6 Sol、Claude Opus 5、Gemini 3.6 Flash、Kimi K3、Seed-2.1 Pro 等顶级前沿模型进行了全方位压力测试，并由此揭示出自回归大模型在处理二维空间结构时的 <strong>“分辨率悖论”</strong> 与 <strong>三种经典崩溃故障</strong>。</p>
-<p>更为关键的是，研究团队把这一看似玩票的机制转化为了实用的训练范式：<strong>仅用 0.4% 的像素重建数据作为轻量正则化辅助任务，便在 16 个权威视觉基准上全面提升了多模态模型表现</strong>。</p>
-<p>本文将立足于 <strong>软件开发工程师（后端/架构/AI工程）</strong> 的视角，全面拆解 PixelBench 的协议契约设计、底层局限性机制，以及这一探索给通用软件工程带来的范式启发与避坑指南。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/10/PixelBench-LLM-Pixel/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/09/Streaming-DVC/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/09/Streaming-DVC/" class="post-title-link" itemprop="url">【论文分享】告别全量离线批处理：Google CVPR 顶会 Streaming DVC 如何用在线聚类记忆破除长视频流式切片与显存爆炸魔咒</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-09 18:05:00" itemprop="dateCreated datePublished" datetime="2026-11-09T18:05:00+08:00">2026-11-09</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-10 19:07:32" itemprop="dateModified" datetime="2026-11-10T19:07:32+08:00">2026-11-10</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>16 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在多模态视频理解领域，<strong>密集视频字幕生成（Dense Video Captioning, DVC）</strong> 一直是极具商业价值但也最令工程师头疼的重型任务：系统不仅要把超长视频中的关键事件找出来并标出精确的起止时间戳（<code>[start_time, end_time]</code>），还要为每个片段实时生成通顺且富有上下文细节的自然语言解说。</p>
-<p>然而对于软件开发与系统架构工程师而言，学术界长期以来的主流 SOTA 模型（如 Vid2Seq、PDVC 等）在工业落地时普遍存在致命的 <strong>“批处理原罪”</strong>：它们假设视频文件必须全量落盘并一次性加载，靠全局粗暴下采样将上万帧浓缩为几十帧送入大模型。这种做法在面对 <strong>实时监控、直播推流、车载与机器人边缘视觉</strong>等场景时瞬间失效——显存随视频时长线性甚至二次方膨胀（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>T</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(T)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span><span class="mclose">)</span></span></span></span>），而端到端延迟更是直接无限大（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>→</mo><mi mathvariant="normal">∞</mi></mrow><annotation encoding="application/x-tex">T \to \infty</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord">∞</span></span></span></span>）。</p>
-<p>为了彻底打破“离线批处理”的桎梏，来自 Google Research 的顶级计算机视觉团队（包括 Cordelia Schmid、Xingyi Zhou 等）在 CVPR 上发表了重磅成果：<strong>《Streaming Dense Video Captioning》</strong>。他们摒弃了暴力堆叠上下文的思路，以极其优雅的流式系统思维重构了整套架构——<strong>用“在线聚类记忆模块”将空间复杂度锁死在 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>，配合“基于解码点与 Prefix 游标”的增量消费机制，实现了真正低显存、低延迟的实时因果流式解说与精准切片</strong>。</p>
-<blockquote>
-<p><strong>论文题目</strong>：Streaming Dense Video Captioning<br>
-<strong>作者团队</strong>：Google Research (Xingyi Zhou, Anurag Arnab, Shyamal Buch, Shen Yan, Austin Myers, Xuehan Xiong, Arsha Nagrani, Cordelia Schmid)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2404.01297">https://arxiv.org/abs/2404.01297</a><br>
-<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2404.01297">https://arxiv.org/html/2404.01297</a><br>
-<strong>官方源码</strong>：<a target="_blank" rel="noopener" href="https://github.com/google-research/scenic/tree/main/scenic/projects/streaming_dvc">https://github.com/google-research/scenic/tree/main/scenic/projects/streaming_dvc</a><br>
-<strong>发表会议</strong>：IEEE/CVF CVPR 2024</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/09/Streaming-DVC/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>
@@ -752,14 +895,14 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">369k</span>
+    <span title="站点总字数">391k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">22:22</span>
+    <span title="站点阅读时长">23:43</span>
   </span>
 </div>
 <div class="busuanzi-count">
