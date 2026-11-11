@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">289</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">87</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">294</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">88</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">87</span>
+          <span class="site-state-item-count">88</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">289</span>
+        <span class="site-state-item-count">294</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,116 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/05/10/VTG-Output-Paradigms/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/05/10/VTG-Output-Paradigms/" class="post-title-link" itemprop="url">【论文分享】视频大模型到底该怎么输出时间？UCF与Axon新作硬核实测：0.5B小模型为何能靠“连续分布解码”吊打8B大模型</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-05-10 16:30:00" itemprop="dateCreated datePublished" datetime="2026-05-10T16:30:00+08:00">2026-05-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-11 18:35:38" itemprop="dateModified" datetime="2026-11-11T18:35:38+08:00">2026-11-11</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>17 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态视频理解与长视频检索系统（如智能安防监控、视频编辑 Agent、车载行车记录仪检索、多模态视频 RAG）的工程开发中，<strong>视频时序定位（Video Temporal Grounding, VTG）</strong> 是一项最底层的核心基础设施能力：给定一段视频和一句自然语言指令（例如“定位嫌疑人拔枪的瞬间”或“找出教程中倒油的片段”），系统必须在毫秒级时间内定位出目标动作在视频时间轴上的精确起止时间戳 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><msub><mi>t</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[t_{start}, t_{end}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>。</p>
+<p>然而，长期以来，算法学术界在 VTG 领域陷入了一场严重的 <strong>“系统异构性泥潭”</strong>：各家顶会论文为了刷榜，纷纷将自己的算法与特定的超大底座（7B/13B）、独门视觉编码器、私有海量清洗数据集以及复杂的 2 阶段/3 阶段微调协议深度绑定。工程团队往往只能看到漂亮的 SOTA 跑分，却无法从系统工程的角度搞清楚一个最根本的架构问题：</p>
+<p><strong>当多模态大模型（MLLM）作为主干时，我们到底该如何设计模型“输出时间”的接口协议（Output Formulation）？让大模型像聊天一样吐数字、用专用离散 Token、还是挂轻量级回归头？不同的输出设计对系统的推理时延、内存开销以及定位精度究竟有多大影响？</strong></p>
+<p>近日，来自<strong>中佛罗里达大学（UCF）计算机视觉研究中心（CRCV）与全球警用智能硬件巨头 Axon</strong> 的联合研究团队在 arXiv 上发表了一篇极具工程指导价值的控制变量实证研究：</p>
+<blockquote>
+<p><strong>论文题目</strong>：<em>How Should Video LLMs Output Time? An Analysis of Efficient Temporal Grounding Paradigms</em><br>
+<strong>论文作者</strong>：Shengji Jin, Yuanhao Zou, Victor Zhu, Zhengping Ji, Chen Chen (UCF &amp; Axon)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2604.08966">https://arxiv.org/abs/2604.08966</a><br>
+<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2604.08966">https://arxiv.org/html/2604.08966</a><br>
+<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://tg-paradigms.github.io/">https://github.com/tg-paradigms/tg-paradigms.github.io</a><br>
+<strong>核心结论</strong>：通过将底座（0.5B~8B）、视觉编码器、训练数据与优化协议完全拉平，实证证明了<strong>连续时间分布解码（Continuous Temporal Decoding）</strong> 在精度与效率 Pareto 前沿上的绝对统治力。仅 <strong>0.5B</strong> 参数的小模型凭借合理的输出接口设计，其定位精度直接跨级别碾压了 <strong>8B</strong> 规模的文本自回归大模型（“范式红利”完胜“暴力堆参数”），为资源受限的边缘端与高并发在线系统指明了高性价比落地路线。</p>
+</blockquote>
+<p>本文将立足于 <strong>软件开发工程师、系统架构师与后端性能优化工程师</strong> 的视角，跳过晦涩的纯理论公式推演，深入剖析三大输出协议的 API 契约、系统级资源开销（时延/显存/吞吐）、Bug 根因分类学，以及如何在低成本硬件上实现高效的长视频智能切片系统。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/05/10/VTG-Output-Paradigms/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +342,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
+      <time title="修改时间：2026-11-11 18:35:38" itemprop="dateModified" datetime="2026-11-11T18:35:38+08:00">2026-11-11</time>
     </span>
 
   
@@ -342,7 +452,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
+      <time title="修改时间：2026-11-11 18:35:38" itemprop="dateModified" datetime="2026-11-11T18:35:38+08:00">2026-11-11</time>
     </span>
 
   
@@ -457,7 +567,7 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
+      <time title="修改时间：2026-11-11 18:35:38" itemprop="dateModified" datetime="2026-11-11T18:35:38+08:00">2026-11-11</time>
     </span>
 
   
@@ -575,7 +685,7 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
+      <time title="修改时间：2026-11-11 18:35:38" itemprop="dateModified" datetime="2026-11-11T18:35:38+08:00">2026-11-11</time>
     </span>
 
   
@@ -637,117 +747,6 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/" class="post-title-link" itemprop="url">【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-09-16 10:00:00" itemprop="dateCreated datePublished" datetime="2025-09-16T10:00:00+08:00">2025-09-16</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-11 17:33:26" itemprop="dateModified" datetime="2026-11-11T17:33:26+08:00">2026-11-11</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.2k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>11 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在大模型研发领域，长期存在着一种说不清道不明的“糊涂账”：很多团队宣称自己的数据清洗天下第一，但在训练时，他们往往悄悄换了更先进的位置编码、加了特殊的优化器、调整了模型超参数。外界根本分不清：<strong>它的模型跑分高，到底是因为数据真的洗干净了，还是因为它的模型架构偷偷占了便宜？</strong></p>
-<p>在我们上一篇探讨的 <a href="/papers/2025/09/14/TheFineWebDatasets-DecantingTheWeb/">【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineWeb）</a> 中，我们见证了 Hugging Face 如何用极具匠心的工艺打造出一套顶级的“数据淘金滤网”。</p>
-<p>而在同一时期，由 <strong>Apple、华盛顿大学（UW）、丰田研究院（TRI）、哥伦比亚大学</strong> 等顶尖机构联合发布的重磅里程碑论文 <strong>《DataComp-LM: In search of the next generation of training sets for language models》（简称 DCLM）</strong>，则带着极其罕见的**“科学洁癖”<strong>，直接为全世界的大模型数据建立了一套绝对公平的</strong>“标准化高考竞技场”**！</p>
-<p>这篇论文最大的特色，就是<strong>彻底排除了一切模型架构的干扰，将神经网络和训练参数全部焊死为唯一的基准控制组，只拿数据说话</strong>。而它交出的最终实验成绩单，更是直接震撼了整个 AI 工业界：</p>
-<blockquote>
-<p><strong>一个标准的 7B（70 亿参数）语言模型，仅仅吃下 3000 亿（300B）精选 Token，在 53 门标准化统考中的表现，直接打平甚至反超了吃了整整 2 万亿（2.0T）Token 的行业标杆（如 LLaMA-2 7B）！</strong></p>
-</blockquote>
-<blockquote>
-<p><strong>论文题目</strong>：DataComp-LM: In search of the next generation of training sets for language models<br>
-<strong>作者团队</strong>：Jeffrey Li, Alex Fang, Georgios Smyrnis, Ludwig Schmidt 等 (Apple, UW, TRI, Columbia)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2406.11794">https://arxiv.org/abs/2406.11794</a><br>
-<strong>HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2406.11794">https://arxiv.org/html/2406.11794</a><br>
-<strong>开源项目主页</strong>：<a target="_blank" rel="noopener" href="https://datacomp.library.cmu.edu/dclm">https://datacomp.library.cmu.edu/dclm</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/9/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/11/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -772,14 +771,14 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">391k</span>
+    <span title="站点总字数">395k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">23:43</span>
+    <span title="站点阅读时长">23:57</span>
   </span>
 </div>
 <div class="busuanzi-count">

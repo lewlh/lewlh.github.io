@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在多模态视频大模型（Video-LLM）如火如荼的今天，学术界和工业界常常面临一个尴尬的现实矛盾：算法模型越来越强，但高质量的长视频细粒度标注数据却贵得令人望而生畏。 以“教程类视频理解（Instructional Video Understanding）”为例，要让模型学会像人类一样看懂修车、烹饪、装配或医疗手术，系统必须具备将长视频拆解为秒级起止时间戳与结构化动作描述的能力（Dense Vid">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】零训练搞定200万视频步骤标注？DenseStep2M 工业级多模态数据管道拆解与软件工程反思">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/06/11/DenseStep2M-Pipeline/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在多模态视频大模型（Video-LLM）如火如荼的今天，学术界和工业界常常面临一个尴尬的现实矛盾：算法模型越来越强，但高质量的长视频细粒度标注数据却贵得令人望而生畏。 以“教程类视频理解（Instructional Video Understanding）”为例，要让模型学会像人类一样看懂修车、烹饪、装配或医疗手术，系统必须具备将长视频拆解为秒级起止时间戳与结构化动作描述的能力（Dense Vid">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-06-11T10:25:00.000Z">
+<meta property="article:modified_time" content="2026-11-11T10:35:38.340Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="DeepSeek-R1">
+<meta property="article:tag" content="DenseStep2M">
+<meta property="article:tag" content="Qwen2.5-VL">
+<meta property="article:tag" content="WhisperX">
+<meta property="article:tag" content="多模态数据工程">
+<meta property="article:tag" content="工程落地">
+<meta property="article:tag" content="数据管道">
+<meta property="article:tag" content="架构设计">
+<meta property="article:tag" content="视频理解">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/06/11/DenseStep2M-Pipeline/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/06/11/DenseStep2M-Pipeline/","path":"papers/2026/06/11/DenseStep2M-Pipeline/","title":"【论文分享】零训练搞定200万视频步骤标注？DenseStep2M 工业级多模态数据管道拆解与软件工程反思"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】零训练搞定200万视频步骤标注？DenseStep2M 工业级多模态数据管道拆解与软件工程反思 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">294</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">88</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E7%8E%B0%E5%AE%9E%E5%9B%B0%E5%A2%83%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%A0%E7%BB%9F%E9%95%BF%E8%A7%86%E9%A2%91%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%BE%80%E5%BE%80%E6%B2%A6%E4%B8%BA%E2%80%9C%E7%81%BE%E9%9A%BE%E2%80%9D%EF%BC%9F"><span class="nav-text">01. 现实困境：为什么传统长视频数据处理往往沦为“灾难”？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9E%83%E5%9C%BE%E6%95%B0%E6%8D%AE%E6%B3%9B%E6%BB%A5%EF%BC%88Garbage-in-Garbage-out%EF%BC%89"><span class="nav-text">1. 垃圾数据泛滥（Garbage in, Garbage out）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%BC%B1%E7%9B%91%E7%9D%A3%E4%BF%A1%E5%8F%B7%E7%9A%84%E6%97%B6%E5%BA%8F%E6%BC%82%E7%A7%BB"><span class="nav-text">2. 弱监督信号的时序漂移</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B%EF%BC%88VLLM%EF%BC%89%E7%9A%84%E5%8D%95%E4%BD%93%E9%95%BF%E5%BA%8F%E5%88%97%E5%A4%B1%E6%95%88"><span class="nav-text">3. 多模态大模型（VLLM）的单体长序列失效</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E7%B3%BB%E7%BB%9F%E6%B5%81%E6%B0%B4%E7%BA%BF%E6%9E%B6%E6%9E%84%EF%BC%9A%E4%B8%89%E9%98%B6%E6%AE%B5%E5%B7%A5%E4%B8%9A%E7%BA%A7%E8%A3%85%E9%85%8D%E7%BA%BF"><span class="nav-text">02. 系统流水线架构：三阶段工业级装配线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5-1%EF%BC%9A%E9%98%B2%E5%BE%A1%E6%80%A7%E9%97%A8%E7%A6%81%EF%BC%88Video-Filtering-Segmentation%EF%BC%89"><span class="nav-text">阶段 1：防御性门禁（Video Filtering &amp; Segmentation）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5-2%EF%BC%9A%E5%B1%80%E9%83%A8%E5%BE%AE%E4%BB%BB%E5%8A%A1%E7%94%9F%E6%88%90%EF%BC%88Step-Generation-Map-%E9%98%B6%E6%AE%B5%EF%BC%89"><span class="nav-text">阶段 2：局部微任务生成（Step Generation - Map 阶段）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5-3%EF%BC%9A%E5%85%A8%E5%B1%80%E4%BB%B2%E8%A3%81%E4%B8%8E%E6%97%B6%E9%97%B4%E6%88%B3%E5%90%B8%E9%99%84%E7%BA%A0%E5%81%8F%EF%BC%88Step-Refining-Merging-Reduce-%E9%98%B6%E6%AE%B5%EF%BC%89"><span class="nav-text">阶段 3：全局仲裁与时间戳吸附纠偏（Step Refining &amp; Merging - Reduce 阶段）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E7%94%9F%E4%BA%A7%E7%BA%A7%E7%A1%AC%E4%BB%B6%E9%83%A8%E7%BD%B2%E4%B8%8E%E7%B3%BB%E7%BB%9F%E5%90%9E%E5%90%90%E5%AE%9E%E6%B5%8B"><span class="nav-text">03. 生产级硬件部署与系统吞吐实测</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E7%BB%88%E4%BA%A7%E5%87%BA%E6%95%B0%E6%8D%AE%E8%B5%84%E4%BA%A7%E4%BD%93%E9%87%8F"><span class="nav-text">最终产出数据资产体量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E5%AE%9E%E9%AA%8C%E6%B6%88%E8%9E%8D%E5%8F%8D%E6%80%9D%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B%E4%B8%AD%E9%82%A3%E4%BA%9B%E5%8F%8D%E7%9B%B4%E8%A7%89%E7%9A%84%E7%9C%9F%E7%9B%B8"><span class="nav-text">04. 实验消融反思：数据工程中那些反直觉的真相</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E2%80%9C%E5%A4%A7%E8%80%8C%E5%85%A8%E7%9A%84%E5%8D%95%E4%BD%93%E6%A8%A1%E5%9E%8B%E2%80%9D%E5%9C%A8%E9%95%BF%E4%BB%BB%E5%8A%A1%E4%B8%AD%E5%BE%80%E5%BE%80%E4%B8%8D%E5%A6%82%E2%80%9C%E6%A8%A1%E5%9D%97%E5%8C%96%E6%B5%81%E6%B0%B4%E7%BA%BF%E2%80%9D"><span class="nav-text">1. “大而全的单体模型”在长任务中往往不如“模块化流水线”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%BA%AF%E6%96%87%E6%9C%AC%E6%8E%A8%E7%90%86%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8F%AF%E4%BB%A5%E8%B7%A8%E6%A8%A1%E6%80%81%E4%BF%AE%E6%AD%A3%E8%A7%86%E8%A7%89%E9%94%99%E8%AF%AF"><span class="nav-text">2. 纯文本推理大模型可以跨模态修正视觉错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%B8%8B%E6%B8%B8%E5%B0%8F%E6%A8%A1%E5%9E%8B%E5%BE%AE%E8%B0%83%E6%94%B6%E7%9B%8A%E6%98%BE%E8%91%97%EF%BC%88%E9%AA%8C%E8%AF%81%E6%95%B0%E6%8D%AE%E5%90%AB%E9%87%91%E9%87%8F%EF%BC%89"><span class="nav-text">3. 下游小模型微调收益显著（验证数据含金量）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%B8%88%E8%83%BD%E5%B8%A6%E8%B5%B0%E7%9A%84%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E8%8C%83%E5%BC%8F"><span class="nav-text">05. 软件工程师能带走的问题解决范式</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">88</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">294</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/06/11/DenseStep2M-Pipeline/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】零训练搞定200万视频步骤标注？DenseStep2M 工业级多模态数据管道拆解与软件工程反思 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】零训练搞定200万视频步骤标注？DenseStep2M 工业级多模态数据管道拆解与软件工程反思
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-06-11 18:25:00" itemprop="dateCreated datePublished" datetime="2026-06-11T18:25:00+08:00">2026-06-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-11 18:35:38" itemprop="dateModified" datetime="2026-11-11T18:35:38+08:00">2026-11-11</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在多模态视频大模型（Video-LLM）如火如荼的今天，学术界和工业界常常面临一个尴尬的现实矛盾：<strong>算法模型越来越强，但高质量的长视频细粒度标注数据却贵得令人望而生畏</strong>。</p>
+<p>以“教程类视频理解（Instructional Video Understanding）”为例，要让模型学会像人类一样看懂修车、烹饪、装配或医疗手术，系统必须具备将长视频拆解为秒级起止时间戳与结构化动作描述的能力（Dense Video Captioning / Step Grounding）。然而，要在现实世界数十万条动辄几分钟到十几分钟的长视频上，人工打标出带起止时间戳、动作细节、原料用量及操作意图的数据，外包成本往往高达<strong>数百万甚至上千万元人民币</strong>。</p>
+<p>近日，一篇收录于 arXiv 的最新研究给出了一个纯工业级的数据工程破局解法：</p>
+<blockquote>
+<p><strong>论文题目</strong>：<em>DenseStep2M: A Scalable, Training-Free Pipeline for Dense Instructional Video Annotation</em><br>
+<strong>论文编号</strong>：arXiv:2604.26565<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2604.26565" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2604.26565</a><br>
+<strong>HTML 预览</strong>：<a target="_blank" href="https://arxiv.org/html/2604.26565" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2604.26565</a><br>
+<strong>数据集开源</strong>：<a target="_blank" href="https://huggingface.co/datasets/mingjige/DenseStep2M" rel="external nofollow noreferrer noopener">https://huggingface.co/datasets/mingjige/DenseStep2M</a><br>
+<strong>核心成果</strong>：无需特定任务训练（Training-Free），仅通过编排成熟的开源模型集群（WhisperX + Qwen2.5 + Qwen2.5-VL + DeepSeek-R1），全自动将庞大嘈杂的 HowTo100M 原始视频库清洗、提纯并标注出 <strong>9.9 万个高质量视频、共计 188.5 万条秒级结构化操作步骤</strong>（平均每个视频 19 个细粒度步骤）。</p>
+</blockquote>
+<p>初读这篇论文，不少算法研究员可能会觉得其“理论深度平平”——没有推导复杂的数学损失函数，也没有魔改神经网络底层算子。但站在<strong>软件工程师、后端架构师与数据平台研发</strong>的角度来看，这篇论文堪称一份极其扎实、务实的<strong>大型多模态分布式 ETL 数据管道架构实战报告</strong>。</p>
+<p>本文将剥开其学术包装，从系统架构设计、模型能力互补、异常降噪及生产级吞吐等维度，深度剖析其工程范式与落地直觉。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-现实困境：为什么传统长视频数据处理往往沦为“灾难”？">01. 现实困境：为什么传统长视频数据处理往往沦为“灾难”？</h2>
+<p>在构建大规模多模态数据管道时，业界通常会利用 YouTube 上的开源视频集（如 HowTo100M）。但直接拿这些“野生视频（In-the-wild Videos）”喂给大模型时，工程师会立刻撞上三堵高墙：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">野生开源长视频 (HowTo100M)</span><br><span class="line">  ├── 痛点 1: 严重噪音与货不对板 (91.9% 的视频充斥个人 Vlog、开箱扯皮或无意义闲聊)</span><br><span class="line">  ├── 痛点 2: 音画错位 (解说提到了“放盐”，画面却还停留在上一道工序或拍摄厨师正脸)</span><br><span class="line">  └── 痛点 3: 视觉模型“时序弱智症” (VLLM 看图极准，但单次吃超长视频必引发幻觉且时间戳严重漂移)</span><br></pre></td></tr></table></figure>
+<h3 id="1-垃圾数据泛滥（Garbage-in-Garbage-out）">1. 垃圾数据泛滥（Garbage in, Garbage out）</h3>
+<p>真实网络视频中，绝大多数所谓“教程”充斥着冗长的开场白、广告植入、个人轶事甚至背景音乐干扰。真正具备连续教学价值的有效片段往往只占一部分。若不加甄别地全量灌入模型，只会训练出大量语无伦次的幻觉结果。</p>
+<h3 id="2-弱监督信号的时序漂移">2. 弱监督信号的时序漂移</h3>
+<p>早期的自动化标注主要依赖 YouTube 自带的 ASR 字幕。然而，口播语音与视觉动作往往存在数十秒的时滞（先说后做，或边做边聊其他话题），单纯将字幕切片与视频硬绑会导致严重的<strong>音画对齐失真</strong>。</p>
+<h3 id="3-多模态大模型（VLLM）的单体长序列失效">3. 多模态大模型（VLLM）的单体长序列失效</h3>
+<p>许多开发者初入多模态领域时，常寄希望于“单体大模型端到端解决一切”——将 10 分钟视频直接抽几百帧塞进 72B 视觉大模型。论文的消融实验给这种天真想法泼了一盆冷水：</p>
+<ul>
+<li>完整长视频直接喂给 Qwen2.5-VL-72B，其时间区间重叠度（mIoU）仅有 <strong>25.45%</strong>；</li>
+<li>视觉大模型的空间感知虽强，但在长时序注意力上极其容易发散，无法稳定对齐微小的动作边界。</li>
+</ul>
+<p>面对这些死穴，DenseStep2M 的设计者没有尝试去“从头预训练一个超长时序模型”，而是采用经典的<strong>分治（Divide-and-Conquer）与能力互补架构</strong>。</p>
+<hr>
+<h2 id="02-系统流水线架构：三阶段工业级装配线">02. 系统流水线架构：三阶段工业级装配线</h2>
+<p>整个清洗与标注管道由三个阶段组成，分别承担<strong>前置门禁过滤、局部特征提取（Map）与全局仲裁降熵（Reduce）</strong>：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    Raw[&quot;海量野生视频 + 原始音轨&quot;] --&gt; W[&quot;WhisperX: 生成词级别精确时间戳&quot;]
+    
+    subgraph Stage1 [&quot;阶段 1: 严格门禁过滤与镜头切分&quot;]
+        W --&gt; Q_Text[&quot;Qwen2.5-72B: 标题生成 + 文本粗筛 + 镜头划分&quot;]
+        Q_Text --&gt; R1_Sum[&quot;DeepSeek-R1: 提取文本核心步骤&quot;]
+        R1_Sum --&gt; VL_Align[&quot;Qwen2.5-VL-7B: 音画多模态语义对齐验证&quot;]
+        VL_Align --&gt; Gate&#123;&quot;有效教学时长 ≥ 75%？&quot;&#125;
+    end
+    
+    Gate --&gt;|&quot;不满足 (淘汰 91.9%)&quot;| Drop[(&quot;直接丢弃垃圾数据&quot;)]
+    Gate --&gt;|&quot;满足条件 (留存 8.1%)&quot;| Shot[&quot;切分出的连贯 Shot 镜头&quot;]
+    
+    subgraph Stage2 [&quot;阶段 2: 局部微任务步骤提议 (Map 阶段)&quot;]
+        Shot --&gt; VL72B[&quot;Qwen2.5-VL-72B: 1 FPS 抽帧 (≤ 80帧/镜头)&quot;]
+        Title[(&quot;全局视频标题&quot;)] -.-&gt;|&quot;上下文引导&quot;| VL72B
+        ShotASR[(&quot;局部 Shot 字幕&quot;)] -.-&gt;|&quot;动作线索&quot;| VL72B
+        VL72B --&gt; Candidates[&quot;高召回候选步骤集 (含噪声/时序漂移)&quot;]
+    end
+    
+    Candidates --&gt; R1_Arbiter
+    
+    subgraph Stage3 [&quot;阶段 3: 全局仲裁与时间戳纠偏 (Reduce 阶段)&quot;]
+        FullASR[(&quot;全局原始 WhisperX 字幕&quot;)] --&gt; R1_Arbiter[&quot;DeepSeek-R1-671B: 全局推理法官&quot;]
+        R1_Arbiter --&gt; Clean[&quot;去重 / 消除幻觉 / 物理时间戳吸附 / 动作合并&quot;]
+    end
+    
+    Clean --&gt; Dataset[(&quot;DenseStep2M: 9.9万视频 / 188.5万精确步骤&quot;)]</code></pre>
+<h3 id="阶段-1：防御性门禁（Video-Filtering-Segmentation）">阶段 1：防御性门禁（Video Filtering &amp; Segmentation）</h3>
+<p>该阶段的核心使命是<strong>在极低成本下干掉绝大多数垃圾数据</strong>，防止高功耗模型做无用功：</p>
+<ol>
+<li><strong>替换低质数据源</strong>：丢弃 YouTube 原始字幕，调用 <strong>WhisperX</strong> 重新转录，获得带有精确词级别（Word-level）时间戳的高质量文本；</li>
+<li><strong>文本分段与粗筛</strong>：调用纯文本大模型 <code>Qwen2.5-72B</code> 阅读字幕，生成视频标准标题，切分镜头并标记每个片段是否属于“教学指令”；</li>
+<li><strong>多模态音画对齐校验</strong>：利用轻量级多模态模型 <code>Qwen2.5-VL-7B</code>，抽帧核验画面是否真正在执行字幕所描述的操作。</li>
+<li><strong>硬性门禁规则</strong>：<strong>只有经校验的有效教学片段总时长占比 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>75</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">\ge 75\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">75%</span></span></span></span> 的视频，才能进入下一阶段</strong>。
+<blockquote>
+<p><strong>工程直觉</strong>：该阶段以极严苛的标准<strong>直接丢弃了 91.9%（112万个）的视频</strong>，仅留存 8.1%（9.9万个）。在数据工程中，清洗掉大量不可靠数据远比后期试图挽救幻觉更具 ROI。</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="阶段-2：局部微任务生成（Step-Generation-Map-阶段）">阶段 2：局部微任务生成（Step Generation - Map 阶段）</h3>
+<p>进入该阶段的视频已被切分为若干个连贯镜头（Shot）。系统将计算负载分散为独立的短任务：</p>
+<ul>
+<li><strong>采样物理约束</strong>：固定按 <strong>1 FPS 抽帧，每个镜头最多截断为 80 帧</strong>（将视觉 Token 牢牢控制在模型高敏感区间，彻底避免长序列退化）；</li>
+<li><strong>三元输入组</strong>：同时传入“局部视频帧”、“局部字幕”以及“全局视频标题”（用于防止模型在局部镜头中丢失全局叙事目标）；</li>
+<li><strong>执行模型</strong>：调用旗舰级视觉大模型 <code>Qwen2.5-VL-72B</code>，输出初步候选步骤列表 <code>{(g_1, s_1, e_1), ...}</code>。</li>
+<li><strong>产出特征</strong>：召回率极高，保留了丰富的视觉实体信息，但不可避免地携带了碎片化、时间戳模糊和少量视觉幻觉。</li>
+</ul>
+<h3 id="阶段-3：全局仲裁与时间戳吸附纠偏（Step-Refining-Merging-Reduce-阶段）">阶段 3：全局仲裁与时间戳吸附纠偏（Step Refining &amp; Merging - Reduce 阶段）</h3>
+<p>这是整篇论文<strong>最具工程智慧的破局点</strong>。</p>
+<p>面对阶段 2 中视觉模型输出的乱序、重复和粗糙时间戳，作者<strong>没有</strong>继续让昂贵的视觉模型反复迭代，而是<strong>将全局裁判权交给了纯文本推理模型 DeepSeek-R1-671B</strong>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">视觉模型输出的时间戳:     [------- 约 98s - 113s -------] (模糊模糊，凭感觉猜)</span><br><span class="line">WhisperX 物理字幕时间戳:  &quot;... locating the pulse ...&quot; (精确发音物理打点: 103s - 122s)</span><br><span class="line">                                    │</span><br><span class="line">                                    ▼ (DeepSeek-R1 语义逻辑对齐)</span><br><span class="line">最终纠偏后的精确时间戳:          [====== 103s - 122s ======]</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>逻辑依据</strong>：WhisperX 转录出的物理发音时间点是客观世界中高精度的硬性锚点；而 DeepSeek-R1 拥有强大的长文本逻辑推理与代码级语义对齐能力。</li>
+<li><strong>仲裁逻辑</strong>：
+<ol>
+<li>将阶段 2 生成的全部局部步骤、全局原始字幕（带时间戳）和视频标题统一喂入 R1；</li>
+<li>R1 在全局上下文中核验每个候选动作是否有对应的前后支撑；</li>
+<li>识别出步骤对应的起始/终止发音字幕句，将时间戳<strong>强制吸附对齐到字幕时间区间</strong>；</li>
+<li>消除没有依据的臆想步骤，并将同一连续动作的碎片切片合并为结构化的完整描述。</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h2 id="03-生产级硬件部署与系统吞吐实测">03. 生产级硬件部署与系统吞吐实测</h2>
+<p>在工业界，算法方案能否落地，往往取决于算力开销与集群并发吞吐。论文 5.1 节披露了详细的硬件分配与调度参数：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">流水线阶段</th>
+<th style="text-align:left">核心驱动模型</th>
+<th style="text-align:left">硬件资源配比</th>
+<th style="text-align:center">调度并发度</th>
+<th style="text-align:left">实际生产吞吐表现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>阶段 1：过滤与切分</strong></td>
+<td style="text-align:left"><code>Qwen2.5-72B</code> (文本)</td>
+<td style="text-align:left">4 块专用 NPU</td>
+<td style="text-align:center"><strong>100</strong></td>
+<td style="text-align:left">纯文本处理，高并发打满内存带宽与计算单元</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>阶段 2：候选步骤生成</strong></td>
+<td style="text-align:left"><code>Qwen2.5-VL-72B</code> (多模态)</td>
+<td style="text-align:left" rowspan="2">16 块专用 NPU</td>
+<td style="text-align:center"><strong>10</strong></td>
+<td style="text-align:left">1 FPS（单片段上限 80 帧），<strong>日吞吐约 6,000 个视频片段</strong>（单片段约 50s）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>阶段 3：全局仲裁合并</strong></td>
+<td style="text-align:left"><code>DeepSeek-R1-671B</code> (MoE推理)</td>
+<td style="text-align:center"><strong>16</strong></td>
+<td style="text-align:left">跨长文本全局推理，<strong>解码吞吐达到 275 tokens/s</strong></td>
+</tr>
+</tbody>
+</table>
+<h4 id="最终产出数据资产体量">最终产出数据资产体量</h4>
+<ul>
+<li><strong>有效视频数</strong>：99,248 个（总时长 7,212 小时，平均单个视频长 262 秒）；</li>
+<li><strong>细粒度步骤总数</strong>：1,885,504 个（平均每个视频切出 <strong>19 个步骤</strong>，远超业界同类数据集的 7~10 步）；</li>
+<li><strong>描述质量</strong>：每步平均 10.43 个英文词，且完整包含动作幅度（<em>“stir until well combined”</em>）、工具用量（<em>“2 tablespoons of cornflour”</em>）与操作目的（<em>“to ensure they are not overbaked”</em>）。</li>
+</ul>
+<hr>
+<h2 id="04-实验消融反思：数据工程中那些反直觉的真相">04. 实验消融反思：数据工程中那些反直觉的真相</h2>
+<p>论文在人工标注基准 <code>DenseCaption100</code> 上开展了极具指导意义的消融实验（Table 4）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">实验编号</th>
+<th style="text-align:left">输入架构策略</th>
+<th style="text-align:center">视觉模型</th>
+<th style="text-align:center">R1 仲裁校准</th>
+<th style="text-align:center">召回率 ®</th>
+<th style="text-align:center">综合度 (F1)</th>
+<th style="text-align:center"><strong>时序精准度 (mIoU)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:left"><strong>单体端到端</strong>（完整长视频直喂 VLLM）</td>
+<td style="text-align:center" rowspan="3">Qwen2.5-72B</td>
+<td style="text-align:center" rowspan="2"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>×</mo></mrow><annotation encoding="application/x-tex">\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord">×</span></span></span></span></td>
+<td style="text-align:center">76.56</td>
+<td style="text-align:center">74.76</td>
+<td style="text-align:center"><strong>25.45</strong> (崩盘)</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:left"><strong>仅分治</strong>（分镜头处理，无 R1）</td>
+<td style="text-align:center"><strong>86.57</strong></td>
+<td style="text-align:center">69.03</td>
+<td style="text-align:center"><strong>32.87</strong></td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:left"><strong>分治 + R1 全局仲裁</strong>（完整默认方案）</td>
+<td style="text-align:center"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">✓</mi></mrow><annotation encoding="application/x-tex">\checkmark</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6922em;"></span><span class="mord amsrm">✓</span></span></span></span></td>
+<td style="text-align:center">85.97</td>
+<td style="text-align:center"><strong>75.81</strong></td>
+<td style="text-align:center"><strong>42.90</strong> (+10.03%)</td>
+</tr>
+</tbody>
+</table>
+<p>从这组关键数据中，软件工程师可以提炼出三个极具价值的反直觉结论：</p>
+<h3 id="1-“大而全的单体模型”在长任务中往往不如“模块化流水线”">1. “大而全的单体模型”在长任务中往往不如“模块化流水线”</h3>
+<p>实验 1 证明，把希望寄托在让单体 VLLM 一口气吃下整个长视频并给出完美时间戳，在工程上是不切实际的。长序列直接把时序精度（mIoU）拉低到 25.45%。<strong>切片分治不仅降低了单次推理的显存开销，更保证了局部的感知稳定</strong>。</p>
+<h3 id="2-纯文本推理大模型可以跨模态修正视觉错误">2. 纯文本推理大模型可以跨模态修正视觉错误</h3>
+<p>实验 4 与实验 6 对比显示：<strong>仅加入纯文本的 DeepSeek-R1 做 Reduce 仲裁，时序精度暴涨了 10.03 个百分点（从 32.87 提升至 42.90）</strong>。在多数人直觉中，“要修正视觉时间戳，必须看更多视频帧”。但工程真相是：<strong>视觉大模型在时间刻度上是模糊的，而经过 ASR 对齐的高推理大语言模型在逻辑链与时序锚点上是精准的</strong>。</p>
+<h3 id="3-下游小模型微调收益显著（验证数据含金量）">3. 下游小模型微调收益显著（验证数据含金量）</h3>
+<p>为了验证清洗出的这批数据并非“空中楼阁”，作者用 DenseStep2M 微调了一个轻量级模型 <code>Qwen2.5-VL-3B</code>：</p>
+<ul>
+<li>在密集字幕生成任务中，时序定位精度直接超越基线模型 <strong>13.66%</strong>；</li>
+<li>在跨领域零样本检索任务（Ego4D 第一人称视角、Epic-Kitchens 等）中，即便下游数据分布完全改变，微调后的小模型依然展现出极强的迁移泛化能力。</li>
+</ul>
+<hr>
+<h2 id="05-软件工程师能带走的问题解决范式">05. 软件工程师能带走的问题解决范式</h2>
+<p>如果跳出视频理解这一细分领域，将这篇论文视为一个通用的<strong>复杂 AI 工作流系统设计方案</strong>，后端研发与架构师可以复用以下三条底层设计范式：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">              [ 软件工程师的问题解决范式总结 ]</span><br><span class="line">┌────────────────────────────────────────────────────────┐</span><br><span class="line">│ 1. 架构模式: Map-Reduce 式的大模型协同范式             │</span><br><span class="line">│    - Map: 高成本专业模型做局部并发特征提取 (短上下文)     │</span><br><span class="line">│    - Reduce: 长上下文高推理模型做全局去重纠偏 (逻辑仲裁) │</span><br><span class="line">├────────────────────────────────────────────────────────┤</span><br><span class="line">│ 2. 数据工程: 极端防御性门禁 (Defensive Gating)         │</span><br><span class="line">│    - 宁可丢弃 91.9% 脏数据，绝不让污染数据进入下游       │</span><br><span class="line">├────────────────────────────────────────────────────────┤</span><br><span class="line">│ 3. 模态互补: 以高确定性低熵数据为锚点 (Data Anchoring)   │</span><br><span class="line">│    - 用确定性文本时序硬约束，校准不确定性视觉软生成     │</span><br><span class="line">└────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>Map-Reduce 式的 LLM 级联模式</strong>：当业务任务上下文过长（如几十万行老旧代码仓库重构、超长系统日志排障、海量法律合同交叉核验）时，绝不要单次全量喂给大模型。采用 <strong>“专用小模型/截断分块做并发 Map <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\to</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 高推理大模型做聚合 Reduce”</strong>，是兼顾吞吐量、成本与准确率的标准架构。</li>
+<li><strong>激进的防御性过滤优于后置弥补</strong>：在任何涉及自动化数据合成或清洗的管道中，早期的“粗筛门禁”一定要设得足够严厉（如本论文的 75% 阈值）。清洗掉 90% 的低质输入，能够为后续高算力服务节省指数级的调用成本。</li>
+<li><strong>“造发动机”与“建装配线”同样伟大</strong>：在当今的 AI 研发分工中，不必人人去死磕底层反向传播或算子微调。如何敏锐地识别各开源模型的特长与致命短板，通过高可用、高并发、强健壮性的胶水工程将其拼装成能够直接创造业务价值的自动化生产线，本身就是软件工程最核心的价值体现。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E7%90%86%E8%A7%A3/" rel="tag"># 视频理解</a>
+              <a href="/tags/%E5%B7%A5%E7%A8%8B%E8%90%BD%E5%9C%B0/" rel="tag"># 工程落地</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="tag"># 架构设计</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B/" rel="tag"># 多模态数据工程</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93/" rel="tag"># 数据管道</a>
+              <a href="/tags/DenseStep2M/" rel="tag"># DenseStep2M</a>
+              <a href="/tags/Qwen2-5-VL/" rel="tag"># Qwen2.5-VL</a>
+              <a href="/tags/DeepSeek-R1/" rel="tag"># DeepSeek-R1</a>
+              <a href="/tags/WhisperX/" rel="tag"># WhisperX</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/papers/2026/06/22/F2G-VideoGrounding/" rel="prev" title="【论文分享】告别视频大模型“盲猜时间戳”：中科院与哈工大 ICML 2026 新作 F2G 深度拆解（附小团队低成本时序检索反思）">
+                  <i class="fa fa-angle-left"></i> 【论文分享】告别视频大模型“盲猜时间戳”：中科院与哈工大 ICML 2026 新作 F2G 深度拆解（附小团队低成本时序检索反思）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/05/13/BeyondChainOfThought-RewriteMultimodalEmbeddings-RIME/" rel="next" title="【论文分享】告别思维链内耗：为什么检索不需要“做题家逻辑”？腾讯微信 ACM MM 2026 新作 RIME 深度拆解">
+                  【论文分享】告别思维链内耗：为什么检索不需要“做题家逻辑”？腾讯微信 ACM MM 2026 新作 RIME 深度拆解 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">395k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">23:57</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
