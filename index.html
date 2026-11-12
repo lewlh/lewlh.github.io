@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">306</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">93</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">307</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">94</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">93</span>
+          <span class="site-state-item-count">94</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">306</span>
+        <span class="site-state-item-count">307</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,116 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/12/ZoomGain/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/12/ZoomGain/" class="post-title-link" itemprop="url">【论文分享】用 Git Diff 思维打磨多模态大模型：ZoomGain 如何用 9K 样本让小模型逆袭千亿巨兽</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-12 17:05:00 / 修改时间：17:11:46" itemprop="dateCreated datePublished" datetime="2026-11-12T17:05:00+08:00">2026-11-12</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.5k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>17 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态大模型（Vision-Language Model, VLM）的发展中，<strong>“细粒度视觉感知（Fine-Grained Perception）”</strong> 一直是横亘在学术界与工业落地之间的一道顽疾：</p>
+<p>无论模型参数是 7B、32B 还是高达数百上千亿，当面对一张 1080p 或 4K 的全景大图时，模型经常表现得像个“近视眼”——马拉松选手的跑鞋颜色、远处建筑物上的文字小标、密集排列的微小零件瑕疵，模型要么视而不见，要么凭借语言先验开始“看图脑补”。</p>
+<p>以往解决这个问题的常规思路无非两条：</p>
+<ol>
+<li><strong>算法暴力堆算力</strong>：拼命拉高视觉编码器（ViT）分辨率，切更多 Token 喂给大模型，结果面临自注意力 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>N</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> 的显存爆炸与极高推理延迟；</li>
+<li><strong>数据苦力堆人头</strong>：雇佣昂贵的人工标注团队，人工放大图片、标包围盒、写问答对，标注成本高、周期长且质检一致性极差。</li>
+</ol>
+<p>近日，来自<strong>蚂蚁集团（inclusionAI 团队）与浙江大学</strong>的研究人员在 arXiv 上提出了一项极具软件工程美感的研究：<strong>ZoomGain</strong>。</p>
+<p>他们跳出了算法打补丁的传统套路，抓住了一个关键的直觉状态落差：<strong>同一个模型，看全景大图看不清细节，但只要把该区域局部裁剪放大（Zoom-in），它自己就能看懂！</strong> 论文利用这种“全景与局部放大的感知代差”，设计了一套全自动的“差分流水线”，<strong>零人工出题</strong>生成高纯度数据；随后仅凭 <strong>9K 样本、纯强化学习（GRPO）训练 140 步</strong>，就让 4B/9B 的小模型在多个细粒度感知基准上直接超越了数百亿乃至千亿参数的大模型。</p>
+<blockquote>
+<p><strong>论文题目</strong>：<em>ZoomGain: Mining Global-to-Zoom Perception Gaps for Fine-Grained Visual Supervision</em><br>
+<strong>论文编号</strong>：arXiv:2611.14076<br>
+<strong>作者团队</strong>：InclusionAI (Ant Group 蚂蚁集团) &amp; 浙江大学等<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.14076">https://arxiv.org/abs/2611.14076</a><br>
+<strong>HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.14076">https://arxiv.org/html/2611.14076</a><br>
+<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/inclusionAI/ZoomGain">https://github.com/inclusionAI/ZoomGain</a><br>
+<strong>核心成果</strong>：零人工出题构建 1,000 题双语基准 ZoomGainBench；仅用 9,000 条高质量差分数据配合纯强化学习（140 步），让 Qwen-9B 在 HR-Bench 4K 达到 <strong>90.25</strong> 分，在 13 个外部泛化基准上综合成绩超越 397B 千亿巨型模型。</p>
+</blockquote>
+<p>站在软件工程师与系统设计者的视角，这篇论文本质上是一份极为标准的 <strong>“通过差分计算自举高信噪比数据，辅以严密多级质检网关与规则驱动的 TDD 优化系统”</strong> 的工程范例。本文将剥离算法黑话，用系统架构与软件工程的视角对其进行全面深度剖析。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/12/ZoomGain/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +336,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-12 16:40:00 / 修改时间：16:47:48" itemprop="dateCreated datePublished" datetime="2026-11-12T16:40:00+08:00">2026-11-12</time>
+      <time title="创建时间：2026-11-12 16:40:00 / 修改时间：17:11:46" itemprop="dateCreated datePublished" datetime="2026-11-12T16:40:00+08:00">2026-11-12</time>
     </span>
 
   
@@ -335,7 +445,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-12 16:00:00 / 修改时间：16:47:48" itemprop="dateCreated datePublished" datetime="2026-11-12T16:00:00+08:00">2026-11-12</time>
+      <time title="创建时间：2026-11-12 16:00:00 / 修改时间：17:11:46" itemprop="dateCreated datePublished" datetime="2026-11-12T16:00:00+08:00">2026-11-12</time>
     </span>
 
   
@@ -454,7 +564,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 17:11:46" itemprop="dateModified" datetime="2026-11-12T17:11:46+08:00">2026-11-12</time>
     </span>
 
   
@@ -683,7 +793,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 17:11:46" itemprop="dateModified" datetime="2026-11-12T17:11:46+08:00">2026-11-12</time>
     </span>
 
   
@@ -754,123 +864,6 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/10/SAPO-VideoGrounding/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/10/SAPO-VideoGrounding/" class="post-title-link" itemprop="url">【论文分享】模型心里门儿清，嘴上说不出？上交大与蚂蚁新作 SAPO：无需人工标注，用内部注意力与 GRPO 破解视频大模型时序定位鸿沟</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-10 17:50:00" itemprop="dateCreated datePublished" datetime="2026-11-10T17:50:00+08:00">2026-11-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.2k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>15 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在视频多模态大模型（Video-VLM）领域，<strong>视频时序定位（Temporal Video Grounding, TVG）</strong> 是评估模型是否真正“看懂时间”的核心标尺：给定一段长视频与一句用户自然语言查询（例如“<em>找出小猫跳进纸箱的瞬间</em>”），模型需要精准返回目标事件在时间轴上的物理起止点 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><mi>s</mi><mo separator="true">,</mo><mi>e</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[s, e]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord mathnormal">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">e</span><span class="mclose">]</span></span></span></span>（秒）。</p>
-<p>尽管当前的通用视频大模型（如 Qwen2.5-VL、InternVL 等）在长视频问答、事件摘要上表现惊艳，但在输出具体起止时间戳时却<strong>频频翻车、误差巨大</strong>。</p>
-<p>为了提升定位精度，传统工业界与学术界不得不陷入两难泥潭：要么斥巨资雇佣大量人工“逐秒逐帧打标起止边界”，搞昂贵的监督微调（SFT）；要么在推理端挂上一堆繁琐特征提取与滑动窗口聚类等外挂后处理流水线（Training-free 方案），导致线上服务延迟爆炸、运维成本失控。</p>
-<p>难道离开昂贵的人工标注，大模型就真的无法学会精准感知时间吗？</p>
-<p>近日，来自<strong>上海交通大学与蚂蚁集团</strong>的研究团队在 arXiv 上公开了一篇兼具敏锐直觉与工程巧思的前沿成果：</p>
-<blockquote>
-<p><strong>《SAPO: Self-Supervised Attention Policy Optimization for Improving Temporal Video Grounding in Vision–Language Models》</strong> (arXiv:2610.25923)<br>
-论文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.25923">https://arxiv.org/abs/2610.25923</a><br>
-HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.25923">https://arxiv.org/html/2610.25923</a><br>
-核心关键词：视频时序定位、自监督对齐、强化学习微调、GRPO、时序注意力</p>
-</blockquote>
-<p>作者通过严谨的白盒解剖提出了一个颠覆性的发现：<strong>大模型其实“心里门儿清，只是嘴上说不出来”！</strong> 模型内部的跨模态注意力早在浅中层就已经锁定了正确的时间区间，只是在自回归解码为文本字符时丢失了精度。</p>
-<p>基于这一洞察，作者提出了 <strong>SAPO（Self-Supervised Attention Policy Optimization）</strong> 框架：<strong>全程无需任何人工起止标注（Zero Ground Truth）</strong>，巧妙地将模型自身的内部注意力作为自我监督信号，引入组相对策略优化（GRPO），仅凭区区 <strong>2,000 条未标注视频</strong>，便让 Qwen2.5-VL-3B 定位精度暴涨 <strong>33.7%</strong>，且在生产端具备 <strong>0 额外推理延迟</strong>！</p>
-<p>本文将从系统架构与工程实现的视角，深度拆解 SAPO 的核心诊断、奖励引擎机制、高价值样本筛选算法与工业落地价值。</p>
-<blockquote>
-<p><strong>论文题目</strong>：SAPO: Self-Supervised Attention Policy Optimization for Improving Temporal Video Grounding in Vision–Language Models<br>
-<strong>作者团队</strong>：Zixuan Chen, Depeng Wang, Wei Chen, Ke Xu, Ya Guo, Huijia Zhu, Tanfeng Sun, Xinghao Jiang（上海交通大学、蚂蚁集团）<br>
-<strong>收录情况</strong>：arXiv 预印本（2026年10月）<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.25923">https://arxiv.org/abs/2610.25923</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/10/SAPO-VideoGrounding/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -895,14 +888,14 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">416k</span>
+    <span title="站点总字数">420k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">25:11</span>
+    <span title="站点阅读时长">25:29</span>
   </span>
 </div>
 <div class="busuanzi-count">

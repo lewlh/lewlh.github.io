@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">306</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">93</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">307</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">94</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">93</span>
+          <span class="site-state-item-count">94</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">306</span>
+        <span class="site-state-item-count">307</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,123 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/10/SAPO-VideoGrounding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/10/SAPO-VideoGrounding/" class="post-title-link" itemprop="url">【论文分享】模型心里门儿清，嘴上说不出？上交大与蚂蚁新作 SAPO：无需人工标注，用内部注意力与 GRPO 破解视频大模型时序定位鸿沟</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-10 17:50:00" itemprop="dateCreated datePublished" datetime="2026-11-10T17:50:00+08:00">2026-11-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-12 17:11:46" itemprop="dateModified" datetime="2026-11-12T17:11:46+08:00">2026-11-12</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在视频多模态大模型（Video-VLM）领域，<strong>视频时序定位（Temporal Video Grounding, TVG）</strong> 是评估模型是否真正“看懂时间”的核心标尺：给定一段长视频与一句用户自然语言查询（例如“<em>找出小猫跳进纸箱的瞬间</em>”），模型需要精准返回目标事件在时间轴上的物理起止点 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><mi>s</mi><mo separator="true">,</mo><mi>e</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[s, e]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord mathnormal">s</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">e</span><span class="mclose">]</span></span></span></span>（秒）。</p>
+<p>尽管当前的通用视频大模型（如 Qwen2.5-VL、InternVL 等）在长视频问答、事件摘要上表现惊艳，但在输出具体起止时间戳时却<strong>频频翻车、误差巨大</strong>。</p>
+<p>为了提升定位精度，传统工业界与学术界不得不陷入两难泥潭：要么斥巨资雇佣大量人工“逐秒逐帧打标起止边界”，搞昂贵的监督微调（SFT）；要么在推理端挂上一堆繁琐特征提取与滑动窗口聚类等外挂后处理流水线（Training-free 方案），导致线上服务延迟爆炸、运维成本失控。</p>
+<p>难道离开昂贵的人工标注，大模型就真的无法学会精准感知时间吗？</p>
+<p>近日，来自<strong>上海交通大学与蚂蚁集团</strong>的研究团队在 arXiv 上公开了一篇兼具敏锐直觉与工程巧思的前沿成果：</p>
+<blockquote>
+<p><strong>《SAPO: Self-Supervised Attention Policy Optimization for Improving Temporal Video Grounding in Vision–Language Models》</strong> (arXiv:2610.25923)<br>
+论文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.25923">https://arxiv.org/abs/2610.25923</a><br>
+HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.25923">https://arxiv.org/html/2610.25923</a><br>
+核心关键词：视频时序定位、自监督对齐、强化学习微调、GRPO、时序注意力</p>
+</blockquote>
+<p>作者通过严谨的白盒解剖提出了一个颠覆性的发现：<strong>大模型其实“心里门儿清，只是嘴上说不出来”！</strong> 模型内部的跨模态注意力早在浅中层就已经锁定了正确的时间区间，只是在自回归解码为文本字符时丢失了精度。</p>
+<p>基于这一洞察，作者提出了 <strong>SAPO（Self-Supervised Attention Policy Optimization）</strong> 框架：<strong>全程无需任何人工起止标注（Zero Ground Truth）</strong>，巧妙地将模型自身的内部注意力作为自我监督信号，引入组相对策略优化（GRPO），仅凭区区 <strong>2,000 条未标注视频</strong>，便让 Qwen2.5-VL-3B 定位精度暴涨 <strong>33.7%</strong>，且在生产端具备 <strong>0 额外推理延迟</strong>！</p>
+<p>本文将从系统架构与工程实现的视角，深度拆解 SAPO 的核心诊断、奖励引擎机制、高价值样本筛选算法与工业落地价值。</p>
+<blockquote>
+<p><strong>论文题目</strong>：SAPO: Self-Supervised Attention Policy Optimization for Improving Temporal Video Grounding in Vision–Language Models<br>
+<strong>作者团队</strong>：Zixuan Chen, Depeng Wang, Wei Chen, Ke Xu, Ya Guo, Huijia Zhu, Tanfeng Sun, Xinghao Jiang（上海交通大学、蚂蚁集团）<br>
+<strong>收录情况</strong>：arXiv 预印本（2026年10月）<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.25923">https://arxiv.org/abs/2610.25923</a></p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/10/SAPO-VideoGrounding/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +349,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 17:11:46" itemprop="dateModified" datetime="2026-11-12T17:11:46+08:00">2026-11-12</time>
     </span>
 
   
@@ -348,7 +465,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 17:11:46" itemprop="dateModified" datetime="2026-11-12T17:11:46+08:00">2026-11-12</time>
     </span>
 
   
@@ -460,7 +577,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 17:11:46" itemprop="dateModified" datetime="2026-11-12T17:11:46+08:00">2026-11-12</time>
     </span>
 
   
@@ -571,7 +688,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 17:11:46" itemprop="dateModified" datetime="2026-11-12T17:11:46+08:00">2026-11-12</time>
     </span>
 
   
@@ -635,124 +752,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/09/Simulated-Perspectives-Geometry/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/09/Simulated-Perspectives-Geometry/" class="post-title-link" itemprop="url">【论文分享】大模型真的能“感同身受”吗？解密前沿论文《The Geometry of Simulated Perspectives》：多模态大模型中表征与行为的“表里脱节”与工程启示</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-09 17:35:00" itemprop="dateCreated datePublished" datetime="2026-11-09T17:35:00+08:00">2026-11-09</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.9k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>18 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在构建基于大语言模型（LLM）与多模态大模型（VLM）的智能体（AI Agents）、用户画像模拟（Silicon Samples）或内容审核系统时，软件开发工程师与 Prompt 架构师们最常写的一类指令就是<strong>角色设定（Persona Conditioning）</strong>：</p>
-<blockquote>
-<p><em>“你是一个 30 岁的资深程序员，请评估这张代码架构图……”</em><br>
-<em>“想象你是一个极度保守的艺术评论家，请给这张画的趣味度打分（1~5 分）……”</em></p>
-</blockquote>
-<p>然而，在系统实际运行中，工程师们始终面临两个悬而未决的“黑盒”疑问：</p>
-<ol>
-<li><strong>真实机制还是措辞伪装？</strong> 当我们传入这些角色设定时，模型是真的在内部切换了思考视角，还是仅仅在输出阶段换了换语法套话？</li>
-<li><strong>表征变化等于行为变化吗？</strong> 如果两个不同的 Prompt 导致模型内部的特征向量（Hidden States）发生了剧烈偏离，是否意味着它做出的业务决策也一定大相径庭？</li>
-</ol>
-<p>2026 年 11 月，来自德国海德堡大学曼海姆医学院与埃尔朗根-纽伦堡大学的研究团队在 arXiv 上发表了一篇立意深刻的技术论文：</p>
-<blockquote>
-<p><strong>《The Geometry of Simulated Perspectives: Dissociating Representation and Behaviour in a Multimodal Language Model》</strong><br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.08262">https://arxiv.org/abs/2611.08262</a><br>
-<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.08262v1">https://arxiv.org/html/2611.08262v1</a><br>
-<strong>开源仓库</strong>：<a target="_blank" rel="noopener" href="https://github.com/MathisImm/persona-vlm-representations">https://github.com/MathisImm/persona-vlm-representations</a><br>
-<strong>测试靶机</strong>：开源多模态标杆模型 <strong>Qwen3-VL-8B-Instruct</strong></p>
-</blockquote>
-<p>作者团队通过极其严密的矩阵化正交实验，对 <strong>Qwen3-VL-8B</strong> 的 36 层解码器进行了全量激活值采样与行为方差分解，得出了一个颠覆认知的结论：<strong>模型内部的表征几何（Representation Geometry）与最终的业务输出行为（Behaviour）发生了严重的“表里脱节”！</strong></p>
-<p>Prompt 的句式包装（Style）极大地改变了模型底层的向量分布，但对外部业务输出的影响微乎其微；相反，角色的内在属性（Persona）在底层向量中只是微小扰动，却主导了 33.4% 的最终业务决策！</p>
-<p>本文将立足于 <strong>软件开发工程师（后端/架构/AI工程）</strong> 的视角，全面拆解该论文的测试工程架构、核心发现，并复盘由此引发的工程直觉与避坑指南。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/09/Simulated-Perspectives-Geometry/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -777,14 +776,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">416k</span>
+    <span title="站点总字数">420k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">25:11</span>
+    <span title="站点阅读时长">25:29</span>
   </span>
 </div>
 <div class="busuanzi-count">
