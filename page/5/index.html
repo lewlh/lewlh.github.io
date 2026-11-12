@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">304</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">92</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">306</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">93</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-count">93</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">304</span>
+        <span class="site-state-item-count">306</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,127 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/30/GeneralizedCycleGRPO-MultimodalUnderstandingGrounding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/10/30/GeneralizedCycleGRPO-MultimodalUnderstandingGrounding/" class="post-title-link" itemprop="url">【论文分享】给多模态大模型装上“自省闭环”：arXiv 2026 新作 Generalized CycleGRPO 统一空间、时间与时空细粒度理解与定位</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-30 13:35:00" itemprop="dateCreated datePublished" datetime="2026-10-30T13:35:00+08:00">2026-10-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态大语言模型（MLLM）迅速迈向视觉深度推理与长视频理解的今天，我们往往要求 AI 具备两种看起来形影不离的核心本领：</p>
+<ol>
+<li><strong>细粒度区域理解（Region Understanding / Captioning）</strong>：给模型画面中的一个指定区域（比如一个红框、一段分割掩码、或视频中的某几秒），模型能详尽写出这里究竟发生了什么；</li>
+<li><strong>指代性定位（Referring Localization / Grounding）</strong>：反过来，给模型一句自然语言（如“穿黄色雨衣戴红帽子的男孩”），模型能准确把物体框出来，或者在视频时间轴上精准标记出起止时间戳。</li>
+</ol>
+<p>然而，长期以来业界在这两个方向的训练上存在着<strong>严重的割裂与监督瓶颈</strong>：</p>
+<ul>
+<li>教模型“写描述”通常依赖成本极其高昂的人工文字标注；</li>
+<li>教模型“找位置”则依赖规则化的几何坐标损失；</li>
+<li>两种训练彼此独立、缺乏约束——一句文字通顺流畅的描述，可能根本无法唯一锁定源物体；而一个定位极其精准的检测器，也无法反哺语言描述能力的进化。</li>
+</ul>
+<p>近日，来自新加坡国立大学（NUS）、中国科学院大学（UCAS）、南洋理工大学（NTU）以及陶大程院士团队发表了重磅前沿成果：</p>
+<blockquote>
+<p><strong>《Generalized CycleGRPO for Fine-Grained Multimodal Understanding and Grounding》</strong> (arXiv:2610.29552)</p>
+</blockquote>
+<p>该研究在他们此前 ECCV 空间图像成果的基础上，提出了一套通用的<strong>广义循环强化学习框架（Generalized CycleGRPO）</strong>。它利用“<strong>费曼学习法</strong>”式的自省逻辑：让模型先看区域写出描述，再根据自己写的描述把原区域“找回去”。<strong>找回的几何重叠度（IoU）就是天然客观、无需人工裁判的强化学习奖励。</strong> 更重要的是，该方法一举打通了 2D 静态图像空间、1D 视频时序区间以及四维时空动态轨迹。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Generalized CycleGRPO for Fine-Grained Multimodal Understanding and Grounding<br>
+<strong>作者团队</strong>：Xin Zhang, Haochen Wang, Beibei Lin, Zhaoxiang Zhang, Robby T. Tan, Jason Li, Dacheng Tao (NUS, UCAS, NTU 等)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.29552">https://arxiv.org/abs/2610.29552</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.29552v1">https://arxiv.org/html/2610.29552v1</a><br>
+<strong>项目主页</strong>：<a target="_blank" rel="noopener" href="https://devinxzhang.github.io/Generalized-CycleGRPO-Page/">https://devinxzhang.github.io/Generalized-CycleGRPO-Page/</a><br>
+<strong>核心领域</strong>：Multimodal LLMs, Reinforcement Learning (GRPO), Temporal Grounding, Referring Segmentation, DOVE Benchmark</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/10/30/GeneralizedCycleGRPO-MultimodalUnderstandingGrounding/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +353,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -350,7 +471,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -472,7 +593,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -592,7 +713,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -666,116 +787,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/29/CodeCap-Bench-CodeAsVideoCaption/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/10/29/CodeCap-Bench-CodeAsVideoCaption/" class="post-title-link" itemprop="url">【论文分享】代码即视频描述？解析快手可灵与南大新范式 CodeCap-Bench 及工业落地思辨</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-10-29 11:15:00" itemprop="dateCreated datePublished" datetime="2026-10-29T11:15:00+08:00">2026-10-29</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.8k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>14 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在多模态视频理解领域，有一项非常经典的底层任务叫 <strong>Video Captioning（视频描述生成）</strong>：让 AI 看完一段视频，输出一段语言总结视频里发生了什么。</p>
-<p>然而在面对软件 UI 交互、数据图表变化、2D 游戏等高精度动态视频时，我们常常撞上一堵坚硬的墙：<strong>自然语言太模糊、太冗长，且天生缺乏数学和物理时钟感。</strong> 你费尽口舌写了上千字“小球以微小的加速度向右滚动并在触碰边界时反弹”，另一台计算机依然无法分秒不差地将其无损复原。</p>
-<p>近期，由 <strong>南京大学与快手可灵大模型团队（Kling AI）</strong> 联合清华、交大、北大等多家机构，在 arXiv 上发布了一项极具脑洞的前沿工作——《CodeCap-Bench: Can Code Serve as a Good Video Caption?》，首次系统性地探讨了这一颠覆性命题：</p>
-<blockquote>
-<p><strong>“代码即视频描述（Code as Video Caption）：与其用冗长模糊的自然语言描述 2D 动效，不如让 AI 直接手写一段能够跑通渲染的 HTML5 / Canvas / JavaScript 前端代码；代码自带严谨的图形基元与连续时间函数 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">f(t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mopen">(</span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span>，不仅重构保真度更高、下游问答推理更准，还能分秒不差地重现视频！”</strong></p>
-</blockquote>
-<p>在这篇博客中，我们不仅会深入拆解 CodeCap-Bench 的数据集构成、多级评分体系与各大前沿大模型的真实测评战况，还会结合<strong>工业落地与系统工程的深度思辨</strong>，直面该方案在<strong>模型调用成本、计算管线重量、以及代码资产大规模检索建库</strong>等方面的现实瓶颈，并剖析可灵团队背后真正瞄准的“数据金矿”。</p>
-<blockquote>
-<p><strong>论文题目</strong>：CodeCap-Bench: Can Code Serve as a Good Video Caption?<br>
-<strong>作者团队</strong>：Jiafu Tang, Yifan Xu, Eric Tang, Junjie Zhao, Shipeng Luo, Pengfei Wan, Jiaheng Liu 等 (南京大学, 快手可灵 Kling AI, 天津大学, 上海交通大学, 中科院自动化所, 北京大学)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.37341">https://arxiv.org/abs/2610.37341</a><br>
-<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.37341">https://arxiv.org/html/2610.37341</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/10/29/CodeCap-Bench-CodeAsVideoCaption/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -800,14 +811,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">411k</span>
+    <span title="站点总字数">416k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">24:56</span>
+    <span title="站点阅读时长">25:11</span>
   </span>
 </div>
 <div class="busuanzi-count">

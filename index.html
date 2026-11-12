@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">304</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">92</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">306</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">93</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-count">93</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">304</span>
+        <span class="site-state-item-count">306</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,115 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/12/EVAThink/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/12/EVAThink/" class="post-title-link" itemprop="url">【论文分享】告别无脑 CoT 内耗：EVAThink 如何用 6.7K 样本实现视频大模型的自适应快慢推理路由</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-12 16:40:00 / 修改时间：16:47:48" itemprop="dateCreated datePublished" datetime="2026-11-12T16:40:00+08:00">2026-11-12</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在当下的多模态大模型（VLM）与长视频理解演进中，<strong>思维链推理（Chain-of-Thought, CoT / Slow-Thinking）</strong> 似乎成了业界提升基准测试得分的灵丹妙药。从 DeepSeek-R1 到各路视频推理模型，大家都在追求让模型“想得更深、写得更长”。</p>
+<p>然而，在实际的工业级工程落地与高并发线上部署中，盲目开启全量 CoT 正带来两大致命痛点：</p>
+<ol>
+<li><strong>算力与延迟雪崩（Token 账单膨胀）</strong>：原本可以直接输出选项的简单视频感知任务，模型非要生成 500~1000 个 Token 的冗长分析，导致显存吞吐下降 80%~90%，API 费用呈数量级飙升；</li>
+<li><strong>过度思考反噬（Over-thinking 引入幻觉）</strong>：工程实验屡屡表明，在很多一目了然的低阶视觉感知任务中（例如判断物体颜色、相对位置或即时动作），强行强制模型长篇大论，反而会在复杂的自回归推演中“脑补”出无中生有的细节，导致原本能直接秒答对的题目被改错。</li>
+</ol>
+<p>因此，<strong>“自适应思考（Adaptive Thinking）”</strong> 呼之欲出——简单的看一眼就秒答（Fast-Path），复杂的再深入推理（Slow-Path）。但过去训练自适应路由的方案通常代价不菲：不仅依赖 8 万至 14 万条昂贵的人工标注做 SFT 预热冷启动，在强化学习（RL）阶段还极易出现 <strong>“模式坍塌（Mode Collapse）”</strong>——模型在某次迭代后彻底“摆烂”，要么全部退化为直接回答，要么全部死锁在思考模式。</p>
+<p>针对这一核心工程瓶颈，华东师范大学与华为团队近日在 arXiv 提出了一个极具系统工程美感的全新解决方案：<strong>EVAThink</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：<em>EVAThink: Evidence Sufficiency-Guided Training for Adaptive Thinking in Video Understanding</em><br>
+<strong>论文编号</strong>：arXiv:2611.13907<br>
+<strong>作者团队</strong>：Changti Wu, Ruizhe Fan, Bin Wang, Lei Zhang, Yuxiang Zhang（华东师范大学 &amp; 华为）<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.13907">https://arxiv.org/abs/2611.13907</a><br>
+<strong>HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.13907v1">https://arxiv.org/html/2611.13907v1</a><br>
+<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/ChangtiWu/EVAThink">https://github.com/ChangtiWu/EVAThink</a><br>
+<strong>核心成果</strong>：彻底摒弃昂贵的 SFT 冷启动，仅凭 <strong>6.7K 样本</strong>，在 32 块昇腾 NPU 上完成两阶段强化学习，不仅在各大基准上全面击败全直接答与全思考模式，更将推理 Token 长度大幅缩减 <strong>62%</strong>。</p>
+</blockquote>
+<p>站在软件工程师与系统架构师的视角，EVAThink 的设计堪称一份教科书级别的 <strong>“轻量级动态自适应路由与熔断器架构实战”</strong>。本文将剥离复杂的算法迷雾，用系统工程的思维全面拆解其技术实现与设计直觉。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/12/EVAThink/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +335,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-12 16:00:00 / 修改时间：16:12:17" itemprop="dateCreated datePublished" datetime="2026-11-12T16:00:00+08:00">2026-11-12</time>
+      <time title="创建时间：2026-11-12 16:00:00 / 修改时间：16:47:48" itemprop="dateCreated datePublished" datetime="2026-11-12T16:00:00+08:00">2026-11-12</time>
     </span>
 
   
@@ -345,7 +454,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -574,7 +683,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -689,7 +798,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -762,122 +871,6 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/10/ProQuant-EdgeMLLM/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/10/ProQuant-EdgeMLLM/" class="post-title-link" itemprop="url">【论文分享】端侧多模态如何压到 4-Bit 还不崩？解密港科大与清华新作 ProQuant 的渐进式量化与自重标注范式</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-10 13:50:00" itemprop="dateCreated datePublished" datetime="2026-11-10T13:50:00+08:00">2026-11-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>5.3k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>19 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在多模态大模型（MLLM，如 Qwen-VL、InternVL、LLaVA）加速走向端侧智能硬件（智能手机、车机座舱、具身机器人、AI 智能眼镜与工业边缘网关）的过程中，每一位负责模型工程化部署的软件工程师都会撞上一堵冰冷的物理现实之墙：</p>
-<p><strong>16-bit 浮点（BF16/FP16）模型太重了，既吃光了端侧极为拮据的板载内存（DRAM），又在端侧无风扇散热被动受限的微瓦/毫瓦级功耗下频繁触发热降频。</strong></p>
-<p>以一个典型的 2B~3B 端侧多模态模型为例，仅权重本身就需要 4GB~6GB 存储，加上 KV Cache 和激活值，在边缘设备上几乎无法常驻；而端侧边缘 AI 芯片（NPU / ASIC）往往只配置了低功耗的整数计算单元（INT MACs），浮点算力极为昂贵。因此，<strong>将模型做权重与激活值的“双低比特量化”（如 W4A8、W4A4）是端侧部署的必经之路</strong>。</p>
-<p>然而，一旦将模型从 8-bit（W8A8）进一步下压到 4-bit（W4A8/W4A4），工程师们会遭遇灾难性的“量化雪崩”：</p>
-<ul>
-<li><strong>小尺寸模型容错率极低</strong>：在 70B 大模型上表现良好的量化技巧，用到 2B 模型上会瞬间瘫痪；</li>
-<li><strong>视觉认知彻底失控</strong>：直接量化后，语言生成能力尚存，但<strong>多模态图表理解与细粒度感知准确率直接归零（0%）</strong>；</li>
-<li><strong>学术界既有方案的工程落地困境</strong>：许多算法论文引入复杂的在线旋转矩阵（如 Hadamard Rotation），看似刷高了准确率，但在端侧专用芯片上却需要专门开辟硬件逻辑或引入昂贵的额外算子，带来严重的运行时延迟与硬件开销。</li>
-</ul>
-<p>2026 年 11 月，来自香港科技大学（HKUST）、西北工业大学（NWPU）、中国电信人工智能研究院（TeleAI）与清华大学（Tsinghua）的联合研究团队在 arXiv 上发表了针对端侧多模态量化训练的破局之作：</p>
-<blockquote>
-<p><strong>论文题目</strong>：ProQuant: Progressive Quantization-aware Training for Edge MLLMs<br>
-<strong>论文作者</strong>：Yufei Xue, Yushi Huang, Jiawei Shao, Pingcheng Dong, Yonghao Tan, Shiyao Li, Kwang-Ting Cheng, Jun Zhang<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.08216">https://arxiv.org/abs/2611.08216</a><br>
-<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.08216">https://arxiv.org/html/2611.08216</a><br>
-<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/yufeixue-ai/ProQuant/">https://github.com/yufeixue-ai/ProQuant/</a><br>
-<strong>核心成果</strong>：面向端侧多模态的低比特量化感知训练框架 ProQuant，提出自重标注（SRL）消灭数据风格偏差，首创解耦视觉与语言能力的渐进式分块激活（PBA），并在台积电 22nm 真实流片 ASIC 芯片上验证了最高 3.64× 的 Prefill 提速与 3.9× 的 Decode 稳定提速。</p>
-</blockquote>
-<p>本文将摒弃复杂的算法公式堆砌，立足于 <strong>软件开发工程师、系统架构师与后端研发</strong> 的视角，从数据契约对齐、系统分阶段灰度调度、端侧硬件 Memory-bound / Compute-bound 物理瓶颈等工程维度，深度拆解这一极具实用价值的工程落地范式。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/10/ProQuant-EdgeMLLM/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -902,14 +895,14 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">411k</span>
+    <span title="站点总字数">416k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">24:56</span>
+    <span title="站点阅读时长">25:11</span>
   </span>
 </div>
 <div class="busuanzi-count">

@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">304</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">92</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">306</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">93</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-count">93</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">304</span>
+        <span class="site-state-item-count">306</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,117 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/16/GenerativeLateInteractionEmbeddings-GLIE-VisualDocumentRetrieval/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/10/16/GenerativeLateInteractionEmbeddings-GLIE-VisualDocumentRetrieval/" class="post-title-link" itemprop="url">【论文分享】把1000个向量压成4个！解密KAUST前沿论文GLIE：如何用生成式晚期交互破除多模态RAG与视频检索的存储魔咒</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-16 11:50:00" itemprop="dateCreated datePublished" datetime="2026-10-16T11:50:00+08:00">2026-10-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态检索增强生成（Multimodal RAG）与图文检索领域，基于视觉语言大模型的 <strong>视觉文档检索（Visual Document Retrieval, 如 ColPali）</strong> 彻底颠覆了传统的“OCR 提取文字 + 文本分块”模式。它直接把 PDF 页面当成高分辨率图片，输入视觉大模型切片成上千个细粒度 Patch 向量，通过晚期交互（Late Interaction / MaxSim）直接对齐复杂的排版、表格和图表，检索准确率达到全新高度。</p>
+<p>然而，在学术成果走向工业落地的第一天，软件架构师们就被迎面而来的工程噩梦拦住了去路：<strong>极其恐怖的存储与显存开销</strong>。一页文档就需要保存约 1024 个高维向量，100 万页文档意味着要在向量数据库中常驻 <strong>10 亿个向量</strong>，单机内存根本无法承载，甚至会直接把云端向量数据库的账单打爆。</p>
+<p>近日，来自阿卜杜拉国王科技大学（KAUST）与 Edge Hill University 的研究团队在 arXiv 上发表了一篇极具工程洞察力和落地价值的论文：</p>
+<blockquote>
+<p><strong>《Generative Late-Interaction Embeddings For Visual Document Retrieval》</strong> (arXiv:2609.11808, 2026)</p>
+</blockquote>
+<p>论文提出了 <strong>GLIE（生成式晚期交互嵌入）</strong> 框架。研究团队通过微分几何分析发现：虽然页面有上千个切片向量，但其本质自由度（内在维度）极低。基于此，GLIE 提出了 <strong>“存几枚骨架锚点，现场按需超分辨率还原”</strong> 的全新范式——<strong>每页仅存 4 到 16 个代码向量（存储缩减 98% ~ 99.6%），在仅有 415K 参数的极轻量网络驱动下，召回候选后动态还原出 1024 个向量做精排，保留了原本模型 80% 以上的高保真精度！</strong></p>
+<blockquote>
+<p><strong>论文题目</strong>：Generative Late-Interaction Embeddings For Visual Document Retrieval<br>
+<strong>作者团队</strong>：Mohamed Eltahir, Talal Aloushan, Rose Khairoalsendi, Jana Shata, Mohammed Alhassan, Leen Alrehaili, Tanveer Hussain, Naeemullah Khan (KAUST, Edge Hill University)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2609.11808">https://arxiv.org/abs/2609.11808</a><br>
+<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/mohammad2012191/GLIE">https://github.com/mohammad2012191/GLIE</a><br>
+<strong>核心领域</strong>：Visual Document Retrieval (VDR), Multimodal RAG, Late Interaction, ColPali, Vector Compression, Video Search</p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/10/16/GenerativeLateInteractionEmbeddings-GLIE-VisualDocumentRetrieval/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +343,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -345,7 +456,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -462,7 +573,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/260
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -571,7 +682,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/260
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -642,118 +753,6 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/260
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/06/12/Scene-VLM-Segmentation/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/06/12/Scene-VLM-Segmentation/" class="post-title-link" itemprop="url">【论文分享】长视频切片如何破局？亚马逊新作 Scene-VLM：基于多模态大模型与上下文滑窗重构视频场景分割</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-06-12 15:40:00" itemprop="dateCreated datePublished" datetime="2026-06-12T15:40:00+08:00">2026-06-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>2.9k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>11 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在长视频处理（如电影、电视剧、纪录片）与流媒体工程中，<strong>视频场景分割（Video Scene Segmentation）</strong> 是一项基础且关键的技术。无论是智能生成视频精彩章节、精细化定位广告插播点、人机协同内容审核，还是按情景检索视频资产，系统都需要把长达数小时的连续视频切分为若干个<strong>语义完整、叙事独立的故事单元（Scene）</strong>。</p>
-<p>然而，传统的算法流水线在工业落地中一直面临难以克服的<strong>工程瓶颈与准确率瓶颈</strong>：</p>
-<ol>
-<li><strong>视觉偏见与过度切分（Visual-Centric Bias）</strong>：传统方法重度依赖画面特征（如机位切换、光流、特征向量距离）。当男女主角在咖啡厅来回正反打切镜头时，背景画面剧烈跳变，老算法极易“误切”，无法感知到<strong>台词和对话逻辑依然完全连续</strong>。</li>
-<li><strong>孤立打标与缺乏因果依赖（Shot in Isolation）</strong>：将每个镜头（Shot）割裂开来独立做二分类，缺乏全局时序叙事上下文，导致边界判决忽左忽右。</li>
-<li><strong>黑盒判决与零解释性（Lack of Explainability）</strong>：传统分类模型只吐出一个 0 或 1，遇到误切或漏切，业务审核与排障人员无从得知判决依据，难以建立人机协同（Human-in-the-Loop）工作流。</li>
-</ol>
-<p>针对这些顽疾，来自<strong>亚马逊（Amazon Prime Video）与特拉维夫大学等机构</strong>在 CVPR 上提出了全新范式：</p>
-<blockquote>
-<p><strong>《Scene-VLM: Multimodal Video Scene Segmentation via Vision-Language Models》</strong> (arXiv:2512.21778)<br>
-论文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2512.21778">https://arxiv.org/abs/2512.21778</a><br>
-HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2512.21778">https://arxiv.org/html/2512.21778</a><br>
-核心关键词：视频场景分割、多模态大模型、上下文-焦点窗口、Qwen2.5-VL、LoRA 微调、可解释性</p>
-</blockquote>
-<p>作者团队打破了堆叠专用小模型的传统路线，将视频场景分割重塑为 <strong>“多模态时序滑动窗口推理 + 因果自回归生成”</strong>。在权威基准 MovieNet 上，Scene-VLM 实现了断层式性能跨越，<strong>AP 提升 +6.0，F1 暴涨 +13.7%</strong>，为多模态大模型重构多媒体长视频工程提供了极具参考价值的范式。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/06/12/Scene-VLM-Segmentation/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/8/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/10/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -778,14 +777,14 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/251
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">411k</span>
+    <span title="站点总字数">416k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">24:56</span>
+    <span title="站点阅读时长">25:11</span>
   </span>
 </div>
 <div class="busuanzi-count">

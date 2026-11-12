@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在当下的多模态大模型（VLM）与长视频理解演进中，思维链推理（Chain-of-Thought, CoT &#x2F; Slow-Thinking） 似乎成了业界提升基准测试得分的灵丹妙药。从 DeepSeek-R1 到各路视频推理模型，大家都在追求让模型“想得更深、写得更长”。 然而，在实际的工业级工程落地与高并发线上部署中，盲目开启全量 CoT 正带来两大致命痛点：  算力与延迟雪崩（Token 账单膨">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】告别无脑 CoT 内耗：EVAThink 如何用 6.7K 样本实现视频大模型的自适应快慢推理路由">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/11/12/EVAThink/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在当下的多模态大模型（VLM）与长视频理解演进中，思维链推理（Chain-of-Thought, CoT &#x2F; Slow-Thinking） 似乎成了业界提升基准测试得分的灵丹妙药。从 DeepSeek-R1 到各路视频推理模型，大家都在追求让模型“想得更深、写得更长”。 然而，在实际的工业级工程落地与高并发线上部署中，盲目开启全量 CoT 正带来两大致命痛点：  算力与延迟雪崩（Token 账单膨">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-12T08:40:00.000Z">
+<meta property="article:modified_time" content="2026-11-12T08:47:48.312Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="GRPO">
+<meta property="article:tag" content="多模态推理">
+<meta property="article:tag" content="强化学习">
+<meta property="article:tag" content="架构设计">
+<meta property="article:tag" content="自适应思考">
+<meta property="article:tag" content="视频大模型">
+<meta property="article:tag" content="论文分享">
+<meta property="article:tag" content="软件工程视角">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/11/12/EVAThink/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/11/12/EVAThink/","path":"papers/2026/11/12/EVAThink/","title":"【论文分享】告别无脑 CoT 内耗：EVAThink 如何用 6.7K 样本实现视频大模型的自适应快慢推理路由"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】告别无脑 CoT 内耗：EVAThink 如何用 6.7K 样本实现视频大模型的自适应快慢推理路由 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">306</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">93</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E6%A0%B8%E5%BF%83%E5%9B%B0%E5%B1%80%EF%BC%9A%E8%A7%86%E9%A2%91%E6%8E%A8%E7%90%86%E4%B8%AD%E7%9A%84%E2%80%9C%E5%81%9A%E9%A2%98%E5%AE%B6%E5%86%85%E8%80%97%E2%80%9D%E4%B8%8E%E5%88%86%E6%94%AF%E6%AD%BB%E9%94%81"><span class="nav-text">01. 核心困局：视频推理中的“做题家内耗”与分支死锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%9E%B6%E6%9E%84%E5%85%A8%E6%99%AF%EF%BC%9AEVAThink-%E7%9A%84%E5%BF%AB%E6%85%A2%E8%87%AA%E9%80%82%E5%BA%94%E8%B7%AF%E7%94%B1%E7%B3%BB%E7%BB%9F"><span class="nav-text">02. 架构全景：EVAThink 的快慢自适应路由系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%95%B0%E6%8D%AE%E7%AE%A1%E9%81%93%EF%BC%9A%E5%8F%AF%E6%8C%BD%E6%95%91%E8%AF%81%E6%8D%AE%E9%B8%BF%E6%B2%9F%E6%8C%96%E6%8E%98%EF%BC%88Recoverable-Evidence-Gap-Mining%EF%BC%89"><span class="nav-text">03. 数据管道：可挽救证据鸿沟挖掘（Recoverable Evidence Gap Mining）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%87%AA%E5%8A%A8%E5%8C%96-A-B-%E5%AF%B9%E7%85%A7%E8%A7%86%E5%9B%BE%E5%90%88%E6%88%90%EF%BC%88Pair-Construction%EF%BC%89"><span class="nav-text">1. 自动化 A&#x2F;B 对照视图合成（Pair Construction）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%8F%8C%E9%87%8D%E5%88%A4%E5%AE%9A%E8%BF%87%E6%BB%A4%EF%BC%88Filtering-Gate%EF%BC%89"><span class="nav-text">2. 双重判定过滤（Filtering Gate）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E8%AE%AD%E7%BB%83%E6%9C%BA%E5%88%B6%EF%BC%9A%E6%97%A0%E5%86%B7%E5%90%AF%E5%8A%A8%E7%9A%84%E4%B8%A4%E9%98%B6%E6%AE%B5%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%EF%BC%88Two-Stage-RL%EF%BC%89"><span class="nav-text">04. 训练机制：无冷启动的两阶段强化学习（Two-Stage RL）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%A0%BC%E5%BC%8F%E5%A5%91%E7%BA%A6%E9%94%9A%E5%AE%9A%EF%BC%88Protocol-Anchoring%EF%BC%89"><span class="nav-text">1. 格式契约锚定（Protocol Anchoring）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%B8%A4%E9%98%B6%E6%AE%B5%E7%8A%B6%E6%80%81%E6%9C%BA%E6%BC%94%E8%BF%9B"><span class="nav-text">2. 两阶段状态机演进</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E7%A8%B3%E5%AE%9A%E6%80%A7%E9%98%B2%E7%BA%BF%EF%BC%9A%E9%A6%96-Token-%E4%BC%98%E5%8A%BF%E6%88%AA%E6%96%AD%E6%AD%A3%E5%88%99%E5%8C%96%EF%BC%88First-Token-Regularization%EF%BC%89"><span class="nav-text">05. 稳定性防线：首 Token 优势截断正则化（First-Token Regularization）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E5%AE%9E%E9%AA%8C%E5%A4%8D%E7%9B%98%E4%B8%8E%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E6%8B%86%E8%A7%A3"><span class="nav-text">06. 实验复盘与性能指标拆解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%BB%BC%E5%90%88%E5%9F%BA%E5%87%86%E6%B5%8B%E8%AF%95%E5%AF%B9%E6%AF%94%EF%BC%88Controlled-Budget%EF%BC%89"><span class="nav-text">1. 综合基准测试对比（Controlled Budget）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%B8%A7%E7%8E%87%E4%B8%8A%E5%8D%87%E5%B8%A6%E6%9D%A5%E7%9A%84%E8%B7%AF%E7%94%B1%E8%A1%8C%E4%B8%BA%E5%81%8F%E7%A7%BB"><span class="nav-text">2. 帧率上升带来的路由行为偏移</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84%E6%9E%B6%E6%9E%84%E5%90%AF%E7%A4%BA%EF%BC%9A%E6%8A%8A-AI-%E8%AE%AD%E6%8E%A8%E7%9C%8B%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%B7%A5%E7%A8%8B"><span class="nav-text">07. 软件工程师的架构启示：把 AI 训推看作系统工程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%BF%AB%E6%85%A2%E9%93%BE%E8%B7%AF%E7%9A%84%E5%88%86%E7%BA%A7%E8%B0%83%E5%BA%A6%E6%80%9D%E6%83%B3%EF%BC%88Hierarchical-Execution%EF%BC%89"><span class="nav-text">1. 快慢链路的分级调度思想（Hierarchical Execution）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%BE%B9%E9%99%85%E6%94%B6%E7%9B%8A%E9%A9%B1%E5%8A%A8%E7%9A%84%E6%95%B0%E6%8D%AE%E6%B5%8B%E8%AF%95%E9%9B%86%E6%8F%90%E7%82%BC%EF%BC%88Margin-Based-Edge-Case-Mining%EF%BC%89"><span class="nav-text">2. 边际收益驱动的数据测试集提炼（Margin-Based Edge Case Mining）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%A4%9A%E7%9B%AE%E6%A0%87%E5%8D%8F%E5%90%8C%E7%9A%84%E4%B8%A4%E9%98%B6%E6%AE%B5%E5%B9%B3%E6%BB%91%E6%94%B6%E6%95%9B%EF%BC%88Two-Stage-Rollout%EF%BC%89"><span class="nav-text">3. 多目标协同的两阶段平滑收敛（Two-Stage Rollout）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%85%B3%E9%94%AE%E5%86%B3%E7%AD%96%E5%88%86%E5%8F%89%E7%82%B9%E7%9A%84%E9%98%B2%E6%AD%BB%E9%94%81%E4%B8%8E%E6%8A%97%E9%9C%87%E8%8D%A1%EF%BC%88Guarding-Critical-Decisions%EF%BC%89"><span class="nav-text">4. 关键决策分叉点的防死锁与抗震荡（Guarding Critical Decisions）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#08-%E6%80%BB%E7%BB%93%E4%B8%8E%E7%BB%93%E8%AF%AD"><span class="nav-text">08. 总结与结语</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">93</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">306</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/12/EVAThink/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】告别无脑 CoT 内耗：EVAThink 如何用 6.7K 样本实现视频大模型的自适应快慢推理路由 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】告别无脑 CoT 内耗：EVAThink 如何用 6.7K 样本实现视频大模型的自适应快慢推理路由
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-12 16:40:00 / 修改时间：16:47:48" itemprop="dateCreated datePublished" datetime="2026-11-12T16:40:00+08:00">2026-11-12</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在当下的多模态大模型（VLM）与长视频理解演进中，<strong>思维链推理（Chain-of-Thought, CoT / Slow-Thinking）</strong> 似乎成了业界提升基准测试得分的灵丹妙药。从 DeepSeek-R1 到各路视频推理模型，大家都在追求让模型“想得更深、写得更长”。</p>
+<p>然而，在实际的工业级工程落地与高并发线上部署中，盲目开启全量 CoT 正带来两大致命痛点：</p>
+<ol>
+<li><strong>算力与延迟雪崩（Token 账单膨胀）</strong>：原本可以直接输出选项的简单视频感知任务，模型非要生成 500~1000 个 Token 的冗长分析，导致显存吞吐下降 80%~90%，API 费用呈数量级飙升；</li>
+<li><strong>过度思考反噬（Over-thinking 引入幻觉）</strong>：工程实验屡屡表明，在很多一目了然的低阶视觉感知任务中（例如判断物体颜色、相对位置或即时动作），强行强制模型长篇大论，反而会在复杂的自回归推演中“脑补”出无中生有的细节，导致原本能直接秒答对的题目被改错。</li>
+</ol>
+<p>因此，<strong>“自适应思考（Adaptive Thinking）”</strong> 呼之欲出——简单的看一眼就秒答（Fast-Path），复杂的再深入推理（Slow-Path）。但过去训练自适应路由的方案通常代价不菲：不仅依赖 8 万至 14 万条昂贵的人工标注做 SFT 预热冷启动，在强化学习（RL）阶段还极易出现 <strong>“模式坍塌（Mode Collapse）”</strong>——模型在某次迭代后彻底“摆烂”，要么全部退化为直接回答，要么全部死锁在思考模式。</p>
+<p>针对这一核心工程瓶颈，华东师范大学与华为团队近日在 arXiv 提出了一个极具系统工程美感的全新解决方案：<strong>EVAThink</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：<em>EVAThink: Evidence Sufficiency-Guided Training for Adaptive Thinking in Video Understanding</em><br>
+<strong>论文编号</strong>：arXiv:2611.13907<br>
+<strong>作者团队</strong>：Changti Wu, Ruizhe Fan, Bin Wang, Lei Zhang, Yuxiang Zhang（华东师范大学 &amp; 华为）<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2611.13907" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2611.13907</a><br>
+<strong>HTML 预览</strong>：<a target="_blank" href="https://arxiv.org/html/2611.13907v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2611.13907v1</a><br>
+<strong>开源代码</strong>：<a target="_blank" href="https://github.com/ChangtiWu/EVAThink" rel="external nofollow noreferrer noopener">https://github.com/ChangtiWu/EVAThink</a><br>
+<strong>核心成果</strong>：彻底摒弃昂贵的 SFT 冷启动，仅凭 <strong>6.7K 样本</strong>，在 32 块昇腾 NPU 上完成两阶段强化学习，不仅在各大基准上全面击败全直接答与全思考模式，更将推理 Token 长度大幅缩减 <strong>62%</strong>。</p>
+</blockquote>
+<p>站在软件工程师与系统架构师的视角，EVAThink 的设计堪称一份教科书级别的 <strong>“轻量级动态自适应路由与熔断器架构实战”</strong>。本文将剥离复杂的算法迷雾，用系统工程的思维全面拆解其技术实现与设计直觉。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-核心困局：视频推理中的“做题家内耗”与分支死锁">01. 核心困局：视频推理中的“做题家内耗”与分支死锁</h2>
+<p>在受限计算资源下（例如固定抽取 32 帧或 64 帧），视频问答任务天然存在 <strong>“证据充分度（Evidence Sufficiency）”</strong> 的差异：</p>
+<ul>
+<li><strong>证据高密度场景（Dense Evidence）</strong>：动作明显且持续时间长，均匀抽样抽中的帧已经包含了全部事实，模型看一眼即可直接得出正确结论；</li>
+<li><strong>证据稀疏场景（Sparse Evidence）</strong>：关键动作稍纵即逝（仅占 1~2 帧）或线索分散在视频的起点与终点，需要跨帧推理和线索拼接。</li>
+</ul>
+<p>面对这种输入分布，传统的系统实现往往走向两个极端：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph S1 [&quot;方案 A：Direct-Only (全走快路径)&quot;]
+        A1[&quot;视频输入 32帧&quot;] --&gt; B1[&quot;直接预测选项&quot;]
+        B1 --&gt; C1[&quot;低延迟, 仅消耗 8 Token&lt;br/&gt;❌ 遇到复杂多跳推理任务必定翻车&quot;]
+    end
+
+    subgraph S2 [&quot;方案 B：Think-Only / CoT (全走慢路径)&quot;]
+        A2[&quot;视频输入 32帧&quot;] --&gt; B2[&quot;长文本显式推理&quot;]
+        B2 --&gt; C2[&quot;消耗 560+ Token, 延迟飙升&lt;br/&gt;❌ 简单任务出现过度推演幻觉, 准确率反降&quot;]
+    end
+
+    subgraph S3 [&quot;方案 C：理想架构 EVAThink (自适应快慢路由)&quot;]
+        A3[&quot;视频输入 32帧&quot;] --&gt; R[&quot;轻量级前置动态路由&quot;]
+        R --&gt;|证据充分| B1
+        R --&gt;|证据稀疏但可挽救| B2
+        R --&gt; C3[&quot;平均仅 213 Token&lt;br/&gt;综合准确率反超前两者&quot;]
+    end</code></pre>
+<p>以往的自适应算法（如 VideoAuto-R1、Video-FLAIR）尝试解决这个问题，但在工程落地时遇到了两大阻碍：</p>
+<ol>
+<li><strong>高昂的 SFT 冷启动成本（Cold-Start Bottleneck）</strong>：为了让模型掌握思考和直答两种格式，必须先准备数万条精标注的混合示范样本（Demonstrations）进行微调，数据清洗与工程标注周期漫长；</li>
+<li><strong>强化学习中的“模式坍塌（Mode Collapse / 分支死锁）”</strong>：由于两个分支带来的延迟、格式和正确率回馈不对称，RL 在训练初期极易陷入局部最优——模型发现某种分支最不容易被扣分，策略熵（Policy Entropy）迅速暴跌至 0，所有 Rollout 瞬间全部退化为直接回答或全部变成思考，自适应路由机制彻底崩溃。</li>
+</ol>
+<hr>
+<h2 id="02-架构全景：EVAThink-的快慢自适应路由系统">02. 架构全景：EVAThink 的快慢自适应路由系统</h2>
+<p>为了破除上述困局，EVAThink 在工程上设计了两个相互咬合的核心模块：</p>
+<ol>
+<li><strong>离线数据挖掘流水线（Recoverable Evidence Gap Mining）</strong>：自动化合成 A/B 对照视图，利用边际收益差过滤出极高信噪比的 6.7K 黄金样本对；</li>
+<li><strong>两阶段在线强化学习（Evidence-Guided Two-Stage RL）</strong>：通过 Prompt 契约锁定入口分叉，第一阶段对齐分支路由，第二阶段压榨运行效率，并辅以首 Token 优势截断机制防止模式坍塌。</li>
+</ol>
+<pre><code class="highlight mermaid">flowchart LR
+    subgraph DataPipeline [&quot;离线数据挖掘管线 (数据提炼)&quot;]
+        D1[&quot;118.2K 原始问答候选池&quot;] --&gt; D2[&quot;8 次并发 Rollout 冒烟测试&quot;]
+        D2 --&gt;|淘汰 100% 全对简单样本| D3[&quot;A/B 视图合成: 裁剪(Dense) vs 拼接(Sparse)&quot;]
+        D3 --&gt; D4[&quot;证据鸿沟过滤: Δevi &gt; 0.125&quot;]
+        D4 --&gt; D5[&quot;可挽救性过滤: Δthink &gt; 0.125&quot;]
+        D5 --&gt; D6[&quot;仅保留 6.7K 高价值对比样本对&quot;]
+    end
+
+    subgraph RLEngine [&quot;在线强化学习引擎 (策略收敛)&quot;]
+        D6 --&gt; R1[&quot;Stage 1: 路由能力对齐&lt;br/&gt;(Dense→Direct, Sparse→Think)&quot;]
+        R1 --&gt; R2[&quot;首 Token 优势截断正则化&lt;br/&gt;(防单分支死锁与熵坍塌)&quot;]
+        R2 --&gt; R3[&quot;Stage 2: 响应效率压榨&lt;br/&gt;(直接回答额外 +0.1 效率奖励)&quot;]
+        R3 --&gt; R4[&quot;最终部署模型: 兼顾精度与极低 Token 消耗&quot;]
+    end</code></pre>
+<hr>
+<h2 id="03-数据管道：可挽救证据鸿沟挖掘（Recoverable-Evidence-Gap-Mining）">03. 数据管道：可挽救证据鸿沟挖掘（Recoverable Evidence Gap Mining）</h2>
+<blockquote>
+<p><strong>系统设计直觉</strong>：不要盲目扩大训练集规模，只针对“处于决策边界且具备修复价值（Recoverable）”的 Edge Cases 建立精简数据集。</p>
+</blockquote>
+<p>很多团队在做数据工程时喜欢“以量取胜”，动辄处理几十万条数据。EVAThink 反其道而行之，通过严格的<strong>三道漏斗判定</strong>，把 11.8 万候选集精炼至 6.7K：</p>
+<h3 id="1-自动化-A-B-对照视图合成（Pair-Construction）">1. 自动化 A/B 对照视图合成（Pair Construction）</h3>
+<p>每个问答样本都由统一的 32 帧固定采样构成。系统首先拿待训练基座模型做 8 次采样推理（Rollout）：</p>
+<ul>
+<li>若 <strong>8 次全对</strong>（Accuracy = 1.0）：说明这道题闭着眼睛都能做，对强化学习毫无增益，<strong>直接剔除</strong>；</li>
+<li>若 <strong>准确率 &lt; 0.5</strong>：说明原视频信息稀疏，原视频被标记为 <code>Sparse View</code>。系统调用强模型定位出包含答案的核心时间段，将其<strong>裁剪</strong>出来，重新采样 32 帧——此时关键信息被密集覆盖，合成出 <code>Dense View</code>；</li>
+<li>若 <strong>0.5 ≤ 准确率 &lt; 1.0</strong>：说明原视频信息尚可，原视频被标记为 <code>Dense View</code>。系统在原视频前后随机<strong>拼接</strong>一段无关视频，重新采样 32 帧——关键信息被稀释，合成出 <code>Sparse View</code>。</li>
+</ul>
+<h3 id="2-双重判定过滤（Filtering-Gate）">2. 双重判定过滤（Filtering Gate）</h3>
+<p>对于合成好的每对视图，执行如下过滤逻辑：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 过滤逻辑伪代码</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">recoverable_evidence_gap_filter</span>(<span class="params">dense_view, sparse_view, ground_truth</span>):</span><br><span class="line">    <span class="comment"># 1. 评估直接回答模式下的准确率</span></span><br><span class="line">    acc_dense_dir = evaluate_rollouts(dense_view, mode=<span class="string">&quot;direct&quot;</span>, n=<span class="number">8</span>)</span><br><span class="line">    acc_sparse_dir = evaluate_rollouts(sparse_view, mode=<span class="string">&quot;direct&quot;</span>, n=<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 判定一：必须存在明确的证据鸿沟 (Δevi)</span></span><br><span class="line">    <span class="comment"># 在稠密视图下答对率必须显著高于稀疏视图</span></span><br><span class="line">    <span class="keyword">if</span> (acc_dense_dir - acc_sparse_dir) &lt;= <span class="number">0.125</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span>  <span class="comment"># 剔除：该题对视觉证据密度不敏感</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 2. 评估稀疏视图下开启思考后的准确率</span></span><br><span class="line">    acc_sparse_think = evaluate_rollouts(sparse_view, mode=<span class="string">&quot;think&quot;</span>, n=<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 判定二：必须具备可挽救性 (Δthink)</span></span><br><span class="line">    <span class="comment"># 显式思考必须能在稀疏视图下带来实质性答对率回升</span></span><br><span class="line">    <span class="keyword">if</span> (acc_sparse_think - acc_sparse_dir) &lt;= <span class="number">0.125</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span>  <span class="comment"># 剔除：即使思考也挽救不了，说明有效信息完全丢失</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (dense_view, sparse_view)</span><br></pre></td></tr></table></figure>
+<p>最终，数据池从 118.2K 骤降为 6.7K。这不仅极大地缩短了训练周期，更保证了<strong>每一个送入强化学习的样本都具有极其明确的对齐意图</strong>。</p>
+<hr>
+<h2 id="04-训练机制：无冷启动的两阶段强化学习（Two-Stage-RL）">04. 训练机制：无冷启动的两阶段强化学习（Two-Stage RL）</h2>
+<p>EVAThink 基于 <strong>GRPO（Group Relative Policy Optimization）</strong> 框架构建，完全摒弃了 SFT 阶段。</p>
+<h3 id="1-格式契约锚定（Protocol-Anchoring）">1. 格式契约锚定（Protocol Anchoring）</h3>
+<p>系统在训练 Prompt 中强行锁定了两种模式的代码级协议入口：</p>
+<ul>
+<li><strong>Direct 模式</strong>：必须以 <code>&lt;answer&gt;</code> 开头，如 <code>&lt;answer&gt;A&lt;/answer&gt;</code>；</li>
+<li><strong>Think 模式</strong>：必须以 <code>Alright,</code> 开头，在输出推理过程后以 <code>&lt;answer&gt;A&lt;/answer&gt;</code> 结尾。</li>
+</ul>
+<p>这一设计的精妙之处在于：<strong>模型在自回归生成第 1 个 Token 时（<code>&lt;</code> 还是 <code>Alright</code>），就已经在逻辑层面完成了快慢路径的分支选择</strong>。</p>
+<h3 id="2-两阶段状态机演进">2. 两阶段状态机演进</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">     Stage 1 (模式能力对齐)                     Stage 2 (效率调优与压榨)</span><br><span class="line">┌────────────────────────────────┐        ┌────────────────────────────────┐</span><br><span class="line">│ • 使用 1.76K 极高置信样本对     │        │ • 使用 4.17K 剩余样本对        │</span><br><span class="line">│ • 强绑定: Dense-&gt;直答, Sparse-&gt;思考 │   ──►  │ • 解除视图绑定, 自由竞争路由   │</span><br><span class="line">│ • 答对且选对模式: +2 奖励       │        │ • 直答答对: +1.1 额外效率奖    │</span><br><span class="line">│ • 答错且走错模式: -1 严惩       │        │ • 思考答对: +1.0 标准分        │</span><br><span class="line">└────────────────────────────────┘        └────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>Stage 1（建立基线路由感知）</strong>：在稠密视图上强推直答，在稀疏视图上强推思考。通过阶梯式奖惩（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>+</mo><mn>2</mn><mo separator="true">,</mo><mo>+</mo><mn>1</mn><mo separator="true">,</mo><mn>0</mn><mo separator="true">,</mo><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">+2, +1, 0, -1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8389em;vertical-align:-0.1944em;"></span><span class="mord">+</span><span class="mord">2</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">+</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">−</span><span class="mord">1</span></span></span></span>），强制激活模型内部沉睡的“看菜吃饭”自适应感知能力；</li>
+<li><strong>Stage 2（成本最优化）</strong>：进入第二阶段后，系统撤掉先验标签，让模型自主决策。此时引入 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>+</mo><mn>1.1</mn></mrow><annotation encoding="application/x-tex">+1.1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">+</span><span class="mord">1.1</span></span></span></span> vs <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>+</mo><mn>1.0</mn></mrow><annotation encoding="application/x-tex">+1.0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">+</span><span class="mord">1.0</span></span></span></span> 的微小奖励偏置——<strong>“只要你能直接答对，就奖励你走快路径偷懒；但如果你拿不准，千万不要冒失，走思考模式拿 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>+</mo><mn>1.0</mn></mrow><annotation encoding="application/x-tex">+1.0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">+</span><span class="mord">1.0</span></span></span></span> 也远比蒙错拿 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn></mrow><annotation encoding="application/x-tex">0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> 分强”</strong>。</li>
+</ul>
+<hr>
+<h2 id="05-稳定性防线：首-Token-优势截断正则化（First-Token-Regularization）">05. 稳定性防线：首 Token 优势截断正则化（First-Token Regularization）</h2>
+<p>在带有分支选择的强化学习中，<strong>模式坍塌（Mode Collapse）</strong> 就像分布式系统中的雪崩故障：模型一旦发现某一条路径容易拿到基准分，就会以指数级速度把概率推向该分支，导致策略熵瞬间归零。</p>
+<p>EVAThink 抓住了一个核心特征：<strong>所有后续几百个 Token 的生成路径，完全被第 1 个 Token（<code>&lt;</code> 或 <code>Alright</code>）决定。</strong></p>
+<p>为了防止模型对首个 Token 过度自信，作者提出首 Token 优势截断正则化：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mover accent="true"><mi>A</mi><mo stretchy="true">~</mo></mover><mrow><mi>i</mi><mo separator="true">,</mo><mi>t</mi></mrow></msub><mo>=</mo><msub><mi>A</mi><mi>i</mi></msub><mo>−</mo><mi mathvariant="double-struck">I</mi><mo stretchy="false">[</mo><mi>t</mi><mo>=</mo><mn>1</mn><mo stretchy="false">]</mo><mtext> </mtext><mi>β</mi><mi>max</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><msub><mi>p</mi><mi>i</mi></msub><mo>−</mo><mi>log</mi><mo>⁡</mo><msub><mi>c</mi><mi>i</mi></msub><mo separator="true">,</mo><mn>0</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\widetilde{A}_{i, t} = A_i - \mathbb{I}[t = 1] \, \beta \max(\log p_i - \log c_i, 0)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.2294em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9433em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">A</span></span><span class="svg-align" style="width:calc(100% - 0.2778em);margin-left:0.2778em;top:-3.6833em;"><span class="pstrut" style="height:3em;"></span><span style="height:0.26em;"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="0.26em" viewBox="0 0 600 260" preserveAspectRatio="none"><path d="M200 55.538c-77 0-168 73.953-177 73.953-3 0-7
+-2.175-9-5.437L2 97c-1-2-2-4-2-6 0-4 2-7 5-9l20-12C116 12 171 0 207 0c86 0
+ 114 68 191 68 78 0 168-68 177-68 4 0 7 2 9 5l12 19c1 2.175 2 4.35 2 6.525 0
+ 4.35-2 7.613-5 9.788l-19 13.05c-92 63.077-116.937 75.308-183 76.128
+-68.267.847-113-73.952-191-73.952z"/></svg></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathbb">I</span><span class="mopen">[</span><span class="mord mathnormal">t</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0528em;">β</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">max</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.0139em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">lo<span style="margin-right:0.0139em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">0</span><span class="mclose">)</span></span></span></span></span></p>
+<p>其中 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>A</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">A_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 是当前回复的 GRPO 组内优势值，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">p_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 是第一个 Token 的预测概率，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">c_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 是安全阈值（Stage 1 中首选模式为 0.85，非首选为 0.50；Stage 2 统一为 0.85）。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">首 Token 概率 p1 与惩罚逻辑</span><br><span class="line">   p1 &lt; 0.85 ──► 惩罚项 = 0 ──► 优势值 A1 完整保留 (鼓励正常学习)</span><br><span class="line">   p1 &gt; 0.85 ──► 惩罚项 = β * (log p1 - log 0.85) ──► 强制削减首 Token 优势</span><br><span class="line">                 ▲</span><br><span class="line">                 └─ 强行抑制首 Token 的极端自信，保护反向分支的探索概率！</span><br></pre></td></tr></table></figure>
+<p>实验曲线清晰显示：未加入该正则化的消融实验中，策略熵在数十步内断崖式跌至 0，模型全部退化为直接回答；而加入该熔断保护后，策略熵全程保持在健康区间，彻底杜绝了分支死锁。</p>
+<hr>
+<h2 id="06-实验复盘与性能指标拆解">06. 实验复盘与性能指标拆解</h2>
+<p>EVAThink 基于 <code>Qwen3-VL-8B-Instruct</code> 初始化，在 32 块华为昇腾 910B NPU 上仅需训练约 210 个 Step（Stage 1 110 步 + Stage 2 100 步）。</p>
+<h3 id="1-综合基准测试对比（Controlled-Budget）">1. 综合基准测试对比（Controlled Budget）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型方案</th>
+<th style="text-align:left">训练数据量</th>
+<th style="text-align:left">64 帧 Avg Acc (%)</th>
+<th style="text-align:left">思考比例 (Think Ratio)</th>
+<th style="text-align:left">平均生成 Token 长度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Qwen3-VL-8B (Base)</td>
+<td style="text-align:left">-</td>
+<td style="text-align:left">64.2</td>
+</tr>
+<tr>
+<td style="text-align:left">VideoAuto-R1-Qwen3</td>
+<td style="text-align:left">83K</td>
+<td style="text-align:left">63.0</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>EVAThink (Direct-Only)</strong></td>
+<td style="text-align:left" rowspan="2">6.7K</td>
+<td style="text-align:left">63.3</td>
+<td style="text-align:left">0%</td>
+<td style="text-align:left">8</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>EVAThink (Think-Only)</strong></td>
+<td style="text-align:left">62.0</td>
+<td style="text-align:left">100%</td>
+<td style="text-align:left">560</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>EVAThink (Auto Adaptive)</strong></td>
+<td style="text-align:left"><strong>仅 6.7K</strong></td>
+<td style="text-align:left"><strong>65.6</strong></td>
+<td style="text-align:left"><strong>自适应</strong></td>
+<td style="text-align:left"><strong>213 (下降 62%)</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!IMPORTANT]<br>
+<strong>值得工程深思的反常识现象</strong>：</p>
+<ol>
+<li><strong>全量思考（Think-Only, 62.0%）的综合准确率反而明显低于全量直接回答（Direct-Only, 63.3%）！</strong> 尤其在空间感知基准 VSI-Bench 上，模型长篇大论后准确率暴跌，证实了视觉感知任务中“言多必失”的幻觉缺陷；</li>
+<li><strong>自适应路由（65.6%）超越了两者的单项极值</strong>，不仅把简单问题精准切到快车道截断废话，还在复杂问题上保持了多跳逻辑推演能力；</li>
+<li>与全思考模式相比，EVAThink 将平均生成长度从 <strong>560 Token 压榨至 213 Token</strong>，直接削减了 <strong>62%</strong> 的推理时延与计算开销。</li>
+</ol>
+</blockquote>
+<h3 id="2-帧率上升带来的路由行为偏移">2. 帧率上升带来的路由行为偏移</h3>
+<p>当输入预算从 32 帧提升至 64 帧时，EVAThink 在各大基准上的准确率全面提升，同时<strong>思考比例（Thinking Ratio）出现自发性下调</strong>（例如在 Video-MME 上从 44.8% 降至 34.4%）。这从系统层面验证了其自适应路由机制的鲁棒性：<strong>当视频输入本身提供了更充分的信息时，系统会自动增加走 Fast-Path 的比例</strong>。</p>
+<hr>
+<h2 id="07-软件工程师的架构启示：把-AI-训推看作系统工程">07. 软件工程师的架构启示：把 AI 训推看作系统工程</h2>
+<p>EVAThink 的成功，不是依靠蛮力堆砌算力和语料，而是源于极其严密的系统设计思想。对于从事系统研发与通用软件工程的开发者而言，以下几点范式极具迁移价值：</p>
+<h3 id="1-快慢链路的分级调度思想（Hierarchical-Execution）">1. 快慢链路的分级调度思想（Hierarchical Execution）</h3>
+<p>在服务端微服务、数据检索或高吞吐后端架构中，切忌对所有请求“一视同仁”走全套复杂处理管道。正如 EVAThink 在第 1 个 Token 就完成快慢分支分流一样，系统设计应当在最外层网关建立极其轻量的“置信度探针”，将 70% 的简单流量在 Fast-Path（O(1) 缓存或点查）快速截断，将宝贵的计算资源留给 30% 真正需要复杂计算的核心链路。</p>
+<h3 id="2-边际收益驱动的数据测试集提炼（Margin-Based-Edge-Case-Mining）">2. 边际收益驱动的数据测试集提炼（Margin-Based Edge Case Mining）</h3>
+<p>在排查系统 Bug、重构复杂业务引擎或维护核心测试用例库时，盲目扩充海量用例只会增加 CI/CD 的构建时长。EVAThink 提出的“存在鸿沟 + 修复后可挽救”判定，启示我们在构建回归测试集时，应重点捕捉那些<strong>处于故障边界、且通过逻辑优化能够明确修复</strong>的高信噪比用例。</p>
+<h3 id="3-多目标协同的两阶段平滑收敛（Two-Stage-Rollout）">3. 多目标协同的两阶段平滑收敛（Two-Stage Rollout）</h3>
+<p>当架构重构面临“业务正确性”与“响应性能（延时/吞吐）”两个潜在互斥的考核目标时，不要试图通过一个复杂的混合权重函数在一次迭代中同时解决。<strong>先阶段性对齐功能与行为规范（Stage 1），待状态机稳定后再加入小步快跑的成本倾斜奖励（Stage 2）</strong>，系统的收敛阻力会成倍降低。</p>
+<h3 id="4-关键决策分叉点的防死锁与抗震荡（Guarding-Critical-Decisions）">4. 关键决策分叉点的防死锁与抗震荡（Guarding Critical Decisions）</h3>
+<p>一个微小的状态机决策如果会级联引发几十倍的后续资源消耗差异（如第 1 个 Token 决定后续 500 个 Token 的走向），那么在根决策点上必须设计显式的熔断、自适应退避与动态抖动（Jitter）机制。防止局部贪心策略过早锁死系统分支，保持系统对全域负载的适应韧性。</p>
+<hr>
+<h2 id="08-总结与结语">08. 总结与结语</h2>
+<p>EVAThink 用一份非常精炼的答卷，打破了长视频理解领域“不搞几十万条长思考链就做不好推理”的固有迷信。它告诉我们：<strong>真正的模型智慧不仅在于如何深入思考，更在于明确知道何时可以不必思考</strong>。</p>
+<p>通过“数据挖掘抓边界、格式契约锁分叉、两阶段强化学习压成本、首 Token 截断防死锁”的工程组合拳，EVAThink 仅用 6.7K 数据就实现了精度与效率的双赢，为多模态大模型的产业化降本增效提供了一条极具操作性的工程参考路径。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%A7%86%E9%A2%91%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 视频大模型</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag"># 强化学习</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="tag"># 架构设计</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E6%8E%A8%E7%90%86/" rel="tag"># 多模态推理</a>
+              <a href="/tags/%E8%87%AA%E9%80%82%E5%BA%94%E6%80%9D%E8%80%83/" rel="tag"># 自适应思考</a>
+              <a href="/tags/GRPO/" rel="tag"># GRPO</a>
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%A7%86%E8%A7%92/" rel="tag"># 软件工程视角</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/12/viscot-steer/" rel="next" title="【论文分享】不用重训模型也能打补丁？Viscot-Steer：基于激活干涉与状态机重塑视觉思维链迁移">
+                  【论文分享】不用重训模型也能打补丁？Viscot-Steer：基于激活干涉与状态机重塑视觉思维链迁移 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">416k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">25:11</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>

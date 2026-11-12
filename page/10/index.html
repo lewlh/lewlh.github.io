@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">304</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">92</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">306</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">93</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-count">93</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">304</span>
+        <span class="site-state-item-count">306</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,118 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/06/12/Scene-VLM-Segmentation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/06/12/Scene-VLM-Segmentation/" class="post-title-link" itemprop="url">【论文分享】长视频切片如何破局？亚马逊新作 Scene-VLM：基于多模态大模型与上下文滑窗重构视频场景分割</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-06-12 15:40:00" itemprop="dateCreated datePublished" datetime="2026-06-12T15:40:00+08:00">2026-06-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在长视频处理（如电影、电视剧、纪录片）与流媒体工程中，<strong>视频场景分割（Video Scene Segmentation）</strong> 是一项基础且关键的技术。无论是智能生成视频精彩章节、精细化定位广告插播点、人机协同内容审核，还是按情景检索视频资产，系统都需要把长达数小时的连续视频切分为若干个<strong>语义完整、叙事独立的故事单元（Scene）</strong>。</p>
+<p>然而，传统的算法流水线在工业落地中一直面临难以克服的<strong>工程瓶颈与准确率瓶颈</strong>：</p>
+<ol>
+<li><strong>视觉偏见与过度切分（Visual-Centric Bias）</strong>：传统方法重度依赖画面特征（如机位切换、光流、特征向量距离）。当男女主角在咖啡厅来回正反打切镜头时，背景画面剧烈跳变，老算法极易“误切”，无法感知到<strong>台词和对话逻辑依然完全连续</strong>。</li>
+<li><strong>孤立打标与缺乏因果依赖（Shot in Isolation）</strong>：将每个镜头（Shot）割裂开来独立做二分类，缺乏全局时序叙事上下文，导致边界判决忽左忽右。</li>
+<li><strong>黑盒判决与零解释性（Lack of Explainability）</strong>：传统分类模型只吐出一个 0 或 1，遇到误切或漏切，业务审核与排障人员无从得知判决依据，难以建立人机协同（Human-in-the-Loop）工作流。</li>
+</ol>
+<p>针对这些顽疾，来自<strong>亚马逊（Amazon Prime Video）与特拉维夫大学等机构</strong>在 CVPR 上提出了全新范式：</p>
+<blockquote>
+<p><strong>《Scene-VLM: Multimodal Video Scene Segmentation via Vision-Language Models》</strong> (arXiv:2512.21778)<br>
+论文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2512.21778">https://arxiv.org/abs/2512.21778</a><br>
+HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2512.21778">https://arxiv.org/html/2512.21778</a><br>
+核心关键词：视频场景分割、多模态大模型、上下文-焦点窗口、Qwen2.5-VL、LoRA 微调、可解释性</p>
+</blockquote>
+<p>作者团队打破了堆叠专用小模型的传统路线，将视频场景分割重塑为 <strong>“多模态时序滑动窗口推理 + 因果自回归生成”</strong>。在权威基准 MovieNet 上，Scene-VLM 实现了断层式性能跨越，<strong>AP 提升 +6.0，F1 暴涨 +13.7%</strong>，为多模态大模型重构多媒体长视频工程提供了极具参考价值的范式。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/06/12/Scene-VLM-Segmentation/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +344,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -342,7 +454,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -460,7 +572,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/250
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -586,7 +698,7 @@ Hugging Face 权重：<a target="_blank" rel="noopener" href="https://huggingfac
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:47:48" itemprop="dateModified" datetime="2026-11-12T16:47:48+08:00">2026-11-12</time>
     </span>
 
   
@@ -652,120 +764,6 @@ Hugging Face 权重：<a target="_blank" rel="noopener" href="https://huggingfac
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/03/11/TimeChat-Captioner/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/03/11/TimeChat-Captioner/" class="post-title-link" itemprop="url">【论文分享】7B 小模型如何反超闭源巨头？北大与快手可灵 ICML 2026 新作 TimeChat-Captioner 深度拆解：剧本级音视频结构化解析与工程实践</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-03-11 18:30:00" itemprop="dateCreated datePublished" datetime="2026-03-11T18:30:00+08:00">2026-03-11</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>5.4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>20 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在多模态大模型落地于自动化分镜头脚本生成、智能剪辑 Agent（如快手可灵 Kling、Runway）、视频多模态 RAG、音视频对齐同步生成等工业级场景时，系统研发团队普遍面临一个极其棘手的核心需求：<strong>如何让模型在长视频中做到“既知何时、又懂何事、还能兼顾音画”，输出结构确定、无死角覆盖全片的分镜头脚本？</strong></p>
-<p>长期以来，工业界和学术界在长视频结构化解析上一直存在三大“工程反模式”：</p>
-<ol>
-<li><strong>摘要式偷懒（Summary Mode）</strong>：市面上绝大多数通用大模型只擅长输出全片宏观总结，无法给出连续、精细的场景起止时间戳，无法作为剪辑线的主键；</li>
-<li><strong>听觉全盲（Visual-Only Bias）</strong>：传统的密集视频字幕（Dense Video Captioning）几乎纯靠视觉特征，将视频中至关重要的背景音乐、环境音效、人物对话与语气情绪全当成背景噪声扔掉；</li>
-<li><strong>输出契约失控（Unstructured Hallucination）</strong>：任由大模型自由发挥输出自然语言长段落，字段随时漂移，不仅下游解析器极易报空指针，关键维度（如运镜、转场手法）更是频频遗漏。</li>
-</ol>
-<p>针对这一系列痛点，<strong>北京大学、快手可灵（Kling Team）、香港大学等团队</strong>在机器学习顶会 <strong>ICML 2026</strong> 上发表了创新架构之作：</p>
-<blockquote>
-<p><strong>《TimeChat-Captioner: Scripting Multi-Scene Videos with Time-Aware and Structural Audio-Visual Captions》</strong> (arXiv:2602.08711)<br>
-论文会议：ICML 2026<br>
-论文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2602.08711">https://arxiv.org/abs/2602.08711</a><br>
-HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2602.08711">https://arxiv.org/html/2602.08711</a><br>
-开源仓库：<a target="_blank" rel="noopener" href="https://github.com/yaolinli/TimeChat-Captioner">https://github.com/yaolinli/TimeChat-Captioner</a><br>
-核心创新：提出 <strong>Omni Dense Captioning</strong> 任务，引入工业级 6 维分镜头剧本 Schema；构建高质量基准 OmniDCBench 与统一评测指标 <strong>SodaM</strong>（利用动态规划将评测复杂度从 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>M</mi><mi>N</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(MN)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.109em;">M</span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mclose">)</span></span></span></span> 骤降至 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>K</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(K)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span><span class="mclose">)</span></span></span></span>）；基于开源 <code>Qwen2.5-Omni-7B</code>，通过“双阶段数据脚手架流水线 + SFT + 强化学习 GRPO”，仅用 7B 参数即全面超越闭源商业旗舰 Gemini-2.5-Pro，并在下游问答中实现高保真“文本平替视频”。</p>
-</blockquote>
-<p>本文将摒弃玄奥的纯算法推导，站在 <strong>软件架构师与系统工程师</strong> 的视角，深度剖析 TimeChat-Captioner 的契约定义、SodaM 算法复杂度降维、数据工程脚手架、GRPO 破解 Token 饥饿的工程机理，并给出多模态系统落地的选型启示。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/03/11/TimeChat-Captioner/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/9/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/11/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -790,14 +788,14 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/260
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">411k</span>
+    <span title="站点总字数">416k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">24:56</span>
+    <span title="站点阅读时长">25:11</span>
   </span>
 </div>
 <div class="busuanzi-count">
