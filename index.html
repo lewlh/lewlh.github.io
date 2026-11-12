@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">300</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">91</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">304</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">92</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">91</span>
+          <span class="site-state-item-count">92</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">300</span>
+        <span class="site-state-item-count">304</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,119 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/12/viscot-steer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/12/viscot-steer/" class="post-title-link" itemprop="url">【论文分享】不用重训模型也能打补丁？Viscot-Steer：基于激活干涉与状态机重塑视觉思维链迁移</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-12 16:00:00 / 修改时间：16:12:17" itemprop="dateCreated datePublished" datetime="2026-11-12T16:00:00+08:00">2026-11-12</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>12 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在当下的多模态大模型（LVLM）演进中，<strong>视觉思维链（Visual Chain-of-Thought, Visual-CoT）</strong> 正成为模型实现高阶推理的核心能力。</p>
+<p>与早先简单粗暴的“输入图片直接猜答案”不同，具备 Visual-CoT 能力的模型（如 DeepEyes）在看图作答时展现出类似于人类专家的系统性思考模式：</p>
+<ol>
+<li><strong>推理解析（Reasoning）</strong>：“要回答这道题，我需要先在图里找到对应的标线或元器件。”</li>
+<li><strong>视觉定位（Grounding）</strong>：“找到了，定位坐标框为 <code>[120, 340, 180, 420]</code>。”</li>
+<li><strong>最终答题（Answer）</strong>：“结合上述视觉证据，得出最终结论。”</li>
+</ol>
+<p>然而，在产业落地与多端部署中，算法与工程团队常常陷入一个两难的尴尬境地：</p>
+<ul>
+<li><strong>大模型很聪明，但吃不下资源</strong>：拥有完整 Visual-CoT 能力的开源模型往往体积庞大、依赖昂贵算力，难以在边缘端或低延时服务中大规模部署。</li>
+<li><strong>小模型跑得飞快，但“眼瞎心盲”</strong>：若想让 3B、4B 或其他异构架构的模型也拥有同等能力，传统的唯一路径是<strong>重训或监督微调（SFT / DPO）</strong>。但这需要昂贵的多模态高质量打标数据、漫长的训练周期，并且一旦基座升级，所有适配成本都得从头再来。</li>
+</ul>
+<p>针对这一痛点，中国科学技术大学与新加坡国立大学团队近期在 arXiv 提出了一个极具软件工程美感的全新范式：</p>
+<blockquote>
+<p><strong>论文题目</strong>：<em>Viscot-steer: Disentangling and Transferring Visual Chain-of-Thought via Activation Steering</em><br>
+<strong>论文编号</strong>：arXiv:2611.11209<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.11209">https://arxiv.org/abs/2611.11209</a><br>
+<strong>HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.11209">https://arxiv.org/html/2611.11209</a><br>
+<strong>核心成果</strong>：完全无需反向传播训练（<strong>Training-Free，0 参数更新</strong>），仅凭“静态提取能力向量差分 + 运行时时序状态机动态注入”，跨架构成功将 DeepEyes-7B 的 Visual-CoT 能力无缝移植到 Qwen2.5-VL、Qwen3-VL、InternVL 等异构小模型上，并在 V*、HR-Bench 4K 上实现 <strong>+6.28%</strong> 至 <strong>+14.13%</strong> 的显著涨点。</p>
+</blockquote>
+<p>初读这篇论文，算法工程师可能会关注其激活差分与频域变换的数学细节；但站在<strong>软件工程师、后端架构师与系统研发</strong>的角度，这篇论文堪称一份令人拍案叫绝的 <strong>“AI 运行时热补丁（Monkey Patch）与 AOP 切面拦截”架构实战</strong>。</p>
+<p>本文将剥开晦涩的学术包装，用软件开发者的代码与系统视角，深入拆解其工程实现范式与问题解决直觉。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/12/viscot-steer/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +345,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:03:50" itemprop="dateModified" datetime="2026-11-12T16:03:50+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
     </span>
 
   
@@ -461,7 +574,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:03:50" itemprop="dateModified" datetime="2026-11-12T16:03:50+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
     </span>
 
   
@@ -576,7 +689,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:03:50" itemprop="dateModified" datetime="2026-11-12T16:03:50+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
     </span>
 
   
@@ -693,7 +806,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:03:50" itemprop="dateModified" datetime="2026-11-12T16:03:50+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 16:12:17" itemprop="dateModified" datetime="2026-11-12T16:12:17+08:00">2026-11-12</time>
     </span>
 
   
@@ -765,118 +878,6 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/10/UMBench-EvidenceFirstCoT/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/10/UMBench-EvidenceFirstCoT/" class="post-title-link" itemprop="url">【论文分享】大模型也会“凭经验瞎猜”？解密 UMBench 与 Evidence-First CoT 的零微调契约式推理范式</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-10 13:10:00" itemprop="dateCreated datePublished" datetime="2026-11-10T13:10:00+08:00">2026-11-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 16:03:50" itemprop="dateModified" datetime="2026-11-12T16:03:50+08:00">2026-11-12</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.6k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>13 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在多模态大模型（MLLM）落地到工业质检、安防巡检、无人机航拍监测等实际业务场景中时，许多算法和软件工程师都会遇到一个令人极其头疼的“隐形 Bug”：</p>
-<p><strong>模型说起话来头头是道，全局场景描述得极其优雅，但在面对“微观细节决策”时却错得一塌糊涂。</strong></p>
-<p>比如一张航拍路口图：路面整体崭新宽阔、绿树成荫、人行横道清晰无暇。如果你问模型“路面是否存在损坏？”，它会毫不犹豫地回答“平整完好”——然而，只要放大画面，就会发现路口正中央横亘着一片蛛网状的局部沥青开裂。</p>
-<p>为什么连 GPT-4o、Gemini 3 Flash、Qwen3-VL 这样的顶级多模态大模型，都会出现这种低级失误？</p>
-<p><strong>根本原因在于：大模型在超大规模预训练中形成了根深蒂固的“大场景先验（Scene-level Priors）”。它们极度倾向于凭借“宏观常识直觉”去猜答案，而不是真正去调动注意力看图像底层的微观物证（Fine-grained Visual Evidence）。</strong></p>
-<p>2026 年 11 月，来自哈尔滨工业大学（HIT）与华为国际（Huawei International Singapore）的联合研究团队在 arXiv 上发表了针对这一痛点的前沿研究：</p>
-<blockquote>
-<p><strong>论文题目</strong>：BENCHMARKING FINE-GRAINED VISUAL REASONING FOR REMOTE SENSING IN URBAN MANAGEMENT<br>
-<strong>作者团队</strong>：Jiawei Zhang, Rizhao Cai, Dayan Guan (Harbin Institute of Technology, Huawei International PTE Ltd)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.06770">https://arxiv.org/abs/2611.06770</a><br>
-<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.06770">https://arxiv.org/html/2611.06770</a><br>
-<strong>核心资产</strong>：UMBench 微观遥感评测基准（583 张无人机图像、2,733 个强诱导对抗 QA）、Evidence-First CoT（零微调证据先行契约式提示法）</p>
-</blockquote>
-<p>作者团队不仅构建了一个专门抓大模型“靠经验作弊”的严苛评测集 <strong>UMBench</strong>，更提出了一套<strong>无需重新训练、无需修改权重、纯推理期干预（Training-free）的“证据先行思维链（Evidence-First CoT）”</strong>，在开源与商业大模型上实现了普遍 2%~5% 的准确率稳健提升。</p>
-<p>本文将立足于 <strong>软件开发工程师（后端/架构/AI应用工程）</strong> 的视角，从契约式设计、控制流拦截器以及系统解耦的角度，深度拆解这一工程落地范式。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/10/UMBench-EvidenceFirstCoT/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -901,14 +902,14 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">408k</span>
+    <span title="站点总字数">411k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">24:43</span>
+    <span title="站点阅读时长">24:56</span>
   </span>
 </div>
 <div class="busuanzi-count">
