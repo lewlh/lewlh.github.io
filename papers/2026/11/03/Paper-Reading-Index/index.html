@@ -39,7 +39,7 @@
 <meta property="og:description" content="论文分享栏目索引，按主题分类，随论文笔记持续增量更新，各分类内按论文原文日期降序排列。 “论文日期”指论文原文首次公开的时间：arXiv 论文取 v1 提交日期，期刊与会议论文取正式出版时间。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-11-03T01:30:00.000Z">
-<meta property="article:modified_time" content="2026-11-12T09:11:46.046Z">
+<meta property="article:modified_time" content="2026-11-12T10:20:24.638Z">
 <meta property="article:author" content="豪豪">
 <meta property="article:tag" content="向量检索">
 <meta property="article:tag" content="多模态大模型">
@@ -158,7 +158,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E5%A4%9A%E6%A8%A1%E6%80%81%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2%E4%B8%8E-Embedding-%E8%AE%AD%E7%BB%83%EF%BC%88Embedding%E3%80%81Reranker%E3%80%81%E6%A3%80%E7%B4%A2%E7%B3%BB%E7%BB%9F%E4%B8%8E%E8%AE%AD%E7%BB%83%E9%85%8D%E6%96%B9%EF%BC%89"><span class="nav-text">01. 多模态向量检索与 Embedding 训练（Embedding、Reranker、检索系统与训练配方）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E5%A4%9A%E6%A8%A1%E6%80%81%E8%A1%A8%E7%A4%BA%E5%AD%A6%E4%B9%A0%E4%B8%8E%E8%9E%8D%E5%90%88%E5%8E%9F%E7%90%86%EF%BC%88%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0%E3%80%81%E5%BC%A0%E9%87%8F%E5%BB%BA%E6%A8%A1%E3%80%81%E8%A7%86%E8%A7%89-Token-%E8%B7%AF%E7%BA%BF%EF%BC%89"><span class="nav-text">02. 多模态表示学习与融合原理（对比学习、张量建模、视觉 Token 路线）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E8%A7%86%E9%A2%91%E6%97%B6%E5%BA%8F%E5%AE%9A%E4%BD%8D%E4%B8%8E%E6%97%B6%E5%88%BB%E6%A3%80%E7%B4%A2%EF%BC%88VTG%E3%80%81Moment-Retrieval%E3%80%81%E8%A7%86%E9%A2%91%E7%9B%AE%E6%A0%87%E5%AE%9A%E4%BD%8D%EF%BC%89"><span class="nav-text">03. 视频时序定位与时刻检索（VTG、Moment Retrieval、视频目标定位）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E9%95%BF%E8%A7%86%E9%A2%91%E7%90%86%E8%A7%A3%E4%B8%8E%E8%AE%B0%E5%BF%86%E6%9C%BA%E5%88%B6%EF%BC%88%E6%9D%83%E9%87%8D%E5%8C%96%E8%AE%B0%E5%BF%86%E3%80%81%E5%8E%8B%E7%BC%A9%E8%AE%B0%E5%BF%86%E3%80%81%E9%95%BF%E8%A7%86%E9%A2%91%E8%A7%A3%E8%AF%B4%EF%BC%89"><span class="nav-text">04. 长视频理解与记忆机制（权重化记忆、压缩记忆、长视频解说）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E4%B8%8E%E6%8E%A8%E7%90%86%E6%95%88%E7%8E%87%EF%BC%88GRPO%E3%80%81%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E3%80%81%E4%BD%8E%E6%AF%94%E7%89%B9%E9%87%8F%E5%8C%96%E3%80%81%E7%AB%AF%E4%BE%A7%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F%EF%BC%89"><span class="nav-text">05. 强化学习与推理效率（GRPO、推测解码、低比特量化、端侧部署与推理加速）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E7%94%9F%E6%88%90%E3%80%81%E7%94%BB%E8%B4%A8%E4%B8%8E%E8%A7%86%E9%A2%91%E6%8F%8F%E8%BF%B0%E7%9A%84%E8%AF%84%E6%B5%8B%EF%BC%88%E7%89%A9%E7%90%86%E4%B8%80%E8%87%B4%E6%80%A7%E3%80%81IQA%E3%80%81%E6%8F%8F%E8%BF%B0%E4%BF%9D%E7%9C%9F%E5%BA%A6%EF%BC%89"><span class="nav-text">06. 生成、画质与视频描述的评测（物理一致性、IQA、描述保真度）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%AF%AD%E6%96%99%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B%EF%BC%88%E6%95%B0%E6%8D%AE%E6%B8%85%E6%B4%97%E3%80%81%E6%95%B0%E6%8D%AE%E7%BC%A9%E6%94%BE%E3%80%81%E7%9B%91%E7%9D%A3%E8%87%AA%E4%B8%BE%EF%BC%89"><span class="nav-text">07. 大模型语料与数据工程（数据清洗、数据缩放、监督自举）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#08-%E5%B9%BB%E8%A7%89%E6%8A%91%E5%88%B6%E4%B8%8E%E8%87%AA%E6%88%91%E9%AA%8C%E8%AF%81"><span class="nav-text">08. 幻觉抑制与自我验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#09-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%A3%E9%87%8A%E6%80%A7%E4%B8%8E%E8%A1%A8%E5%BE%81%E5%87%A0%E4%BD%95%EF%BC%88%E6%99%BA%E8%83%BD%E4%BD%93%E8%A7%92%E8%89%B2%E6%A8%A1%E6%8B%9F%E3%80%81%E8%A1%A8%E5%BE%81%E4%B8%8E%E8%A1%8C%E4%B8%BA%E8%A7%A3%E8%80%A6%E3%80%81%E6%BF%80%E6%B4%BB%E5%B9%B2%E6%B6%89%EF%BC%89"><span class="nav-text">09. 大模型可解释性与表征几何（智能体角色模拟、表征与行为解耦、激活干涉）</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E5%A4%9A%E6%A8%A1%E6%80%81%E6%A3%80%E7%B4%A2%E4%B8%8E-Embedding-%E8%AE%AD%E7%BB%83%EF%BC%88Embedding%E3%80%81Reranker%E3%80%81%E6%A3%80%E7%B4%A2%E7%B3%BB%E7%BB%9F%E4%B8%8E%E8%AE%AD%E7%BB%83%E9%85%8D%E6%96%B9%EF%BC%89"><span class="nav-text">01. 多模态检索与 Embedding 训练（Embedding、Reranker、检索系统与训练配方）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E5%A4%9A%E6%A8%A1%E6%80%81%E8%A1%A8%E7%A4%BA%E5%AD%A6%E4%B9%A0%E4%B8%8E%E8%9E%8D%E5%90%88%E5%8E%9F%E7%90%86%EF%BC%88%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0%E3%80%81%E5%BC%A0%E9%87%8F%E5%BB%BA%E6%A8%A1%E3%80%81%E8%A7%86%E8%A7%89-Token-%E8%B7%AF%E7%BA%BF%EF%BC%89"><span class="nav-text">02. 多模态表示学习与融合原理（对比学习、张量建模、视觉 Token 路线）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E8%A7%86%E9%A2%91%E6%97%B6%E5%BA%8F%E5%AE%9A%E4%BD%8D%E4%B8%8E%E6%97%B6%E5%88%BB%E6%A3%80%E7%B4%A2%EF%BC%88VTG%E3%80%81Moment-Retrieval%E3%80%81%E8%A7%86%E9%A2%91%E7%9B%AE%E6%A0%87%E5%AE%9A%E4%BD%8D%E3%80%81%E5%A4%9A%E6%A8%A1%E6%80%81%E5%AE%9A%E4%BD%8D-RL%EF%BC%89"><span class="nav-text">03. 视频时序定位与时刻检索（VTG、Moment Retrieval、视频目标定位、多模态定位 RL）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E9%95%BF%E8%A7%86%E9%A2%91%E7%90%86%E8%A7%A3%E4%B8%8E%E8%AE%B0%E5%BF%86%E6%9C%BA%E5%88%B6%EF%BC%88%E6%9D%83%E9%87%8D%E5%8C%96%E8%AE%B0%E5%BF%86%E3%80%81%E5%8E%8B%E7%BC%A9%E8%AE%B0%E5%BF%86%E3%80%81%E9%95%BF%E8%A7%86%E9%A2%91%E8%A7%A3%E8%AF%B4%EF%BC%89"><span class="nav-text">04. 长视频理解与记忆机制（权重化记忆、压缩记忆、长视频解说）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E8%87%AA%E9%80%82%E5%BA%94%E6%8E%A8%E7%90%86%E4%B8%8E%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F%EF%BC%88%E5%BF%AB%E6%85%A2%E6%80%9D%E8%80%83%E8%B7%AF%E7%94%B1%E3%80%81%E6%8E%A8%E6%B5%8B%E8%A7%A3%E7%A0%81%E3%80%81%E4%BD%8E%E6%AF%94%E7%89%B9%E9%87%8F%E5%8C%96%E3%80%81%E7%AB%AF%E4%BE%A7%E9%83%A8%E7%BD%B2%EF%BC%89"><span class="nav-text">05. 自适应推理与模型推理加速（快慢思考路由、推测解码、低比特量化、端侧部署）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E7%94%9F%E6%88%90%E3%80%81%E7%94%BB%E8%B4%A8%E4%B8%8E%E8%A7%86%E9%A2%91%E6%8F%8F%E8%BF%B0%E7%9A%84%E8%AF%84%E6%B5%8B%EF%BC%88%E7%89%A9%E7%90%86%E4%B8%80%E8%87%B4%E6%80%A7%E3%80%81IQA%E3%80%81%E6%8F%8F%E8%BF%B0%E4%BF%9D%E7%9C%9F%E5%BA%A6%EF%BC%89"><span class="nav-text">06. 生成、画质与视频描述的评测（物理一致性、IQA、描述保真度）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%AF%AD%E6%96%99%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B%EF%BC%88%E6%95%B0%E6%8D%AE%E6%B8%85%E6%B4%97%E3%80%81%E6%95%B0%E6%8D%AE%E7%BC%A9%E6%94%BE%E3%80%81%E7%9B%91%E7%9D%A3%E8%87%AA%E4%B8%BE%EF%BC%89"><span class="nav-text">07. 大模型语料与数据工程（数据清洗、数据缩放、监督自举）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#08-%E5%B9%BB%E8%A7%89%E6%8A%91%E5%88%B6%E4%B8%8E%E8%87%AA%E6%88%91%E9%AA%8C%E8%AF%81"><span class="nav-text">08. 幻觉抑制与自我验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#09-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%A3%E9%87%8A%E6%80%A7%E4%B8%8E%E8%A1%A8%E5%BE%81%E5%87%A0%E4%BD%95%EF%BC%88%E6%99%BA%E8%83%BD%E4%BD%93%E8%A7%92%E8%89%B2%E6%A8%A1%E6%8B%9F%E3%80%81%E8%A1%A8%E5%BE%81%E4%B8%8E%E8%A1%8C%E4%B8%BA%E8%A7%A3%E8%80%A6%E3%80%81%E6%BF%80%E6%B4%BB%E5%B9%B2%E6%B6%89%EF%BC%89"><span class="nav-text">09. 大模型可解释性与表征几何（智能体角色模拟、表征与行为解耦、激活干涉）</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -240,7 +240,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-12 17:11:46" itemprop="dateModified" datetime="2026-11-12T17:11:46+08:00">2026-11-12</time>
+      <time title="修改时间：2026-11-12 18:20:24" itemprop="dateModified" datetime="2026-11-12T18:20:24+08:00">2026-11-12</time>
     </span>
 
   
@@ -278,7 +278,7 @@
 <p>“论文日期”指论文原文首次公开的时间：arXiv 论文取 v1 提交日期，期刊与会议论文取正式出版时间。</p>
 <span id="more"></span>
 <hr>
-<h2 id="01-多模态向量检索与-Embedding-训练（Embedding、Reranker、检索系统与训练配方）">01. 多模态向量检索与 Embedding 训练（Embedding、Reranker、检索系统与训练配方）</h2>
+<h2 id="01-多模态检索与-Embedding-训练（Embedding、Reranker、检索系统与训练配方）">01. 多模态检索与 Embedding 训练（Embedding、Reranker、检索系统与训练配方）</h2>
 <table>
 <thead>
 <tr>
@@ -351,11 +351,6 @@
 </thead>
 <tbody>
 <tr>
-<td>2026-11-02</td>
-<td><a href="/papers/2026/11/10/PixelBench-LLM-Pixel/">【论文分享】不装外挂、不改词表，大模型真能“逐像素”画图吗？解密 PixelBench：文本自回归的空间瓶颈与视觉正则化启示</a></td>
-<td>针对大模型能否直接通过文本生成栅格位图这一底层问题，CUHK 与 SCUT 等团队提出 PixelBench，揭示一维自回归在二维空间强约束下的“分辨率悖论”与三大崩溃故障，并创新性提出仅需 0.4% 像素重建轨迹即可全面抑制视觉幻觉的 PRT 微调范式。</td>
-</tr>
-<tr>
 <td>2026-10-27</td>
 <td><a href="/papers/2026/10/29/FVQ-DiscreteVisualTokensSemanticallyLossless/">【论文分享】告别“-VL”拼装车时代：华科与美团 FVQ 如何用离散 Token 追平顶尖连续视觉大模型？</a></td>
 <td>打破连续视觉表征垄断，提出因子化向量量化 FVQ 证明离散 Token 可做到语义无损，让纯离散视觉大模型追平顶尖连续视觉编码器性能。</td>
@@ -377,7 +372,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="03-视频时序定位与时刻检索（VTG、Moment-Retrieval、视频目标定位）">03. 视频时序定位与时刻检索（VTG、Moment Retrieval、视频目标定位）</h2>
+<h2 id="03-视频时序定位与时刻检索（VTG、Moment-Retrieval、视频目标定位、多模态定位-RL）">03. 视频时序定位与时刻检索（VTG、Moment Retrieval、视频目标定位、多模态定位 RL）</h2>
 <table>
 <thead>
 <tr>
@@ -393,9 +388,23 @@
 <td>针对 Transformer 时域低通滤波导致边界模糊的硬伤，引入 1D 傅里叶频域专家网络与区分损失，实现高动态视频时刻的毫秒级精准定位。</td>
 </tr>
 <tr>
-<td>2026-10-19</td>
+<td>2026-10-21</td>
+<td><a href="/papers/2026/10/30/GeneralizedCycleGRPO-MultimodalUnderstandingGrounding/">【论文分享】给多模态大模型装上“自省闭环”：arXiv 2026 新作 Generalized CycleGRPO 统一空间、时间与时空细粒度理解与定位</a></td>
+<td>提出广义循环强化学习算法（CycleGRPO），通过“理解-定位-反向重构”自省闭环取代外部昂贵奖励，统一度量空间、时间与时空四维多模态定位。</td>
+</tr>
+<tr>
+<td rowspan="2">2026-10-19</td>
 <td><a href="/papers/2026/11/10/SAPO-VideoGrounding/">【论文分享】模型心里门儿清，嘴上说不出？上交大与蚂蚁新作 SAPO：无需人工标注，用内部注意力与 GRPO 破解视频大模型时序定位鸿沟</a></td>
 <td>针对大模型底层注意力精准但文本解码时间戳漂移的“时序生成鸿沟”，上交大与蚂蚁提出自监督强化学习微调框架 SAPO，无需人工标注，通过 JS 散度筛选高价值样本，利用 Wasserstein 连续分布奖励结合 GRPO 优化，仅 2000 条未标注视频即实现 mIoU 暴涨 33.7%，且线上零额外推理开销。</td>
+</tr>
+<tr>
+<td><a href="/papers/2026/10/27/ThinkCompressAnswer-TCA/">【论文分享】多模态大模型的“克制之道”：解析定位前沿论文 Think-Compress-Answer (TCA)</a></td>
+<td>针对多模态推理中“想得越多错得越离谱”的漂移现象，设计 Think-Compress-Answer 机制与多阶段 GRPO，用便签式紧凑摘要约束长推理链。</td>
+</tr>
+<tr>
+<td>2026-10-12</td>
+<td><a href="/papers/2026/10/26/EventLensVideoUnderstanding/">【论文分享】给视频大模型装上“时间透镜”：NeurIPS 2026 论文 EventLens 解析</a></td>
+<td>NeurIPS 2026 论文，设计事件结构扰动与多导师在线蒸馏（MT-OPD）强化学习流水线，零标注逼迫模型学习真实时序因果，杜绝依靠单帧作弊。</td>
 </tr>
 <tr>
 <td>2026-06-12</td>
@@ -519,7 +528,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="05-强化学习与推理效率（GRPO、推测解码、低比特量化、端侧部署与推理加速）">05. 强化学习与推理效率（GRPO、推测解码、低比特量化、端侧部署与推理加速）</h2>
+<h2 id="05-自适应推理与模型推理加速（快慢思考路由、推测解码、低比特量化、端侧部署）">05. 自适应推理与模型推理加速（快慢思考路由、推测解码、低比特量化、端侧部署）</h2>
 <table>
 <thead>
 <tr>
@@ -545,23 +554,9 @@
 <td>阿里通义团队重磅新作，针对推测解码中在线蒸馏数据采集串行依赖导致的 GPU 低效空转痛点，提出 SpecOPD 分支并行在线蒸馏框架，结合候选树打分与 E2E-TV 连续采纳率导向优化，实现训练吞吐 16 倍暴增与最高 3.56 倍端到端推理提速，并给出大模型推理服务端的系统工程落地建议。</td>
 </tr>
 <tr>
-<td>2026-10-21</td>
-<td><a href="/papers/2026/10/30/GeneralizedCycleGRPO-MultimodalUnderstandingGrounding/">【论文分享】给多模态大模型装上“自省闭环”：arXiv 2026 新作 Generalized CycleGRPO 统一空间、时间与时空细粒度理解与定位</a></td>
-<td>提出广义循环强化学习算法（CycleGRPO），通过“理解-定位-反向重构”自省闭环取代外部昂贵奖励，统一度量空间、时间与时空四维多模态定位。</td>
-</tr>
-<tr>
-<td rowspan="2">2026-10-19</td>
-<td><a href="/papers/2026/10/27/ThinkCompressAnswer-TCA/">【论文分享】多模态大模型的“克制之道”：解析定位前沿论文 Think-Compress-Answer (TCA)</a></td>
-<td>针对多模态推理中“想得越多错得越离谱”的漂移现象，设计 Think-Compress-Answer 机制与多阶段 GRPO，用便签式紧凑摘要约束长推理链。</td>
-</tr>
-<tr>
+<td>2026-10-19</td>
 <td><a href="/papers/2026/10/22/TempoMoE-FastSlowThinkingExperts/">【论文分享】给大模型装上“变速箱”：解析 TempoMoE 如何识别并引导快慢思考专家实现高效多模态推理</a></td>
 <td>发现 MoE 大模型内部快慢神经元分工规律，提出 TempoMoE 自适应动态路由框架，简单任务快思考、复杂任务深推理，大幅节省算力与响应时延。</td>
-</tr>
-<tr>
-<td>2026-10-12</td>
-<td><a href="/papers/2026/10/26/EventLensVideoUnderstanding/">【论文分享】给视频大模型装上“时间透镜”：NeurIPS 2026 论文 EventLens 解析</a></td>
-<td>NeurIPS 2026 论文，设计事件结构扰动与多导师在线蒸馏（MT-OPD）强化学习流水线，零标注逼迫模型学习真实时序因果，杜绝依靠单帧作弊。</td>
 </tr>
 </tbody>
 </table>
@@ -575,6 +570,11 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>2026-11-02</td>
+<td><a href="/papers/2026/11/10/PixelBench-LLM-Pixel/">【论文分享】不装外挂、不改词表，大模型真能“逐像素”画图吗？解密 PixelBench：文本自回归的空间瓶颈与视觉正则化启示</a></td>
+<td>针对大模型能否直接通过文本生成栅格位图这一底层问题，CUHK 与 SCUT 等团队提出 PixelBench，揭示一维自回归在二维空间强约束下的“分辨率悖论”与三大崩溃故障，并创新性提出仅需 0.4% 像素重建轨迹即可全面抑制视觉幻觉的 PRT 微调范式。</td>
+</tr>
 <tr>
 <td rowspan="2">2026-10-27</td>
 <td><a href="/papers/2026/10/29/VGIQA-FineGrainedImageQualityAssessment/">【论文分享】当 AI 图像质检拿上放大镜：VGIQA 如何用“视觉定位奖励”治愈大模型的画质近视？</a></td>
