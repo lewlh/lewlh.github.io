@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在构建大规模多模态搜索、以图搜图、以及多模态 RAG（检索增强生成）系统时，后端架构师常常面临一个经典的系统设计两难困境（Trade-off）：高并发低延迟 与 复杂场景高精度 无法兼得。  判别式向量（Discriminative Embedding，快模式）：单次前向直接吐出 Embedding。响应在毫秒级，吞吐量极大，非常适合在线海量流量召回；但在面对复杂文档图表（VisDoc）或长视频推">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】统一检索底库与双模查询：AntEmbed 如何用自蒸馏解耦多模态向量的“速度与精度”">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/11/16/AntEmbed/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在构建大规模多模态搜索、以图搜图、以及多模态 RAG（检索增强生成）系统时，后端架构师常常面临一个经典的系统设计两难困境（Trade-off）：高并发低延迟 与 复杂场景高精度 无法兼得。  判别式向量（Discriminative Embedding，快模式）：单次前向直接吐出 Embedding。响应在毫秒级，吞吐量极大，非常适合在线海量流量召回；但在面对复杂文档图表（VisDoc）或长视频推">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-16T10:52:00.000Z">
+<meta property="article:modified_time" content="2026-11-16T10:55:36.055Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="AntEmbed">
+<meta property="article:tag" content="向量检索">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="搜索架构">
+<meta property="article:tag" content="知识蒸馏">
+<meta property="article:tag" content="论文分享">
+<meta property="article:tag" content="软件工程视角">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/11/16/AntEmbed/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/11/16/AntEmbed/","path":"papers/2026/11/16/AntEmbed/","title":"【论文分享】统一检索底库与双模查询：AntEmbed 如何用自蒸馏解耦多模态向量的“速度与精度”"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】统一检索底库与双模查询：AntEmbed 如何用自蒸馏解耦多模态向量的“速度与精度” | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">327</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">102</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E7%B3%BB%E7%BB%9F%E7%97%9B%E7%82%B9%E4%B8%8E%E6%9E%B6%E6%9E%84%E5%AF%B9%E6%AF%94%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E8%AF%B4%E7%BB%B4%E6%8A%A4%E2%80%9C%E4%B8%A4%E5%A5%97%E7%B4%A2%E5%BC%95%E2%80%9D%E6%98%AF%E5%B7%A5%E7%A8%8B%E7%81%BE%E9%9A%BE%EF%BC%9F"><span class="nav-text">01. 系统痛点与架构对比：为什么说维护“两套索引”是工程灾难？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9A%84%E8%80%83%E9%87%8F%EF%BC%9A%E5%8D%95%E5%BA%A6%E9%87%8F%E7%A9%BA%E9%97%B4%EF%BC%88Single-Metric-Space%EF%BC%89"><span class="nav-text">1.1 软件架构师的考量：单度量空间（Single Metric Space）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%A0%B8%E5%BF%83%E6%8A%80%E6%9C%AF%E8%8C%83%E5%BC%8F%EF%BC%9A%E5%A6%82%E4%BD%95%E6%8A%8A%E2%80%9C%E6%85%A2%E6%80%9D%E8%80%83%E2%80%9D%E5%86%85%E5%8C%96%E8%BF%9B%E7%B3%BB%E7%BB%9F"><span class="nav-text">02. 核心技术范式：如何把“慢思考”内化进系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B%EF%BC%9A%E9%81%BF%E5%85%8D%E5%BA%9F%E8%AF%9D%EF%BC%8C%E6%B7%B7%E6%B7%86%E9%9B%86%E9%A9%B1%E5%8A%A8%EF%BC%88Confusion-Aware-CoT%EF%BC%89"><span class="nav-text">2.1 数据工程：避免废话，混淆集驱动（Confusion-Aware CoT）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E9%98%B6%E6%AE%B5%E4%B8%80%EF%BC%9A%E6%88%90%E5%AF%B9%E6%8E%92%E5%BA%8F%E5%A4%9A%E6%AD%A3%E4%BE%8B%E7%BA%A6%E6%9D%9F%EF%BC%88Multi-Positive-Contrastive-Learning%EF%BC%89"><span class="nav-text">2.2 阶段一：成对排序多正例约束（Multi-Positive Contrastive Learning）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E9%98%B6%E6%AE%B5%E4%BA%8C%EF%BC%9A%E8%B7%A8%E6%A8%A1%E6%80%81%E8%87%AA%E8%92%B8%E9%A6%8F%EF%BC%88Cross-Mode-Self-Distillation%EF%BC%89"><span class="nav-text">2.3 阶段二：跨模态自蒸馏（Cross-Mode Self-Distillation）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E8%AF%84%E6%B5%8B%E6%88%90%E7%BB%A9%E8%83%8C%E5%90%8E%E7%9A%84%E5%B7%A5%E7%A8%8B%E8%B4%A6%E6%9C%AC%EF%BC%9A%E7%9C%9F%E7%9A%84%E6%8F%90%E5%8D%87%E5%BE%88%E5%A4%A7%E5%90%97%EF%BC%9F"><span class="nav-text">03. 评测成绩背后的工程账本：真的提升很大吗？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E8%B4%A6%E9%9D%A2%E5%B0%B4%E5%B0%AC%EF%BC%9A%E5%BF%AB%E6%A8%A1%E5%BC%8F%EF%BC%88Base%EF%BC%89%E5%85%B6%E5%AE%9E%E6%9C%89%E6%80%A7%E8%83%BD%E6%8A%98%E6%8D%9F"><span class="nav-text">3.1 账面尴尬：快模式（Base）其实有性能折损</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E7%AE%97%E5%8A%9B%E8%B4%A6%EF%BC%9A%E5%A4%9A%E6%8B%BF-3-7-%E5%88%86%EF%BC%8C%E4%BB%98%E5%87%BA%E7%9A%84%E5%BB%B6%E8%BF%9F%E4%BB%A3%E4%BB%B7%E6%98%AF%E5%90%A6%E5%88%92%E7%AE%97%EF%BC%9F"><span class="nav-text">3.2 算力账：多拿 3.7 分，付出的延迟代价是否划算？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E5%AE%83%E7%9A%84%E6%A0%B8%E5%BF%83%E6%88%98%E5%9C%BA%E5%88%B0%E5%BA%95%E5%9C%A8%E5%93%AA%EF%BC%9F%E2%80%94%E2%80%94%E6%9E%81%E9%9A%BE%E9%95%BF%E5%B0%BE%E4%B8%8E%E7%89%B9%E5%AE%9A%E9%A2%86%E5%9F%9F%E8%B4%A8%E5%8F%98"><span class="nav-text">3.3 它的核心战场到底在哪？——极难长尾与特定领域质变</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84%E6%9E%B6%E6%9E%84%E9%80%89%E5%9E%8B%E4%B8%8E%E8%90%BD%E5%9C%B0%E5%8F%82%E8%80%83"><span class="nav-text">04. 软件工程师的架构选型与落地参考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E6%80%BB%E7%BB%93"><span class="nav-text">05. 总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">102</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">327</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/16/AntEmbed/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】统一检索底库与双模查询：AntEmbed 如何用自蒸馏解耦多模态向量的“速度与精度” | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】统一检索底库与双模查询：AntEmbed 如何用自蒸馏解耦多模态向量的“速度与精度”
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-16 18:52:00 / 修改时间：18:55:36" itemprop="dateCreated datePublished" datetime="2026-11-16T18:52:00+08:00">2026-11-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>12 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在构建大规模多模态搜索、以图搜图、以及多模态 RAG（检索增强生成）系统时，后端架构师常常面临一个经典的系统设计两难困境（Trade-off）：<strong>高并发低延迟</strong> 与 <strong>复杂场景高精度</strong> 无法兼得。</p>
+<ul>
+<li><strong>判别式向量（Discriminative Embedding，快模式）</strong>：单次前向直接吐出 Embedding。响应在毫秒级，吞吐量极大，非常适合在线海量流量召回；但在面对复杂文档图表（VisDoc）或长视频推理时，语义理解偏粗糙，常有“视而不见”的漏召回。</li>
+<li><strong>生成式推理向量（Generative / CoT Embedding，慢模式）</strong>：让多模态大模型先生成一段逐步推理（Chain-of-Thought），把细粒度特征想清楚后再提取向量。效果极佳，但由于存在逐字生成的自回归延迟，P99 耗时飙升至数秒，在线高并发场景根本无法承受。</li>
+</ul>
+<p>为了把两者揉进同一个系统，早期的研究（如 UME-R1）设计了双 Token 机制，但这在工程上带来了灾难性的副作用：<strong>两个模式的向量空间相互割裂，导致底库必须维护两套独立的向量索引，存储成本直接翻倍，路由逻辑极其脆弱</strong>。</p>
+<p>针对这一系统级痛点，蚂蚁集团（Ant Group）与苏州大学联合提出了 <strong>AntEmbed</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《AntEmbed: Dual-Mode Multimodal Embedding Model for Efficient and Fine-Grained Retrieval》<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2611.16405" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2611.16405</a> (HTML 版本：<a target="_blank" href="https://arxiv.org/html/2611.16405v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2611.16405v1</a>)<br>
+<strong>核心贡献</strong>：混淆集驱动的针对性 CoT 构造、多正例跨视图对齐损失、跨模态自蒸馏（KL + L2）机制，实现“单个向量库，双模平滑查询”。</p>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端/架构/系统研发）</strong> 的视角，不纠缠复杂的理论推导，深入剖析其 <strong>架构折中（Trade-off）、单库兼容设计、离线自蒸馏流水线</strong>，并冷静客观地审视其 Benchmark 成绩背后的真实工程账本。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-系统痛点与架构对比：为什么说维护“两套索引”是工程灾难？">01. 系统痛点与架构对比：为什么说维护“两套索引”是工程灾难？</h2>
+<p>在深入模型细节前，我们先从系统架构角度审视 AntEmbed 与以往方案的本质差异：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph BadArch[&quot;传统双模架构（如 UME-R1）: 空间割裂与双倍存储&quot;]
+        Doc1[&quot;海量待检文档/图片&quot;] --&gt; EncA[&quot;快模式编码器&quot;] &amp; EncB[&quot;慢模式推理编码器&quot;]
+        EncA --&gt; IdxA[&quot;索引库 A (判别式空间)&quot;]
+        EncB --&gt; IdxB[&quot;索引库 B (生成式空间)&quot;]
+        QFast1[&quot;简单 Query (快)&quot;] --&gt; IdxA
+        QSlow1[&quot;复杂 Query (慢)&quot;] --&gt; IdxB
+        NoteA[&quot;痛点: 存储与内存成本翻倍！&lt;br/&gt;两套库数据同步复杂，无法任意降级或混搜&quot;]
+    end
+
+    subgraph GoodArch[&quot;AntEmbed 架构: 统一坐标系与弹性路由&quot;]
+        Doc2[&quot;海量待检文档/图片&quot;] --&gt; UniIndex[&quot;统一向量索引库 (单份存储)&quot;]
+        QFast2[&quot;简单高并发 Query (快模式)&quot;] --&gt;|毫秒级直接出向量| UniIndex
+        QSlow2[&quot;复杂长尾 Query (CoT 模式)&quot;] --&gt;|外部大模型推理增强| UniIndex
+        NoteB[&quot;收益: 索引成本减半；网关层可根据并发、&lt;br/&gt;延时预算自由实现动态路由与熔断降级&quot;]
+    end</code></pre>
+<h3 id="1-1-软件架构师的考量：单度量空间（Single-Metric-Space）">1.1 软件架构师的考量：单度量空间（Single Metric Space）</h3>
+<p>在软件设计中，接口契约越简单，系统越稳健。如果检索系统要求根据前端请求的类型去命中不同的底层存储集群，系统复杂度会呈指数上升：</p>
+<ol>
+<li><strong>数据一致性问题</strong>：底层内容更新时，两份索引库的增删改查必须保证原子性与一致性；</li>
+<li><strong>容量与硬件成本</strong>：大规模企业级向量检索（数十亿维度向量）往往常驻内存与高速 SSD，存储翻倍意味着真实的百万级硬件支出；</li>
+<li><strong>弹性熔断能力归零</strong>：如果线上流量突增需要把“慢模式”降级为“快模式”，因向量空间不兼容，降级查询根本无法去查生成式索引。</li>
+</ol>
+<p>AntEmbed 的首要工程价值，就是<strong>用一个单一的 Embedding Token，把“无思考版本”与“思考增强版本”强行拉进同一个度量空间</strong>，使得底库只需要建一份索引，上层查询自由分流。</p>
+<hr>
+<h2 id="02-核心技术范式：如何把“慢思考”内化进系统">02. 核心技术范式：如何把“慢思考”内化进系统</h2>
+<p>AntEmbed 整体是一个典型的数据与后训练工程（Post-training Recipe），基于开源的 <code>Qwen3-VL</code> 底座，依托三步流水线完成改造：</p>
+<pre><code class="highlight mermaid">sequenceDiagram
+    autonumber
+    participant DataPool as 全量候选底库
+    participant MLLM as 离线质检员 (Qwen3-VL-30B)
+    participant ModelStage1 as Stage 1: 多正例对比训练
+    participant ModelStage2 as Stage 2: 跨模态自蒸馏训练
+
+    Note over DataPool,MLLM: 数据工程: 混淆集驱动的“找茬”数据生成
+    DataPool-&gt;&gt;DataPool: 向量粗筛出 Top-5 最易混淆近邻
+    DataPool-&gt;&gt;MLLM: 输入: 目标图 + 5 个混淆干扰项
+    MLLM-&gt;&gt;MLLM: 聚焦辨别性特征，生成高区分度 CoT
+    
+    Note over MLLM,ModelStage1: 阶段一: 统一坐标系
+    MLLM-&gt;&gt;ModelStage1: 注入 (q, q_CoT) 与 (c+, c+_CoT)
+    ModelStage1-&gt;&gt;ModelStage1: 单 Token + 成对排序 Multi-Positive 损失拉齐空间
+    
+    Note over ModelStage1,ModelStage2: 阶段二: 离线编译与知识迁移
+    ModelStage1-&gt;&gt;ModelStage2: 初始化 Teacher(CoT) 与 Student(Base)
+    ModelStage2-&gt;&gt;ModelStage2: 监督对齐: KL 相似度分布 + L2 向量均方误差
+    ModelStage2-&gt;&gt;ModelStage2: 固化权重: 产出 AntEmbed 最终模型</code></pre>
+<hr>
+<h3 id="2-1-数据工程：避免废话，混淆集驱动（Confusion-Aware-CoT）">2.1 数据工程：避免废话，混淆集驱动（Confusion-Aware CoT）</h3>
+<p>让大模型写思考链最忌讳的是“通篇套话”（比如：让它描述一张汽车图，它输出“这是一辆四个轮子的交通工具”，在检索中完全是噪声）。</p>
+<p>论文采用了一种极具工程巧思的<strong>反向找茬 Prompting 策略</strong>：</p>
+<ol>
+<li><strong>检索混淆集</strong>：用开源的轻量向量模型，对候选样本 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">c_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 检索其在库里余弦相似度最高的前 5 个邻居 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="script">H</mi><mi>K</mi></msub><mo stretchy="false">(</mo><msub><mi>c</mi><mi>i</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{H}_K(c_i)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathcal" style="margin-right:0.0097em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0097em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0715em;">K</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>（这些是最容易被错误召回的 Hard Negatives）；</li>
+<li><strong>对比提示词</strong>：把候选图与这 5 个混淆邻居同时喂给多模态大模型（<code>Qwen3-VL-30B</code>），下达任务：
+<blockquote>
+<p><em>“请仔细对比目标样本与这 5 个高度相似的干扰项，严格指出究竟是哪些细微属性、关联或视觉证据将目标样本区分开来，并给出精炼总结。”</em></p>
+</blockquote>
+</li>
+<li><strong>输出落地</strong>：生成结构化 JSON，包含思考过程（<code>think</code>）与提炼结论（<code>answer</code>），拼接到原始输入后方，构造出判别性极强的高信息密度样本。</li>
+</ol>
+<hr>
+<h3 id="2-2-阶段一：成对排序多正例约束（Multi-Positive-Contrastive-Learning）">2.2 阶段一：成对排序多正例约束（Multi-Positive Contrastive Learning）</h3>
+<p>为了让同一个 Token 能在无 CoT 和有 CoT 时输出互相兼容的向量，模型必须把同一个实例的两种形态视为<strong>互为等价的正例视图（Views）</strong>：</p>
+<ul>
+<li>查询对：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">Q</mi><mo>=</mo><mo stretchy="false">{</mo><mi>q</mi><mo separator="true">,</mo><msup><mi>q</mi><mrow><mi>C</mi><mi>o</mi><mi>T</mi></mrow></msup><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">\mathcal{Q} = \{q, q^{CoT}\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7805em;vertical-align:-0.0972em;"></span><span class="mord mathcal">Q</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0913em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord mathnormal" style="margin-right:0.0359em;">q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">q</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0715em;">C</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span></span></span></span></span></span></span></span></span><span class="mclose">}</span></span></span></span></li>
+<li>候选对：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">P</mi><mo>=</mo><mo stretchy="false">{</mo><msup><mi>c</mi><mo>+</mo></msup><mo separator="true">,</mo><msup><mi>c</mi><mrow><mo>+</mo><mo separator="true">,</mo><mi>C</mi><mi>o</mi><mi>T</mi></mrow></msup><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">\mathcal{P} = \{c^+, c^{+,CoT}\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathcal" style="margin-right:0.0822em;">P</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0913em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7713em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">+</span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">+</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight" style="margin-right:0.0715em;">C</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span></span></span></span></span></span></span></span></span><span class="mclose">}</span></span></span></span></li>
+</ul>
+<p>如果简单把多个正例概率相加，模型会偷懒只学习最容易拟合的一对。作者将其改造为<strong>成对排序（Pairwise Ranking）目标</strong>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="script">L</mi><mrow><mi>M</mi><mi>P</mi></mrow></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mi mathvariant="normal">∣</mi><mi mathvariant="script">Q</mi><mi mathvariant="normal">∣</mi></mrow></mfrac><munder><mo>∑</mo><mrow><mi>q</mi><mo>∈</mo><mi mathvariant="script">Q</mi></mrow></munder><mi>log</mi><mo>⁡</mo><mrow><mo fence="true">[</mo><mn>1</mn><mo>+</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><munder><mo>∑</mo><mrow><msubsup><mi>c</mi><mi>j</mi><mo>+</mo></msubsup><mo>∈</mo><mi mathvariant="script">P</mi><mo stretchy="false">(</mo><mi>q</mi><mo stretchy="false">)</mo></mrow></munder><mi>exp</mi><mo>⁡</mo><mrow><mo fence="true">(</mo><mfrac><mrow><msub><mi>s</mi><mi>θ</mi></msub><mo stretchy="false">(</mo><mi>q</mi><mo stretchy="false">)</mo><mo>⋅</mo><msub><mi>s</mi><mi>θ</mi></msub><mo stretchy="false">(</mo><msubsup><mi>c</mi><mi>i</mi><mo>−</mo></msubsup><mo stretchy="false">)</mo><mo>−</mo><msub><mi>s</mi><mi>θ</mi></msub><mo stretchy="false">(</mo><mi>q</mi><mo stretchy="false">)</mo><mo>⋅</mo><msub><mi>s</mi><mi>θ</mi></msub><mo stretchy="false">(</mo><msubsup><mi>c</mi><mi>j</mi><mo>+</mo></msubsup><mo stretchy="false">)</mo></mrow><mi>τ</mi></mfrac><mo fence="true">)</mo></mrow><mo fence="true">]</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{L}_{MP} = \frac{1}{|\mathcal{Q}|} \sum_{q \in \mathcal{Q}} \log \left[ 1 + \sum_{i=1}^{N} \sum_{c_j^+ \in \mathcal{P}(q)} \exp \left( \frac{s_\theta(q) \cdot s_\theta(c_i^-) - s_\theta(q) \cdot s_\theta(c_j^+)}{\tau} \right) \right]
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.109em;">M</span><span class="mord mathnormal mtight" style="margin-right:0.1389em;">P</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:3.7635em;vertical-align:-1.7135em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∣</span><span class="mord mathcal">Q</span><span class="mord">∣</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8557em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span><span class="mrel mtight">∈</span><span class="mord mathcal mtight">Q</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.4304em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">lo<span style="margin-right:0.0139em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05em;"><span style="top:-4.05em;"><span class="pstrut" style="height:5.6em;"></span><span style="width:0.667em;height:3.6em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.667em" height="3.6em" viewBox="0 0 667 3600"><path d="M403 1759 V84 H666 V0 H319 V1759 v0 v1759 v84 h347 v-84
+H403z M403 1759 V0 H319 V1759 v0 v1759 v84 h84z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.55em;"><span></span></span></span></span></span></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.8283em;"><span style="top:-1.8723em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span><span style="top:-4.3em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.109em;">N</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2777em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.7593em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.821em;"><span style="top:-2.1777em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span><span style="top:-2.9043em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mbin mtight">+</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4612em;"><span></span></span></span></span></span></span><span class="mrel mtight">∈</span><span class="mord mathcal mtight" style="margin-right:0.0822em;">P</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span><span class="mclose mtight">)</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.7135em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">exp</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6144em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.803em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">θ</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0359em;">q</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">θ</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8115em;"><span style="top:-2.4231em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.1031em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">−</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2769em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">θ</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0359em;">q</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">θ</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8115em;"><span style="top:-2.4231em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span><span style="top:-3.1031em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">+</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.413em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size4">)</span></span></span><span class="mclose"><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:2.05em;"><span style="top:-4.05em;"><span class="pstrut" style="height:5.6em;"></span><span style="width:0.667em;height:3.6em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.667em" height="3.6em" viewBox="0 0 667 3600"><path d="M347 1759 V0 H0 V84 H263 V1759 v0 v1759 H0 v84 H347z
+M347 1759 V0 H263 V1759 v0 v1759 h84z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.55em;"><span></span></span></span></span></span></span></span></span></span></span></span></p>
+<ul>
+<li><strong>逻辑本质</strong>：无论当前查询是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi></mrow><annotation encoding="application/x-tex">q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">q</span></span></span></span> 还是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>q</mi><mrow><mi>C</mi><mi>o</mi><mi>T</mi></mrow></msup></mrow><annotation encoding="application/x-tex">q^{CoT}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0358em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">q</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0715em;">C</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span></span></span></span></span></span></span></span></span></span></span></span>，它与正例的任意一种形态（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>c</mi><mo>+</mo></msup></mrow><annotation encoding="application/x-tex">c^+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7713em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7713em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">+</span></span></span></span></span></span></span></span></span></span></span> 或 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>c</mi><mrow><mo>+</mo><mo separator="true">,</mo><mi>C</mi><mi>o</mi><mi>T</mi></mrow></msup></mrow><annotation encoding="application/x-tex">c^{+,CoT}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8413em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">+</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight" style="margin-right:0.0715em;">C</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span></span></span></span></span></span></span></span></span></span></span></span>）计算出的内积，都必须以绝对优势压倒负样本 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>c</mi><mi>i</mi><mo>−</mo></msubsup></mrow><annotation encoding="application/x-tex">c_i^-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0883em;vertical-align:-0.2769em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8115em;"><span style="top:-2.4231em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.1031em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">−</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2769em;"><span></span></span></span></span></span></span></span></span></span>。</li>
+<li><strong>工程收益</strong>：强行拉紧两个维度的几何距离，消除表征断层。</li>
+</ul>
+<hr>
+<h3 id="2-3-阶段二：跨模态自蒸馏（Cross-Mode-Self-Distillation）">2.3 阶段二：跨模态自蒸馏（Cross-Mode Self-Distillation）</h3>
+<p>即使统一了空间，如果线上大部分流量走“快模式”，我们依然希望快模式能够从慢模式中继承高阶抽象能力。</p>
+<p>在这一阶段，模型自身作为 <strong>Teacher（输入带 CoT）</strong>，克隆出一套参数作为 <strong>Student（输入不带 CoT，仅更新学生端梯度）</strong>：</p>
+<ol>
+<li><strong>相似度分布迁移（KL 散度损失 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="script">L</mi><mrow><mi>K</mi><mi>L</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\mathcal{L}_{KL}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0715em;">K</span><span class="mord mathnormal mtight">L</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>）</strong>：让学生模型对候选集全员的匹配打分概率分布，去逼近老师的平滑软标签，学到全局语义的轻重缓急；</li>
+<li><strong>向量直接逼近（L2 对齐损失 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="script">L</mi><mrow><mi>e</mi><mi>m</mi><mi>b</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\mathcal{L}_{emb}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathcal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">mb</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>）</strong>：让学生的 Query 向量在欧氏距离上直接靠近老师的思考增强向量。</li>
+</ol>
+<p><strong>工程直觉</strong>：这相当于一种“AOT 编译优化”。通过将大模型多步自回归生成的中间语义提炼并固化到权重的单次前向通路中，使轻量快模式拥有了更准的“直觉”。</p>
+<hr>
+<h2 id="03-评测成绩背后的工程账本：真的提升很大吗？">03. 评测成绩背后的工程账本：真的提升很大吗？</h2>
+<p>在论文提供的官方榜单 MMEB-v2（涵盖图像、视频、复杂文档的多模态检索基准）中，作者展示了以下核心数据：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型方案</th>
+<th style="text-align:left">模式形态</th>
+<th style="text-align:center">图像总体</th>
+<th style="text-align:center">视频总体</th>
+<th style="text-align:center">视觉文档 (VisDoc)</th>
+<th style="text-align:center">全局综合 (All)</th>
+<th style="text-align:left">相对原生基线代价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Qwen3-VL-Embedding-8B (阿里原生)</strong></td>
+<td style="text-align:left" rowspan="2">纯判别式 (快)</td>
+<td style="text-align:center">80.1</td>
+<td style="text-align:center">67.1</td>
+<td style="text-align:center">82.4</td>
+<td style="text-align:center"><strong>77.8</strong></td>
+<td style="text-align:left">延迟 ~30ms，零推理开销</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>AntEmbed-8B (base)</strong></td>
+<td style="text-align:center">76.4</td>
+<td style="text-align:center">57.6</td>
+<td style="text-align:center">79.9</td>
+<td style="text-align:center"><strong>73.1</strong></td>
+<td style="text-align:left">延迟 ~30ms，但<strong>反向倒退 4.7 分</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>AntEmbed-8B (CoT)</strong></td>
+<td style="text-align:left">思考增强 (慢)</td>
+<td style="text-align:center"><strong>83.9</strong></td>
+<td style="text-align:center"><strong>74.8</strong></td>
+<td style="text-align:center"><strong>82.7</strong></td>
+<td style="text-align:center"><strong>81.5</strong></td>
+<td style="text-align:left"><strong>最高分 (SOTA)</strong>，但需额外跑 LLM 推理</td>
+</tr>
+</tbody>
+</table>
+<p>从纯软件工程与投入产出比（ROI）视角客观审视，这里有两点非常值得开发团队注意：</p>
+<h3 id="3-1-账面尴尬：快模式（Base）其实有性能折损">3.1 账面尴尬：快模式（Base）其实有性能折损</h3>
+<p>对比红框中的数字，<code>AntEmbed-8B (base)</code> 的综合得分是 73.1，落后原生 <code>Qwen3-VL-Embedding-8B</code>（77.8）达 <strong>4.7 分</strong>。</p>
+<ul>
+<li><strong>原因分析</strong>：这是系统设计中典型的“全能与专精”的权衡。Qwen 原生是全参数深度强化单一判别式任务，而 AntEmbed 为了强行拉齐两种完全不同的表征分布，并只采用 LoRA 微调，导致其纯快模式的极限表征能力不可避免地被“稀释”了。</li>
+</ul>
+<h3 id="3-2-算力账：多拿-3-7-分，付出的延迟代价是否划算？">3.2 算力账：多拿 3.7 分，付出的延迟代价是否划算？</h3>
+<p>开启 CoT 后，AntEmbed 拿下了 81.5 的 SOTA 综合高分，领先 Qwen3 原生 3.7 分。</p>
+<ul>
+<li><strong>延迟放大</strong>：在线执行一次 30B 级别的 CoT 思考，延迟会从几十毫秒骤增至 1 秒甚至数秒，GPU 计算成本飙升数十倍；</li>
+<li><strong>常规业务结论</strong>：如果是高 QPS 的常见图片搜索或电商瀑布流召回，<strong>用 50 倍的延迟换 3.7 分是绝对得不偿失的过度设计</strong>。</li>
+</ul>
+<h3 id="3-3-它的核心战场到底在哪？——极难长尾与特定领域质变">3.3 它的核心战场到底在哪？——极难长尾与特定领域质变</h3>
+<p>这篇论文的真正价值体现在<strong>极度依赖因果与时序推理的复杂长尾场景</strong>：</p>
+<ul>
+<li><strong>视频检索（Video Overall）</strong>：从 67.1 暴增至 <strong>74.8（净增 7.7 分）</strong>；</li>
+<li><strong>多跳视频推理检索（MRET）</strong>：从 56.1 提升至 <strong>64.4（净增 8.3 分）</strong>；</li>
+<li><strong>复杂文档辨析</strong>：面对高度相似的排版、票据、报表时，由于混淆集数据的刻意训练，模型几乎不会被版面骗过。</li>
+</ul>
+<hr>
+<h2 id="04-软件工程师的架构选型与落地参考">04. 软件工程师的架构选型与落地参考</h2>
+<p>如果你的团队正在构建企业多模态知识库或搜索推荐平台，这篇论文带来的落地启示如下：</p>
+<pre><code class="highlight mermaid">flowchart LR
+    InReq[&quot;用户/应用多模态检索请求&quot;] --&gt; Router&#123;&quot;网关动态路由 (API Gateway)&quot;&#125;
+    
+    Router --&gt;|&quot;日常高并发 (QPS &gt; 1000)&lt;br/&gt;SLA 限制 &lt; 100ms&quot;| FastPath[&quot;快路径: 基础单次编码&lt;br/&gt;(直接调用 Embedding)&quot;]
+    Router --&gt;|&quot;长难任务 / 多模态 Agent 规划&lt;br/&gt;高价值、容忍 2~3s 耗时&quot;| SlowPath[&quot;慢路径: 外部 LLM 启发推理&lt;br/&gt;(生成 CoT 后再打向量)&quot;]
+    
+    FastPath --&gt; SingleDB[(&quot;同一个分布式向量存储&lt;br/&gt;(Milvus / Faiss / ES)&quot;)]
+    SlowPath --&gt; SingleDB
+    
+    SingleDB --&gt; Result[&quot;输出 Top-K 召回结果&quot;]</code></pre>
+<ol>
+<li><strong>统一索引，动静分离</strong>：底库候选数据统一在入库时离线抽取向量（推荐直接用离线大模型生成 CoT 后建库，或者在无算力时直接用 Base 向量入库）。由于空间完全对齐，避免了后期迁移或双库同步的运维灾难。</li>
+<li><strong>分级路由机制（Layered Routing）</strong>：
+<ul>
+<li><strong>Tier-1 流量（海量普通查询）</strong>：网关直接调用轻量接口输出向量，走 Base 模式，保住大盘吞吐量与 P99 SLA；</li>
+<li><strong>Tier-2 流量（复杂长句、视频时序定位、特定专业文档）</strong>：异步调度外部大模型先跑一段结构化思维链，走 CoT 模式，用精准度换满意度。</li>
+</ul>
+</li>
+<li><strong>降级与熔断支持</strong>：在双十一、大促等流量洪峰到来时，网关可无缝切断慢路径的 CoT 流程，全量请求直接平滑降级为快路径，<strong>底层向量库无需做任何数据迁移与重构</strong>，展现出极高的架构韧性。</li>
+</ol>
+<hr>
+<h2 id="05-总结">05. 总结</h2>
+<p>AntEmbed 是一次<strong>用训练方法论与数据工程，去解决分布式检索系统存储与延迟矛盾</strong>的优秀尝试。</p>
+<p>虽然在纯快模式的绝对精度上对专精模型有所妥协，但其通过 <strong>“混淆集找茬数据工程 + 多正例跨模对齐 + 跨模自蒸馏”</strong> 构建的完整闭环，成功实现了“一个向量底库，支撑两类差异化服务”的优雅架构。对于需要同时面对高并发性能瓶颈与高价值复杂检索诉求的系统研发人员而言，这种软硬件与数据协同优化的思路，非常具有参考与借鉴意义。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2/" rel="tag"># 向量检索</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/AntEmbed/" rel="tag"># AntEmbed</a>
+              <a href="/tags/%E6%90%9C%E7%B4%A2%E6%9E%B6%E6%9E%84/" rel="tag"># 搜索架构</a>
+              <a href="/tags/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F/" rel="tag"># 知识蒸馏</a>
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%A7%86%E8%A7%92/" rel="tag"># 软件工程视角</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/12/ZoomGain/" rel="next" title="【论文分享】用 Git Diff 思维打磨多模态大模型：ZoomGain 如何用 9K 样本让小模型逆袭千亿巨兽">
+                  【论文分享】用 Git Diff 思维打磨多模态大模型：ZoomGain 如何用 9K 样本让小模型逆袭千亿巨兽 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">455k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">27:36</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
