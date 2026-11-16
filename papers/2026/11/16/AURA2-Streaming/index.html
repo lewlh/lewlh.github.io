@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在过往的多模态大模型（Multimodal LLMs）应用开发中，后端与算法工程师普遍面临着一个根本性的交互范式桎梏：系统本质上是一个单向、被动、同步阻塞的“请求-响应”（Request-Response &#x2F; RPC）模型。  传统模式（Passive Query-Driven）：用户不主动打字或发语音，模型就处于深度休眠；用户上传一段 30 秒的视频并提问，服务端执行一次耗时数秒的重量级 Pre">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】告别被动问答：AURA 2.0 如何用流式事件循环与分级记忆打造 344ms 极速主动多模态助手">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/11/16/AURA2-Streaming/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在过往的多模态大模型（Multimodal LLMs）应用开发中，后端与算法工程师普遍面临着一个根本性的交互范式桎梏：系统本质上是一个单向、被动、同步阻塞的“请求-响应”（Request-Response &#x2F; RPC）模型。  传统模式（Passive Query-Driven）：用户不主动打字或发语音，模型就处于深度休眠；用户上传一段 30 秒的视频并提问，服务端执行一次耗时数秒的重量级 Pre">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-16T11:58:00.000Z">
+<meta property="article:modified_time" content="2026-11-16T12:02:16.081Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="AURA 2.0">
+<meta property="article:tag" content="实时交互">
+<meta property="article:tag" content="流式多模态大模型">
+<meta property="article:tag" content="系统架构">
+<meta property="article:tag" content="论文分享">
+<meta property="article:tag" content="软件工程视角">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/11/16/AURA2-Streaming/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/11/16/AURA2-Streaming/","path":"papers/2026/11/16/AURA2-Streaming/","title":"【论文分享】告别被动问答：AURA 2.0 如何用流式事件循环与分级记忆打造 344ms 极速主动多模态助手"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】告别被动问答：AURA 2.0 如何用流式事件循环与分级记忆打造 344ms 极速主动多模态助手 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">334</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">104</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E4%B8%9A%E5%8A%A1%E8%8C%83%E5%BC%8F%E6%BC%94%E8%BF%9B%EF%BC%9A%E4%BB%8E%E2%80%9C%E8%A2%AB%E5%8A%A8-RPC-%E9%97%AE%E7%AD%94%E2%80%9D%E5%88%B0%E2%80%9C%E5%93%8D%E5%BA%94%E5%BC%8F%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF%E2%80%9D"><span class="nav-text">01. 业务范式演进：从“被动 RPC 问答”到“响应式事件循环”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E5%8D%8F%E8%AE%AE%E7%8A%B6%E6%80%81%E6%9C%BA%EF%BC%9A%E6%9E%81%E7%AE%80%E7%9A%84%E5%8F%8C%E6%8E%A7%E5%88%B6-Token"><span class="nav-text">1.1 协议状态机：极简的双控制 Token</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%98%BE%E5%AD%98%E4%B8%8E%E9%95%BF%E7%A8%8B%E8%AE%B0%E5%BF%86%EF%BC%9A%E7%B1%BB%E4%BC%BC-LSM-Tree-%E7%9A%84%E5%88%86%E7%BA%A7%E5%8E%8B%E7%BC%A9%E6%9C%BA%E5%88%B6%EF%BC%88LHIM%EF%BC%89"><span class="nav-text">02. 显存与长程记忆：类似 LSM-Tree 的分级压缩机制（LHIM）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%88%86%E7%BA%A7%E5%AD%98%E5%82%A8%E7%9A%84%E5%B7%A5%E7%A8%8B%E6%94%B6%E7%9B%8A"><span class="nav-text">2.1 分级存储的工程收益</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E4%BD%8E%E5%BB%B6%E8%BF%9F%E6%8E%A8%E6%B5%81%E5%BC%95%E6%93%8E%EF%BC%9A%E7%AB%AF%E5%88%B0%E7%AB%AF-344ms-%E7%9A%84%E4%B8%89%E9%A1%B9%E5%B7%A5%E7%A8%8B%E5%8E%8B%E6%A6%A8"><span class="nav-text">03. 低延迟推流引擎：端到端 344ms 的三项工程压榨</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E4%BC%98%E5%8C%96%E8%AF%A6%E6%83%85%E4%B8%8E%E8%B4%A1%E7%8C%AE%E5%BA%A6%E6%8B%86%E8%A7%A3"><span class="nav-text">3.1 优化详情与贡献度拆解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E8%AE%AD%E7%BB%83%E5%B7%A5%E7%A8%8B%E4%B8%8E%E7%A8%B3%E5%AE%9A%E6%80%A7%E6%B2%BB%E7%90%86%EF%BC%9A94-%E9%9D%99%E9%BB%98%E6%A0%B7%E6%9C%AC%E4%B8%8B%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8D%9F%E5%A4%B1%E4%BC%98%E5%8C%96"><span class="nav-text">04. 训练工程与稳定性治理：94% 静默样本下的自定义损失优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E4%BC%A0%E7%BB%9F-Cross-Entropy-%E7%9A%84%E7%BC%BA%E9%99%B7"><span class="nav-text">4.1 传统 Cross-Entropy 的缺陷</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E7%B1%BB%E5%B9%B3%E8%A1%A1%E5%BD%92%E4%B8%80%E5%8C%96-Focal-Loss-%E7%9A%84%E4%BC%98%E9%9B%85%E8%A7%A3%E6%B3%95"><span class="nav-text">4.2 类平衡归一化 + Focal Loss 的优雅解法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E4%B8%89%E9%98%B6%E6%AE%B5%E6%B8%90%E8%BF%9B%E5%BC%8F%E8%AE%AD%E7%BB%83%E9%85%8D%E6%96%B9%EF%BC%88Curriculum-SFT%EF%BC%89"><span class="nav-text">4.3 三阶段渐进式训练配方（Curriculum SFT）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E6%A0%B8%E5%BF%83%E5%AE%9E%E9%AA%8C%E8%AF%84%E4%BC%B0%E4%B8%8E%E8%83%BD%E5%8A%9B%E5%AE%9E%E6%B5%8B"><span class="nav-text">05. 核心实验评估与能力实测</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84%E6%9E%B6%E6%9E%84%E5%8F%8D%E6%80%9D%E4%B8%8E%E8%90%BD%E5%9C%B0%E8%93%9D%E5%9B%BE"><span class="nav-text">06. 软件工程师的架构反思与落地蓝图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E5%90%AF%E7%A4%BA"><span class="nav-text">总结与启示</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">104</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">334</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/16/AURA2-Streaming/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】告别被动问答：AURA 2.0 如何用流式事件循环与分级记忆打造 344ms 极速主动多模态助手 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】告别被动问答：AURA 2.0 如何用流式事件循环与分级记忆打造 344ms 极速主动多模态助手
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-16 19:58:00 / 修改时间：20:02:16" itemprop="dateCreated datePublished" datetime="2026-11-16T19:58:00+08:00">2026-11-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在过往的多模态大模型（Multimodal LLMs）应用开发中，后端与算法工程师普遍面临着一个根本性的交互范式桎梏：<strong>系统本质上是一个单向、被动、同步阻塞的“请求-响应”（Request-Response / RPC）模型</strong>。</p>
+<ul>
+<li><strong>传统模式（Passive Query-Driven）</strong>：用户不主动打字或发语音，模型就处于深度休眠；用户上传一段 30 秒的视频并提问，服务端执行一次耗时数秒的重量级 Pre-fill 推理，然后全量吐回结果。</li>
+<li><strong>理想模式（Proactive Event-Driven）</strong>：AI 助手应该像坐在你副驾驶的老司机或身旁的真人助理一样，保持对环境的“全天候低功耗感知”。大多数时候它安安静静，但在发现关键事件（如你锅里的水烧开了、组装家具用错了螺丝、窗外出现著名地标）时，能够<strong>主动开麦提醒（Model-Initiated Conversation, MIC）</strong>，并在说话时同步调取外部 API（SATC）或在屏幕画框标出目标（IVG）。</li>
+</ul>
+<p>然而，要想在工程上落地这种“全天候流式视频交互”，有两座近乎绝望的大山挡在软件工程师面前：</p>
+<ol>
+<li><strong>显存与计算的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>N</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> 爆炸</strong>：源源不断的视频流以每秒数十帧的速率推入，如果把历史帧无休止塞进 Context Window，显存不出几分钟就会 OOM，且自注意力延迟随时间持续飙升；</li>
+<li><strong>极高频决策下的并发吞吐崩溃</strong>：如果系统每秒对视频帧轮询判定一次，那么在真实世界 95% 以上“无事发生”的平淡场景下，服务器都在浪费宝贵的 GPU 算力执行无效前向传播与语音合成。</li>
+</ol>
+<p>针对这些痛点，香港中文大学（CUHK）等团队重磅推出了开源流式视频大模型框架 <strong>AURA 2.0</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《AURA 2.0: From User-Driven Responses to Model-Initiated Conversations in Streaming Video》<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2611.17048" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2611.17048</a> (HTML 版本：<a target="_blank" href="https://arxiv.org/html/2611.17048" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2611.17048</a>)<br>
+<strong>官方开源仓库</strong>：<a target="_blank" href="https://github.com/aurateam2026/AURA" rel="external nofollow noreferrer noopener">https://github.com/aurateam2026/AURA</a><br>
+<strong>开源模型权重</strong>：<a target="_blank" href="https://huggingface.co/aurateam/AURA" rel="external nofollow noreferrer noopener">https://huggingface.co/aurateam/AURA</a> (基于 Qwen3.5-9B 全参数微调)<br>
+<strong>核心工程贡献</strong>：基于流式时间片（Chunk）的状态机控制协议、LSM-Tree 风格的分级记忆压缩（LHIM）、三阶段防遗忘微调流水线、以及端到端仅 <strong>344ms 客户端首包音频延迟（TTFP）</strong> 的极低时延推理优化。</p>
+</blockquote>
+<p>本文站在 <strong>软件开发工程师与分布式系统架构师</strong> 的视角，跳过复杂的学术套话，深度拆解其 <strong>系统架构、分级存储设计、双端短路机制与工程权衡（Trade-offs）</strong>。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-业务范式演进：从“被动-RPC-问答”到“响应式事件循环”">01. 业务范式演进：从“被动 RPC 问答”到“响应式事件循环”</h2>
+<p>在深入代码与算法细节前，我们先对比传统多模态交互与 AURA 2.0 的系统运行逻辑差异：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph BadPattern[&quot;传统离线/被动多模态系统: 经典 RPC Request-Response&quot;]
+        U1[&quot;用户&quot;] --&gt;|1. 主动按键提问 + 上传视频片段| Web1[&quot;Web API 网关&quot;]
+        Web1 --&gt;|2. 同步阻塞触发| Model1[&quot;MLLM 离线推理引擎&quot;]
+        Model1 --&gt;|3. 全量生成全部文字 (耗时数秒)| Model1
+        Model1 --&gt;|4. 串行传入 TTS| TTS1[&quot;TTS 语音引擎&quot;]
+        TTS1 --&gt;|5. 统一返回完整音频| U1
+        Note1[&quot;致命伤: 用户不问则彻底死寂；全量重算无状态；&lt;br/&gt;无法主动察觉外界突发危险或关键事件&quot;]
+    end
+
+    subgraph GoodPattern[&quot;AURA 2.0: 基于 Chunk 的反应式事件循环 (Reactive Event Loop)&quot;]
+        Cam[&quot;摄像头实时推流&quot;] --&gt;|每秒推送增量 Chunk| Ingest[&quot;Session 帧缓存器&quot;]
+        Mic[&quot;麦克风音频流&quot;] --&gt; Ingest
+        Ingest --&gt; FastPath1&#123;&quot;有无人声输入?&quot;&#125;
+        FastPath1 -- 否 --&gt; SkipASR[&quot;短路跳过 ASR&quot;]
+        FastPath1 -- 是 --&gt; RunASR[&quot;执行 ASR 识别&quot;]
+        SkipASR &amp; RunASR --&gt; CoreLLM[&quot;Qwen3.5-9B 核心控制中枢 (Prefix Caching)&quot;]
+        
+        CoreLLM --&gt; Step1&#123;&quot;首个 Token 判定&quot;&#125;
+        Step1 -- &quot;&lt;|silent|&gt;&quot; --&gt; FastExit[&quot;【短路退出】单步终止，跳过后续所有计算 (占比 94%)&quot;]
+        Step1 -- &quot;&lt;|respond|&gt;&quot; --&gt; PipeFlow[&quot;【激活响应】启动流式消费者流水线 (TTFP 344ms)&quot;]
+        
+        PipeFlow --&gt; BreakOld[&quot;打断机制: Cancel 正在播放的旧语音&quot;]
+        PipeFlow --&gt; SentenceHandoff[&quot;标点/15 Token 分块交付 TTS 并发推流&quot;]
+        PipeFlow --&gt; SideEffects[&quot;识别坐标 [x1,y1,x2,y2] 前端画框 / 异步调外部 API&quot;]
+    end</code></pre>
+<h3 id="1-1-协议状态机：极简的双控制-Token">1.1 协议状态机：极简的双控制 Token</h3>
+<p>在分布式与事件驱动系统中，最稳健的设计往往依赖最简练的状态机协议。AURA 2.0 摒弃了外部繁琐的“意图分类器微服务”，直接在模型输出层定义了两个原生的核心控制 Token：</p>
+<ul>
+<li><strong><code>&lt;|silent|&gt;</code></strong>：表示“当前无事发生，保持静默观察”。</li>
+<li><strong><code>&lt;|respond|&gt;</code></strong>：表示“立即打断/开启发话”，紧随其后的是回复文本内容、结构化工具调用报文或物体空间边界框。</li>
+</ul>
+<p>通过将控制逻辑下沉到 LLM 权重的首 Token 概率中，系统既能无缝兼容传统的即时问答（Real-Time QA）与延时答复（Proactive QA），又能让模型在 <strong>用户输入为空</strong> 时，自主决定是否触发 <strong>模型主动发起的对话（MIC）</strong>。</p>
+<hr>
+<h2 id="02-显存与长程记忆：类似-LSM-Tree-的分级压缩机制（LHIM）">02. 显存与长程记忆：类似 LSM-Tree 的分级压缩机制（LHIM）</h2>
+<p>对于全天候视频助手，视频流在时间维度上是无限的。若直接保存所有历史帧，显存顷刻间就会打满。</p>
+<p>AURA 2.0 提出的 <strong>LHIM（Long-Horizon Interaction Memory）</strong> 没有采用开销极大的向量数据库检索，而是借鉴了存储引擎中 <strong>LSM-Tree 分级合并压缩（Tiered Compaction）</strong> 的思想，构建了跨越数十分钟的动态内存池：</p>
+<pre><code class="highlight mermaid">flowchart LR
+    subgraph HotZone[&quot;L0: 活跃滑窗 (Active Sliding Window)&quot;]
+        direction TB
+        F1[&quot;30秒高分辨率原始视频帧 (像素/张量)&quot;]
+        D1[&quot;30秒内实时双向对话文本上下文&quot;]
+        NoteL0[&quot;显存常驻，保留最高精度感知与毫秒级时序敏感度&quot;]
+    end
+
+    subgraph ColdCompaction[&quot;LHIM 后台分级压缩存储 (Context History)&quot;]
+        direction TB
+        L1[&quot;L1 事件层: 离开滑窗的 30s 切片，被后台 MLLM 提炼为带绝对时间的 QA 文本&quot;]
+        L2[&quot;L2 归并层: 超过 5 分钟的 L1 记录两两归并为粗粒度摘要&quot;]
+        L3[&quot;L3 永久层: 超过 10 分钟的 L2 记录进一步压缩为紧凑全局上下文&quot;]
+    end
+
+    HotZone --&gt;|滑出 30 秒边界| L1
+    L1 --&gt;|后台定时任务 (Age &gt; 5min)| L2
+    L2 --&gt;|后台定时任务 (Age &gt; 10min)| L3
+    
+    ColdCompaction -.-&gt;|纯文本形式注入 Context| CoreEngine[&quot;主交互大模型 (恒定显存开销)&quot;]</code></pre>
+<h3 id="2-1-分级存储的工程收益">2.1 分级存储的工程收益</h3>
+<ol>
+<li><strong>恒定的显存开销（Bounded Memory Footprint）</strong>：原始多模态视觉特征（Tokens）只锁定在严格的 <strong>30 秒</strong> 窗口内；老旧的视觉数据被彻底抛弃，只留下高度精炼的自然语言摘要常驻。</li>
+<li><strong>绝对会话时间戳对齐</strong>：所有 L1/L2/L3 记录均被赋予绝对会话时间戳（如 <code>[01:15-01:45]</code>）。即使在会话进行了半小时后，用户询问“我二十分钟前把剪刀随手放在哪了？”，模型依然能通过检索历史 QA 记录准确定位。</li>
+</ol>
+<hr>
+<h2 id="03-低延迟推流引擎：端到端-344ms-的三项工程压榨">03. 低延迟推流引擎：端到端 344ms 的三项工程压榨</h2>
+<p>人类日常自然对话的心理舒适停顿区间是 <strong>200ms ~ 500ms</strong>。超过 800ms，用户就会产生明显的“卡顿与死机感”。</p>
+<p>论文通过在两张 ~140GB 显存加速卡（1 张独占跑 9B LLM，1 张混合部署 ASR + TTS + Codec）上的深度调优，将客户端感知到的 <strong>首包音频延迟（TTFP, Time to First Packet）</strong> 从未优化的 <strong>758ms 压缩至 344ms（降幅达 54.6%）</strong>。</p>
+<p>其背后的三项工程优化极其干练实用：</p>
+<pre><code class="highlight mermaid">sequenceDiagram
+    autonumber
+    participant Client as 客户端 (WebRTC/App)
+    participant Server as Serving 网关 (帧/会话缓存)
+    participant LLM as Qwen3.5-9B (vLLM-Omni)
+    participant TTS as 流式 TTS 引擎
+
+    Client-&gt;&gt;Server: 增量 Chunk (仅包含当前 1 秒新帧 + 音频)
+    Note over Server: 技巧1: 仅 Decode 新帧，复用前 29 秒已缓存像素
+    
+    Server-&gt;&gt;LLM: 增量 Prefill (Prefix Caching 复用旧 KV Cache)
+    Note over LLM: 技巧2: 第一解码步输出 Token
+    
+    alt 预测为 &lt;|silent|&gt; (94% 概率)
+        LLM--&gt;&gt;Server: 返回 &lt;|silent|&gt;
+        Server--&gt;&gt;Client: 单步 Early Exit 终止 (耗时仅十数毫秒)
+    else 预测为 &lt;|respond|&gt; (激活模式)
+        Note over LLM,TTS: 技巧3: 句子级流水线切片交接 (Sentence-level Handoff)
+        LLM-&gt;&gt;LLM: 逐步生成 Token...
+        LLM-&gt;&gt;TTS: 遇到标点且满 15 个 Token -&gt; 立即推流
+        TTS--&gt;&gt;Client: 首包音频包送达！(TTFP 仅 344ms)
+        LLM-&gt;&gt;TTS: 边生成后续内容，边流式合成后续音频
+    end</code></pre>
+<h3 id="3-1-优化详情与贡献度拆解">3.1 优化详情与贡献度拆解</h3>
+<ol>
+<li><strong>会话帧缓存 + KV Prefix Caching（贡献了 86% 的延迟削减！）</strong>：
+<ul>
+<li><em>客户端减负</em>：客户端每次仅传输增量 1 秒 Chunk 的原始帧，绝不重复上传历史视频；</li>
+<li><em>服务端复用</em>：服务端内存解码并缓存滑窗内的像素阵列。底层 <code>vLLM-Omni</code> 利用 <strong>Prefix Caching</strong>，直接复用前序未改变视频帧的 KV Cache。服务端在每个 Turn 只对这 1 个 Chunk 进行增量 Prefill。</li>
+</ul>
+</li>
+<li><strong>输入输出双端短路执行（Fast-Path Branching）</strong>：
+<ul>
+<li><em>输入短路</em>：若当前 Chunk 麦克风能量检测无语音，<strong>直接跳过 ASR 模块</strong>；</li>
+<li><em>输出短路</em>：只要首个 Token 生成 <code>&lt;|silent|&gt;</code>，<strong>单步 Decode 后立即 Return</strong>，不仅跳过了后续生成，更完全避免了启动 TTS 和音频 Codec 的昂贵开销。</li>
+</ul>
+</li>
+<li><strong>句子级流式流水线交接（Sentence-level Speech Handoff）</strong>：
+<ul>
+<li>打破等大模型把整句话全部推理完毕再喂给 TTS 的串行堵塞；</li>
+<li>LLM 在输出遇到逗号、句号等标点边界，且当前分块累计满 <strong>15 个 Token</strong> 时，立刻作为一个切片异步塞入下层的流式 TTS 管道。音频合成与剩余文本生成在时间线上完全重叠。</li>
+</ul>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">评估指标</th>
+<th style="text-align:center">1 路并发会话</th>
+<th style="text-align:center">8 路并发会话</th>
+<th style="text-align:center">16 路并发会话</th>
+<th style="text-align:left">指标含义与软件工程解读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>TTFT（首字到达时间）</strong></td>
+<td style="text-align:center"><strong>157 ms</strong></td>
+<td style="text-align:center">184 ms</td>
+<td style="text-align:center">234 ms</td>
+<td style="text-align:left">包含 ASR 转录与 LLM 生成第一个文字的时间</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>TPOT（单 Token 耗时）</strong></td>
+<td style="text-align:center"><strong>7.6 ms</strong></td>
+<td style="text-align:center">12.8 ms</td>
+<td style="text-align:center">21.1 ms</td>
+<td style="text-align:left">LLM 内部单步自回归解码速度（~131 Tokens/s）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>TTFP（首包音频送达延迟）</strong></td>
+<td style="text-align:center"><strong>344 ms</strong></td>
+<td style="text-align:center"><strong>449 ms</strong></td>
+<td style="text-align:center"><strong>601 ms</strong></td>
+<td style="text-align:left"><strong>客户端用户感知到 AI 开口发声的端到端时延</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>RTF（实时因子）</strong></td>
+<td style="text-align:center"><strong>0.135</strong></td>
+<td style="text-align:center">0.161</td>
+<td style="text-align:center">0.203</td>
+<td style="text-align:left">音频生成耗时 / 播放时长（小于 1 表示生成快于播放）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="04-训练工程与稳定性治理：94-静默样本下的自定义损失优化">04. 训练工程与稳定性治理：94% 静默样本下的自定义损失优化</h2>
+<p>在模型微调层面，作者面临一个严重的数据分布倾斜 Bug：在长时间视频流中，<strong>静默样本 <code>&lt;|silent|&gt;</code> 在全部监督步中占比超过 94%</strong>。</p>
+<h3 id="4-1-传统-Cross-Entropy-的缺陷">4.1 传统 Cross-Entropy 的缺陷</h3>
+<p>如果使用标准交叉熵损失函数，海量的静默梯度会直接淹没少量的发话梯度。模型会被彻底训成“植物人”，即永远选择沉默；或者相反，模型在微调后出现严重的躁狂倾向，在毫无意义的画面中频繁插话。</p>
+<h3 id="4-2-类平衡归一化-Focal-Loss-的优雅解法">4.2 类平衡归一化 + Focal Loss 的优雅解法</h3>
+<p>团队并未引入高复杂度、极难收敛的强化学习（PPO / GRPO），而是仅通过重构 Loss 计算图完成了优雅的控制：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="script">L</mi><mo>=</mo><mfrac><mn>1</mn><mn>4</mn></mfrac><mrow><mo fence="true">(</mo><mfrac><mn>1</mn><mrow><mi mathvariant="normal">∣</mi><mi>S</mi><mi mathvariant="normal">∣</mi></mrow></mfrac><munder><mo>∑</mo><mrow><mi>i</mi><mo>∈</mo><mi>S</mi></mrow></munder><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub><msup><mo stretchy="false">)</mo><mi>γ</mi></msup><msub><mi mathvariant="normal">ℓ</mi><mi>i</mi></msub><mo>+</mo><mfrac><mn>1</mn><mrow><mi mathvariant="normal">∣</mi><mi>R</mi><mi mathvariant="normal">∣</mi></mrow></mfrac><munder><mo>∑</mo><mrow><mi>i</mi><mo>∈</mo><mi>R</mi></mrow></munder><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub><msup><mo stretchy="false">)</mo><mi>γ</mi></msup><msub><mi mathvariant="normal">ℓ</mi><mi>i</mi></msub><mo fence="true">)</mo></mrow><mo>+</mo><mfrac><mn>1</mn><mrow><mi mathvariant="normal">∣</mi><mi>O</mi><mi mathvariant="normal">∣</mi></mrow></mfrac><munder><mo>∑</mo><mrow><mi>j</mi><mo>∈</mo><mi>O</mi></mrow></munder><msub><mi mathvariant="normal">ℓ</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">\mathcal{L} = \frac{1}{4}\left(\frac{1}{|S|}\sum_{i\in S}(1-p_i)^\gamma \ell_i + \frac{1}{|R|}\sum_{i\in R}(1-p_i)^\gamma \ell_i\right) + \frac{1}{|O|}\sum_{j\in O}\ell_j
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathcal">L</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:3.0717em;vertical-align:-1.3217em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∣</span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="mord">∣</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8557em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">∈</span><span class="mord mathnormal mtight" style="margin-right:0.0576em;">S</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.3217em;"><span></span></span></span></span></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7144em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0556em;">γ</span></span></span></span></span></span></span></span><span class="mord"><span class="mord">ℓ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∣</span><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="mord">∣</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8557em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">∈</span><span class="mord mathnormal mtight" style="margin-right:0.0077em;">R</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.3217em;"><span></span></span></span></span></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7144em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0556em;">γ</span></span></span></span></span></span></span></span><span class="mord"><span class="mord">ℓ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size4">)</span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.7519em;vertical-align:-1.4304em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∣</span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mord">∣</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8557em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span><span class="mrel mtight">∈</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">O</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.4304em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord">ℓ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+<ul>
+<li><strong>类别平衡归一化（Class-Balanced Normalization）</strong>：将控制 Token 的损失按类拆开单独求平均，把静默集合 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi></mrow><annotation encoding="application/x-tex">S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span></span></span></span> 和发话集合 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi></mrow><annotation encoding="application/x-tex">R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0077em;">R</span></span></span></span> 强行赋予对等的 <strong>0.25 基础权重</strong>，一举消除 94% 样本数量带来的梯度失衡。</li>
+<li><strong>Focal Loss 聚焦难样本</strong>：只针对控制 Token 引入 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub><msup><mo stretchy="false">)</mo><mi>γ</mi></msup></mrow><annotation encoding="application/x-tex">(1-p_i)^\gamma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0556em;">γ</span></span></span></span></span></span></span></span></span></span></span>（设定 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\gamma=2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0556em;">γ</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">2</span></span></span></span>）。对于模型已经非常笃定“应当闭嘴”的简单视频帧，其反向传播梯度被迅速衰减至接近于零；强迫反向传播只专注于那些**“该不该主动搭话的临界边缘场景”**。</li>
+<li><strong>普通内容不受干扰</strong>：后续生成的文本话术、工具调用命令集合 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi></mrow><annotation encoding="application/x-tex">O</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span></span></span></span>，依然采用标准交叉熵（权重为 1.0）。</li>
+</ul>
+<h3 id="4-3-三阶段渐进式训练配方（Curriculum-SFT）">4.3 三阶段渐进式训练配方（Curriculum SFT）</h3>
+<p>模型基于 <code>Qwen3.5-9B</code> 初始化，训练期间 <strong>Visual Encoder 与多模态投影层完全冻结（Frozen）</strong>，只对语言模型主干做全参数微调：</p>
+<ol>
+<li><strong>Stage 1（地基构建）</strong>：25 万样本 / 5.65B Tokens。以通用流式 QA（87.2%）和流感知工具调用 SATC（12.8%）打底，确立“边看视频边观察、有依据再回答”的受控行为；</li>
+<li><strong>Stage 2（新特性注入 + 数据回放）</strong>：16.4 万样本 / 3.49B Tokens。注入主动发话（MIC，25.7%）与物体画框（IVG，8.9%），同时<strong>强行保留 65.3% 的 Stage 1 数据做 Replay 回放</strong>，构筑防遗忘防线；</li>
+<li><strong>Stage 3（复合编排与偏好提纯）</strong>：7 万样本 / 2.29B Tokens。训练复杂混合链条（如：视觉发现异常 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\to</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 调工具检索 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\to</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 主动开麦 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\to</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 画框定位），并引入大量“无关事件保持克制”的负例样本，磨炼模型的拒答与闭嘴能力。</li>
+<li><strong>算力预算</strong>：利用 Bin Packing 打包到 65,536 超长序列，全流程仅耗费约 <strong>1,100 个加速卡时（Accelerator-Hours）</strong>。</li>
+</ol>
+<hr>
+<h2 id="05-核心实验评估与能力实测">05. 核心实验评估与能力实测</h2>
+<p>AURA 2.0 在四大公认的流式视频基准测试上均斩获了开源领域的顶尖水准：</p>
+<ul>
+<li><strong>ProactiveVideoQA（主动式问答）</strong>：在无显式 Prompt 的主动感知评测中，AURA 2.0 取得了 <strong>49.30%</strong> 的准确率，逼近闭源旗舰 GPT-4o（50.59%），同时将重复打扰率压制在 17.92% 的极低水平；</li>
+<li><strong>PhoStream（真实移动端流式理解）</strong>：有效交互时间窗口内的有效回答比例（Partly Correct）达到 <strong>74.80%</strong>，远超同为开源方案的 MOSS-VL-Realtime（41.51%）与 JoyAI-VL-Interaction（66.52%）；</li>
+<li><strong>IVG 细粒度定位诊断（50 张 COCO 边缘挑战集）</strong>：
+<ul>
+<li><strong>mIoU</strong> 从基座 Qwen3.5-9B 的 <strong>0.635 飙升至 0.906</strong>；</li>
+<li><strong>定位准确率</strong> 从 <strong>76.0% 提升至 94.0%</strong>；</li>
+<li>对于视野边缘、仅露出半个车身的公交车或微小手提包，AURA 2.0 能够稳定输出边界框，彻底解决了大模型在流式多模态下的“视而不见”硬伤。</li>
+</ul>
+</li>
+<li><strong>SATC 工具调用表现</strong>：
+<ul>
+<li><em>实测案例</em>：当视频第 1 秒出现罗马斗兽场时，未接工具的模型只能如实回答“画面未提供天气”；开启 SATC 的 AURA 2.0 能够瞬间识别出该地标在罗马，自主并行调取 <code>get_current_datetime</code> 与 <code>get_city_weather</code>，准确播报出罗马当地 12.4℃~14.9℃ 的降雨气温预报。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="06-软件工程师的架构反思与落地蓝图">06. 软件工程师的架构反思与落地蓝图</h2>
+<p>AURA 2.0 的开源，为当前正在探索多模态实时交互落地的工程师团队提供了一张清晰的工程蓝图：</p>
+<pre><code class="highlight mermaid">graph TD
+    subgraph EdgeDevice[&quot;端侧终端 (Web / AR眼镜 / 车载座舱)&quot;]
+        Sensor[&quot;音视频采集 (1~2 FPS 关键帧 + VAD 录音)&quot;]
+        Player[&quot;流式音频播放器 + 页面 SVG 坐标渲染器&quot;]
+    end
+
+    subgraph CloudServing[&quot;云端实时交互微服务 (双卡集群)&quot;]
+        Gateway[&quot;接入网关 (WebRTC / 增量二进制 WebSocket)&quot;]
+        CacheStore[&quot;Session 状态滑窗 (保留 30s 像素解码缓存)&quot;]
+        vLLMRuntime[&quot;vLLM-Omni 引擎 (Qwen3.5-9B 权重大脑)&quot;]
+        LHIMWorker[&quot;后台异步线程: LHIM 分级记忆压缩 Worker&quot;]
+        MediaWorker[&quot;音频微服务: ASR 识别 + 流式 TTS 生成&quot;]
+    end
+
+    Sensor --&gt;|单秒增量 Chunk 上传| Gateway
+    Gateway --&gt; CacheStore
+    CacheStore --&gt; vLLMRuntime
+    vLLMRuntime --&gt;|滑出 30s 帧| LHIMWorker
+    LHIMWorker --&gt;|L1/L2/L3 紧凑文本 QA| CacheStore
+    vLLMRuntime --&gt;|Sentence Handoff 文本流| MediaWorker
+    MediaWorker --&gt;|分块音频包下发 (TTFP 344ms)| Player
+    vLLMRuntime --&gt;|坐标 [x1,y1,x2,y2]| Player</code></pre>
+<h3 id="总结与启示">总结与启示</h3>
+<ol>
+<li><strong>多模态落地不要再搞“无状态纯函数思维”</strong>：实时流式交互的本质是“有状态的会话管线”。客户端只传增量，服务端维护 Session Cache 并通过 Prefix Caching 极大降低重算，这是把系统延迟做到 300ms 级别的唯一正道。</li>
+<li><strong>算力经济学决定商业生死</strong>：<br>
+AURA 2.0 最聪明的架构设计，是用 <code>&lt;|silent|&gt;</code> 的单步短路退出拦截了 94% 的无效推理与音频合成。这种 <strong>“将大比例算力在第 1 个 Token 前向后直接熔断”</strong> 的防御性设计，让单台 GPU 的真实用户承载并发数成倍暴增，真正具备了规模化商业化运营的可能。</li>
+<li><strong>开源即生产力</strong>：模型权重与推理代码均已开源在 GitHub 与 Hugging Face，技术栈紧密贴合 <code>Qwen3.5</code> 与 <code>vLLM</code> 这一当下最主流的开源生态。无论是打造一款陪伴式 AI 眼镜、工业巡检防呆监控、还是实时作业/乐器辅导系统，AURA 2.0 都提供了一套开箱即用的工业级样板房。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E6%B5%81%E5%BC%8F%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 流式多模态大模型</a>
+              <a href="/tags/%E5%AE%9E%E6%97%B6%E4%BA%A4%E4%BA%92/" rel="tag"># 实时交互</a>
+              <a href="/tags/AURA-2-0/" rel="tag"># AURA 2.0</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" rel="tag"># 系统架构</a>
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%A7%86%E8%A7%92/" rel="tag"># 软件工程视角</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/16/LVLM-EventBoundary/" rel="next" title="【论文分享】大模型能否像人类一样切分视频？高通最新实证：双阶段发现-裁决与小时级事件感知范式">
+                  【论文分享】大模型能否像人类一样切分视频？高通最新实证：双阶段发现-裁决与小时级事件感知范式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">465k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">28:09</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>

@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">331</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">103</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">334</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">104</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">103</span>
+          <span class="site-state-item-count">104</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">331</span>
+        <span class="site-state-item-count">334</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,116 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/03/16/LoVR-LongVideo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/03/16/LoVR-LongVideo/" class="post-title-link" itemprop="url">【论文分享】长视频检索为何频频翻车？北大联合蚂蚁开源 LoVR：揭示多模态长视频检索的工程真相与落地范式</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-03-16 17:25:00" itemprop="dateCreated datePublished" datetime="2026-03-16T17:25:00+08:00">2026-03-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-16 20:02:16" itemprop="dateModified" datetime="2026-11-16T20:02:16+08:00">2026-11-16</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在企业搭建多模态视频检索、视频知识库或视频 RAG（Retrieval-Augmented Generation）系统时，很多软件工程师和架构师都会面临一个极其尴尬的现象：</p>
+<p>算法同学在技术选型时，选了一个在权威公开榜单（如 MSR-VTT、ActivityNet、DiDeMo）上号称性能 SOTA 的多模态向量模型。但一上线到真实业务中——比如搜索企业内训会议、长视频网课、监控录像或影视剧时——<strong>检索准确率便断崖式下跌，甚至连最基本的“找某人说了什么话/做了什么操作”都搜不准，且显存和 I/O 成本居高不下</strong>。</p>
+<p>为什么会产生这种巨大的“学术与工业界撕裂”？根本原因在于：以往学术界使用的评测基准几乎全是 <strong>10 秒到 30 秒的“玩具级”短视频</strong>，严重脱离了工业界长视频检索的真实工况。</p>
+<p>近期，北京大学、华东师范大学、华中科技大学、北京航空航天大学联合蚂蚁集团 OceanBase 团队，发表了一篇针对长视频检索的硬核基准与系统级实证研究：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《LoVR: A Benchmark for Long Video Retrieval in Multimodal Contexts》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2505.13928">https://arxiv.org/abs/2505.13928</a><br>
+<strong>HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2505.13928v4">https://arxiv.org/html/2505.13928v4</a><br>
+<strong>项目主页</strong>：<a target="_blank" rel="noopener" href="https://lovrbench.github.io/">https://lovrbench.github.io/</a><br>
+<strong>开源代码库</strong>：<a target="_blank" rel="noopener" href="https://github.com/TechNomad-ds/LoVR-benchmark">https://github.com/TechNomad-ds/LoVR-benchmark</a></p>
+</blockquote>
+<p>这篇论文最值得<strong>后端研发、搜索工程师与大模型数据架构师</strong>精读的地方在于：它不仅构建了一个包含 <strong>467 个真实长视频（平均时长 26 分钟）与 40,804 个高质量细粒度片段</strong> 的大规模基准，更给出了一套<strong>低成本自动化数据清洗流水线（ETL Pipeline）</strong>，并对主流模型进行了毫不留情的“破坏性压测”，揭示出诸多颠覆直觉的工程瓶颈。</p>
+<p>本文将剥离纯学术术语，从 <strong>软件工程实现、系统瓶颈剖析、成本效益权衡与落地架构设计</strong> 视角，带你全面吃透这篇论文。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/03/16/LoVR-LongVideo/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +342,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 19:39:57" itemprop="dateModified" datetime="2026-11-16T19:39:57+08:00">2026-11-16</time>
+      <time title="修改时间：2026-11-16 20:02:16" itemprop="dateModified" datetime="2026-11-16T20:02:16+08:00">2026-11-16</time>
     </span>
 
   
@@ -346,7 +456,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/260
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 19:39:57" itemprop="dateModified" datetime="2026-11-16T19:39:57+08:00">2026-11-16</time>
+      <time title="修改时间：2026-11-16 20:02:16" itemprop="dateModified" datetime="2026-11-16T20:02:16+08:00">2026-11-16</time>
     </span>
 
   
@@ -456,7 +566,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/260
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 19:39:57" itemprop="dateModified" datetime="2026-11-16T19:39:57+08:00">2026-11-16</time>
+      <time title="修改时间：2026-11-16 20:02:16" itemprop="dateModified" datetime="2026-11-16T20:02:16+08:00">2026-11-16</time>
     </span>
 
   
@@ -571,7 +681,7 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 19:39:57" itemprop="dateModified" datetime="2026-11-16T19:39:57+08:00">2026-11-16</time>
+      <time title="修改时间：2026-11-16 20:02:16" itemprop="dateModified" datetime="2026-11-16T20:02:16+08:00">2026-11-16</time>
     </span>
 
   
@@ -645,113 +755,6 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/02/18/VLM2Vec-V2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/02/18/VLM2Vec-V2/" class="post-title-link" itemprop="url">【论文分享】破除多模态检索的“烟囱式”孤岛：VLM2Vec-V2 如何将自回归大模型改造为跨视频、文档与图文的通用向量引擎</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-02-18 10:00:00" itemprop="dateCreated datePublished" datetime="2026-02-18T10:00:00+08:00">2026-02-18</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 19:39:57" itemprop="dateModified" datetime="2026-11-16T19:39:57+08:00">2026-11-16</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>12 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>对于正在构建企业级 <strong>多模态知识库（Multimodal RAG）</strong> 或 <strong>多模态搜索系统</strong> 的软件开发与系统架构团队而言，最头疼的往往不是算法调优，而是“管道繁重、模型林立”的系统孤岛：</p>
-<p>传统的检索管道通常充斥着“烟囱式”组件——文本检索走一趟 BGE/text-embedding，自然图片检索走一趟 CLIP，扫描件与 PDF 走一趟“OCR 提取 + 文本切片”，视频检索走一趟“抽字幕或关键帧”。不仅运维成本极高，而且各组件打出的高维向量身处不同的几何空间，根本无法直接通过余弦相似度进行跨模态距离对齐。</p>
-<p>正是在这一背景下，Salesforce Research、滑铁卢大学与清华大学等团队联合提出的 <strong>VLM2Vec-V2</strong>（发表于 TMLR 2026）给出了一份教科书级别的工程解决方案：</p>
-<blockquote>
-<p><strong>论文题目</strong>：《VLM2Vec-V2: Advancing Multimodal Embedding for Videos, Images, and Visual Documents》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://openreview.net/forum?id=TpU38jbKIJ">https://openreview.net/forum?id=TpU38jbKIJ</a> (arXiv:2507.04590)<br>
-<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/TIGER-AI-Lab/VLM2Vec">https://github.com/TIGER-AI-Lab/VLM2Vec</a><br>
-<strong>核心贡献</strong>：统一全模态向量转换范式、MMEB-V2 全面评测基准、解耦超大 Batch 显存瓶颈的 GradCache 训练套件</p>
-</blockquote>
-<p>本文立足于 <strong>软件开发工程师（后端/全栈/系统架构）</strong> 的视角，不纠缠晦涩的数学公式，而是深入剖析其系统抽象范式、单次前向池化机制、显存优化黑科技（GradCache），以及与阿里 2026 年初发布的工业级开箱模型 Qwen3-VL-Embedding 之间的承接演进关系。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/02/18/VLM2Vec-V2/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/11/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/13/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -776,14 +779,14 @@ OpenReview: <a target="_blank" rel="noopener" href="https://openreview.net/forum
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">460k</span>
+    <span title="站点总字数">465k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">27:53</span>
+    <span title="站点阅读时长">28:09</span>
   </span>
 </div>
 <div class="busuanzi-count">
