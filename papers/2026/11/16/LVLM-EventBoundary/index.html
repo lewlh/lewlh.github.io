@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在多模态视频理解（Video Understanding）与智能视频切片系统中，一个最根本却极其困难的问题是：一段连续发生的长视频，究竟应该从哪里“下刀”切分，才符合人类的心智认知？ 这个任务在计算机视觉领域被称为 通用事件边界检测（GEBD, Generic Event Boundary Detection）。与传统的目标检测、动作分类不同，GEBD 不依赖任何预先定义的类别词表（Taxonom">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】大模型能否像人类一样切分视频？高通最新实证：双阶段发现-裁决与小时级事件感知范式">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/11/16/LVLM-EventBoundary/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在多模态视频理解（Video Understanding）与智能视频切片系统中，一个最根本却极其困难的问题是：一段连续发生的长视频，究竟应该从哪里“下刀”切分，才符合人类的心智认知？ 这个任务在计算机视觉领域被称为 通用事件边界检测（GEBD, Generic Event Boundary Detection）。与传统的目标检测、动作分类不同，GEBD 不依赖任何预先定义的类别词表（Taxonom">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-16T11:35:00.000Z">
+<meta property="article:modified_time" content="2026-11-16T11:39:57.765Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="GEBD">
+<meta property="article:tag" content="事件边界感知">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="视频理解">
+<meta property="article:tag" content="计算机视觉">
+<meta property="article:tag" content="论文分享">
+<meta property="article:tag" content="高通">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/11/16/LVLM-EventBoundary/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/11/16/LVLM-EventBoundary/","path":"papers/2026/11/16/LVLM-EventBoundary/","title":"【论文分享】大模型能否像人类一样切分视频？高通最新实证：双阶段发现-裁决与小时级事件感知范式"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】大模型能否像人类一样切分视频？高通最新实证：双阶段发现-裁决与小时级事件感知范式 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">331</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">103</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E4%BC%A0%E7%BB%9F%E7%9B%B4%E8%A7%89%E8%AF%AF%E5%8C%BA%EF%BC%9A%E7%AB%AF%E5%88%B0%E7%AB%AF-Prompt-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9B%B4%E6%8E%A5%E5%88%87%E7%89%87%E7%9A%84%E2%80%9C%E5%B7%A5%E7%A8%8B%E9%99%B7%E9%98%B1%E2%80%9D"><span class="nav-text">01. 传统直觉误区：端到端 Prompt 大模型直接切片的“工程陷阱”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%87%B4%E5%91%BD%E7%9A%84%E6%BC%8F%E6%8A%A5%E7%8E%87%EF%BC%88Recall-%E5%A1%8C%E9%99%B7%EF%BC%89"><span class="nav-text">1. 致命的漏报率（Recall 塌陷）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%AE%97%E5%8A%9B%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87%E7%81%BE%E9%9A%BE"><span class="nav-text">2. 算力与上下文灾难</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%A0%B8%E5%BF%83%E6%9E%B6%E6%9E%84%EF%BC%9ADiscovery-Refinement-%E5%8F%8C%E9%98%B6%E6%AE%B5%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-text">02. 核心架构：Discovery-Refinement 双阶段流水线</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E4%B8%80%EF%BC%9A%E7%BA%AF%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86%E7%9A%84%E6%95%B0%E5%AD%A6%E7%B2%97%E5%8F%AC%E5%9B%9E%EF%BC%88Discovery%EF%BC%89"><span class="nav-text">阶段一：纯信号处理的数学粗召回（Discovery）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E4%BA%8C%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%AF%AD%E4%B9%89%E7%B2%BE%E6%8E%92%EF%BC%88Refinement%EF%BC%89"><span class="nav-text">阶段二：大模型语义精排（Refinement）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%9E%B6%E6%9E%84%E4%BC%B8%E7%BC%A9%EF%BC%9A%E9%9D%A2%E5%90%91-1-%E5%B0%8F%E6%97%B6%E7%AC%AC%E4%B8%80%E4%BA%BA%E7%A7%B0%E9%95%BF%E8%A7%86%E9%A2%91%E7%9A%84%E2%80%9C%E4%B8%A4%E6%8B%9B%E7%A0%B4%E5%B1%80%E2%80%9D"><span class="nav-text">03. 架构伸缩：面向 1 小时第一人称长视频的“两招破局”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Coarse-to-Fine-%E5%A4%9A%E5%B0%BA%E5%BA%A6%E6%97%B6%E5%BA%8F%E9%87%91%E5%AD%97%E5%A1%94"><span class="nav-text">1. Coarse-to-Fine 多尺度时序金字塔</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Localized-Judgment-%E5%B1%80%E9%83%A8%E5%BE%AE%E4%BB%BB%E5%8A%A1%E5%8C%96"><span class="nav-text">2. Localized Judgment 局部微任务化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E6%89%8E%E5%AE%9E%E7%9A%84%E6%A8%AA%E5%90%91%E8%AF%84%E6%B5%8B%E4%B8%8E%E5%AE%9E%E8%AF%81%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9C%9F%E7%9A%84%E5%83%8F%E4%BA%BA%E7%B1%BB%E4%B8%80%E6%A0%B7%E5%85%B7%E5%A4%87%E4%BA%8B%E4%BB%B6%E7%9B%B4%E8%A7%89%E5%90%97%EF%BC%9F"><span class="nav-text">04. 扎实的横向评测与实证：大模型真的像人类一样具备事件直觉吗？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%9F%AD%E8%A7%86%E9%A2%91%E5%9F%BA%E5%87%86%EF%BC%88Kinetics-GEBD%EF%BC%89%E5%AF%B9%E6%AF%94"><span class="nav-text">1. 短视频基准（Kinetics-GEBD）对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%B0%8F%E6%97%B6%E9%95%BF%E8%A7%86%E9%A2%91%E4%BA%BA%E6%9C%BA%E5%A4%A9%E6%A2%AF%E6%A6%9C%EF%BC%88Human-Consensus-PK%EF%BC%89"><span class="nav-text">2. 1 小时长视频人机天梯榜（Human Consensus PK）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%BC%A0%E7%BB%9F%E7%9B%91%E7%9D%A3%E6%A8%A1%E5%9E%8B%E5%9C%A8%E9%95%BF%E8%A7%86%E9%A2%91%E4%B8%8A%E7%9A%84%E2%80%9C%E7%81%BE%E9%9A%BE%E6%80%A7%E5%B4%A9%E6%BA%83%E2%80%9D"><span class="nav-text">3. 传统监督模型在长视频上的“灾难性崩溃”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%8F%82%E8%80%83%E5%AE%9E%E7%8E%B0%EF%BC%88Python-%E5%B9%B6%E5%8F%91%E5%BE%AE%E4%BB%BB%E5%8A%A1-Pipeline%EF%BC%89"><span class="nav-text">05. 软件工程参考实现（Python 并发微任务 Pipeline）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E4%BA%A7%E4%B8%9A%E8%81%94%E5%8A%A8%EF%BC%9A%E4%B8%8E%E7%8E%B0%E4%BB%A3%E8%A7%86%E9%A2%91%E6%B9%96%EF%BC%88Video-Lake%EF%BC%89%E5%8F%8A-Video-RAG-%E7%9A%84%E5%BC%82%E5%90%8C%E4%B8%8E%E8%9E%8D%E5%90%88"><span class="nav-text">06. 产业联动：与现代视频湖（Video Lake）及 Video RAG 的异同与融合</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%99%E5%B7%A5%E4%B8%9A%E7%BA%A7%E7%B3%BB%E7%BB%9F%E7%9A%84%E4%B8%A4%E5%A4%A7%E7%9B%B4%E6%8E%A5%E6%8A%80%E6%9C%AF%E8%BF%81%E7%A7%BB%E5%BB%BA%E8%AE%AE"><span class="nav-text">给工业级系统的两大直接技术迁移建议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%B8%88%E6%9E%B6%E6%9E%84%E7%9B%B4%E8%A7%89%E6%80%BB%E7%BB%93%EF%BC%88Takeaways%EF%BC%89"><span class="nav-text">07. 软件工程师架构直觉总结（Takeaways）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#08-%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-text">08. 参考文献</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">103</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">331</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/16/LVLM-EventBoundary/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】大模型能否像人类一样切分视频？高通最新实证：双阶段发现-裁决与小时级事件感知范式 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】大模型能否像人类一样切分视频？高通最新实证：双阶段发现-裁决与小时级事件感知范式
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-16 19:35:00 / 修改时间：19:39:57" itemprop="dateCreated datePublished" datetime="2026-11-16T19:35:00+08:00">2026-11-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>17 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在多模态视频理解（Video Understanding）与智能视频切片系统中，一个最根本却极其困难的问题是：<strong>一段连续发生的长视频，究竟应该从哪里“下刀”切分，才符合人类的心智认知？</strong></p>
+<p>这个任务在计算机视觉领域被称为 <strong>通用事件边界检测（GEBD, Generic Event Boundary Detection）</strong>。与传统的目标检测、动作分类不同，GEBD 不依赖任何预先定义的类别词表（Taxonomy-free）。它不关心画面里发生了什么具体动作（比如“跑步”还是“切菜”），而是探测人类在感知连续视觉流时自发形成的**“事件起止转折点（Event Boundaries）”**。</p>
+<p>在 GPT-4o、Gemini 2.5 Pro 等多模态大语言模型（LVLM）展现出百万级上下文与强大的时序推理能力后，业界普遍产生了一种乐观设想：<strong>能否直接把一段长视频塞给大模型，让它一次性输出所有事件边界的时间戳？</strong></p>
+<p>来自**高通 AI 研究院（Qualcomm AI Research）**的最新实证研究给出了严密而清醒的答案：</p>
+<blockquote>
+<p><strong>《Can an LVLM Perceive Event Boundaries Like a Human?》</strong> (arXiv:2611.16452)<br>
+论文链接：<a target="_blank" href="https://arxiv.org/abs/2611.16452" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2611.16452</a><br>
+HTML 格式：<a target="_blank" href="https://arxiv.org/html/2611.16452v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2611.16452v1</a><br>
+作者团队：Hyolim Kang, Jungsoo Lee, Yeji Song, Whie Jung, Janghoon Cho, Juntae Lee (Qualcomm AI Research)<br>
+核心关键词：通用事件边界检测、多模态大语言模型、无监督发现、粗细多尺度金字塔、局部微任务裁决、EgoBoundary</p>
+</blockquote>
+<p>作者团队通过系统的消融实验证实：<strong>大模型单体极其缺乏全时序穷举发现能力（严重漏报），但具备极其强悍的局部语义裁决能力</strong>。基于这种“能力不对称性（Asymmetry）”，论文提出了一套高度符合工业软件工程审美的<strong>两阶段架构（发现-裁决 / Discovery-Refinement）</strong>，并在长达 1 小时的第一人称长视频中，通过<strong>多尺度金字塔与局部无状态微任务化</strong>破局，不仅刷出无监督 SOTA，更在人机对抗测试中证明大模型的事件感知吻合度完全跻身真实人类群体中位数。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-传统直觉误区：端到端-Prompt-大模型直接切片的“工程陷阱”">01. 传统直觉误区：端到端 Prompt 大模型直接切片的“工程陷阱”</h2>
+<p>很多算法工程师在接触多模态大模型时，往往倾向于采用极简的单体黑盒思维——直接把采样帧和 Prompt 喂给大模型：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Prompt: &quot;这是一段长视频，请从头到尾观察并列出所有人类感知到的事件切换时间戳。&quot;</span><br></pre></td></tr></table></figure>
+<p>论文的第一组探针实验（Probe 1: Direct LVLM Inference）用严密的数据打破了这一幻想：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">+-----------------------------------------------------------------------------------+</span><br><span class="line">|                        大模型单体全量推理的系统性缺陷                             |</span><br><span class="line">|                                                                                   |</span><br><span class="line">|  [ 全量长视频 ] ──► [ LVLM 全局盲搜 (Gemini 2.5 Pro) ]                           |</span><br><span class="line">|                            │                                                      |</span><br><span class="line">|           ┌────────────────┴────────────────┐                                     |</span><br><span class="line">|           ▼                                 ▼                                     |</span><br><span class="line">|     【时序穷举盲区】                  【系统工程灾难】                             |</span><br><span class="line">|   • Precision 达到 0.8500           • 百万 Token 消耗，API 费用爆炸                |</span><br><span class="line">|   • Recall 仅有 0.5540              • 单次调用超长推理，时序漂移与幻觉频发         |</span><br><span class="line">|   • 漏判了近一半的关键事件边界      • 无法水平扩展，网络波动直接导致全流程中断    |</span><br><span class="line">+-----------------------------------------------------------------------------------+</span><br></pre></td></tr></table></figure>
+<h3 id="1-致命的漏报率（Recall-塌陷）">1. 致命的漏报率（Recall 塌陷）</h3>
+<p>在标准的 Kinetics-GEBD 基准测试中，大模型直接推理的<strong>准确率（Precision）高达 0.8500</strong>，说明只要是大模型挑出来的点，通常是极具确定性的场景剧变；然而它的<strong>召回率（Recall）仅有惨淡的 0.5540</strong>。大模型在全量视频扫描时，会系统性忽略大量细微但符合人类直觉的动作转换，综合 F1 仅有 0.6708。</p>
+<h3 id="2-算力与上下文灾难">2. 算力与上下文灾难</h3>
+<p>面对 1 小时以上的长视频，直接全量输入大模型意味着百万级 Token 开销。不仅单次调用耗时数分钟且极易超时失败，而且由于大模型固有的“迷失在中间（Lost in the Middle）”现象，其时序定位精度会剧烈退化。</p>
+<p><strong>结论</strong>：让大模型承担“全量时序粗筛”是一种严重的算力与模型能力错配。</p>
+<hr>
+<h2 id="02-核心架构：Discovery-Refinement-双阶段流水线">02. 核心架构：Discovery-Refinement 双阶段流水线</h2>
+<p>针对大模型“不擅长时序搜索、极擅长定点裁决”的不对称特性，论文提出了经典的<strong>两阶段解耦系统架构</strong>：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    Video[输入连续视频流] --&gt; Stage1[阶段一：轻量无监督粗筛 Discovery]
+    
+    subgraph Stage1[阶段一：纯数学信号处理 - 零 Token 开销 / 极速粗召回]
+        Sample[固定采样率抽取帧向量 e_i] --&gt; TSM[计算帧间自相似矩阵 TSM]
+        TSM --&gt; Kernel[主对角线 2D 棋盘卷积核滤波]
+        Kernel --&gt; Peak[一维时序得分曲线寻峰 Peak Detection]
+    end
+    
+    Stage1 --&gt; Candidates[输出高召回候选时间戳列表 B_cand]
+    
+    Candidates --&gt; Stage2[阶段二：大模型局部精判 Refinement]
+    
+    subgraph Stage2[阶段二：大模型定点审核 - 高精度 / 消除假阳性]
+        Slice[提取候选点局部上下文切片] --&gt; LVLM[多模态大模型 0/1 二分类裁决]
+    end
+    
+    Stage2 --&gt; FinalBoundaries[最终人类高共识事件边界]</code></pre>
+<h3 id="阶段一：纯信号处理的数学粗召回（Discovery）">阶段一：纯信号处理的数学粗召回（Discovery）</h3>
+<p>这一步完全不需要任何大模型介入，也不需要训练深度学习权重，纯靠经典的矩阵几何运算：</p>
+<ol>
+<li>
+<p><strong>帧特征提取</strong>：以固定采样率抽帧，利用现成的轻量视觉模型（如 ResNet-50 或通用感知编码器）提取每帧的特征向量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">f_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>。</p>
+</li>
+<li>
+<p><strong>构建时序自相似度矩阵（TSM, Temporal Self-Similarity Matrix）</strong>：计算抽样帧两两之间的余弦相似度，得到一个 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">N \times N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span></span></span></span> 的相似度热力矩阵：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>S</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mi mathvariant="normal">sim</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>f</mi><mi>i</mi></msub><mo separator="true">,</mo><msub><mi>f</mi><mi>j</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">S_{ij} = \operatorname{sim}(f_i, f_j)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">ij</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mop"><span class="mord mathrm">sim</span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+<p>在同一个稳定事件内部，帧与帧高度相似，在主对角线上会形成明亮的高相似度方块；一旦发生事件切换，跨事件帧的相似度骤降，形成暗色断崖。</p>
+</li>
+<li>
+<p><strong>2D 棋盘对比卷积核（Checkerboard Kernel）</strong>：为了过滤镜头微晃与噪点，算法沿对角线滑动一个尺寸为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mi>k</mi></msub><mo>×</mo><msub><mi>N</mi><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">N_k \times N_k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 的对比核 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span></span></span></span>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">      过去时间窗    未来时间窗</span><br><span class="line">过去 [   + 1.0   |   - 1.0   ]</span><br><span class="line">未来 [   - 1.0   |   + 1.0   ]</span><br></pre></td></tr></table></figure>
+<p>该核点乘计算时序突变得分：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>s</mi><mo stretchy="false">(</mo><msub><mi>t</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo>=</mo><mo stretchy="false">⟨</mo><mi>K</mi><mo separator="true">,</mo><msup><mi>S</mi><mrow><mo stretchy="false">(</mo><mi>i</mi><mo stretchy="false">)</mo></mrow></msup><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">s(t_i) = \langle K, S^{(i)} \rangle
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">s</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.188em;vertical-align:-0.25em;"></span><span class="mopen">⟨</span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.938em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight">i</span><span class="mclose mtight">)</span></span></span></span></span></span></span></span></span><span class="mclose">⟩</span></span></span></span></span></p>
+<ul>
+<li><strong>左上与右下（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>+</mo><mn>1.0</mn></mrow><annotation encoding="application/x-tex">+1.0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">+</span><span class="mord">1.0</span></span></span></span>）</strong>：强制要求过去区间自洽且稳定，未来区间也自洽且稳定；</li>
+<li><strong>右上与左下（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mn>1.0</mn></mrow><annotation encoding="application/x-tex">-1.0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">−</span><span class="mord">1.0</span></span></span></span>）</strong>：强制要求过去与未来之间产生显著差异。</li>
+</ul>
+</li>
+<li>
+<p><strong>一维寻峰（Peak Detection）</strong>：滑动卷积将 2D 相似度矩阵压平成一条连续的 1D 变化得分曲线，随后通过常规寻峰算法锁定波峰，产出一批<strong>高召回率（Recall <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>0.75</mn></mrow><annotation encoding="application/x-tex">\ge 0.75</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0.75</span></span></span></span>）的候选时间戳集合 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>B</mi><mtext>cand</mtext></msub></mrow><annotation encoding="application/x-tex">B_{\text{cand}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0502em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0502em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">cand</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></strong>。</p>
+</li>
+</ol>
+<h3 id="阶段二：大模型语义精排（Refinement）">阶段二：大模型语义精排（Refinement）</h3>
+<p>在拿到候选时间戳后，大模型不再盲搜，而是针对被提示的候选时序点进行定向语义审核，剔除因光照变化、相机晃动等视觉伪变化引起的假阳性。</p>
+<p>在短视频数据集 Kinetics-GEBD 上，这种组合使 Recall 从 0.7505 飙升至 <strong>0.8077</strong>，最终 F1 达到 <strong>0.7448</strong>（相比单体大模型狂升 <strong>+0.0740</strong>），直接刷新无监督切片 SOTA。</p>
+<hr>
+<h2 id="03-架构伸缩：面向-1-小时第一人称长视频的“两招破局”">03. 架构伸缩：面向 1 小时第一人称长视频的“两招破局”</h2>
+<p>短视频验证了可行性，但真实商业场景（如智能眼镜录像、无人机巡检、安防监控、第一人称工作流）往往是 <strong>1 小时以上的超长视频</strong>。</p>
+<p>在长视频下，系统面临两座大山：</p>
+<ol>
+<li><strong>语义粒度错配</strong>：短视频切 1 秒的动作（如切菜切肉）；1 小时长视频切的是宏观事件（如做饭、就餐、清洁），单尺度采样会被局部小动作切得粉碎；</li>
+<li><strong>长上下文死锁</strong>：即便支持百万 Token 上下文，单次推理长视频的巨额成本和极慢响应让系统无法在线化。</li>
+</ol>
+<p>论文提出了两项关键的工程扩展设计：</p>
+<pre><code class="highlight mermaid">flowchart LR
+    subgraph MultiScale [&quot;1. Coarse-to-Fine 多尺度时序金字塔&quot;]
+        direction TB
+        HourVideo[1小时第一人称长视频] --&gt; LowFPS[0.25 FPS 粗采样]
+        HourVideo --&gt; HighFPS[1.0 FPS 细采样]
+        LowFPS --&gt; CoarseTSM[粗粒度 TSM + 卷积寻峰]
+        CoarseTSM --&gt; CoarseInterval[锁定平均 150s 的宏观事件区间]
+        HighFPS --&gt; FineScores[细粒度 1D 得分序列]
+        CoarseInterval &amp; FineScores --&gt; ArgMax[粗区间内执行 argmax 细粒度精修]
+        ArgMax --&gt; PreciseCand[精确定位候选时间戳]
+    end
+
+    subgraph LocalizedTask [&quot;2. Localized Judgment 局部微任务化&quot;]
+        PreciseCand --&gt; SliceWindow[截取候选点前后 [-20s, +20s] 小切片]
+        SliceWindow --&gt; StatelessJudge[大模型独立二分类 RPC: Accept / Reject]
+        StatelessJudge --&gt; Concurrency[线程池 / 消息队列无状态高并发执行]
+    end
+
+    MultiScale --&gt; LocalizedTask</code></pre>
+<h3 id="1-Coarse-to-Fine-多尺度时序金字塔">1. Coarse-to-Fine 多尺度时序金字塔</h3>
+<ul>
+<li><strong>粗尺度（0.25 FPS，每 4 秒抽 1 帧）</strong>：3600 秒视频仅抽取 900 帧。在极低采样率下，镜头晃动和琐碎微动作被天然平滑，TSM 寻峰捕捉到的均是<strong>平均跨度约 150 秒的宏观事件转换区间</strong>；</li>
+</ul>
+<ul>
+<li><strong>细尺度（1.0 FPS，每 1 秒抽 1 帧）</strong>：不在全局盲跑寻峰，而是在粗尺度锁定的时间窗内部，寻找细粒度突变得分最大的那一个确切秒数：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>c</mi><mi>p</mi></msub><mo>=</mo><mi>arg</mi><mo>⁡</mo><munder><mrow><mi>max</mi><mo>⁡</mo></mrow><mrow><msubsup><mi>t</mi><mi>j</mi><mi>f</mi></msubsup><mo>∈</mo><mi>I</mi><mo stretchy="false">(</mo><mi>p</mi><mo stretchy="false">)</mo></mrow></munder><msub><mi>s</mi><mi>f</mi></msub><mo stretchy="false">(</mo><msubsup><mi>t</mi><mi>j</mi><mi>f</mi></msubsup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">c_p = \arg\max_{t_j^f \in I(p)} s_f(t_j^f)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7167em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.2416em;vertical-align:-1.2746em;"></span><span class="mop">ar<span style="margin-right:0.0139em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.4306em;"><span style="top:-2.1482em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9797em;"><span style="top:-2.1777em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span><span style="top:-2.9837em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.1076em;">f</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4612em;"><span></span></span></span></span></span></span><span class="mrel mtight">∈</span><span class="mord mathnormal mtight" style="margin-right:0.0785em;">I</span><span class="mopen mtight">(</span><span class="mord mathnormal mtight">p</span><span class="mclose mtight">)</span></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop">max</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2746em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.1076em;">f</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.967em;"><span style="top:-2.4231em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span><span style="top:-3.1809em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.1076em;">f</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.413em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+</li>
+<li><strong>收益</strong>：既保证了切片符合宏观叙事逻辑，又将切点精度精确锁定在微秒边缘。</li>
+</ul>
+<h3 id="2-Localized-Judgment-局部微任务化">2. Localized Judgment 局部微任务化</h3>
+<p>彻底放弃“向大模型输入全量视频”的做法，改用微服务拆分思想：</p>
+<ul>
+<li>针对每个候选时间戳 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">c_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，<strong>仅截取其中间前后各 20 秒（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><mo>−</mo><mn>20</mn><mtext>s</mtext><mo separator="true">,</mo><mo>+</mo><mn>20</mn><mtext>s</mtext><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[-20\text{s}, +20\text{s}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord">20</span><span class="mord text"><span class="mord">s</span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">+</span><span class="mord">20</span><span class="mord text"><span class="mord">s</span></span><span class="mclose">]</span></span></span></span>，共 40 秒视频切片，仅 40 帧图像）</strong>；</li>
+<li>大模型的职责被收敛为<strong>无状态的独立二分类判别</strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>=</mo><msub><mi mathvariant="script">J</mi><mtext>LVLM</mtext></msub><mo stretchy="false">(</mo><msub><mi>V</mi><msub><mi>c</mi><mi>i</mi></msub></msub><mo separator="true">,</mo><msub><mi>c</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo>∈</mo><mo stretchy="false">{</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">y_i = \mathcal{J}_{\text{LVLM}}(V_{c_i}, c_i) \in \{0, 1\}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0001em;vertical-align:-0.2501em;"></span><span class="mord"><span class="mord mathcal" style="margin-right:0.1847em;">J</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1847em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">LVLM</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.2222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">}</span></span></span></span></span></p>
+</li>
+<li><strong>架构优势</strong>：
+<ul>
+<li><strong>显存与 Token 可控</strong>：每次调用严格锁定在微量 Token；</li>
+<li><strong>天然高并发</strong>：20~30 个候选点直接扔进工作线程池（ThreadPoolExecutor）或分布式任务队列，几十秒内并行跑完，端到端吞吐提升一个数量级；</li>
+<li><strong>故障隔离</strong>：单一切片网络调用失败只需单独重试，绝不影响全流程。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="04-扎实的横向评测与实证：大模型真的像人类一样具备事件直觉吗？">04. 扎实的横向评测与实证：大模型真的像人类一样具备事件直觉吗？</h2>
+<p>论文在评测体系上进行了深入而详尽的横向对比：</p>
+<h3 id="1-短视频基准（Kinetics-GEBD）对比">1. 短视频基准（Kinetics-GEBD）对比</h3>
+<p>在学术界最通用的 Kinetics-GEBD 上，论文对比了主流监督与无监督方案：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">监督类型</th>
+<th style="text-align:left">方法</th>
+<th style="text-align:center">Rel.Dis=0.05 (最严阈值)</th>
+<th style="text-align:center">0.1</th>
+<th style="text-align:center">0.2</th>
+<th style="text-align:center">0.5</th>
+<th style="text-align:center">平均 F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left" rowspan="4"><strong>无监督</strong></td>
+<td style="text-align:left">SceneDetect (纯帧差)</td>
+<td style="text-align:center">0.275</td>
+<td style="text-align:center">0.300</td>
+<td style="text-align:center">0.319</td>
+<td style="text-align:center">0.335</td>
+<td style="text-align:center">0.318</td>
+</tr>
+<tr>
+<td style="text-align:left">CoSeg (ECCV)</td>
+<td style="text-align:center">0.656</td>
+<td style="text-align:center">0.758</td>
+<td style="text-align:center">0.794</td>
+<td style="text-align:center">0.809</td>
+<td style="text-align:center">0.782</td>
+</tr>
+<tr>
+<td style="text-align:left">FlowGEBD (CVPR)</td>
+<td style="text-align:center">0.713</td>
+<td style="text-align:center">0.828</td>
+<td style="text-align:center">0.858</td>
+<td style="text-align:center">0.869</td>
+<td style="text-align:center">0.845</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Ours (Discovery + LVLM)</strong></td>
+<td style="text-align:center"><strong>0.7448</strong></td>
+<td style="text-align:center"><strong>0.8367</strong></td>
+<td style="text-align:center"><strong>0.8738</strong></td>
+<td style="text-align:center"><strong>0.8965</strong></td>
+<td style="text-align:center"><strong>0.8654</strong></td>
+</tr>
+<tr>
+<td style="text-align:left" rowspan="2"><em>有监督</em></td>
+<td style="text-align:left">Temporal Perceiver</td>
+<td style="text-align:center">0.748</td>
+<td style="text-align:center">0.828</td>
+<td style="text-align:center">0.866</td>
+<td style="text-align:center">0.892</td>
+<td style="text-align:center">0.860</td>
+</tr>
+<tr>
+<td style="text-align:left">DDM-Net (CVPR)</td>
+<td style="text-align:center">0.764</td>
+<td style="text-align:center">0.843</td>
+<td style="text-align:center">0.880</td>
+<td style="text-align:center">0.902</td>
+<td style="text-align:center">0.873</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>评测结论</strong>：本文无需任何模型训练（Training-free），仅凭通用视觉特征 + 矩阵卷积 + Gemini 2.5 Pro 局部审核，即刷新无监督 SOTA，并在多数阈值下逼平甚至反超了专门耗费海量标注训练的有监督深度模型。</p>
+</blockquote>
+<hr>
+<h3 id="2-1-小时长视频人机天梯榜（Human-Consensus-PK）">2. 1 小时长视频人机天梯榜（Human Consensus PK）</h3>
+<p>事件切分具有主观性。在 1 小时的长视频场景下，大模型到底是“幻觉瞎猜”还是“真有共识”？作者组织了 <strong>10 位真实人类标注员与大模型同台竞技</strong>，采用留一法群体共识度量（Cohen’s <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>κ</mi></mrow><annotation encoding="application/x-tex">\kappa</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal">κ</span></span></span></span>）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">+-------------------------------------------------------------------+</span><br><span class="line">|               长视频事件裁决一致性天梯榜 (Cohen&#x27;s κ)              |</span><br><span class="line">|                                                                   |</span><br><span class="line">|   Rank 1  Human A  [ 0.534 ]  ██████████████████████              |</span><br><span class="line">|   Rank 2  Human B  [ 0.510 ]  ████████████████████                |</span><br><span class="line">|   Rank 3  Human C  [ 0.508 ]  ████████████████████                |</span><br><span class="line">|   Rank 4  Human D  [ 0.477 ]  ██████████████████                  |</span><br><span class="line">|   Rank 5  Human E  [ 0.398 ]  ███████████████                     |</span><br><span class="line">| ▶ Rank 6  LVLM     [ 0.394 ]  ███████████████  &lt;-- 稳居人类中游！ |</span><br><span class="line">|   Rank 7  Human F  [ 0.388 ]  ███████████████                     |</span><br><span class="line">|   Rank 8  Human G  [ 0.377 ]  ██████████████                      |</span><br><span class="line">|   Rank 9  Human H  [ 0.369 ]  ██████████████                      |</span><br><span class="line">|   Rank 10 Human I  [ 0.337 ]  █████████████                       |</span><br><span class="line">|   Rank 11 Human J  [ 0.248 ]  █████████                           |</span><br><span class="line">+-------------------------------------------------------------------+</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>实证发现</strong>：大模型得分 0.394（人类平均为 0.415），<strong>直接超越了后 5 位真实人类标注员</strong>；</li>
+<li><strong>误差集中分布</strong>：在人类 10 票一致赞同的高共识事件点上，大模型接受率高达 <strong>87%</strong>；而在大模型与人类产生分歧的点上，恰恰是人类标注员自身打架、争议最大的灰色样本。这从认知科学上首次严谨证明：多模态大模型确实具备与人类常识高度契合的宏观事件抽象能力。</li>
+</ul>
+<hr>
+<h3 id="3-传统监督模型在长视频上的“灾难性崩溃”">3. 传统监督模型在长视频上的“灾难性崩溃”</h3>
+<p>当作者将在短视频上训练成熟的知名模型直接搬到 1 小时第一人称长视频基准（EgoBoundary）时，实验暴露了惊人的断层：</p>
+<ul>
+<li>在严格匹配阈值（tIoU = 0.9）下，传统监督模型（BasicGEBD）的 F1 得分暴跌至 <strong>0.13 ~ 0.18</strong>；</li>
+<li>传统无监督方法（UBoCo、CoSeg）更是跌至 <strong>0.01 ~ 0.04</strong>（几乎等同于随机乱切）；</li>
+<li>而本文方法在人类金标子集上保持在 <strong>0.5259 ~ 0.8276</strong> 的绝对统治级精度。</li>
+</ul>
+<hr>
+<h2 id="05-软件工程参考实现（Python-并发微任务-Pipeline）">05. 软件工程参考实现（Python 并发微任务 Pipeline）</h2>
+<p>为了帮助软件开发工程师在生产业务中复现并落地这套范式，以下给出一套符合工业工程规范的模块化参考代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">List</span>, <span class="type">Tuple</span></span><br><span class="line"><span class="keyword">from</span> concurrent.futures <span class="keyword">import</span> ThreadPoolExecutor</span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">VideoFrame</span>:</span><br><span class="line">    timestamp: <span class="built_in">float</span>      <span class="comment"># 该帧在视频中的时间戳（秒）</span></span><br><span class="line">    embedding: np.ndarray <span class="comment"># 视觉模型抽取的归一化特征向量 (D,)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EventBoundary</span>:</span><br><span class="line">    timestamp: <span class="built_in">float</span></span><br><span class="line">    confidence: <span class="built_in">float</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ScalableBoundaryDetector</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, video_duration: <span class="built_in">float</span> = <span class="number">3600.0</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.video_duration = video_duration</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_compute_tsm_boundary_scores</span>(<span class="params">self, frames: <span class="type">List</span>[VideoFrame], kernel_size: <span class="built_in">int</span> = <span class="number">9</span></span>) -&gt; np.ndarray:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        利用 TSM 自相似矩阵与 2D 棋盘核计算连续变化得分</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        N = <span class="built_in">len</span>(frames)</span><br><span class="line">        features = np.stack([f.embedding <span class="keyword">for</span> f <span class="keyword">in</span> frames]) <span class="comment"># (N, D)</span></span><br><span class="line">        <span class="comment"># 1. 矩阵点积计算两两余弦相似度</span></span><br><span class="line">        tsm = np.matmul(features, features.T) <span class="comment"># (N, N)</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 2. 构造 2D 棋盘对比卷积核 (Foote Kernel)</span></span><br><span class="line">        half = kernel_size // <span class="number">2</span></span><br><span class="line">        kernel = np.ones((kernel_size, kernel_size), dtype=np.float32)</span><br><span class="line">        kernel[:half, half:] = -<span class="number">1.0</span></span><br><span class="line">        kernel[half:, :half] = -<span class="number">1.0</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 3. 对角线滑动点乘</span></span><br><span class="line">        scores = np.zeros(N, dtype=np.float32)</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(half, N - half):</span><br><span class="line">            patch = tsm[i - half : i + half + <span class="number">1</span>, i - half : i + half + <span class="number">1</span>]</span><br><span class="line">            scores[i] = np.<span class="built_in">sum</span>(patch * kernel)</span><br><span class="line">        <span class="keyword">return</span> scores</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">coarse_to_fine_discovery</span>(<span class="params"></span></span><br><span class="line"><span class="params">        self, </span></span><br><span class="line"><span class="params">        coarse_frames: <span class="type">List</span>[VideoFrame], </span></span><br><span class="line"><span class="params">        fine_frames: <span class="type">List</span>[VideoFrame]</span></span><br><span class="line"><span class="params">    </span>) -&gt; <span class="type">List</span>[<span class="built_in">float</span>]:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        多尺度时序金字塔：粗尺度定宏观事件，细尺度定精准秒数</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 1. 粗尺度（0.25 FPS）寻峰</span></span><br><span class="line">        coarse_scores = <span class="variable language_">self</span>._compute_tsm_boundary_scores(coarse_frames)</span><br><span class="line">        <span class="comment"># 简单波峰查找：得分高于均值且为局部极大</span></span><br><span class="line">        coarse_peaks = [</span><br><span class="line">            i <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="built_in">len</span>(coarse_scores) - <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">if</span> coarse_scores[i] &gt; coarse_scores[i-<span class="number">1</span>] </span><br><span class="line">            <span class="keyword">and</span> coarse_scores[i] &gt; coarse_scores[i+<span class="number">1</span>]</span><br><span class="line">            <span class="keyword">and</span> coarse_scores[i] &gt; np.mean(coarse_scores)</span><br><span class="line">        ]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 2. 细尺度（1.0 FPS）精准对齐</span></span><br><span class="line">        fine_scores = <span class="variable language_">self</span>._compute_tsm_boundary_scores(fine_frames)</span><br><span class="line">        refined_timestamps = []</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> p_idx <span class="keyword">in</span> coarse_peaks:</span><br><span class="line">            t_coarse = coarse_frames[p_idx].timestamp</span><br><span class="line">            <span class="comment"># 在粗尺度锚点前后 ±6 秒的细粒度窗口内寻找极值</span></span><br><span class="line">            window = [</span><br><span class="line">                (idx, f.timestamp) <span class="keyword">for</span> idx, f <span class="keyword">in</span> <span class="built_in">enumerate</span>(fine_frames)</span><br><span class="line">                <span class="keyword">if</span> <span class="built_in">abs</span>(f.timestamp - t_coarse) &lt;= <span class="number">6.0</span></span><br><span class="line">            ]</span><br><span class="line">            <span class="keyword">if</span> window:</span><br><span class="line">                best_idx, best_time = <span class="built_in">max</span>(window, key=<span class="keyword">lambda</span> item: fine_scores[item[<span class="number">0</span>]])</span><br><span class="line">                refined_timestamps.append(best_time)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> refined_timestamps</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_call_localized_vlm_judge</span>(<span class="params">self, candidate_time: <span class="built_in">float</span></span>) -&gt; <span class="type">Tuple</span>[<span class="built_in">float</span>, <span class="built_in">bool</span>]:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        局部无状态微任务：截取候选点前后 20 秒送大模型进行 Yes/No 审核</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 实际工程中：调用 ffmpeg 抽取 [candidate_time - 20s, candidate_time + 20s] 的 40 帧</span></span><br><span class="line">        <span class="comment"># 构造简单二分类 Prompt: &quot;画面第 20 秒处是否发生有意义的事件转折？回答 YES 或 NO&quot;</span></span><br><span class="line">        <span class="comment"># 此处模拟调用 Gemini 2.5 Pro API</span></span><br><span class="line">        prompt = <span class="string">f&quot;Candidate timestamp: <span class="subst">&#123;candidate_time&#125;</span>s. Is there a salient event transition?&quot;</span></span><br><span class="line">        is_accepted = <span class="literal">True</span> <span class="comment"># 模拟大模型响应</span></span><br><span class="line">        <span class="keyword">return</span> candidate_time, is_accepted</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">parallel_refinement</span>(<span class="params">self, candidate_timestamps: <span class="type">List</span>[<span class="built_in">float</span>], max_workers: <span class="built_in">int</span> = <span class="number">8</span></span>) -&gt; <span class="type">List</span>[EventBoundary]:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        线程池并发执行微任务审核，彻底消除长视频端到端耗时</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        accepted = []</span><br><span class="line">        <span class="keyword">with</span> ThreadPoolExecutor(max_workers=max_workers) <span class="keyword">as</span> executor:</span><br><span class="line">            futures = executor.<span class="built_in">map</span>(<span class="variable language_">self</span>._call_localized_vlm_judge, candidate_timestamps)</span><br><span class="line">            <span class="keyword">for</span> ts, ok <span class="keyword">in</span> futures:</span><br><span class="line">                <span class="keyword">if</span> ok:</span><br><span class="line">                    accepted.append(EventBoundary(timestamp=ts, confidence=<span class="number">1.0</span>))</span><br><span class="line">        <span class="keyword">return</span> accepted</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="06-产业联动：与现代视频湖（Video-Lake）及-Video-RAG-的异同与融合">06. 产业联动：与现代视频湖（Video Lake）及 Video RAG 的异同与融合</h2>
+<p>在面对工业界长视频多模态数据系统（如基于 Qwen3-VL、MyScaleDB 与 MCP 构建的视频湖 RAG 架构）时，这篇论文所代表的学术方向与工业生产实践展现出了极具启发性的互补特性：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+-----------------------------------------------------------------------------------------+</span><br><span class="line">|                  长视频切片：工业级 Video RAG 架构 vs Qualcomm GEBD 范式               |</span><br><span class="line">|                                                                                         |</span><br><span class="line">|  [ 业务维度 ]         [ 工业级 Video RAG (如原子切片报告) ]   [ Qualcomm GEBD (本论文) ]|</span><br><span class="line">|  切片时长约束   ──►   刚性约束 10s~15s (控单切片 2000 Token)  ──► 弹性宏观尺度 (平均约 150s)    |</span><br><span class="line">|  多模态依赖     ──►   全模态 (视觉 + ASR字幕 + 音频停顿对齐)  ──► 纯视觉单模态 (无任何声音输入) |</span><br><span class="line">|  时序处理模式   ──►   单向流式在线 (如 Event-VStream 动态衰减)──► 全局离线批处理 (TSM 矩阵卷积) |</span><br><span class="line">|  大模型介入阶段 ──►   切完后再介入 (生成描述、提取 OCR/实体)  ──► 切片过程中深度介入 (微窗口裁决)|</span><br><span class="line">+-----------------------------------------------------------------------------------------+</span><br></pre></td></tr></table></figure>
+<h3 id="给工业级系统的两大直接技术迁移建议">给工业级系统的两大直接技术迁移建议</h3>
+<ol>
+<li><strong>极端无对白场景的切分补充（哑音视频方案）</strong>：在常规视频中，我们通常采用 ASR 语音停顿吸附（如 WhisperX + CRAFT 过滤）作为最坚固的切分锚点；但面对<strong>工业巡检、静音监控、纯体育竞技、POV 运动录屏等完全无对白的场景</strong>，论文提供的“Coarse-to-Fine TSM 棋盘核卷积”是一套算力开销极小且抗镜头晃动的纯视觉数学解法，能完美替代复杂重型的 Scene-VLM。</li>
+<li><strong>多层级场景索引（<code>scene_group_id</code>）的高效预计算</strong>：在 ClickHouse / MyScaleDB 的 Schema 设计中，工程师往往需要将多个细粒度（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mtext>s</mtext><mo>−</mo><mn>15</mn><mtext>s</mtext></mrow><annotation encoding="application/x-tex">10\text{s}-15\text{s}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">10</span><span class="mord text"><span class="mord">s</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">15</span><span class="mord text"><span class="mord">s</span></span></span></span></span>）原子切片在逻辑上归属到同一个大场景（<code>scene_group_id</code>）。以往通常需要耗费算力跑最小描述长度（MDL）动态规划；而论文证实，<strong>直接以 0.25 FPS 粗尺度寻峰产生的时间戳作为宏观场景分割线</strong>，计算仅需数毫秒，即可以几乎为零的成本建立分层多尺度时序索引。</li>
+</ol>
+<hr>
+<h2 id="07-软件工程师架构直觉总结（Takeaways）">07. 软件工程师架构直觉总结（Takeaways）</h2>
+<ol>
+<li><strong>别被全能大模型裹挟：分离“粗召回”与“精排裁决”</strong><br>
+大模型不是通用时序扫描仪。面对大规模或长时序数据流，“经典确定性算法（矩阵几何/信号处理）做粗选保召回 + 大模型小上下文做定点精判”永远是性价比与鲁棒性最高的工程范式。</li>
+<li><strong>长序列难题的通用降维法：微任务化与并发化</strong><br>
+不要试图把超长上下文一锅端。截取关注点周围的局部上下文，将全局时序理解转化为相互独立的无状态微任务（Stateless Binary Tasks），不仅节约 Token，更能直接盘活系统的多核与分布式并发能力。</li>
+<li><strong>长时序必须有多尺度视角（Coarse-to-Fine）</strong><br>
+在时间维度上，低频看宏观框架（滤除抖动噪点），高频抓局部极值（锁定精确秒数），这是处理长视频、海量时序监控指标（Metrics）与大数据日志流的核心心法。</li>
+</ol>
+<hr>
+<h2 id="08-参考文献">08. 参考文献</h2>
+<ol>
+<li><a target="_blank" href="https://arxiv.org/abs/2611.16452" rel="external nofollow noreferrer noopener">Can an LVLM Perceive Event Boundaries Like a Human? (arXiv:2611.16452)</a></li>
+<li><a target="_blank" href="https://arxiv.org/abs/2106.11326" rel="external nofollow noreferrer noopener">A Generic Event Boundary Detection Benchmark for Video Understanding (Kinetics-GEBD, Shou et al., 2021)</a></li>
+<li><a target="_blank" href="https://arxiv.org/abs/2604.09548" rel="external nofollow noreferrer noopener">EgoLife: Towards Egocentric Life-long Video Understanding (Bolya et al., 2026)</a></li>
+<li><a target="_blank" href="https://arxiv.org/abs/2601.15655" rel="external nofollow noreferrer noopener">Event-VStream: Event-Driven Real-Time Understanding for Long Video Streams (arXiv:2601.15655)</a></li>
+<li><a target="_blank" href="https://arxiv.org/abs/2512.21778" rel="external nofollow noreferrer noopener">Scene-VLM: Multimodal Video Scene Segmentation via Vision-Language Models (arXiv:2512.21778)</a></li>
+<li><a target="_blank" href="https://arxiv.org/abs/2608.28699" rel="external nofollow noreferrer noopener">Beyond Visual Boundaries: Rethinking Scene Segmentation for Movie RAG (arXiv:2608.28699)</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E7%90%86%E8%A7%A3/" rel="tag"># 视频理解</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E4%BA%8B%E4%BB%B6%E8%BE%B9%E7%95%8C%E6%84%9F%E7%9F%A5/" rel="tag"># 事件边界感知</a>
+              <a href="/tags/GEBD/" rel="tag"># GEBD</a>
+              <a href="/tags/%E9%AB%98%E9%80%9A/" rel="tag"># 高通</a>
+              <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/" rel="tag"># 计算机视觉</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/16/AntEmbed/" rel="next" title="【论文分享】统一检索底库与双模查询：AntEmbed 如何用自蒸馏解耦多模态向量的“速度与精度”">
+                  【论文分享】统一检索底库与双模查询：AntEmbed 如何用自蒸馏解耦多模态向量的“速度与精度” <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">460k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">27:53</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
