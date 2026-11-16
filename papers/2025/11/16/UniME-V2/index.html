@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在构建企业级 多模态搜索、以图搜图、以及多模态 RAG（检索增强生成）系统 时，后端开发与算法落地团队常常面临一个隐蔽却致命的性能瓶颈：检索模型“眼瞎”与“误伤”。 在传统对比学习（如 CLIP、VLM2Vec 等）训练中，通常采用简单的批内负例（In-Batch Negatives），并强制采用 0 与 1 的二元硬标签（即除目标样本外，其余一律判为 0 相关）。这种做法在工业级工程落地中暴露出">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】以数据引擎驱动模型进化：UniME-V2 如何利用 MLLM-as-a-Judge 破除多模态向量检索的“假负例”困境">
+<meta property="og:url" content="https://lewlh.github.io/papers/2025/11/16/UniME-V2/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在构建企业级 多模态搜索、以图搜图、以及多模态 RAG（检索增强生成）系统 时，后端开发与算法落地团队常常面临一个隐蔽却致命的性能瓶颈：检索模型“眼瞎”与“误伤”。 在传统对比学习（如 CLIP、VLM2Vec 等）训练中，通常采用简单的批内负例（In-Batch Negatives），并强制采用 0 与 1 的二元硬标签（即除目标样本外，其余一律判为 0 相关）。这种做法在工业级工程落地中暴露出">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-16T10:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-16T10:11:02.868Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="MLLM-as-a-Judge">
+<meta property="article:tag" content="RAG系统架构">
+<meta property="article:tag" content="UniME-V2">
+<meta property="article:tag" content="向量检索">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="搜索与推荐">
+<meta property="article:tag" content="数据工程">
+<meta property="article:tag" content="论文分享">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2025/11/16/UniME-V2/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2025/11/16/UniME-V2/","path":"papers/2025/11/16/UniME-V2/","title":"【论文分享】以数据引擎驱动模型进化：UniME-V2 如何利用 MLLM-as-a-Judge 破除多模态向量检索的“假负例”困境"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】以数据引擎驱动模型进化：UniME-V2 如何利用 MLLM-as-a-Judge 破除多模态向量检索的“假负例”困境 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">321</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">100</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E7%B3%BB%E7%BB%9F%E8%8C%83%E5%BC%8F%E8%BD%AC%E7%A7%BB%EF%BC%9A%E4%BB%A5%E6%95%B0%E6%8D%AE%E5%BC%95%E6%93%8E%E9%A9%B1%E5%8A%A8%E7%9A%84%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F"><span class="nav-text">01. 系统范式转移：以数据引擎驱动的知识蒸馏</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9C%BC%E4%B8%AD%E7%9A%84%E2%80%9CData-Centric-AI%E2%80%9D"><span class="nav-text">1.1 软件工程师眼中的“Data-Centric AI”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E7%A6%BB%E7%BA%BF%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B%E6%B5%81%E6%B0%B4%E7%BA%BF%EF%BC%9AMLLM-as-a-Judge-%E5%A6%82%E4%BD%95%E8%BF%90%E4%BD%9C%EF%BC%9F"><span class="nav-text">02. 离线数据工程流水线：MLLM-as-a-Judge 如何运作？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%85%A8%E5%B1%80%E7%B2%97%E7%AD%9B%E5%80%99%E9%80%89%E6%B1%A0%EF%BC%88Global-Retrieval%EF%BC%89"><span class="nav-text">2.1 全局粗筛候选池（Global Retrieval）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%B7%A7%E5%A6%99%E7%9A%84-Logits-%E6%8F%90%E5%8F%96%E6%9C%BA%E5%88%B6%EF%BC%9A%E4%B8%8D%E7%9C%8B%E5%9B%9E%E5%A4%8D%EF%BC%8C%E7%9C%8B%E2%80%9C%E7%8A%B9%E8%B1%AB%E7%A8%8B%E5%BA%A6%E2%80%9D"><span class="nav-text">2.2 巧妙的 Logits 提取机制：不看回复，看“犹豫程度”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E5%81%87%E8%B4%9F%E4%BE%8B%E8%BF%87%E6%BB%A4%E4%B8%8E%E5%A4%9A%E6%A0%B7%E6%80%A7%E6%8A%BD%E6%A0%B7"><span class="nav-text">2.3 假负例过滤与多样性抽样</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%EF%BC%9A%E4%BB%8E-0-1-%E7%A1%AC%E6%A0%87%E7%AD%BE%E5%88%B0-JS-%E6%95%A3%E5%BA%A6%E5%88%86%E5%B8%83%E5%AF%B9%E9%BD%90"><span class="nav-text">03. 模型训练：从 0&#x2F;1 硬标签到 JS 散度分布对齐</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%94%BE%E5%BC%83%E4%BC%A0%E7%BB%9F-InfoNCE-%E6%8D%9F%E5%A4%B1%EF%BC%9F"><span class="nav-text">3.1 为什么放弃传统 InfoNCE 损失？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%9F%BA%E4%BA%8E-JS-%E6%95%A3%E5%BA%A6%E7%9A%84%E5%88%86%E5%B8%83%E5%AF%B9%E9%BD%90"><span class="nav-text">3.2 基于 JS 散度的分布对齐</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E8%AE%AD%E7%BB%83%E9%9B%86%E7%BE%A4%E4%B8%8E%E6%98%BE%E5%AD%98%E8%A7%A3%E8%80%A6"><span class="nav-text">3.3 训练集群与显存解耦</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E5%9C%A8%E7%BA%BF%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%B5%81%E6%B0%B4%E7%BA%BF%EF%BC%9AUniME-V2-Reranker-%E9%87%8D%E6%8E%92%E5%BC%95%E6%93%8E"><span class="nav-text">04. 在线两阶段流水线：UniME-V2-Reranker 重排引擎</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E8%81%94%E5%90%88%E5%BE%AE%E8%B0%83%E4%BC%98%E5%8C%96%EF%BC%88Pairwise-Listwise%EF%BC%89"><span class="nav-text">4.1 联合微调优化（Pairwise + Listwise）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E6%A0%B8%E5%BF%83%E5%AE%9E%E9%AA%8C%E7%BB%93%E8%AE%BA%E4%B8%8E%E5%B7%A5%E7%A8%8B%E7%9B%B4%E8%A7%89%EF%BC%88Takeaways%EF%BC%89"><span class="nav-text">05. 核心实验结论与工程直觉（Takeaways）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E8%B4%9F%E6%A0%B7%E6%9C%AC%E5%B9%B6%E9%9D%9E%E8%B6%8A%E5%A4%9A%E8%B6%8A%E5%A5%BD%EF%BC%88%E5%AF%BB%E6%89%BE%E6%94%B6%E7%9B%8A%E6%8B%90%E7%82%B9%EF%BC%89"><span class="nav-text">5.1 负样本并非越多越好（寻找收益拐点）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E8%A3%81%E5%88%A4%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%B4%A8%E9%87%8F%E5%86%B3%E5%AE%9A%E4%BA%86%E7%94%9F%E6%88%90%E6%95%B0%E6%8D%AE%E7%9A%84%E4%B8%8A%E9%99%90"><span class="nav-text">5.2 裁判模型的质量决定了生成数据的上限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E7%BB%86%E7%B2%92%E5%BA%A6%E9%80%BB%E8%BE%91%E5%88%A4%E6%96%AD%EF%BC%88Compositionality%EF%BC%89%E7%9A%84%E9%A3%9E%E8%B7%83"><span class="nav-text">5.3 细粒度逻辑判断（Compositionality）的飞跃</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E5%B7%A5%E4%B8%9A%E4%B8%9A%E5%8A%A1%E8%90%BD%E5%9C%B0%E5%BB%BA%E8%AE%AE%E4%B8%8E%E5%AE%9E%E6%96%BD%E8%B7%AF%E5%BE%84"><span class="nav-text">06. 工业业务落地建议与实施路径</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E4%B8%80%EF%BC%9A%E5%BB%BA%E7%AB%8B%E7%A6%BB%E7%BA%BF-Bad-Case-%E8%87%AA%E5%8A%A8%E5%8C%96%E6%89%93%E5%88%86%E6%B5%81%EF%BC%88%E6%95%B0%E6%8D%AE%E7%AB%AF%EF%BC%89"><span class="nav-text">阶段一：建立离线 Bad Case 自动化打分流（数据端）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E4%BA%8C%EF%BC%9A%E5%BE%AE%E8%B0%83%E8%BD%BB%E9%87%8F%E5%90%91%E9%87%8F%E6%8A%BD%E5%8F%96%E6%9C%8D%E5%8A%A1%EF%BC%88%E7%B2%97%E6%8E%92%E7%AB%AF%EF%BC%89"><span class="nav-text">阶段二：微调轻量向量抽取服务（粗排端）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E4%B8%89%EF%BC%9A%E5%85%B3%E9%94%AE%E9%93%BE%E8%B7%AF%E5%BC%95%E5%85%A5%E8%BD%BB%E9%87%8F%E7%B2%BE%E6%8E%92%EF%BC%88%E7%B2%BE%E6%8E%92%E7%AB%AF%EF%BC%89"><span class="nav-text">阶段三：关键链路引入轻量精排（精排端）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E6%80%BB%E7%BB%93"><span class="nav-text">07. 总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">100</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">321</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2025/11/16/UniME-V2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】以数据引擎驱动模型进化：UniME-V2 如何利用 MLLM-as-a-Judge 破除多模态向量检索的“假负例”困境 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】以数据引擎驱动模型进化：UniME-V2 如何利用 MLLM-as-a-Judge 破除多模态向量检索的“假负例”困境
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-11-16 18:00:00" itemprop="dateCreated datePublished" datetime="2025-11-16T18:00:00+08:00">2025-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-16 18:11:02" itemprop="dateModified" datetime="2026-11-16T18:11:02+08:00">2026-11-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在构建企业级 <strong>多模态搜索、以图搜图、以及多模态 RAG（检索增强生成）系统</strong> 时，后端开发与算法落地团队常常面临一个隐蔽却致命的性能瓶颈：<strong>检索模型“眼瞎”与“误伤”</strong>。</p>
+<p>在传统对比学习（如 CLIP、VLM2Vec 等）训练中，通常采用简单的批内负例（In-Batch Negatives），并强制采用 <strong>0 与 1 的二元硬标签</strong>（即除目标样本外，其余一律判为 0 相关）。这种做法在工业级工程落地中暴露出两大痛点：</p>
+<ol>
+<li><strong>假负例（False Negative）误伤</strong>：在图库或知识库中，往往存在多张与 Query 高度相似的有效样本。由于缺乏全局感知，模型强行把这些潜在的正确结果打成 0 分推远，导致梯度被严重带偏。</li>
+<li><strong>缺乏细粒度判别力</strong>：业务场景中的相似度往往是连续的（如 80% 相关 vs 20% 相关 vs 0% 相关）。硬标签强行抹平了语义距离，导致模型无法区分“细微差异”（例如“猫趴在桌上”与“桌上趴着猫”的细粒度逻辑差异）。</li>
+</ol>
+<p>针对这一系列痛点，来自阿里巴巴与香港科技大学等团队联合提出了 <strong>UniME-V2</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《UniME-V2: MLLM-as-a-Judge for Universal Multimodal Embedding Learning》<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2510.13515" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2510.13515</a> (HTML 版本：<a target="_blank" href="https://arxiv.org/html/2510.13515v3" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2510.13515v3</a>)<br>
+<strong>核心贡献</strong>：提出 MLLM-as-a-Judge 困难负例挖掘流水线、基于 JS 散度的多模态分布软对齐训练框架、以及配套的端到端 Pairwise + Listwise 重排器 UniME-V2-Reranker。</p>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端/推荐/搜索架构）</strong> 的视角，不罗列复杂的数学证明，而是聚焦于其 <strong>系统解耦范式、离线数据自动化质检流水线（Data Engine）、软标签分布对齐机制</strong>，以及如何在低推理成本下实现工业级高精度检索。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-系统范式转移：以数据引擎驱动的知识蒸馏">01. 系统范式转移：以数据引擎驱动的知识蒸馏</h2>
+<p>在深入具体实现细节前，我们先从软件系统架构的视角审视 UniME-V2 带来的核心变革：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph Traditional[&quot;传统对比学习范式（硬标签 + 局部近视）&quot;]
+        Q1[&quot;用户 Query&quot;] --&gt; B1[&quot;Batch 内随机负样本 (N 个)&quot;]
+        B1 --&gt; H1[&quot;强行打标: 正样本=1.0，其余一律=0.0&quot;]
+        H1 --&gt; Loss1[&quot;InfoNCE 交叉熵损失&quot;]
+        Note1[&quot;致命伤: 随机负例太简单，&lt;br/&gt;且极易将潜在相似样本打成0分(误伤)&quot;]
+    end
+
+    subgraph UniMEV2[&quot;UniME-V2 范式（全局挖掘 + 软打分蒸馏）&quot;]
+        Q2[&quot;用户 Query&quot;] --&gt; G1[&quot;全局检索召回 Top-50 候选池&quot;]
+        G1 --&gt; Judge[&quot;MLLM-as-a-Judge (离线裁判打标)&quot;]
+        Judge --&gt; Clean[&quot;滤除假负例 + 周期采样 8 个黄金硬负例&quot;]
+        Clean --&gt; SoftScore[&quot;提取 Logits 计算连续语义匹配分 s ∈ [0, 1]&quot;]
+        SoftScore --&gt; Loss2[&quot;JS 散度软分布对齐&quot;]
+        Note2[&quot;工程优势: 离线自动化质检，&lt;br/&gt;把大模型的高阶语义理解蒸馏到轻量向量模型&quot;]
+    end</code></pre>
+<h3 id="1-1-软件工程师眼中的“Data-Centric-AI”">1.1 软件工程师眼中的“Data-Centric AI”</h3>
+<p>许多工程师在接触模型调优时，第一反应往往是“改网络结构”或“加深层数”。但 UniME-V2 展现了一种更为成熟的工程思想：<strong>模型架构完全沿用现成开源基座（如 Qwen2-VL、LLaVA-OneVision），一行底层结构都不改，只专注于改造数据生产流水线与监督信号</strong>。</p>
+<ul>
+<li><strong>离线重算力</strong>：利用能力极强、但线上推理极慢的多模态大模型（MLLM）作为离线质检员（Judge），自动对候选样本打上连续的相对得分；</li>
+<li><strong>在线高吞吐</strong>：轻量向量模型在线上仅负责毫秒级的向量生成与最近邻检索，但其向量空间已经被注入了大模型的判别准则；</li>
+<li><strong>低成本自动化</strong>：无需人工参与标注，依托现成的全库数据自循环迭代，实现了典型的<strong>数据飞轮（Data Flywheel）</strong>。</li>
+</ul>
+<hr>
+<h2 id="02-离线数据工程流水线：MLLM-as-a-Judge-如何运作？">02. 离线数据工程流水线：MLLM-as-a-Judge 如何运作？</h2>
+<p>构建一个高质量训练集的关键，在于如何自动化完成“筛除脏数据、挖掘高价值样本、生成可信监督信号”的全过程。UniME-V2 设计了一条精巧的三步流水线：</p>
+<pre><code class="highlight mermaid">sequenceDiagram
+    autonumber
+    participant Dataset as 原始全量多模态数据池
+    participant Retriever as 全局检索器 (VLM2Vec)
+    participant Judge as MLLM 裁判 (Qwen2.5-VL-7B)
+    participant Filter as 数据清洗与抽样器
+    participant Trainer as 向量模型微调流水线
+
+    Dataset-&gt;&gt;Retriever: 输入 Query 与候选全集
+    Retriever-&gt;&gt;Retriever: 全局召回 Top-50 (过滤重复项)
+    Retriever-&gt;&gt;Judge: 输送 (Query, Candidate) 候选对
+    Judge-&gt;&gt;Judge: 提取 Yes/No Token 的 Logits 比值
+    Judge-&gt;&gt;Filter: 输出连续匹配分 s ∈ [0, 1]
+    Filter-&gt;&gt;Filter: 规则过滤: 剔除得分接近正例的假负例 (s &gt; s_pos - 0.01)
+    Filter-&gt;&gt;Filter: 周期等距采样: 抽取 8 个兼顾多样性与难度的硬负例
+    Filter-&gt;&gt;Trainer: 产出结构化黄金训练对 (Query, Pos, 8 x Hard-Negatives, Scores)</code></pre>
+<h3 id="2-1-全局粗筛候选池（Global-Retrieval）">2.1 全局粗筛候选池（Global Retrieval）</h3>
+<p>以往在 Batch 内采负样本，样本池受限于单批大小（几百到几千）。UniME-V2 首先利用基线模型（如 VLM2Vec）对全库进行粗检索，为每个 Query 挑出最相关的 Top-50 候选对象，并设置相似度上限阈值 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi></mrow><annotation encoding="application/x-tex">\delta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.0379em;">δ</span></span></span></span> 过滤掉完全相同的冗余图片，构成潜在困难负例集 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="normal">Ω</mi><mi>p</mi></msub></mrow><annotation encoding="application/x-tex">\Omega_p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord">Ω</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span>。</p>
+<h3 id="2-2-巧妙的-Logits-提取机制：不看回复，看“犹豫程度”">2.2 巧妙的 Logits 提取机制：不看回复，看“犹豫程度”</h3>
+<p>如果让大模型写一段长文本来评价图文匹配度，不仅极其消耗离线 GPU 算力，而且解析输出字符串极其繁琐。<br>
+UniME-V2 采用了一种非常轻量且高精度的<strong>置信度提取器</strong>方案：</p>
+<p>给大模型发送简单的标准化单选题 Prompt：</p>
+<blockquote>
+<p><em>“I will provide you with a query and a candidate. Please evaluate whether the candidate meets the requirements of the query. If it does, respond with ‘Yes’; if it doesn’t, respond with ‘No’.”</em></p>
+</blockquote>
+<p>在推理时，<strong>直接读取模型输出词表中 <code>Yes</code> 与 <code>No</code> 两个 Token 的原始未归一化对数概率（Logits <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>e</mi><mi>y</mi></msub><mo separator="true">,</mo><msub><mi>e</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">e_y, e_n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7167em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">y</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>）</strong>，通过分式直接归一化为连续的语义匹配得分：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>s</mi><mo>=</mo><mfrac><msub><mi>e</mi><mi>y</mi></msub><mrow><msub><mi>e</mi><mi>y</mi></msub><mo>+</mo><msub><mi>e</mi><mi>n</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">s = \frac{e_y}{e_y + e_n}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.0797em;vertical-align:-0.9721em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1076em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">y</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">y</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9721em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 核心打分提取逻辑 (PyTorch 伪代码)</span></span><br><span class="line">prompt = <span class="string">f&quot;Query: <span class="subst">&#123;query&#125;</span>, Candidate: <span class="subst">&#123;candidate&#125;</span>&quot;</span></span><br><span class="line">outputs = mllm_model(prompt)</span><br><span class="line">next_token_logits = outputs.logits[:, -<span class="number">1</span>, :]  <span class="comment"># 获取下一个预测 token 的 logits</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取 &#x27;Yes&#x27; 和 &#x27;No&#x27; 对应的 token id</span></span><br><span class="line">yes_id = tokenizer.convert_tokens_to_ids(<span class="string">&quot;Yes&quot;</span>)</span><br><span class="line">no_id = tokenizer.convert_tokens_to_ids(<span class="string">&quot;No&quot;</span>)</span><br><span class="line"></span><br><span class="line">logit_yes = next_token_logits[:, yes_id].exp()</span><br><span class="line">logit_no = next_token_logits[:, no_id].exp()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算 0 ~ 1 之间的连续语义匹配置信度</span></span><br><span class="line">semantic_matching_score = (logit_yes / (logit_yes + logit_no)).item()</span><br></pre></td></tr></table></figure>
+<p>这种做法将大模型复杂的语义推理能力，直接降维压缩为一个 <strong>Float32 标量</strong>，具有极高的工程吞吐与鲁棒性。</p>
+<h3 id="2-3-假负例过滤与多样性抽样">2.3 假负例过滤与多样性抽样</h3>
+<p>拿到分数后，进入自动化质检清洗：</p>
+<ol>
+<li><strong>防误伤（假负例剔除）</strong>：若某个负例候选的打分 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span> 与目标正样本得分 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mtext>pos</mtext></msub></mrow><annotation encoding="application/x-tex">s_{\text{pos}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7167em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">pos</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span> 差距极小（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>&gt;</mo><msub><mi>s</mi><mtext>pos</mtext></msub><mo>−</mo><mn>0.01</mn></mrow><annotation encoding="application/x-tex">s &gt; s_{\text{pos}} - 0.01</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">pos</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0.01</span></span></span></span>），说明它实际上就是一个高度契合的“同义正样本”，直接从负样本集合中抹除；</li>
+<li><strong>防扎堆（周期性等距采样）</strong>：按得分排序后，采用步长为 5 的周期抽样策略（Cyclical Sampling），确保挑出的负样本既足够有难度，又避免全部集中在某一局部特征上；</li>
+<li><strong>规模锁定</strong>：最终为每个 Query 稳定锁定 <strong>8 个高质量硬负样本</strong>。</li>
+</ol>
+<hr>
+<h2 id="03-模型训练：从-0-1-硬标签到-JS-散度分布对齐">03. 模型训练：从 0/1 硬标签到 JS 散度分布对齐</h2>
+<p>在获得带有连续匹配得分的候选集后，训练阶段的核心任务就是<strong>如何将大模型给出的打分梯度传递给向量模型</strong>。</p>
+<h3 id="3-1-为什么放弃传统-InfoNCE-损失？">3.1 为什么放弃传统 InfoNCE 损失？</h3>
+<p>传统的 InfoNCE 交叉熵损失函数公式中，目标被抽象为一个 One-Hot 向量：<code>[1, 0, 0, 0, ...]</code>。这迫使模型认为所有负样本与 Query 的距离都应该被推向无穷远。但在实际业务中，负样本 A 可能相关度为 0.4，负样本 B 相关度为 0.1。如果强行用 0 压制，向量模型学到的几何空间就会被拉扯变形。</p>
+<h3 id="3-2-基于-JS-散度的分布对齐">3.2 基于 JS 散度的分布对齐</h3>
+<p>UniME-V2 将匹配过程建模为<strong>两个概率分布之间的距离度量</strong>：</p>
+<ol>
+<li>
+<p><strong>向量模型的预测分布 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="double-struck">P</mi></mrow><annotation encoding="application/x-tex">\mathbb{P}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6889em;"></span><span class="mord mathbb">P</span></span></span></span></strong>：基于向量余弦相似度计算候选集概率：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="double-struck">P</mi><mo stretchy="false">(</mo><msub><mi>e</mi><mi>q</mi></msub><mo separator="true">,</mo><msub><mi mathvariant="normal">E</mi><mi>c</mi></msub><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>cos</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>e</mi><mi>q</mi></msub><mo separator="true">,</mo><msubsup><mi>e</mi><mi>c</mi><mo>+</mo></msubsup><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><mi>τ</mi><mo stretchy="false">)</mo></mrow><mrow><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>cos</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>e</mi><mi>q</mi></msub><mo separator="true">,</mo><msubsup><mi>e</mi><mi>c</mi><mo>+</mo></msubsup><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><mi>τ</mi><mo stretchy="false">)</mo><mo>+</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>cos</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>e</mi><mi>q</mi></msub><mo separator="true">,</mo><msubsup><mi>e</mi><msub><mi>c</mi><mi>i</mi></msub><mo>−</mo></msubsup><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><mi>τ</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\mathbb{P}(e_q, \mathrm{E}_c) = \frac{\exp(\cos(e_q, e_c^+) / \tau)}{\exp(\cos(e_q, e_c^+) / \tau) + \sum_{i=1}^k \exp(\cos(e_q, e_{c_i}^-) / \tau)}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord mathbb">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathrm">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.6744em;vertical-align:-1.2261em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.4483em;"><span style="top:-2.121em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">exp</span><span class="mopen">(</span><span class="mop">cos</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6973em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">c</span></span></span><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">+</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.989em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">exp</span><span class="mopen">(</span><span class="mop">cos</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6973em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">−</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3471em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">exp</span><span class="mopen">(</span><span class="mop">cos</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7713em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">c</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">+</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2261em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+</li>
+<li>
+<p><strong>大模型裁判的真实分布 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="double-struck">Q</mi></mrow><annotation encoding="application/x-tex">\mathbb{Q}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8556em;vertical-align:-0.1667em;"></span><span class="mord mathbb">Q</span></span></span></span></strong>：基于 MLLM 判定的连续得分 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi></mrow><annotation encoding="application/x-tex">s</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span></span></span></span> 计算基准概率：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="double-struck">Q</mi><mo stretchy="false">(</mo><msub><mi mathvariant="normal">S</mi><mi>c</mi></msub><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>s</mi><mrow><mi>q</mi><mo separator="true">,</mo><msub><mi>c</mi><mi>t</mi></msub></mrow></msub><mi mathvariant="normal">/</mi><mi>τ</mi><mo stretchy="false">)</mo></mrow><mrow><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>s</mi><mrow><mi>q</mi><mo separator="true">,</mo><msub><mi>c</mi><mi>t</mi></msub></mrow></msub><mi mathvariant="normal">/</mi><mi>τ</mi><mo stretchy="false">)</mo><mo>+</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>s</mi><mrow><mi>q</mi><mo separator="true">,</mo><msub><mi>c</mi><mi>i</mi></msub></mrow></msub><mi mathvariant="normal">/</mi><mi>τ</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">\mathbb{Q}(\mathrm{S}_c) = \frac{\exp(s_{q, c_t} / \tau)}{\exp(s_{q, c_t} / \tau) + \sum_{i=1}^k \exp(s_{q, c_i} / \tau)}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathbb">Q</span><span class="mopen">(</span><span class="mord"><span class="mord mathrm">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.6057em;vertical-align:-1.1787em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.121em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">exp</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathnormal mtight">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2963em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:0em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.989em;"><span style="top:-2.4003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2997em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">exp</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathnormal mtight">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">exp</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span><span class="mpunct mtight">,</span><span class="mord mtight"><span class="mord mathnormal mtight">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2963em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mord">/</span><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.1787em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+</li>
+<li>
+<p><strong>JS 散度损失函数</strong>：为保证对称性与数值稳定性，计算 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="double-struck">P</mi></mrow><annotation encoding="application/x-tex">\mathbb{P}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6889em;"></span><span class="mord mathbb">P</span></span></span></span> 与 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="double-struck">Q</mi></mrow><annotation encoding="application/x-tex">\mathbb{Q}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8556em;vertical-align:-0.1667em;"></span><span class="mord mathbb">Q</span></span></span></span> 之间的 JS 散度：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="script">L</mi><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mrow><mo fence="true">(</mo><mrow><mi mathvariant="normal">K</mi><mi mathvariant="normal">L</mi></mrow><mo stretchy="false">(</mo><mi mathvariant="double-struck">P</mi><mo>∥</mo><mi mathvariant="double-struck">Q</mi><mo stretchy="false">)</mo><mo>+</mo><mrow><mi mathvariant="normal">K</mi><mi mathvariant="normal">L</mi></mrow><mo stretchy="false">(</mo><mi mathvariant="double-struck">Q</mi><mo>∥</mo><mi mathvariant="double-struck">P</mi><mo stretchy="false">)</mo><mo fence="true">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{L} = \frac{1}{2} \left( \mathrm{KL}(\mathbb{P} \parallel \mathbb{Q}) + \mathrm{KL}(\mathbb{Q} \parallel \mathbb{P}) \right)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathcal">L</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.0074em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">(</span><span class="mord"><span class="mord mathrm">KL</span></span><span class="mopen">(</span><span class="mord mathbb">P</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∥</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathbb">Q</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathrm">KL</span></span><span class="mopen">(</span><span class="mord mathbb">Q</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∥</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathbb">P</span><span class="mclose">)</span><span class="mclose delimcenter" style="top:0em;">)</span></span></span></span></span></span></p>
+</li>
+</ol>
+<p>通过这一损失函数，<strong>向量模型学会了候选样本之间的“相对语义远近”</strong>，真正获得了细粒度的区分能力。</p>
+<h3 id="3-3-训练集群与显存解耦">3.3 训练集群与显存解耦</h3>
+<p>在工程配置上，团队在 <strong>8 张 A800 (80GB)</strong> 显卡上完成了训练：</p>
+<ul>
+<li>采用 <strong>GradCache</strong> 技术，将大 Batch 的全局对比计算与 GPU 显存限制解耦，实际等效全局 Batch Size 达到 <strong>1024</strong>；</li>
+<li>仅对自回归骨干网络微调 <strong>LoRA（Rank = 16）</strong>，在保持底座通用语言视觉理解能力的同时，大幅节约显存与参数存储；</li>
+<li>训练仅需 2000 个 Steps，体现了高质量监督信号带来的极快收敛速度。</li>
+</ul>
+<hr>
+<h2 id="04-在线两阶段流水线：UniME-V2-Reranker-重排引擎">04. 在线两阶段流水线：UniME-V2-Reranker 重排引擎</h2>
+<p>对于高要求工业搜索场景，单靠双塔向量检索往往在 Top-10 内仍存在微小排序扰动。UniME-V2 配套训练了一个专用的重排模型 <strong>UniME-V2-Reranker</strong>（基于 Qwen2.5-VL-7B）。</p>
+<pre><code class="highlight mermaid">flowchart LR
+    Q[&quot;用户 Query&quot;] --&gt; Enc[&quot;UniME-V2 向量提取 (单次前向)&quot;]
+    Enc --&gt; VDB[(&quot;Milvus / Faiss / ES 向量库&quot;)]
+    VDB -- &quot;ANN 余弦召回 (Top-10)&quot; --&gt; RerankPool[&quot;Top-10 候选列表&quot;]
+    RerankPool --&gt; Reranker[&quot;UniME-V2-Reranker (Qwen2.5-VL)&quot;]
+    Q --&gt; Reranker
+    Reranker -- &quot;Listwise 列表推理打分&quot; --&gt; Final[&quot;最终排序 Top-1 结果&quot;]</code></pre>
+<h3 id="4-1-联合微调优化（Pairwise-Listwise）">4.1 联合微调优化（Pairwise + Listwise）</h3>
+<p>为了让 Reranker 拥有极致的局部辨别力，作者利用前面挖掘出的优质硬负例，对其进行了两种维度的联合微调：</p>
+<ul>
+<li><strong>Pairwise 任务</strong>：构造 <code>(Query, 正样本)</code> 训练输出 <code>YES</code>，<code>(Query, 最强负样本)</code> 训练输出 <code>NO</code>；</li>
+<li><strong>Listwise 任务</strong>：将正样本随机插入到硬负例列表中，提示词形式为：
+<blockquote>
+<p><em>“候选列表为: (1) cand1 (2) cand2 (3) cand3… 请评估每个候选并直接输出与 Query 最匹配的候选编号。”</em></p>
+</blockquote>
+</li>
+<li>通过交叉熵损失直接监督输出的序列编号，使得重排器在单次前向传播中，就能综合对比多个候选对象之间的细微差异。</li>
+</ul>
+<hr>
+<h2 id="05-核心实验结论与工程直觉（Takeaways）">05. 核心实验结论与工程直觉（Takeaways）</h2>
+<p>论文在多模态检索权威榜单 <strong>MMEB</strong> 以及短文本检索（COCO/Flickr30K）、长图文检索（ShareGPT4V/Urban1K）、细粒度组合逻辑测试（SugarCrepe）上进行了全面评测，提炼出了以下关键工程直觉：</p>
+<h3 id="5-1-负样本并非越多越好（寻找收益拐点）">5.1 负样本并非越多越好（寻找收益拐点）</h3>
+<p>工程上很多人以为“给模型的负样本越多越好”，但论文的消融实验（Ablation Study）给出了明确的定量结论：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">训练硬负例数量</th>
+<th style="text-align:center">MMEB 综合得分</th>
+<th style="text-align:center">短图文召回</th>
+<th style="text-align:center">长图文召回</th>
+<th style="text-align:center">组合逻辑辨识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">61.3</td>
+<td style="text-align:center">69.2</td>
+<td style="text-align:center">91.0</td>
+<td style="text-align:center">62.4</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">61.8</td>
+<td style="text-align:center">70.8</td>
+<td style="text-align:center">91.7</td>
+<td style="text-align:center">61.2</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>8 (最佳平衡点)</strong></td>
+<td style="text-align:center"><strong>63.6</strong></td>
+<td style="text-align:center"><strong>72.1</strong></td>
+<td style="text-align:center"><strong>93.4</strong></td>
+<td style="text-align:center"><strong>64.1</strong></td>
+</tr>
+<tr>
+<td style="text-align:center">10</td>
+<td style="text-align:center">63.0</td>
+<td style="text-align:center">72.0</td>
+<td style="text-align:center">93.4</td>
+<td style="text-align:center">63.4</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>工程直觉</strong>：<strong>8 是黄金甜点位</strong>。当盲目增加到 10 个负样本时，相对简单的样本不可避免地重新混入训练集，稀释了关键的反向传播梯度，性能不升反降。</li>
+</ul>
+<h3 id="5-2-裁判模型的质量决定了生成数据的上限">5.2 裁判模型的质量决定了生成数据的上限</h3>
+<p>论文对比了不同裁判模型对下游最终效果的影响：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">离线裁判模型</th>
+<th style="text-align:center">MMEB 综合得分</th>
+<th style="text-align:center">短图文召回</th>
+<th style="text-align:center">长图文召回</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">InternVL3-8B</td>
+<td style="text-align:center">58.5</td>
+<td style="text-align:center">70.2</td>
+<td style="text-align:center">91.3</td>
+</tr>
+<tr>
+<td style="text-align:left">InternVL3-14B</td>
+<td style="text-align:center">63.2</td>
+<td style="text-align:center">72.9</td>
+<td style="text-align:center">93.1</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Qwen2.5-VL-7B</strong></td>
+<td style="text-align:center"><strong>63.6</strong></td>
+<td style="text-align:center"><strong>72.1</strong></td>
+<td style="text-align:center"><strong>93.4</strong></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>工程直觉</strong>：参数规模并不是唯一决定因素。Qwen2.5-VL-7B 凭借优秀的指令微调对齐质量，在 7B 参数下打出的软标签质量超越了 14B 模型。在搭建自动化数据工程流水线时，<strong>优先评估裁判模型的指令遵从度与判别稳定性</strong>。</li>
+</ul>
+<h3 id="5-3-细粒度逻辑判断（Compositionality）的飞跃">5.3 细粒度逻辑判断（Compositionality）的飞跃</h3>
+<p>在涉及主体调换、属性绑定的极端细粒度评测（如 SugarCrepe 的 Swap / Add 测试，判断“白狗黑猫”与“黑狗白猫”）中：</p>
+<ul>
+<li>早期 CLIP 和纯文本 Embedding 几乎全线崩溃，表现如同“词袋模型（Bag-of-Words）”；</li>
+<li>而 UniME-V2 结合 Reranker 后，组合检索精度从基准的 60% 一跃提升至 <strong>94.8%</strong>（见论文 Table 3）。这充分验证了通过大模型裁判引入高质量硬负例，是让检索系统理解“逻辑关系”的必经之路。</li>
+</ul>
+<hr>
+<h2 id="06-工业业务落地建议与实施路径">06. 工业业务落地建议与实施路径</h2>
+<p>如果你正在规划或者改造现有的企业多模态检索系统，UniME-V2 的范式可以直接拆解为如下三阶段实施路线：</p>
+<h3 id="阶段一：建立离线-Bad-Case-自动化打分流（数据端）">阶段一：建立离线 Bad Case 自动化打分流（数据端）</h3>
+<ol>
+<li>收集线上用户搜索中高频退避、无点击或用户换词重搜的 Query；</li>
+<li>利用 Milvus/ES 全局召回 Top-50 图片/文档候选；</li>
+<li>编写异步 Python 任务，调用开源或托管的多模态大模型 API（如 Qwen2.5-VL），提取 <code>Yes/No</code> Token 的 Logits 获得连续打分；</li>
+<li>滤除打分过高的假负例，沉淀出一批高质量的 <code>(Query, Positive, 8x Hard-Negatives)</code> 训练集。</li>
+</ol>
+<h3 id="阶段二：微调轻量向量抽取服务（粗排端）">阶段二：微调轻量向量抽取服务（粗排端）</h3>
+<ol>
+<li>使用开源的轻量 VLM（如 Qwen2-VL-2B 或 7B）作为主干；</li>
+<li>引入 JS 散度替换二分类交叉熵，配合 GradCache 在私有业务数据上微调 LoRA；</li>
+<li>导出模型后，线上通过单次前向池化提取 1536 维特征，存入向量数据库，保障毫秒级高 QPS 召回。</li>
+</ol>
+<h3 id="阶段三：关键链路引入轻量精排（精排端）">阶段三：关键链路引入轻量精排（精排端）</h3>
+<ol>
+<li>对于搜索结果前几名要求极高精度的核心链路（如电商首屏推荐、合规风控审查），在向量检索召回 Top-10 后挂载微调后的 UniME-V2-Reranker；</li>
+<li>一次性输入 Top-10 列表做单步 Listwise 排序输出，在 100~200ms 的可控时延内获取最佳准确率。</li>
+</ol>
+<hr>
+<h2 id="07-总结">07. 总结</h2>
+<p>UniME-V2 是一篇极具实用价值的 <strong>“Data-Centric AI”</strong> 典范工程。它没有陷入堆叠参数或微调网络结构的泥潭，而是深刻洞察了对比学习中“假负例污染”与“0/1硬标签失真”的本质痛点。</p>
+<p>通过 <strong>“全局召回 + MLLM-as-a-Judge 软打标 + JS 散度分布对齐”</strong> 这套优雅的工程闭环，它成功将昂贵大模型的深度语义理解能力，高性价比地蒸馏到了轻量向量模型和重排器中。对于追求系统高性能、高吞吐与高召回精度的软件架构师与开发人员而言，这种“离线重算力做自动化数据飞轮，在线轻量模型吃红利”的设计范式，极具借鉴与复用价值。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2/" rel="tag"># 向量检索</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B/" rel="tag"># 数据工程</a>
+              <a href="/tags/UniME-V2/" rel="tag"># UniME-V2</a>
+              <a href="/tags/MLLM-as-a-Judge/" rel="tag"># MLLM-as-a-Judge</a>
+              <a href="/tags/%E6%90%9C%E7%B4%A2%E4%B8%8E%E6%8E%A8%E8%8D%90/" rel="tag"># 搜索与推荐</a>
+              <a href="/tags/RAG%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" rel="tag"># RAG系统架构</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/" rel="prev" title="【论文分享】阿里千问 Qwen3-VL 检索双子星全景解析：面向视频与多模态检索系统的工程落地实战指南">
+                  <i class="fa fa-angle-left"></i> 【论文分享】阿里千问 Qwen3-VL 检索双子星全景解析：面向视频与多模态检索系统的工程落地实战指南
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2025/11/16/GVE-UniversalVideoRetrieval/" rel="next" title="【论文分享】别再死磕模型架构！阿里通义开源 GVE：用“数据工厂+金字塔调度”打造全能视频检索向量服务">
+                  【论文分享】别再死磕模型架构！阿里通义开源 GVE：用“数据工厂+金字塔调度”打造全能视频检索向量服务 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">447k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">27:05</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
