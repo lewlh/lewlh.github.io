@@ -39,7 +39,7 @@
 <meta property="og:description" content="在多模态视频理解（Video Understanding）与智能视频切片系统中，一个最根本却极其困难的问题是：一段连续发生的长视频，究竟应该从哪里“下刀”切分，才符合人类的心智认知？ 这个任务在计算机视觉领域被称为 通用事件边界检测（GEBD, Generic Event Boundary Detection）。与传统的目标检测、动作分类不同，GEBD 不依赖任何预先定义的类别词表（Taxonom">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-11-16T11:35:00.000Z">
-<meta property="article:modified_time" content="2026-11-16T12:10:36.101Z">
+<meta property="article:modified_time" content="2026-11-16T12:12:29.826Z">
 <meta property="article:author" content="豪豪">
 <meta property="article:tag" content="GEBD">
 <meta property="article:tag" content="事件边界感知">
@@ -236,7 +236,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-16 19:35:00 / 修改时间：20:10:36" itemprop="dateCreated datePublished" datetime="2026-11-16T19:35:00+08:00">2026-11-16</time>
+      <time title="创建时间：2026-11-16 19:35:00 / 修改时间：20:12:29" itemprop="dateCreated datePublished" datetime="2026-11-16T19:35:00+08:00">2026-11-16</time>
     </span>
 
   
@@ -298,23 +298,22 @@ HTML 格式：<a target="_blank" href="https://arxiv.org/html/2611.16452v1" rel=
 <h2 id="02-核心架构：Discovery-Refinement-双阶段流水线">02. 核心架构：Discovery-Refinement 双阶段流水线</h2>
 <p>针对大模型“不擅长时序搜索、极擅长定点裁决”的不对称特性，论文提出了经典的<strong>两阶段解耦系统架构</strong>：</p>
 <pre><code class="highlight mermaid">flowchart TD
-    Video[输入连续视频流] --&gt; Stage1[阶段一：轻量无监督粗筛 Discovery]
+    Video[&quot;输入连续视频流&quot;] --&gt; Sample[&quot;采样抽取帧特征向量&quot;]
     
-    subgraph Stage1[阶段一：纯数学信号处理 - 零 Token 开销 / 极速粗召回]
-        Sample[固定采样率抽取帧向量 e_i] --&gt; TSM[计算帧间自相似矩阵 TSM]
-        TSM --&gt; Kernel[主对角线 2D 棋盘卷积核滤波]
-        Kernel --&gt; Peak[一维时序得分曲线寻峰 Peak Detection]
+    subgraph Stage1[&quot;阶段一：纯数学信号处理 (轻量无监督粗筛)&quot;]
+        Sample --&gt; TSM[&quot;计算帧间自相似矩阵 TSM&quot;]
+        TSM --&gt; Kernel[&quot;主对角线 2D 棋盘卷积核滤波&quot;]
+        Kernel --&gt; Peak[&quot;一维时序得分曲线寻峰 (Peak Detection)&quot;]
     end
     
-    Stage1 --&gt; Candidates[输出高召回候选时间戳列表 B_cand]
+    Peak --&gt; Candidates[&quot;输出高召回候选时间戳列表 B_cand&quot;]
+    Candidates --&gt; Slice[&quot;提取候选点局部上下文切片&quot;]
     
-    Candidates --&gt; Stage2[阶段二：大模型局部精判 Refinement]
-    
-    subgraph Stage2[阶段二：大模型定点审核 - 高精度 / 消除假阳性]
-        Slice[提取候选点局部上下文切片] --&gt; LVLM[多模态大模型 0/1 二分类裁决]
+    subgraph Stage2[&quot;阶段二：大模型定点审核 (消除假阳性)&quot;]
+        Slice --&gt; LVLM[&quot;多模态大模型 0/1 二分类裁决&quot;]
     end
     
-    Stage2 --&gt; FinalBoundaries[最终人类高共识事件边界]</code></pre>
+    LVLM --&gt; FinalBoundaries[&quot;输出最终人类高共识事件边界&quot;]</code></pre>
 <h3 id="阶段一：纯信号处理的数学粗召回（Discovery）">阶段一：纯信号处理的数学粗召回（Discovery）</h3>
 <p>这一步完全不需要任何大模型介入，也不需要训练深度学习权重，纯靠经典的矩阵几何运算：</p>
 <ol>
@@ -354,25 +353,23 @@ HTML 格式：<a target="_blank" href="https://arxiv.org/html/2611.16452v1" rel=
 <li><strong>长上下文死锁</strong>：即便支持百万 Token 上下文，单次推理长视频的巨额成本和极慢响应让系统无法在线化。</li>
 </ol>
 <p>论文提出了两项关键的工程扩展设计：</p>
-<pre><code class="highlight mermaid">flowchart LR
-    subgraph MultiScale [&quot;1. Coarse-to-Fine 多尺度时序金字塔&quot;]
-        direction TB
-        HourVideo[1小时第一人称长视频] --&gt; LowFPS[0.25 FPS 粗采样]
-        HourVideo --&gt; HighFPS[1.0 FPS 细采样]
-        LowFPS --&gt; CoarseTSM[粗粒度 TSM + 卷积寻峰]
-        CoarseTSM --&gt; CoarseInterval[锁定平均 150s 的宏观事件区间]
-        HighFPS --&gt; FineScores[细粒度 1D 得分序列]
-        CoarseInterval &amp; FineScores --&gt; ArgMax[粗区间内执行 argmax 细粒度精修]
-        ArgMax --&gt; PreciseCand[精确定位候选时间戳]
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph MultiScale[&quot;1. Coarse-to-Fine 多尺度时序金字塔&quot;]
+        HourVideo[&quot;1小时第一人称长视频&quot;] --&gt; LowFPS[&quot;0.25 FPS 粗采样&quot;]
+        HourVideo --&gt; HighFPS[&quot;1.0 FPS 细采样&quot;]
+        LowFPS --&gt; CoarseTSM[&quot;粗粒度 TSM 与卷积寻峰&quot;]
+        CoarseTSM --&gt; CoarseInterval[&quot;锁定平均 150s 的宏观事件区间&quot;]
+        HighFPS --&gt; FineScores[&quot;细粒度 1D 得分序列&quot;]
+        CoarseInterval --&gt; ArgMax[&quot;粗区间内执行 argmax 细粒度精修&quot;]
+        FineScores --&gt; ArgMax
+        ArgMax --&gt; PreciseCand[&quot;精确定位候选时间戳&quot;]
     end
 
-    subgraph LocalizedTask [&quot;2. Localized Judgment 局部微任务化&quot;]
-        PreciseCand --&gt; SliceWindow[截取候选点前后 [-20s, +20s] 小切片]
-        SliceWindow --&gt; StatelessJudge[大模型独立二分类 RPC: Accept / Reject]
-        StatelessJudge --&gt; Concurrency[线程池 / 消息队列无状态高并发执行]
-    end
-
-    MultiScale --&gt; LocalizedTask</code></pre>
+    subgraph LocalizedTask[&quot;2. Localized Judgment 局部微任务化&quot;]
+        PreciseCand --&gt; SliceWindow[&quot;截取候选点前后 20 秒小切片&quot;]
+        SliceWindow --&gt; StatelessJudge[&quot;大模型独立二分类 RPC (Accept / Reject)&quot;]
+        StatelessJudge --&gt; Concurrency[&quot;线程池与消息队列无状态高并发执行&quot;]
+    end</code></pre>
 <h3 id="1-Coarse-to-Fine-多尺度时序金字塔">1. Coarse-to-Fine 多尺度时序金字塔</h3>
 <ul>
 <li><strong>粗尺度（0.25 FPS，每 4 秒抽 1 帧）</strong>：3600 秒视频仅抽取 900 帧。在极低采样率下，镜头晃动和琐碎微动作被天然平滑，TSM 寻峰捕捉到的均是<strong>平均跨度约 150 秒的宏观事件转换区间</strong>；</li>
