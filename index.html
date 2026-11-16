@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">334</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">104</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">337</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">105</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">104</span>
+          <span class="site-state-item-count">105</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">334</span>
+        <span class="site-state-item-count">337</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,108 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/16/DumpToken-Retrieval/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/16/DumpToken-Retrieval/" class="post-title-link" itemprop="url">【论文分享】给向量模型装个“接地线”：CIKM 2026 DUMP Token 如何零改动净化 Embedding 表征</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-16 20:55:00 / 修改时间：20:56:08" itemprop="dateCreated datePublished" datetime="2026-11-16T20:55:00+08:00">2026-11-16</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在构建 RAG（检索增强生成）、大模型知识库和企业级语义搜索系统时，后端与算法工程师最常打交道的底层基建之一就是 <strong>文本 Embedding 模型</strong>。</p>
+<p>从系统工程的角度看，Embedding 模型的本质是一个<strong>高倍率的“有损压缩管道”</strong>：它需要把几百到上千个 Token 的动态交互，强行压缩进一个固定维度（如 768 或 1024 维）的浮点数向量中。</p>
+<p>然而，在 Transformer 原生的计算机制下，这个压缩过程长期存在一个隐蔽的“底层缺陷”：<strong>表征干扰（Representational Interference）</strong>。由于 Softmax 的强制归一化特性，句子中的标点、停用词以及系统自发产生的“注意力黑洞（Attention Sink）”杂波，被迫与真正的核心语义纠缠在一起，最终污染了输出向量的纯度。</p>
+<p>针对这一长期困扰向量检索质量的工程痛点，韩国高丽大学与崇实大学的团队在 CIKM 2026 上提出了一套极其优雅、四两拨千斤的解决方案——<strong>DUMP Token（垃圾桶前缀 Token）</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《Reducing Representational Interference in Retrieval Embeddings with Trainable Prefix Tokens》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.07298">arXiv:2611.07298</a><br>
+<strong>ResearchGate</strong>：<a target="_blank" rel="noopener" href="https://www.researchgate.net/publication/417540835_Reducing_Representational_Interference_in_Retrieval_Embeddings_with_Trainable_Prefix_Tokens">Publication 417540835</a><br>
+<strong>核心贡献</strong>：不改模型结构、不加任何辅助 Loss、不改变最终 Pooling 规则，仅靠在文本前缀插入几个可训练的 <code>[DUMP]</code> Token，就能自动将注意力杂波引流隔离，使标准检索提升 2.46%，长文本检索提升 2.41%。</p>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（系统/后端/架构研发）</strong> 的视角，不罗列晦涩的纯理论推导，深入剖析其 <strong>系统缺陷机理、旁路解耦范式、端到端训练流水线与工程落地避坑指南</strong>。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/16/DumpToken-Retrieval/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +328,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-16 19:58:00 / 修改时间：20:18:45" itemprop="dateCreated datePublished" datetime="2026-11-16T19:58:00+08:00">2026-11-16</time>
+      <time title="创建时间：2026-11-16 19:58:00 / 修改时间：20:56:08" itemprop="dateCreated datePublished" datetime="2026-11-16T19:58:00+08:00">2026-11-16</time>
     </span>
 
   
@@ -336,7 +438,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-16 19:35:00 / 修改时间：20:18:45" itemprop="dateCreated datePublished" datetime="2026-11-16T19:35:00+08:00">2026-11-16</time>
+      <time title="创建时间：2026-11-16 19:35:00 / 修改时间：20:56:08" itemprop="dateCreated datePublished" datetime="2026-11-16T19:35:00+08:00">2026-11-16</time>
     </span>
 
   
@@ -439,7 +541,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-16 18:52:00 / 修改时间：20:18:45" itemprop="dateCreated datePublished" datetime="2026-11-16T18:52:00+08:00">2026-11-16</time>
+      <time title="创建时间：2026-11-16 18:52:00 / 修改时间：20:56:08" itemprop="dateCreated datePublished" datetime="2026-11-16T18:52:00+08:00">2026-11-16</time>
     </span>
 
   
@@ -549,7 +651,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 20:18:45" itemprop="dateModified" datetime="2026-11-16T20:18:45+08:00">2026-11-16</time>
+      <time title="修改时间：2026-11-16 20:56:08" itemprop="dateModified" datetime="2026-11-16T20:56:08+08:00">2026-11-16</time>
     </span>
 
   
@@ -621,121 +723,6 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/12/EVAThink/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/12/EVAThink/" class="post-title-link" itemprop="url">【论文分享】告别无脑 CoT 内耗：EVAThink 如何用 6.7K 样本实现视频大模型的自适应快慢推理路由</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-12 16:40:00" itemprop="dateCreated datePublished" datetime="2026-11-12T16:40:00+08:00">2026-11-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 20:18:45" itemprop="dateModified" datetime="2026-11-16T20:18:45+08:00">2026-11-16</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.2k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>15 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在当下的多模态大模型（VLM）与长视频理解演进中，<strong>思维链推理（Chain-of-Thought, CoT / Slow-Thinking）</strong> 似乎成了业界提升基准测试得分的灵丹妙药。从 DeepSeek-R1 到各路视频推理模型，大家都在追求让模型“想得更深、写得更长”。</p>
-<p>然而，在实际的工业级工程落地与高并发线上部署中，盲目开启全量 CoT 正带来两大致命痛点：</p>
-<ol>
-<li><strong>算力与延迟雪崩（Token 账单膨胀）</strong>：原本可以直接输出选项的简单视频感知任务，模型非要生成 500~1000 个 Token 的冗长分析，导致显存吞吐下降 80%~90%，API 费用呈数量级飙升；</li>
-<li><strong>过度思考反噬（Over-thinking 引入幻觉）</strong>：工程实验屡屡表明，在很多一目了然的低阶视觉感知任务中（例如判断物体颜色、相对位置或即时动作），强行强制模型长篇大论，反而会在复杂的自回归推演中“脑补”出无中生有的细节，导致原本能直接秒答对的题目被改错。</li>
-</ol>
-<p>因此，<strong>“自适应思考（Adaptive Thinking）”</strong> 呼之欲出——简单的看一眼就秒答（Fast-Path），复杂的再深入推理（Slow-Path）。但过去训练自适应路由的方案通常代价不菲：不仅依赖 8 万至 14 万条昂贵的人工标注做 SFT 预热冷启动，在强化学习（RL）阶段还极易出现 <strong>“模式坍塌（Mode Collapse）”</strong>——模型在某次迭代后彻底“摆烂”，要么全部退化为直接回答，要么全部死锁在思考模式。</p>
-<p>针对这一核心工程瓶颈，华东师范大学与华为团队近日在 arXiv 提出了一个极具系统工程美感的全新解决方案：<strong>EVAThink</strong>。</p>
-<blockquote>
-<p><strong>论文题目</strong>：<em>EVAThink: Evidence Sufficiency-Guided Training for Adaptive Thinking in Video Understanding</em><br>
-<strong>论文编号</strong>：arXiv:2611.13907<br>
-<strong>作者团队</strong>：Changti Wu, Ruizhe Fan, Bin Wang, Lei Zhang, Yuxiang Zhang（华东师范大学 &amp; 华为）<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.13907">https://arxiv.org/abs/2611.13907</a><br>
-<strong>HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.13907v1">https://arxiv.org/html/2611.13907v1</a><br>
-<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/ChangtiWu/EVAThink">https://github.com/ChangtiWu/EVAThink</a><br>
-<strong>核心成果</strong>：彻底摒弃昂贵的 SFT 冷启动，仅凭 <strong>6.7K 样本</strong>，在 32 块昇腾 NPU 上完成两阶段强化学习，不仅在各大基准上全面击败全直接答与全思考模式，更将推理 Token 长度大幅缩减 <strong>62%</strong>。</p>
-</blockquote>
-<p>站在软件工程师与系统架构师的视角，EVAThink 的设计堪称一份教科书级别的 <strong>“轻量级动态自适应路由与熔断器架构实战”</strong>。本文将剥离复杂的算法迷雾，用系统工程的思维全面拆解其技术实现与设计直觉。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/12/EVAThink/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -760,14 +747,14 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">465k</span>
+    <span title="站点总字数">468k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">28:09</span>
+    <span title="站点阅读时长">28:21</span>
   </span>
 </div>
 <div class="busuanzi-count">
