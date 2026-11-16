@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在当下的多模态大模型（MLLM &#x2F; LVLM）落地实践中，视觉问答（VQA）与细粒度图像理解 正面临着一个极具讽刺意味的“能力倒挂”现象： 大模型能出口成章、通晓天文地理，但在看图时却常常是个**“深度散光患者”**。面对复杂场景中的微小目标、密集实体或稍显模糊的生活实拍图，大模型往往在第一步就看漏了关键局部，随后的思维链（Chain-of-Thought, CoT）推理便演变成“一本正经地胡说八">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】零重训超越微调？TFAR：基于保形预测与多路推测仲裁的免训练高可靠视觉问答框架">
+<meta property="og:url" content="https://lewlh.github.io/papers/2025/11/16/TFAR-VQA/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在当下的多模态大模型（MLLM &#x2F; LVLM）落地实践中，视觉问答（VQA）与细粒度图像理解 正面临着一个极具讽刺意味的“能力倒挂”现象： 大模型能出口成章、通晓天文地理，但在看图时却常常是个**“深度散光患者”**。面对复杂场景中的微小目标、密集实体或稍显模糊的生活实拍图，大模型往往在第一步就看漏了关键局部，随后的思维链（Chain-of-Thought, CoT）推理便演变成“一本正经地胡说八">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-16T10:20:00.000Z">
+<meta property="article:modified_time" content="2026-11-16T10:31:32.579Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="Visual-CoT">
+<meta property="article:tag" content="不确定性度量">
+<meta property="article:tag" content="保形预测">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="架构设计">
+<meta property="article:tag" content="视觉语言模型">
+<meta property="article:tag" content="视觉问答">
+<meta property="article:tag" content="论文分享">
+<meta property="article:tag" content="软件工程视角">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2025/11/16/TFAR-VQA/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2025/11/16/TFAR-VQA/","path":"papers/2025/11/16/TFAR-VQA/","title":"【论文分享】零重训超越微调？TFAR：基于保形预测与多路推测仲裁的免训练高可靠视觉问答框架"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】零重训超越微调？TFAR：基于保形预测与多路推测仲裁的免训练高可靠视觉问答框架 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">324</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">101</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E7%8E%B0%E5%AE%9E%E7%97%9B%E7%82%B9%EF%BC%9A%E5%BE%AE%E8%B0%83%E8%B7%AF%E7%BA%BF%E7%9A%84%E6%8A%80%E6%9C%AF%E5%80%BA%E4%B8%8E%E4%B8%8D%E5%8F%AF%E4%BF%A1%E5%B7%A5%E5%85%B7%E7%9A%84-GIGO-%E6%95%88%E5%BA%94"><span class="nav-text">01. 现实痛点：微调路线的技术债与不可信工具的 GIGO 效应</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BC%A0%E7%BB%9F%E5%BE%AE%E8%B0%83%E8%B7%AF%E7%BA%BF%E7%9A%84%E2%80%9C%E9%AB%98%E6%98%82%E6%8A%80%E6%9C%AF%E5%80%BA%E2%80%9D"><span class="nav-text">1. 传统微调路线的“高昂技术债”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BC%A0%E7%BB%9F-Agent-%E5%B7%A5%E5%85%B7%E6%A8%A1%E5%BC%8F%E7%9A%84%E2%80%9CGIGO-%E5%B4%A9%E6%BA%83%E2%80%9D"><span class="nav-text">2. 传统 Agent 工具模式的“GIGO 崩溃”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%EF%BC%9ATFAR-%E7%9A%84%E2%80%9C%E5%A4%9A%E8%B7%AF%E6%8E%A8%E6%B5%8B%E6%89%A7%E8%A1%8C-%E9%98%B2%E5%BE%A1%E6%80%A7%E6%A0%A1%E5%87%86%E6%B5%81%E6%B0%B4%E7%BA%BF%E2%80%9D"><span class="nav-text">02. 架构设计：TFAR 的“多路推测执行 + 防御性校准流水线”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E6%89%A7%E8%A1%8C%E5%9B%9B%E9%83%A8%E6%9B%B2"><span class="nav-text">阶段执行四部曲</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6%E6%8B%86%E8%A7%A3%EF%BC%9A%E7%BB%99%E4%B8%8D%E5%8F%AF%E4%BF%A1%E7%B3%BB%E7%BB%9F%E6%B3%A8%E5%85%A5%E6%95%B0%E5%AD%A6%E7%A1%AE%E5%AE%9A%E6%80%A7"><span class="nav-text">03. 核心机制拆解：给不可信系统注入数学确定性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BF%9D%E5%BD%A2%E9%A2%84%E6%B5%8B%EF%BC%88Conformal-Prediction%EF%BC%89%EF%BC%9A%E7%BB%99%E4%B8%8D%E5%8F%AF%E4%BF%A1%E5%B7%A5%E5%85%B7%E5%A5%97%E4%B8%8A%E2%80%9C%E8%87%AA%E9%80%82%E5%BA%94%E5%AE%89%E5%85%A8%E5%A4%96%E5%A3%B3%E2%80%9D"><span class="nav-text">1. 保形预测（Conformal Prediction）：给不可信工具套上“自适应安全外壳”</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#A-%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B%E6%A1%86%E7%9A%84%E2%80%9C%E5%BC%B9%E6%80%A7%E5%A4%96%E6%89%A9%EF%BC%88Bounding-Box-Expansion%EF%BC%89%E2%80%9D"><span class="nav-text">(A) 目标检测框的“弹性外扩（Bounding-Box Expansion）”</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#B-%E5%83%8F%E7%B4%A0%E7%BA%A7%E5%88%86%E5%89%B2%E6%8E%A9%E7%A0%81%E7%9A%84%E2%80%9C%E7%BD%AE%E4%BF%A1%E5%8F%AC%E5%9B%9E%E6%81%A2%E5%A4%8D%E2%80%9D"><span class="nav-text">(B) 像素级分割掩码的“置信召回恢复”</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%87%86%E4%BF%9D%E5%BD%A2%E9%87%87%E6%A0%B7%E4%B8%8D%E7%A1%AE%E5%AE%9A%E6%80%A7%EF%BC%88Quasi-Conformal-UQ%EF%BC%89%EF%BC%9A%E6%8E%A2%E6%9F%A5%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%98%AF%E5%90%A6%E5%9C%A8%E2%80%9C%E5%BF%83%E8%99%9A%E7%9E%8E%E8%92%99%E2%80%9D"><span class="nav-text">2. 准保形采样不确定性（Quasi-Conformal UQ）：探查大模型是否在“心虚瞎蒙”</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E8%AE%A1%E7%AE%97%E9%80%BB%E8%BE%91"><span class="nav-text">具体计算逻辑</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E5%AE%9E%E9%AA%8C%E5%AE%9E%E6%B5%8B%E4%B8%8E%E5%B7%A5%E7%A8%8B%E6%9D%83%E8%A1%A1%EF%BC%88Trade-offs%EF%BC%89%E5%85%A8%E6%99%AF"><span class="nav-text">04. 实验实测与工程权衡（Trade-offs）全景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%A0%B8%E5%BF%83%E6%80%A7%E8%83%BD%E5%9F%BA%E5%87%86%E6%A8%AA%E8%AF%84"><span class="nav-text">1. 核心性能基准横评</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E8%AE%BA%E6%8B%86%E8%A7%A3"><span class="nav-text">数据结论拆解</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%BF%90%E8%A1%8C%E6%97%B6%E5%BB%B6%E4%B8%8E%E5%90%9E%E5%90%90%E5%BC%80%E9%94%80%E5%88%86%E6%9E%90"><span class="nav-text">2. 运行时延与吞吐开销分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-TFAR-%E6%AF%94%E5%8E%9F%E7%94%9F%E5%9F%BA%E5%BA%A7%E6%85%A2%E4%BA%86%E4%B8%80%E5%80%8D%EF%BC%88%E7%BA%A6%E5%A4%9A%E6%B6%88%E8%80%97-1-2s%EF%BC%89%EF%BC%9F"><span class="nav-text">为什么 TFAR 比原生基座慢了一倍（约多消耗 1.2s）？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84%E6%9E%B6%E6%9E%84%E5%90%AF%E7%A4%BA%E4%B8%8E%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F"><span class="nav-text">05. 软件工程师的架构启示与设计模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%BB%84%E5%90%88%E5%BC%8F%E8%A7%A3%E8%80%A6%E4%BC%98%E4%BA%8E%E5%8D%95%E4%B8%80%E5%B7%A8%E7%9F%B3%EF%BC%88Unix-Philosophy-in-AI%EF%BC%89"><span class="nav-text">1. 组合式解耦优于单一巨石（Unix Philosophy in AI）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%AF%B9%E4%B8%8D%E5%8F%AF%E4%BF%A1%E4%B8%8A%E6%B8%B8%E5%BB%BA%E7%AB%8B%E2%80%9C%E7%BB%9F%E8%AE%A1%E5%AD%A6%E9%98%B2%E5%BE%A1%E6%8A%A4%E6%A0%8F%E2%80%9D"><span class="nav-text">2. 对不可信上游建立“统计学防御护栏”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%94%A8%E7%89%A9%E7%90%86%E5%B1%82%E5%85%83%E6%95%B0%E6%8D%AE%E5%85%85%E5%BD%93%E5%AF%B9%E5%86%B2%E8%AF%B7%E6%B1%82%E7%9A%84%E4%BB%B2%E8%A3%81%E5%99%A8"><span class="nav-text">3. 用物理层元数据充当对冲请求的仲裁器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E7%94%9F%E4%BA%A7%E8%90%BD%E5%9C%B0%E7%9A%84%E8%BE%B9%E7%95%8C%E9%98%B2%E5%BE%A1%E5%BB%BA%E8%AE%AE"><span class="nav-text">4. 生产落地的边界防御建议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">101</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">324</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2025/11/16/TFAR-VQA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】零重训超越微调？TFAR：基于保形预测与多路推测仲裁的免训练高可靠视觉问答框架 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】零重训超越微调？TFAR：基于保形预测与多路推测仲裁的免训练高可靠视觉问答框架
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-11-16 18:20:00" itemprop="dateCreated datePublished" datetime="2025-11-16T18:20:00+08:00">2025-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-16 18:31:32" itemprop="dateModified" datetime="2026-11-16T18:31:32+08:00">2026-11-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>17 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在当下的多模态大模型（MLLM / LVLM）落地实践中，<strong>视觉问答（VQA）与细粒度图像理解</strong> 正面临着一个极具讽刺意味的“能力倒挂”现象：</p>
+<p>大模型能出口成章、通晓天文地理，但在看图时却常常是个**“深度散光患者”**。面对复杂场景中的微小目标、密集实体或稍显模糊的生活实拍图，大模型往往在第一步就看漏了关键局部，随后的思维链（Chain-of-Thought, CoT）推理便演变成“一本正经地胡说八道”（幻觉）。</p>
+<p>为了治好大模型的“散光”，学术界主流的解决方案是**“造数据、强微调”**：典型如前沿工作 VisCoT，人工标注或合成数十万级“局部关键区域（RoI）+ 逐步推理”的数据集，耗费数十个 GPU 小时对基座模型进行监督微调（SFT）。然而，在真实的工业落地场景中，这种“重编译/重训练”路线带来了高昂的工程代价：</p>
+<ul>
+<li><strong>数据与算力吞吐门槛极高</strong>：单次微调需耗费成千上万卡时，迭代周期长；</li>
+<li><strong>灾难性遗忘与基座绑定</strong>：微调后容易损坏模型的通用对话逻辑，且一旦底层开源底座升级（如从 Qwen2.5 升级到 Qwen3），所有微调数据和适配权重全部得推倒重来。</li>
+</ul>
+<p>针对这一工程痛点，伦敦大学学院（UCL）与伦敦玛丽女王大学等团队在国际机器学习顶刊 <strong>TMLR（Transactions on Machine Learning Research, 2025）</strong> 上发表了一篇极具工程美感的研究：</p>
+<blockquote>
+<p><strong>论文题目</strong>：<em>TFAR: A Training-Free Framework for Autonomous Reliable Reasoning in Visual Question Answering</em><br>
+<strong>论文链接</strong>：<a target="_blank" href="https://openreview.net/forum?id=cBAKeZN3jy" rel="external nofollow noreferrer noopener">https://openreview.net/forum?id=cBAKeZN3jy</a><br>
+<strong>PDF 直达</strong>：<a target="_blank" href="https://openreview.net/pdf?id=cBAKeZN3jy" rel="external nofollow noreferrer noopener">https://openreview.net/pdf?id=cBAKeZN3jy</a><br>
+<strong>核心成果</strong>：完全无需额外训练（<strong>Training-Free，0 权重修改</strong>），通过将通用 MLLM 与成熟轻量视觉工具（YOLOv11、SEEM）解耦协同，引入<strong>保形预测（Conformal Prediction）对工具噪声实施统计学安全边界校准</strong>，并设计<strong>准保形 Top-p 采样量化大模型生成不确定性以实现多路推测仲裁</strong>。在 5 大经典 VQA 基准上，7B 基座模型平均涨点 <strong>+4.6%</strong>（在视障模糊实拍数据集 VizWiz 上涨点高达 <strong>+6.5%</strong>），效果追平甚至反超了耗时 20 小时精调的微调模型，而额外引入的工具校准开销仅为<strong>毫秒级</strong>。</p>
+</blockquote>
+<p>对于软件工程师、后端架构师与系统研发而言，这篇论文提供了一套极为经典的 <strong>“面向不可信外部服务的统计防御护栏 + 对冲请求多路推测与客观探针仲裁”</strong> 生产级架构范式。</p>
+<p>本文将剥离晦涩的纯数学包装，以软件工程的模块设计、容错机制与时延权衡为核心，深度拆解 TFAR 的架构逻辑。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-现实痛点：微调路线的技术债与不可信工具的-GIGO-效应">01. 现实痛点：微调路线的技术债与不可信工具的 GIGO 效应</h2>
+<p>在搭建多模态视觉问答服务时，工程师通常会遭遇两条技术路线的夹击：</p>
+<h3 id="1-传统微调路线的“高昂技术债”">1. 传统微调路线的“高昂技术债”</h3>
+<p>传统的模型增强范式是“端到端全量学习”：让同一个千亿/百亿参数的神经网络既负责低级视觉特征感知（目标框像素坐标），又负责高级语义逻辑归纳。</p>
+<ul>
+<li><strong>高沉没成本</strong>：为了让模型学会提取 RoI（感兴趣区域），必须构建精细的问答-坐标对齐数据集；</li>
+<li><strong>版本锁死</strong>：模型权重一旦更新，外挂的微调补丁便无法直接兼容；在敏捷交付的业务场景中，算法研发周期严重滞后于产品迭代需求。</li>
+</ul>
+<h3 id="2-传统-Agent-工具模式的“GIGO-崩溃”">2. 传统 Agent 工具模式的“GIGO 崩溃”</h3>
+<p>既然微调太重，软件工程师最自然的直觉是<strong>组件解耦</strong>：让成熟的轻量 CV 小模型（如 YOLO 检测框、SAM/SEEM 语义分割）负责找位置，把坐标传给 LLM 负责逻辑思考。</p>
+<p>然而，现实生产环境充满了残酷的不确定性：</p>
+<ul>
+<li><strong>外部工具本身极不可信</strong>：轻量级小模型在复杂光照、遮挡、模糊场景下频频误报，画出的 Bounding Box 经常漏掉目标边缘（比如把小狗的尾巴或手里的道具截断在框外）；语义分割模型也常把前景像素误判为背景；</li>
+<li><strong>GIGO 级联放大（Garbage In, Garbage Out）</strong>：大模型盲目相信工具返回的有缺陷坐标，裁剪出不完整的局部图像，最终得出完全错误的结论。</li>
+</ul>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">传统 Agent 工具直连模式的失效链条:</span><br><span class="line">[模糊输入图像] ──► [未标定的 YOLO/SEEM] ──► [边界切割过窄/漏检] ──► [大模型被残缺上下文误导] ──► [输出严重幻觉]</span><br><span class="line">                                             ▲</span><br><span class="line">                                    缺失防御性容错护栏！</span><br></pre></td></tr></table></figure>
+<p><strong>核心矛盾</strong>：我们能否既享受外部轻量小工具的“毫秒级低成本”，又通过纯工程编排来“抹平工具的噪声与错误”，从而实现免微调的高可靠问答？</p>
+<hr>
+<h2 id="02-架构设计：TFAR-的“多路推测执行-防御性校准流水线”">02. 架构设计：TFAR 的“多路推测执行 + 防御性校准流水线”</h2>
+<p>TFAR（Training-free Framework for Autonomous Reliable Reasoning）的设计思路堪称一次微服务架构设计的典范：<strong>不要试图强行消灭外部服务的不确定性，而是在输入、通信与裁决环节建立统计学担保的防御护栏</strong>。</p>
+<p>整个框架的数据流清晰地分为四个阶段：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph Inputs[&quot;1. 请求接入层&quot;]
+        Img[&quot;原始图像 I₀&quot;]
+        Q[&quot;用户问题 Q₀&quot;]
+    end
+
+    subgraph Offline[&quot;离线准备 (One-time, 耗时仅数分钟)&quot;]
+        CalibData[&quot;验证数据集 (如 COCO Val 5000张)&quot;] --&gt; PreCalc[&quot;预计算统计分位数误差 q_α&quot;]
+    end
+
+    subgraph PathDet[&quot;通路 A: 目标检测流水线 (Detection Pathway)&quot;]
+        Img --&gt; Tool_YOLO[&quot;轻量检测服务 (YOLOv11)&quot;]
+        Tool_YOLO --&gt; Raw_BBox[&quot;原始候选框集合&quot;]
+        PreCalc -.-&gt; Calib_Det[&quot;保形外扩校准 (纯坐标偏移, 耗时 0.2ms)&quot;]
+        Raw_BBox --&gt; Calib_Det
+        Calib_Det --&gt; Stage1_Det[&quot;阶段 1: MLLM 语义筛选关键 RoI ID&quot;]
+        Stage1_Det --&gt; Crop_Det[&quot;局部区域裁剪/高亮&quot;]
+        Crop_Det --&gt; Stage2_Det[&quot;阶段 2: 原图 + 局部图 双视界 CoT 推理&quot;]
+        Stage2_Det --&gt; Out_Det[&quot;候选答案 A_det + 采样不确定性得分 US_det&quot;]
+    end
+
+    subgraph PathSeg[&quot;通路 B: 图像分割流水线 (Segmentation Pathway)&quot;]
+        Img --&gt; Tool_SEEM[&quot;轻量分割服务 (SEEM)&quot;]
+        Tool_SEEM --&gt; Raw_Mask[&quot;原始像素 Mask&quot;]
+        PreCalc -.-&gt; Calib_Seg[&quot;保形像素集合校准 (前景召回补偿, 耗时 34ms)&quot;]
+        Raw_Mask --&gt; Calib_Seg
+        Calib_Seg --&gt; Stage1_Seg[&quot;阶段 1: MLLM 语义筛选关键 RoI ID&quot;]
+        Stage1_Seg --&gt; Crop_Seg[&quot;局部区域提取/高亮&quot;]
+        Crop_Seg --&gt; Stage2_Seg[&quot;阶段 2: 原图 + 局部图 双视界 CoT 推理&quot;]
+        Stage2_Seg --&gt; Out_Seg[&quot;候选答案 A_seg + 采样不确定性得分 US_seg&quot;]
+    end
+
+    subgraph Arbiter[&quot;4. 动态路由仲裁层&quot;]
+        Out_Det --&gt; Router&#123;&quot;仲裁比较器 (min US)&quot;&#125;
+        Out_Seg --&gt; Router
+        Router --&gt; FinalAns[&quot;最终可信交付响应 A*&quot;]
+    end</code></pre>
+<h3 id="阶段执行四部曲">阶段执行四部曲</h3>
+<ol>
+<li><strong>工具并发调用与保形校准（Tool Call &amp; Calibration）</strong>：
+<ul>
+<li>并行拉起目标检测工具 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mrow><mi>d</mi><mi>e</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">f_{det}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>（YOLOv11）与语义分割工具 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mrow><mi>s</mi><mi>e</mi><mi>g</mi></mrow></msub></mrow><annotation encoding="application/x-tex">f_{seg}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9805em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.1076em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">se</span><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span>（SEEM）；</li>
+<li>通过离线预计算的非一致性分位数阈值，<strong>在线对工具原始输出施加保形预测（Conformal Prediction）修正</strong>，强制满足统计学覆盖率保证。</li>
+</ul>
+</li>
+<li><strong>两阶段交互之阶段 1：大模型自主语义选区（RoI Selection）</strong>：
+<ul>
+<li>将校准后的结构化结果（实体 ID、类别名称、相对空间几何关系）注入 Prompt；</li>
+<li>唤醒大模型进行初步逻辑分析，自主决策“要回答问题 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">Q_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">Q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，哪几个 ID 是决定性的证据候选”，大模型直接输出过滤后的核心 ID 列表。</li>
+</ul>
+</li>
+<li><strong>两阶段交互之阶段 2：双视界渐进式 CoT 推理（Fine-grained CoT Reasoning）</strong>：
+<ul>
+<li>根据选中的 ID 提取对应的局部图像切片 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mrow><mi>r</mi><mi>o</mi><mi>i</mi></mrow></msub></mrow><annotation encoding="application/x-tex">I_{roi}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">o</span><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>；</li>
+<li>采用“原图（Macro View）+ 局部切片（Micro View）+ 思考链引导”同时输入大模型，模型执行从宏观到微观的渐进式推理并生成回答。</li>
+</ul>
+</li>
+<li><strong>置信度探针与多路对冲仲裁（UQ-based Routing）</strong>：
+<ul>
+<li>提取大模型在生成各通路答案时的底层 Logits 概率分布，基于准保形 Top-p 展开度量化输出的不确定性得分 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mi>S</mi></mrow><annotation encoding="application/x-tex">US</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span></span></span></span>；</li>
+<li>仲裁器自动路由到 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mi>S</mi></mrow><annotation encoding="application/x-tex">US</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span></span></span></span> 分数最低（最笃定）的通路，作为系统最终交付结果。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="03-核心机制拆解：给不可信系统注入数学确定性">03. 核心机制拆解：给不可信系统注入数学确定性</h2>
+<p>TFAR 框架最惊艳的工程创新，在于其如何巧用 <strong>统计学（保形预测）</strong> 与 <strong>物理信号（解码采样展开度）</strong> 搭建高可靠护栏。</p>
+<h3 id="1-保形预测（Conformal-Prediction）：给不可信工具套上“自适应安全外壳”">1. 保形预测（Conformal Prediction）：给不可信工具套上“自适应安全外壳”</h3>
+<p>在工程实践中，我们如何保证第三方黑盒小模型的输出在生产环境中不翻车？保形预测（CP）提供了一种<strong>无需假设数据分布、具备严格有限样本覆盖概率保证</strong>的无监督校准手段。</p>
+<h4 id="A-目标检测框的“弹性外扩（Bounding-Box-Expansion）”">(A) 目标检测框的“弹性外扩（Bounding-Box Expansion）”</h4>
+<ul>
+<li><strong>现象</strong>：YOLO 预测出的检测框坐标经常偏紧，切掉了紧贴物体的关键线索。</li>
+<li><strong>做法</strong>：
+<ol>
+<li><strong>离线校准（Offline Calibration，一次性耗时约 8 分钟）</strong>：使用 COCO 验证集（5000 张图），对比预测框与真实框在左、上、右、下 4 个方向上的坐标残差，记录非一致性误差得分向量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><mo stretchy="false">(</mo><msub><mover accent="true"><mi>x</mi><mo>^</mo></mover><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub><mo>−</mo><msub><mi>x</mi><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub><mo separator="true">,</mo><msub><mover accent="true"><mi>y</mi><mo>^</mo></mover><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub><mo>−</mo><msub><mi>y</mi><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub><mo separator="true">,</mo><msub><mi>x</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo>−</mo><msub><mover accent="true"><mi>x</mi><mo>^</mo></mover><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo separator="true">,</mo><msub><mi>y</mi><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo>−</mo><msub><mover accent="true"><mi>y</mi><mo>^</mo></mover><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">s = (\hat{x}_{min} - x_{min}, \hat{y}_{min} - y_{min}, x_{max} - \hat{x}_{max}, y_{max} - \hat{y}_{max})</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal">s</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">x</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2222em;"><span class="mord">^</span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">min</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">min</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">min</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7778em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">min</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">x</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2222em;"><span class="mord">^</span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>；</li>
+<li>施加 Bonferroni 校正，将预设风险率 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi></mrow><annotation encoding="application/x-tex">\alpha</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span></span></span></span>（如 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">\alpha = 0.1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0.1</span></span></span></span>，即保证 90% 覆盖率）均分至 4 个维度（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mi mathvariant="normal">/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">\alpha/4</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mord">/4</span></span></span></span>），计算分位数临界值 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover accent="true"><mi>q</mi><mo>^</mo></mover><mrow><mi>α</mi><mi mathvariant="normal">/</mi><mn>4</mn></mrow></msub></mrow><annotation encoding="application/x-tex">\hat{q}_{\alpha/4}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0496em;vertical-align:-0.3552em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">q</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.5198em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0037em;">α</span><span class="mord mtight">/4</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3552em;"><span></span></span></span></span></span></span></span></span></span>；</li>
+<li><strong>在线推断（Online Inference，耗时仅 0.2ms）</strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>C</mi><mo stretchy="false">(</mo><msub><mover accent="true"><mi>b</mi><mo>^</mo></mover><mi>j</mi></msub><mo stretchy="false">)</mo><mo>=</mo><mrow><mo fence="true">[</mo><msub><mover accent="true"><mi>x</mi><mo>^</mo></mover><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub><mo>−</mo><msub><mover accent="true"><mi>q</mi><mo>^</mo></mover><mrow><mi>α</mi><mo separator="true">,</mo><mn>1</mn></mrow></msub><mo separator="true">,</mo><mtext>  </mtext><msub><mover accent="true"><mi>y</mi><mo>^</mo></mover><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub><mo>−</mo><msub><mover accent="true"><mi>q</mi><mo>^</mo></mover><mrow><mi>α</mi><mo separator="true">,</mo><mn>2</mn></mrow></msub><mo separator="true">,</mo><mtext>  </mtext><msub><mover accent="true"><mi>x</mi><mo>^</mo></mover><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo>+</mo><msub><mover accent="true"><mi>q</mi><mo>^</mo></mover><mrow><mi>α</mi><mo separator="true">,</mo><mn>3</mn></mrow></msub><mo separator="true">,</mo><mtext>  </mtext><msub><mover accent="true"><mi>y</mi><mo>^</mo></mover><mrow><mi>m</mi><mi>a</mi><mi>x</mi></mrow></msub><mo>+</mo><msub><mover accent="true"><mi>q</mi><mo>^</mo></mover><mrow><mi>α</mi><mo separator="true">,</mo><mn>4</mn></mrow></msub><mo fence="true">]</mo></mrow></mrow><annotation encoding="application/x-tex">C(\hat{b}_j) = \left[ \hat{x}_{min} - \hat{q}_{\alpha, 1}, \; \hat{y}_{min} - \hat{q}_{\alpha, 2}, \; \hat{x}_{max} + \hat{q}_{\alpha, 3}, \; \hat{y}_{max} + \hat{q}_{\alpha, 4} \right]
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.244em;vertical-align:-0.2861em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="mopen">(</span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9579em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">b</span></span><span style="top:-3.2634em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.25em;"><span class="mord">^</span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">[</span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">x</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2222em;"><span class="mord">^</span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">min</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">q</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0037em;">α</span><span class="mpunct mtight">,</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">min</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">q</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0037em;">α</span><span class="mpunct mtight">,</span><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal">x</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.2222em;"><span class="mord">^</span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">q</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0037em;">α</span><span class="mpunct mtight">,</span><span class="mord mtight">3</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">x</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord katex-accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">q</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0037em;">α</span><span class="mpunct mtight">,</span><span class="mord mtight">4</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mclose delimcenter" style="top:0em;">]</span></span></span></span></span></span></p>
+</li>
+</ol>
+</li>
+</ul>
+<blockquote>
+<p><strong>工程直觉</strong>：这就像分布式网络调用中的 <strong>动态 SLA 容限 Buffer</strong>。既然已知上游服务有长尾截断误差，我们在客户端通过预计算的安全增量动态加上自适应 Padding，从数学上保证真实物体以 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>90</mn><mi mathvariant="normal">%</mi></mrow><annotation encoding="application/x-tex">\ge 90\%</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8056em;vertical-align:-0.0556em;"></span><span class="mord">90%</span></span></span></span> 的概率完整落在扩展框内。</p>
+</blockquote>
+<h4 id="B-像素级分割掩码的“置信召回恢复”">(B) 像素级分割掩码的“置信召回恢复”</h4>
+<ul>
+<li><strong>现象</strong>：分割模型在物体边缘或对比度较低区域容易过度保守，直接归为背景（Background, ID=0）。</li>
+<li><strong>做法</strong>：在像素级别构建预测集 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo stretchy="false">(</mo><mi>u</mi><mo separator="true">,</mo><mi>v</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">C(u,v)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="mopen">(</span><span class="mord mathnormal">u</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">v</span><span class="mclose">)</span></span></span></span>，若像素预测值落入置信容限内，优先将其从未被完全否决的前景类别中召回，大幅缓解分割空洞缺陷（单图计算耗时约 34ms）。</li>
+</ul>
+<hr>
+<h3 id="2-准保形采样不确定性（Quasi-Conformal-UQ）：探查大模型是否在“心虚瞎蒙”">2. 准保形采样不确定性（Quasi-Conformal UQ）：探查大模型是否在“心虚瞎蒙”</h3>
+<p>在双通路或多通路并发推测执行中，最困难的往往是<strong>仲裁器（Arbiter）的指标选型</strong>：</p>
+<ul>
+<li>依赖大模型“自我反思”（Self-reflection：“你觉得自己答对了吗？”）已被多项研究所证伪，大模型通常严重过度自信；</li>
+<li>简单的 Softmax 概率乘积在长序列生成中存在数值下溢与过度峰化问题；</li>
+<li>序列信息熵（Entropy）计算复杂度高且受词表尾部噪声严重干扰。</li>
+</ul>
+<p>TFAR 提出了一种基于 <strong>Top-p 采样展开度</strong> 的轻量级置信度探针：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">大模型解码状态下的 Token 候选集宽度 (反映内部置信度):</span><br><span class="line">Token 1 (极笃定):    [ &quot;Dog&quot;: 0.94 ] ────────────────────────► 累积达 90% 只需 k₁ = 1 个词</span><br><span class="line">Token 2 (犹豫摇摆):  [ &quot;wear&quot;: 0.25, &quot;has&quot;: 0.22, &quot;on&quot;: 0.18, </span><br><span class="line">                      &quot;with&quot;: 0.15, &quot;puts&quot;: 0.12 ... ] ──────► 累积达 90% 需要 k₂ = 18 个词</span><br></pre></td></tr></table></figure>
+<h4 id="具体计算逻辑">具体计算逻辑</h4>
+<ol>
+<li>在大模型自回归生成答案序列 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>=</mo><mo stretchy="false">{</mo><msub><mi>w</mi><mn>1</mn></msub><mo separator="true">,</mo><msub><mi>w</mi><mn>2</mn></msub><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo><msub><mi>w</mi><mi>T</mi></msub><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">A = \{w_1, w_2, \dots, w_T\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner">…</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">}</span></span></span></span> 的每一步，提取当前词表概率降序排列向量；</li>
+<li>计算让累积概率首次突破阈值 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi></mrow><annotation encoding="application/x-tex">p</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span></span></span></span>（实验设定 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>0.9</mn></mrow><annotation encoding="application/x-tex">p=0.9</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0.9</span></span></span></span>）所需的<strong>最小候选 Token 数量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">k_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0315em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>k</mi><mi>i</mi></msub><mo>=</mo><mi>min</mi><mo>⁡</mo><mrow><mo fence="true">{</mo><mi>k</mi><mtext>  </mtext><mo fence="true" lspace="0.05em" rspace="0.05em">|</mo><mtext>  </mtext><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><msubsup><mi>p</mi><mi>i</mi><mrow><mo stretchy="false">(</mo><mi>j</mi><mo stretchy="false">)</mo></mrow></msubsup><mo>≥</mo><mi>p</mi><mo fence="true">}</mo></mrow></mrow><annotation encoding="application/x-tex">k_i = \min \left\{ k \;\middle|\; \sum_{j=1}^{k} p_i^{(j)} \ge p \right\}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0315em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:3.2499em;vertical-align:-1.4138em;"></span><span class="mop">min</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord mathnormal" style="margin-right:0.0315em;">k</span><span class="mspace" style="margin-right:0.2778em;"></span><span><span class="delimsizing mult"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.75em;"><span style="top:-3.75em;"><span class="pstrut" style="height:5em;"></span><span style="width:0.333em;height:3em;"><svg xmlns="http://www.w3.org/2000/svg" width="0.333em" height="3em" viewBox="0 0 333 3000"><path d="M145 15 v585 v1800 v585 c2.667,10,9.667,15,21,15
+c10,0,16.667,-5,20,-15 v-585 v-1800 v-585 c-2.667,-10,-9.667,-15,-21,-15
+c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v1800 v585 h43z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.25em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.8361em;"><span style="top:-1.8723em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span><span style="top:-4.3em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.4138em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.4231em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2769em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal">p</span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size4">}</span></span></span></span></span></span></span></p>
+</li>
+<li><strong>序列级平均不确定性得分（Uncertainty Score, US）</strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>U</mi><mi>S</mi><mo stretchy="false">(</mo><mi>A</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><mi>T</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>T</mi></munderover><msub><mi>k</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">US(A) = \frac{1}{T} \sum_{i=1}^{T} k_i
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="mopen">(</span><span class="mord mathnormal">A</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:3.106em;vertical-align:-1.2777em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">T</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.8283em;"><span style="top:-1.8723em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span><span style="top:-4.3em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2777em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0315em;">k</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0315em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+</li>
+</ol>
+<p><strong>判决规则</strong>：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mi>S</mi></mrow><annotation encoding="application/x-tex">US</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span></span></span></span> 越小，说明大模型在解码各 Token 时概率质量越集中，内心越果断；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mi>S</mi></mrow><annotation encoding="application/x-tex">US</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span></span></span></span> 越大，说明模型解码时候选空间高度发散，处于瞎猜状态。仲裁器无脑选择 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mi>S</mi></mrow><annotation encoding="application/x-tex">US</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span></span></span></span> 最低的一路答案：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msup><mi>A</mi><mo>∗</mo></msup><mo>=</mo><mi>arg</mi><mo>⁡</mo><munder><mrow><mi>min</mi><mo>⁡</mo></mrow><mi>k</mi></munder><mi>U</mi><mi>S</mi><mo stretchy="false">(</mo><msub><mi>A</mi><mi>k</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">A^* = \arg\min_{k} US(A_k)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7387em;"></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7387em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.5021em;vertical-align:-0.7521em;"></span><span class="mop">ar<span style="margin-right:0.0139em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6679em;"><span style="top:-2.3479em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop">min</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.7521em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span></p>
+<hr>
+<h2 id="04-实验实测与工程权衡（Trade-offs）全景">04. 实验实测与工程权衡（Trade-offs）全景</h2>
+<p>任何优秀的架构设计必然伴随着妥协与折衷。TFAR 在 5 项权威多模态推理榜单（VQA2、VizWiz、GQA、Flickr30K、MMBench）上进行了严格评测：</p>
+<h3 id="1-核心性能基准横评">1. 核心性能基准横评</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">方案 / 模型</th>
+<th style="text-align:left">训练代价 (Training Cost)</th>
+<th style="text-align:left">VQA2</th>
+<th style="text-align:left">VizWiz (模糊/视障实拍)</th>
+<th style="text-align:left">GQA</th>
+<th style="text-align:left">Flickr30K</th>
+<th style="text-align:left">MMBench</th>
+<th style="text-align:left">平均综合 (Avg)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>LLaVA-1.5-13B</strong></td>
+<td style="text-align:left">预训练+SFT (13B参数)</td>
+<td style="text-align:left">80.0</td>
+<td style="text-align:left">53.6</td>
+<td style="text-align:left">63.3</td>
+<td style="text-align:left">62.3</td>
+<td style="text-align:left">67.7</td>
+<td style="text-align:left">65.4%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>SPHINX-13B</strong></td>
+<td style="text-align:left">多视觉编码器微调 (13B)</td>
+<td style="text-align:left">78.1</td>
+<td style="text-align:left">52.5</td>
+<td style="text-align:left">62.6</td>
+<td style="text-align:left">60.7</td>
+<td style="text-align:left">66.9</td>
+<td style="text-align:left">64.2%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>LLaVA-ov-7B (Base)</strong></td>
+<td style="text-align:left">零修改直接推理</td>
+<td style="text-align:left">79.0</td>
+<td style="text-align:left">53.6</td>
+<td style="text-align:left">64.8</td>
+<td style="text-align:left">61.1</td>
+<td style="text-align:left">72.3</td>
+<td style="text-align:left">66.2%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>VisCoT (Fine-tuned)</strong></td>
+<td style="text-align:left"><strong>43.8万条样本 / 20小时 GPU 微调</strong></td>
+<td style="text-align:left">83.3</td>
+<td style="text-align:left">57.2</td>
+<td style="text-align:left">69.6</td>
+<td style="text-align:left">69.9</td>
+<td style="text-align:left">76.6</td>
+<td style="text-align:left"><strong>71.3%</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>TFAR (Ours, 7B Base)</strong></td>
+<td style="text-align:left"><strong>0 额外训练 (Training-Free)</strong></td>
+<td style="text-align:left"><strong>82.5</strong></td>
+<td style="text-align:left"><strong>60.1</strong></td>
+<td style="text-align:left"><strong>67.3</strong></td>
+<td style="text-align:left"><strong>67.2</strong></td>
+<td style="text-align:left"><strong>77.1</strong></td>
+<td style="text-align:left"><strong>70.8%</strong></td>
+</tr>
+</tbody>
+</table>
+<h4 id="数据结论拆解">数据结论拆解</h4>
+<ol>
+<li><strong>免训练基本抹平差距</strong>：TFAR 仅凭运行时编排与校准，在 7B 开源底座上跑出了 <strong>70.8%</strong> 的平均分，大幅拉开原始基座（+4.6%），并以零训练代价无限逼近耗时 20 小时重度微调的 VisCoT 上限（71.3%）；</li>
+<li><strong>脏数据场景下反超微调</strong>：在噪声最大、图片最模糊的真实盲人拍摄数据集 <strong>VizWiz</strong> 上，TFAR（60.1%）<strong>不仅远超基座，更反超了微调模型近 3 个百分点</strong>。这强力证明了：针对模糊图片，外部视觉小工具经统计校准后提供的局部放大特征，远比大模型内部端到端记忆更抗噪。</li>
+</ol>
+<hr>
+<h3 id="2-运行时延与吞吐开销分析">2. 运行时延与吞吐开销分析</h3>
+<p>天下没有免费的午餐。零微调提升准确率的代价是什么？论文提供了精细的单请求延迟拆解（以单个并发评测）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">方案</th>
+<th style="text-align:left">VQA2 单请求延迟</th>
+<th style="text-align:left">VizWiz 单请求延迟</th>
+<th style="text-align:left">相对基座时延增幅</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>LLaVA-ov-7B (原生单次推理)</strong></td>
+<td style="text-align:left">1.24s</td>
+<td style="text-align:left">1.33s</td>
+<td style="text-align:left">基线 (1x)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>VisCoT (单模型微调后两阶段推理)</strong></td>
+<td style="text-align:left">2.15s</td>
+<td style="text-align:left">2.34s</td>
+<td style="text-align:left">+73% ~ +76%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>TFAR (本文方案)</strong></td>
+<td style="text-align:left">2.42s</td>
+<td style="text-align:left">2.63s</td>
+<td style="text-align:left">+95% ~ +98%</td>
+</tr>
+</tbody>
+</table>
+<h4 id="为什么-TFAR-比原生基座慢了一倍（约多消耗-1-2s）？">为什么 TFAR 比原生基座慢了一倍（约多消耗 1.2s）？</h4>
+<ul>
+<li><strong>工具开销微乎其微</strong>：YOLO 目标检测耗时约几毫秒，校准计算耗时 0.2ms；SEEM 分割及校准耗时约 34ms；这部分几乎可忽略；</li>
+<li><strong>瓶颈在大模型的多轮解码开销</strong>：
+<ul>
+<li><strong>Stage 1 调用</strong>：大模型需要阅读外部工具返回的实体文本列表，自回归生成一段 CoT 思考过程来挑选目标 ID，这引入了约数十个 Token 的生成时延；</li>
+<li><strong>Stage 2 调用</strong>：将原图与局部切片拼接为多图输入，上下文视觉 Token 增多，导致前向计算耗时上升。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>工程权衡结论</strong>：相比微调方案，TFAR 仅慢了 12%（多约 270ms），但免去了<strong>数十万条打标样本的采买与清洗成本、昂贵的 GPU 集群重训预算、以及未来模型版本迭代的技术锁定风险</strong>。对于后台异步审核、高精度工业缺陷探查、智能客服问答等吞吐要求适中的场景而言，这是一笔极高 ROI（投入产出比）的架构抉择。</p>
+</blockquote>
+<hr>
+<h2 id="05-软件工程师的架构启示与设计模式">05. 软件工程师的架构启示与设计模式</h2>
+<p>跳出算法论文的具体业务域，TFAR 给现代 AI 复合系统（Compound AI Systems）的工程落地留下了极其宝贵的四条模式借鉴：</p>
+<h3 id="1-组合式解耦优于单一巨石（Unix-Philosophy-in-AI）">1. 组合式解耦优于单一巨石（Unix Philosophy in AI）</h3>
+<p>在构建大模型系统时，切忌把所有业务职责硬塞进大模型端到端训练里。</p>
+<ul>
+<li>让 C/C++/TensorRT 极致加速的专用小模型（YOLO/OCR/ASR）干好目标定位和感知粗筛；</li>
+<li>让具备深厚通用常识的大模型负责意图理解与因果仲裁；</li>
+<li>两者之间以**结构化协议（JSON / 明确的边界坐标规范）**解耦交互。系统组件均可独立灰度热更新，维护边界极其清晰。</li>
+</ul>
+<h3 id="2-对不可信上游建立“统计学防御护栏”">2. 对不可信上游建立“统计学防御护栏”</h3>
+<p>微服务架构倡导“防患于未然”。在调用第三方 API、弱模型推理或未知语义工具时，不能指望上游 100% 准确，更不要写死满屏幕脆弱的 <code>if-else</code> 或硬编码阈值。</p>
+<ul>
+<li><strong>保形预测（Conformal Prediction）是一把低调但威力巨大的工程武器</strong>：只需要少量的校验数据，就能在无需假设底层黑盒分布的前提下，导出具有严格数学覆盖率担保的动态缓冲区（Dynamic Buffer/Padding），为脆性系统构筑容错底线。</li>
+</ul>
+<h3 id="3-用物理层元数据充当对冲请求的仲裁器">3. 用物理层元数据充当对冲请求的仲裁器</h3>
+<p>在复杂的智能体（Agent）工作流中，多路推测执行（Hedged Requests / Speculative Execution）是突破单点瓶颈的常规手段。</p>
+<ul>
+<li>仲裁多路结果时，<strong>优先采纳计算图物理底层的伴生元数据（如 Top-p 展开度、Logits 熵值、方差）</strong>；</li>
+<li>这类探针既不消耗额外的 Prompt Token，也不受大模型“自吹自擂”主观情绪的干扰，能提供极其诚实系统的决策依据。</li>
+</ul>
+<h3 id="4-生产落地的边界防御建议">4. 生产落地的边界防御建议</h3>
+<p>若要将 TFAR 类系统搬上真实的高并发在线业务网关，还需注意以下工程加固点：</p>
+<ul>
+<li><strong>多路并发与短路熔断</strong>：通路 A（检测）与通路 B（分割）应通过异步线程/协程并发调度；若检测通路已率先完成且置信度极高（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mi>S</mi><mo>&lt;</mo><mtext>threshold</mtext></mrow><annotation encoding="application/x-tex">US &lt; \text{threshold}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7224em;vertical-align:-0.0391em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">U</span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord text"><span class="mord">threshold</span></span></span></span></span>），可直接触发短路机制提前返回，节省分割通路的算力消耗；</li>
+<li><strong>两阶段合并（Prompt Pipeline 优化）</strong>：若业务交互延迟要求极其严苛（&lt;1.5s），可通过 Few-shot 优化 Prompt，尝试将 Stage 1（选区）与 Stage 2（推理）压缩为单次流式长上下文交互，进一步榨取延迟空间。</li>
+</ul>
+<hr>
+<h2 id="总结">总结</h2>
+<p>TFAR 证明了一件在当下大模型狂热时代极具清醒意味的事实：<strong>解决复杂的模型认知难题，不一定非要走向更庞大的参数与更昂贵的重新训练。</strong></p>
+<p>通过将 <strong>经典软件工程的模块解耦、统计学保形容错、以及对冲推测仲裁</strong> 融会贯通，在系统编排层巧妙做功，普通工程师即便不掌握底层复杂的神经网络反向传播算法，同样能搭建出稳定性媲美、甚至超越重型微调模型的顶尖多模态系统。这种架构化、系统级的解决思路，正是大模型工程落地进入深水区后最需要的工程直觉。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="tag"># 架构设计</a>
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%A7%86%E8%A7%92/" rel="tag"># 软件工程视角</a>
+              <a href="/tags/%E8%A7%86%E8%A7%89%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B/" rel="tag"># 视觉语言模型</a>
+              <a href="/tags/%E8%A7%86%E8%A7%89%E9%97%AE%E7%AD%94/" rel="tag"># 视觉问答</a>
+              <a href="/tags/Visual-CoT/" rel="tag"># Visual-CoT</a>
+              <a href="/tags/%E4%BF%9D%E5%BD%A2%E9%A2%84%E6%B5%8B/" rel="tag"># 保形预测</a>
+              <a href="/tags/%E4%B8%8D%E7%A1%AE%E5%AE%9A%E6%80%A7%E5%BA%A6%E9%87%8F/" rel="tag"># 不确定性度量</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/" rel="prev" title="【论文分享】阿里千问 Qwen3-VL 检索双子星全景解析：面向视频与多模态检索系统的工程落地实战指南">
+                  <i class="fa fa-angle-left"></i> 【论文分享】阿里千问 Qwen3-VL 检索双子星全景解析：面向视频与多模态检索系统的工程落地实战指南
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2025/11/16/UniME-V2/" rel="next" title="【论文分享】以数据引擎驱动模型进化：UniME-V2 如何利用 MLLM-as-a-Judge 破除多模态向量检索的“假负例”困境">
+                  【论文分享】以数据引擎驱动模型进化：UniME-V2 如何利用 MLLM-as-a-Judge 破除多模态向量检索的“假负例”困境 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">452k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">27:23</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
