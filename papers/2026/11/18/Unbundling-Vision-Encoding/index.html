@@ -31,15 +31,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="在当今的多模态大语言模型（MLLM）架构中，我们早已对一种“标准范式”习以为常：用一个预训练好的独立视觉编码器（如 CLIP、SigLIP），通过一个线性层或小型 MLP（Projector），挂载到一个纯文本大模型（LLM）前面。 站在软件工程的角度审视，这种结构像极了系统设计初期的**“跨团队胶水架构”**：由于历史原因，团队直接把一个现成的第三方图片处理服务（ViT&#x2F;CLIP）和一个文本生成">
+    <meta name="description" content="在当今的多模态大语言模型（MLLM）架构中，我们早已对一种“标准范式”习以为常：用一个预训练好的独立视觉编码器（如 CLIP、SigLIP），通过一个线性层或小型 MLP（Projector），挂载到一个纯文本大模型（LLM）前面。 站在软件工程的角度审视，这种结构像极了系统设计初期的 “跨团队胶水架构”：由于历史原因，团队直接把一个现成的第三方图片处理服务（ViT&#x2F;CLIP）和一个文本生成服务（">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【论文分享】重构多模态的“祖传代码”：Meta FAIR 拆解视觉编码器，为什么说 In-Fusion 才是低延迟与高精度的未来？">
 <meta property="og:url" content="https://lewlh.github.io/papers/2026/11/18/Unbundling-Vision-Encoding/index.html">
 <meta property="og:site_name" content="Lewlh&#39;s blog">
-<meta property="og:description" content="在当今的多模态大语言模型（MLLM）架构中，我们早已对一种“标准范式”习以为常：用一个预训练好的独立视觉编码器（如 CLIP、SigLIP），通过一个线性层或小型 MLP（Projector），挂载到一个纯文本大模型（LLM）前面。 站在软件工程的角度审视，这种结构像极了系统设计初期的**“跨团队胶水架构”**：由于历史原因，团队直接把一个现成的第三方图片处理服务（ViT&#x2F;CLIP）和一个文本生成">
+<meta property="og:description" content="在当今的多模态大语言模型（MLLM）架构中，我们早已对一种“标准范式”习以为常：用一个预训练好的独立视觉编码器（如 CLIP、SigLIP），通过一个线性层或小型 MLP（Projector），挂载到一个纯文本大模型（LLM）前面。 站在软件工程的角度审视，这种结构像极了系统设计初期的 “跨团队胶水架构”：由于历史原因，团队直接把一个现成的第三方图片处理服务（ViT&#x2F;CLIP）和一个文本生成服务（">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-11-18T08:35:00.000Z">
-<meta property="article:modified_time" content="2026-11-18T10:53:57.980Z">
+<meta property="article:modified_time" content="2026-11-18T11:12:41.770Z">
 <meta property="article:author" content="豪豪">
 <meta property="article:tag" content="In-Fusion">
 <meta property="article:tag" content="Qwen3-VL">
@@ -237,7 +237,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-18 16:35:00 / 修改时间：18:53:57" itemprop="dateCreated datePublished" datetime="2026-11-18T16:35:00+08:00">2026-11-18</time>
+      <time title="创建时间：2026-11-18 16:35:00 / 修改时间：19:12:41" itemprop="dateCreated datePublished" datetime="2026-11-18T16:35:00+08:00">2026-11-18</time>
     </span>
 
   
@@ -261,7 +261,7 @@
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>17 分钟</span>
+      <span>18 分钟</span>
     </span>
 </div>
 
@@ -272,7 +272,7 @@
     
     
     <div class="post-body" itemprop="articleBody"><p>在当今的多模态大语言模型（MLLM）架构中，我们早已对一种“标准范式”习以为常：<strong>用一个预训练好的独立视觉编码器（如 CLIP、SigLIP），通过一个线性层或小型 MLP（Projector），挂载到一个纯文本大模型（LLM）前面</strong>。</p>
-<p>站在软件工程的角度审视，这种结构像极了系统设计初期的**“跨团队胶水架构”**：由于历史原因，团队直接把一个现成的第三方图片处理服务（ViT/CLIP）和一个文本生成服务（LLaMA/Qwen）拼在一起。大家虽然觉得这套管道又重又笨（双模型调度复杂、推理延迟高、显存碎片化），但由于它“能跑且指标不错”，便成了业界奉为圭臬的“祖传代码”。</p>
+<p>站在软件工程的角度审视，这种结构像极了系统设计初期的 <strong>“跨团队胶水架构”</strong>：由于历史原因，团队直接把一个现成的第三方图片处理服务（ViT/CLIP）和一个文本生成服务（LLaMA/Qwen）拼在一起。大家虽然觉得这套管道又重又笨（双模型调度复杂、推理延迟高、显存碎片化），但由于它“能跑且指标不错”，便成了业界奉为圭臬的“祖传代码”。</p>
 <p>业界也因此产生了一系列悬而未决的争论：</p>
 <ul>
 <li><strong>真的是因为 CLIP 预训练让模型获得了强大的视觉先验吗？</strong></li>
@@ -328,13 +328,15 @@
 
     subgraph EncoderFree[&quot;朴素 Encoder-Free: 单体共享无隔离&quot;]
         Img2[&quot;图像输入&quot;] --&gt; Patch[&quot;轻量线性 Patch 投影&quot;]
-        Txt2[&quot;文本输入&quot;] &amp; Patch --&gt; LLM2[&quot;统一单体 LLM 主干&lt;br/&gt;(所有参数完全共享)&quot;]
+        Txt2[&quot;文本输入&quot;] --&gt; LLM2[&quot;统一单体 LLM 主干&lt;br/&gt;(所有参数完全共享)&quot;]
+        Patch --&gt; LLM2
         NoteB[&quot;放弃所有设计:&lt;br/&gt;无先验 + 无专属参数 + 无前置处理&lt;br/&gt;(导致严重的跨模态资源争用)&quot;]
     end
 
     subgraph InFusion[&quot;In-Fusion 架构: 内聚型弹性分支&quot;]
         Img3[&quot;图像输入&quot;] --&gt; Patch2[&quot;轻量线性 Patch 投影&quot;]
-        Txt3[&quot;文本输入&quot;] &amp; Patch2 --&gt; Early[&quot;主干前 1~8 层&lt;br/&gt;[共享权重] + [专属视觉增量分支]&quot;]
+        Txt3[&quot;文本输入&quot;] --&gt; Early[&quot;主干前 1~8 层&lt;br/&gt;[共享权重] + [专属视觉增量分支]&quot;]
+        Patch2 --&gt; Early
         Early --&gt; Late[&quot;主干后 20 层&lt;br/&gt;(纯共享联合深度推理)&quot;]
         NoteC[&quot;精准解耦方案:&lt;br/&gt;无先验 + 保留专属参数 + 融合内计算&lt;br/&gt;(消除串行瓶颈, 首字延迟暴跌)&quot;]
     end</code></pre>
@@ -387,21 +389,23 @@
 <hr>
 <h2 id="03-In-Fusion-系统实现细节：如何以“零初始化增量分支”无缝融入">03. In-Fusion 系统实现细节：如何以“零初始化增量分支”无缝融入</h2>
 <p>In-Fusion 在架构上极度优雅，它没有像 MoT（Mixture-of-Transformers）那样对文本和图像完全分库分表，而是<strong>让所有 Token 共享一套主干底座，仅在特定层为视觉 Token 挂载弹性分支</strong>。</p>
-<pre><code class="highlight mermaid">flowchart LR
-    subgraph InFusionLayer[&quot;In-Fusion 骨干层内部计算流 (前 1~8 层)&quot;]
-        direction TB
-        Input[&quot;输入 Token 隐状态 (z_i)&quot;] --&gt; PreNorm[&quot;RMSNorm&quot;]
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph InFusionLayer[&quot;In-Fusion 骨干层内部计算流（前 1~8 层）&quot;]
+        Input[&quot;输入 Token 隐状态 z_i&quot;] --&gt; PreNorm[&quot;RMSNorm 归一化&quot;]
         
         PreNorm --&gt; SharedAttn[&quot;共享注意力权重 W_P&quot;]
-        PreNorm --&gt;|仅当 m_i=1 (视觉)| VisionAttn[&quot;专属注意力增量 ΔW_P&quot;]
+        PreNorm --&gt;|仅当视觉 Token m_i 为 1| VisionAttn[&quot;专属注意力增量 ΔW_P&quot;]
         
-        SharedAttn &amp; VisionAttn --&gt; AddAttn[&quot;残差求和: W_P·z + m_i·ΔW_P·z&quot;]
-        AddAttn --&gt; NormFFN[&quot;RMSNorm&quot;]
+        SharedAttn --&gt; AddAttn[&quot;残差求和: W_P * z + m_i * ΔW_P * z&quot;]
+        VisionAttn --&gt; AddAttn
         
-        NormFFN --&gt; SharedFFN[&quot;共享 FFN 模块 F(·)&quot;]
-        NormFFN --&gt;|仅当 m_i=1 (视觉)| VisionFFN[&quot;专属 FFN 模块 ΔF(·)&quot;]
+        AddAttn --&gt; NormFFN[&quot;RMSNorm 归一化&quot;]
         
-        SharedFFN &amp; VisionFFN --&gt; Output[&quot;残差输出: h + F(·) + m_i·ΔF(·)&quot;]
+        NormFFN --&gt; SharedFFN[&quot;共享 FFN 模块 F&quot;]
+        NormFFN --&gt;|仅当视觉 Token m_i 为 1| VisionFFN[&quot;专属视觉 FFN 模块 ΔF&quot;]
+        
+        SharedFFN --&gt; Output[&quot;残差输出: h + F + m_i * ΔF&quot;]
+        VisionFFN --&gt; Output
     end</code></pre>
 <h3 id="3-1-数学与代码逻辑">3.1 数学与代码逻辑</h3>
 <p>对于输入序列中的任意 Token <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span>，引入模态指示变量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>i</mi></msub><mo>∈</mo><mo stretchy="false">{</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">m_i \in \{0, 1\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6891em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">}</span></span></span></span>（视觉 Token 为 1，文本为 0）：</p>
@@ -450,7 +454,7 @@ In-Fusion 在初始化时，将所有增量权重 <span class="katex"><span clas
     end</code></pre>
 <h3 id="1-根治首字延迟-TTFT（Time-To-First-Token）的串行阻塞">1. 根治首字延迟 TTFT（Time-To-First-Token）的串行阻塞</h3>
 <ul>
-<li>在传统架构下，LLM 必须处于**“阻塞等待（Block Wait）”**状态，必须等几十层的 ViT 算完，才能拿到特征构建第一层的 KV Cache。</li>
+<li>在传统架构下，LLM 必须处于 <strong>“阻塞等待（Block Wait）”</strong> 状态，必须等几十层的 ViT 算完，才能拿到特征构建第一层的 KV Cache。</li>
 <li>在 In-Fusion 架构下，图像 Patch 经简单的线性投射直接作为输入 Token。全模型是一个单体流水线，消除了跨服务调度的通信与调度开销。论文在 H200 硬件上的测试表明，在同等参数预算下，<strong>In-Fusion 的首字延迟显著低于传统编码器方案</strong>。</li>
 </ul>
 <h3 id="2-彻底解脱-Continuous-Batching-调度器">2. 彻底解脱 Continuous Batching 调度器</h3>
@@ -504,14 +508,14 @@ In-Fusion 在初始化时，将所有增量权重 <span class="katex"><span clas
 <pre><code class="highlight mermaid">flowchart TD
     Start[&quot;业务需求评估&quot;] --&gt; Target&#123;&quot;系统核心瓶颈&quot;&#125;
     
-    Target --&gt;|&quot;强依赖文字/单据 OCR、细粒度图表&quot;| OptA[&quot;精度与细节优先&quot;]
-    OptA --&gt; ModelA[&quot;首选: Qwen3-VL (32B / 30B-A3B) 或 InternVL 3&lt;br/&gt;(DeepStack 浅层直通技术完美支撑微小细节)&quot;]
+    Target --&gt;|&quot;强依赖文字与单据 OCR、细粒度图表&quot;| OptA[&quot;精度与细节优先&quot;]
+    OptA --&gt; ModelA[&quot;首选: Qwen3-VL 32B / 30B-A3B 或 InternVL 3&lt;br/&gt;DeepStack 浅层直通技术完美支撑微小细节&quot;]
     
-    Target --&gt;|&quot;追求极低首字延迟 (TTFT)、单体简洁部署&quot;| OptB[&quot;延迟与内聚优先&quot;]
-    OptB --&gt; ModelB[&quot;首选: Mono-InternVL (8B)&lt;br/&gt;(彻底干掉独立 ViT，内置 MoE 视觉专家)&quot;]
+    Target --&gt;|&quot;追求极低首字延迟 TTFT 与单体简洁部署&quot;| OptB[&quot;延迟与内聚优先&quot;]
+    OptB --&gt; ModelB[&quot;首选: Mono-InternVL 8B&lt;br/&gt;彻底干掉独立 ViT，内置 MoE 视觉专家&quot;]
     
     Target --&gt;|&quot;高并发 API、单卡显存受限、边缘端运行&quot;| OptC[&quot;吞吐与硬件成本优先&quot;]
-    OptC --&gt; ModelC[&quot;首选: DeepSeek-VL2 (27B MoE) 或 MiniCPM-V 3.0/2.6&lt;br/&gt;(激活参数极小或 Token 压缩率极高)&quot;]</code></pre>
+    OptC --&gt; ModelC[&quot;首选: DeepSeek-VL2 27B MoE 或 MiniCPM-V 3.0/2.6&lt;br/&gt;激活参数极小或 Token 压缩率极高&quot;]</code></pre>
 <h3 id="核心选型避坑总结">核心选型避坑总结</h3>
 <ol>
 <li><strong>彻底淘汰“冻结式拼装模型”</strong>：如早期的 LLaVA-1.5，已被证实是过渡期的落后产物，严禁用于新业务。</li>
@@ -520,7 +524,7 @@ In-Fusion 在初始化时，将所有增量权重 <span class="katex"><span clas
 </ol>
 <hr>
 <h2 id="08-结语">08. 结语</h2>
-<p>从早期的“外部独立双塔强行拼凑”，到如今探索“前浅层内嵌（In-Fusion）与单体内聚（Monolithic）”，多模态大模型的演进，正在完整复刻经典软件工程**“从松散胶水拼装走向高内聚低耦合系统”**的重构规律。</p>
+<p>从早期的“外部独立双塔强行拼凑”，到如今探索“前浅层内嵌（In-Fusion）与单体内聚（Monolithic）”，多模态大模型的演进，正在完整复刻经典软件工程 <strong>“从松散胶水拼装走向高内聚低耦合系统”</strong> 的重构规律。</p>
 <p>这篇论文用极其漂亮的控制变量实验，撕下了长期笼罩在“视觉预训练先验”之上的神秘面纱，指明了专用算力与合理布局的本质价值。对于每一位软件开发者而言，保持对“业界惯例”的敬畏，同时时刻用第一性原理与严谨的控制变量思维去审视系统瓶颈，才是构建优雅、高性能架构的永恒准则。</p>
 
     </div>
