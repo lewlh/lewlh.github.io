@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">337</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">105</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">344</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">107</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">105</span>
+          <span class="site-state-item-count">107</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">337</span>
+        <span class="site-state-item-count">344</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,229 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2025/11/16/TFAR-VQA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2025/11/16/TFAR-VQA/" class="post-title-link" itemprop="url">【论文分享】零重训超越微调？TFAR：基于保形预测与多路推测仲裁的免训练高可靠视觉问答框架</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-11-16 18:20:00" itemprop="dateCreated datePublished" datetime="2025-11-16T18:20:00+08:00">2025-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-18 18:53:57" itemprop="dateModified" datetime="2026-11-18T18:53:57+08:00">2026-11-18</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>17 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在当下的多模态大模型（MLLM / LVLM）落地实践中，<strong>视觉问答（VQA）与细粒度图像理解</strong> 正面临着一个极具讽刺意味的“能力倒挂”现象：</p>
+<p>大模型能出口成章、通晓天文地理，但在看图时却常常是个**“深度散光患者”**。面对复杂场景中的微小目标、密集实体或稍显模糊的生活实拍图，大模型往往在第一步就看漏了关键局部，随后的思维链（Chain-of-Thought, CoT）推理便演变成“一本正经地胡说八道”（幻觉）。</p>
+<p>为了治好大模型的“散光”，学术界主流的解决方案是**“造数据、强微调”**：典型如前沿工作 VisCoT，人工标注或合成数十万级“局部关键区域（RoI）+ 逐步推理”的数据集，耗费数十个 GPU 小时对基座模型进行监督微调（SFT）。然而，在真实的工业落地场景中，这种“重编译/重训练”路线带来了高昂的工程代价：</p>
+<ul>
+<li><strong>数据与算力吞吐门槛极高</strong>：单次微调需耗费成千上万卡时，迭代周期长；</li>
+<li><strong>灾难性遗忘与基座绑定</strong>：微调后容易损坏模型的通用对话逻辑，且一旦底层开源底座升级（如从 Qwen2.5 升级到 Qwen3），所有微调数据和适配权重全部得推倒重来。</li>
+</ul>
+<p>针对这一工程痛点，伦敦大学学院（UCL）与伦敦玛丽女王大学等团队在国际机器学习顶刊 <strong>TMLR（Transactions on Machine Learning Research, 2025）</strong> 上发表了一篇极具工程美感的研究：</p>
+<blockquote>
+<p><strong>论文题目</strong>：<em>TFAR: A Training-Free Framework for Autonomous Reliable Reasoning in Visual Question Answering</em><br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://openreview.net/forum?id=cBAKeZN3jy">https://openreview.net/forum?id=cBAKeZN3jy</a><br>
+<strong>PDF 直达</strong>：<a target="_blank" rel="noopener" href="https://openreview.net/pdf?id=cBAKeZN3jy">https://openreview.net/pdf?id=cBAKeZN3jy</a><br>
+<strong>核心成果</strong>：完全无需额外训练（<strong>Training-Free，0 权重修改</strong>），通过将通用 MLLM 与成熟轻量视觉工具（YOLOv11、SEEM）解耦协同，引入<strong>保形预测（Conformal Prediction）对工具噪声实施统计学安全边界校准</strong>，并设计<strong>准保形 Top-p 采样量化大模型生成不确定性以实现多路推测仲裁</strong>。在 5 大经典 VQA 基准上，7B 基座模型平均涨点 <strong>+4.6%</strong>（在视障模糊实拍数据集 VizWiz 上涨点高达 <strong>+6.5%</strong>），效果追平甚至反超了耗时 20 小时精调的微调模型，而额外引入的工具校准开销仅为<strong>毫秒级</strong>。</p>
+</blockquote>
+<p>对于软件工程师、后端架构师与系统研发而言，这篇论文提供了一套极为经典的 <strong>“面向不可信外部服务的统计防御护栏 + 对冲请求多路推测与客观探针仲裁”</strong> 生产级架构范式。</p>
+<p>本文将剥离晦涩的纯数学包装，以软件工程的模块设计、容错机制与时延权衡为核心，深度拆解 TFAR 的架构逻辑。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2025/11/16/TFAR-VQA/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2025/11/16/UniME-V2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2025/11/16/UniME-V2/" class="post-title-link" itemprop="url">【论文分享】以数据引擎驱动模型进化：UniME-V2 如何利用 MLLM-as-a-Judge 破除多模态向量检索的“假负例”困境</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-11-16 18:00:00" itemprop="dateCreated datePublished" datetime="2025-11-16T18:00:00+08:00">2025-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-18 18:53:57" itemprop="dateModified" datetime="2026-11-18T18:53:57+08:00">2026-11-18</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在构建企业级 <strong>多模态搜索、以图搜图、以及多模态 RAG（检索增强生成）系统</strong> 时，后端开发与算法落地团队常常面临一个隐蔽却致命的性能瓶颈：<strong>检索模型“眼瞎”与“误伤”</strong>。</p>
+<p>在传统对比学习（如 CLIP、VLM2Vec 等）训练中，通常采用简单的批内负例（In-Batch Negatives），并强制采用 <strong>0 与 1 的二元硬标签</strong>（即除目标样本外，其余一律判为 0 相关）。这种做法在工业级工程落地中暴露出两大痛点：</p>
+<ol>
+<li><strong>假负例（False Negative）误伤</strong>：在图库或知识库中，往往存在多张与 Query 高度相似的有效样本。由于缺乏全局感知，模型强行把这些潜在的正确结果打成 0 分推远，导致梯度被严重带偏。</li>
+<li><strong>缺乏细粒度判别力</strong>：业务场景中的相似度往往是连续的（如 80% 相关 vs 20% 相关 vs 0% 相关）。硬标签强行抹平了语义距离，导致模型无法区分“细微差异”（例如“猫趴在桌上”与“桌上趴着猫”的细粒度逻辑差异）。</li>
+</ol>
+<p>针对这一系列痛点，来自阿里巴巴与香港科技大学等团队联合提出了 <strong>UniME-V2</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《UniME-V2: MLLM-as-a-Judge for Universal Multimodal Embedding Learning》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2510.13515">https://arxiv.org/abs/2510.13515</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2510.13515v3">https://arxiv.org/html/2510.13515v3</a>)<br>
+<strong>核心贡献</strong>：提出 MLLM-as-a-Judge 困难负例挖掘流水线、基于 JS 散度的多模态分布软对齐训练框架、以及配套的端到端 Pairwise + Listwise 重排器 UniME-V2-Reranker。</p>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端/推荐/搜索架构）</strong> 的视角，不罗列复杂的数学证明，而是聚焦于其 <strong>系统解耦范式、离线数据自动化质检流水线（Data Engine）、软标签分布对齐机制</strong>，以及如何在低推理成本下实现工业级高精度检索。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2025/11/16/UniME-V2/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +455,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 20:56:08" itemprop="dateModified" datetime="2026-11-16T20:56:08+08:00">2026-11-16</time>
+      <time title="修改时间：2026-11-18 18:53:57" itemprop="dateModified" datetime="2026-11-18T18:53:57+08:00">2026-11-18</time>
     </span>
 
   
@@ -343,7 +566,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 20:56:08" itemprop="dateModified" datetime="2026-11-16T20:56:08+08:00">2026-11-16</time>
+      <time title="修改时间：2026-11-18 18:53:57" itemprop="dateModified" datetime="2026-11-18T18:53:57+08:00">2026-11-18</time>
     </span>
 
   
@@ -454,7 +677,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 20:56:08" itemprop="dateModified" datetime="2026-11-16T20:56:08+08:00">2026-11-16</time>
+      <time title="修改时间：2026-11-18 18:53:57" itemprop="dateModified" datetime="2026-11-18T18:53:57+08:00">2026-11-18</time>
     </span>
 
   
@@ -525,227 +748,8 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2025/07/16/SurBench-VQA/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2025/07/16/SurBench-VQA/" class="post-title-link" itemprop="url">【论文分享】多模态大模型看监控真的靠谱吗？SurBench 58万问答基准深度拆解与智能安防系统工程落地指南</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-07-16 17:45:00" itemprop="dateCreated datePublished" datetime="2025-07-16T17:45:00+08:00">2025-07-16</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 20:56:08" itemprop="dateModified" datetime="2026-11-16T20:56:08+08:00">2026-11-16</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>5.7k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>21 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在当今大模型（LLM/MLLM）席卷各行各业的浪潮下，很多企业和团队在规划安防监控、智慧园区、工厂生产巡检等系统时，往往会产生一种极其乐观的技术冲动：</p>
-<blockquote>
-<p><em>“既然现在的多模态大模型（如 GPT-4o、Qwen2-VL、LLaVA-Video 等）能看懂短视频、能聊天、能解数学题，那我们是不是可以直接接入摄像头的 RTSP 视频流，让大模型 7×24 小时替安保人员自动看监控，发现小偷、斗殴、违规操作就自动报警？”</em></p>
-</blockquote>
-<p>然而，一旦架构师或算法同学真正把模型接入真实监控摄像头，就会遭遇残酷的现实毒打：<strong>显存分分钟 OOM、推理延迟高达数秒甚至几十秒、把系鞋带误报成偷窃、把逆光阴影当成火灾、面对打架斗殴完全分不清是谁打谁……</strong></p>
-<p>为什么多模态大模型在日常短视频（YouTube、TikTok）上表现惊艳，一进监控室就“全员眼瞎”？近期，北京工业大学联合清华大学、京东探索研究院与浪潮信息，发表了一篇专门针对安防监控场景的大规模评测基准与实证研究：</p>
-<blockquote>
-<p><strong>论文题目</strong>：《SurBench: A Comprehensive Dataset for Evaluating Large Multimodal Models in Understanding Surveillance Videos》<br>
-<strong>arXiv 预印本</strong>：《SurveillanceVQA-589K: A Benchmark for Comprehensive Surveillance Video-Language Understanding with Large Models》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2505.12589">https://arxiv.org/abs/2505.12589</a><br>
-<strong>开源数据集</strong>：<a target="_blank" rel="noopener" href="https://zenodo.org/">SurBench on Zenodo / HuggingFace</a>（含 589,380 对问答标注与元数据）<br>
-<strong>作者阵容</strong>：来自北京工业大学计算机学院（刘博、乔鹏飞、袁同同等）、清华大学电子工程系（许鹏）、京东探索研究院（刘坤）与浪潮信息（唐逸南）。</p>
-</blockquote>
-<p>这篇论文最值得<strong>后端研发、架构师与系统工程师</strong>关注的地方在于：它通过构建一套拥有 <strong>58.9 万条问答对（QA Pairs）</strong> 的标准化评测集，对主流的 8 款开源多模态大模型进行了毫不留情的“破坏性压测”，<strong>用硬核数据撕掉了多模态大模型在安防领域‘无所不能’的虚假宣传，量化了当前模型的致命短板</strong>。</p>
-<p>本文将剥离晦涩的学术八股，从 <strong>软件工程实现、合成数据流水线（ETL Pipeline）、实测缺陷剖析与生产级系统架构落地</strong> 的视角，带你全面看懂这篇论文。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2025/07/16/SurBench-VQA/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2025/05/28/ChainOfVerification-CoVe/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2025/05/28/ChainOfVerification-CoVe/" class="post-title-link" itemprop="url">【论文分享】让大模型学会“自我审讯”：Meta 的验证链（CoVe）凭什么能登顶国际顶刊？</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-05-28 13:35:00" itemprop="dateCreated datePublished" datetime="2025-05-28T13:35:00+08:00">2025-05-28</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 20:56:08" itemprop="dateModified" datetime="2026-11-16T20:56:08+08:00">2026-11-16</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.1k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>11 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在日常使用 ChatGPT、Claude 或 DeepSeek 时，几乎每个人都踩过同一个啼笑皆非的坑——<strong>大模型一本正经地胡说八道（AI 幻觉，Hallucination）</strong>。</p>
-<p>更让人抓狂的是，当你试图质问它：“<em>你确定吗？你再仔细核对一下你刚才给的答案！</em>”，AI 往往会泰然自若地看一眼自己刚才说的话，信誓旦旦地回答：“<em>我非常确定，这完全准确。</em>”</p>
-<p>来自 <strong>Meta AI（前 Facebook 人工智能实验室）</strong> 的顶尖研究团队在 ACL 顶会上发表了一篇极具影响力的开创性论文：<strong>《Chain-of-Verification Reduces Hallucination in Large Language Models》（简称 CoVe，验证链）</strong>。</p>
-<p>这篇论文没有改动神经网络的一行底层代码，也没有花几百万美元去重新训练模型，仅仅设计了一套优雅的 <strong>“自审控制流”</strong>，就将大模型在各类事实性任务中的幻觉错误直接砍掉了近 <strong>40%</strong>！</p>
-<blockquote>
-<p><strong>论文题目</strong>：Chain-of-Verification Reduces Hallucination in Large Language Models<br>
-<strong>作者团队</strong>：Shehzaad Dhuliawala, Mojtaba Komeili, Jing Xu, Roberta Raileanu, Xian Li, Asli Celikyilmaz, Jason Weston (Meta AI)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2309.11495">https://arxiv.org/abs/2309.11495</a><br>
-<strong>发表会议</strong>：Findings of the Association for Computational Linguistics (ACL)</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2025/05/28/ChainOfVerification-CoVe/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/13/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/15/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/13/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/15/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>
@@ -768,14 +772,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">468k</span>
+    <span title="站点总字数">479k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">28:21</span>
+    <span title="站点阅读时长">29:01</span>
   </span>
 </div>
 <div class="busuanzi-count">

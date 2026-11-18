@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">337</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">105</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">344</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">107</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">105</span>
+          <span class="site-state-item-count">107</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">337</span>
+        <span class="site-state-item-count">344</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,217 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/18/MetaEncoder/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/18/MetaEncoder/" class="post-title-link" itemprop="url">【论文分享】毫秒级决策与海量检索的工程统一：MetaEncoder 如何用双塔架构重构 System 1 多模态微服务</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-18 17:40:00 / 修改时间：18:53:57" itemprop="dateCreated datePublished" datetime="2026-11-18T17:40:00+08:00">2026-11-18</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>很多熟悉搜索、推荐与 RAG 系统的后端工程师在第一眼看到 Meta AI 这篇论文时，往往会产生一个巨大的问号：</p>
+<blockquote>
+<p><em>“既然带 <code>-embedding</code> 后缀的双塔模型（如 CLIP、BGE、Qwen3-VL-Embedding）早就满天飞，海量检索的业务链路（离线生成向量入向量库，在线算 Query 向量做近邻检索）十几年都没变过，这篇论文的价值到底在哪里？它跟市面上其他厂家的 Embedding 模型究竟有何区别？”</em></p>
+</blockquote>
+<p>带着这个极其现实的工程疑问读下去，你才会发现这篇论文的惊艳之处：<strong>海量检索的标准链路确实没有变；真正的质变，发生在你以前根本不敢用、也无法用 Embedding 模型去碰的另一半——“业务规则决策与 Agent 动态路由（System 1 Decision-Making）”上！</strong></p>
+<p>Meta 团队基于开源的 <code>Muse-Glimmer-30B</code> 多模态底座，提出了 <strong>MetaEncoder</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《MetaEncoder: Exploring the Limit of Bi-Encoders for Multimodal System One Decision Making with Natural Language Interface》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.11316">https://arxiv.org/abs/2610.11316</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.11316">https://arxiv.org/html/2610.11316</a>)<br>
+<strong>开源权重</strong>：<a target="_blank" rel="noopener" href="https://huggingface.co/facebook/meta-encoder">facebook/meta-encoder</a>（含升级版 v1）<br>
+<strong>官方复现评测</strong>：<a target="_blank" rel="noopener" href="https://github.com/facebook/meta-encoder-eval">facebook/meta-encoder-eval</a><br>
+<strong>核心贡献</strong>：打破“封闭分类决策”与“开放海量检索”的系统隔离；通过 <strong>Options-in-Prompt（Prompt 候选注入）</strong>、<strong>单向对比学习</strong> 与 <strong>Packed Contrastive Training（装箱对比训练）</strong>，实现一套微服务兼顾 15ms 极速业务决策与千万级图文/视频多模态检索。</p>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端/架构/分布式系统）</strong> 的视角，跳过复杂的算法推导，深度复盘<strong>业务流程到底在哪一步发生了蜕变</strong>、三种打分架构的系统级选型权衡、关键工程落地黑科技，并结合同行工程师最关心的核心疑点（入库格式、多模态支持、公开 Benchmark 战报）提供全方位的技术全景。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/18/MetaEncoder/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/18/Unbundling-Vision-Encoding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/18/Unbundling-Vision-Encoding/" class="post-title-link" itemprop="url">【论文分享】重构多模态的“祖传代码”：Meta FAIR 拆解视觉编码器，为什么说 In-Fusion 才是低延迟与高精度的未来？</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-18 16:35:00 / 修改时间：18:53:57" itemprop="dateCreated datePublished" datetime="2026-11-18T16:35:00+08:00">2026-11-18</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>17 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在当今的多模态大语言模型（MLLM）架构中，我们早已对一种“标准范式”习以为常：<strong>用一个预训练好的独立视觉编码器（如 CLIP、SigLIP），通过一个线性层或小型 MLP（Projector），挂载到一个纯文本大模型（LLM）前面</strong>。</p>
+<p>站在软件工程的角度审视，这种结构像极了系统设计初期的**“跨团队胶水架构”**：由于历史原因，团队直接把一个现成的第三方图片处理服务（ViT/CLIP）和一个文本生成服务（LLaMA/Qwen）拼在一起。大家虽然觉得这套管道又重又笨（双模型调度复杂、推理延迟高、显存碎片化），但由于它“能跑且指标不错”，便成了业界奉为圭臬的“祖传代码”。</p>
+<p>业界也因此产生了一系列悬而未决的争论：</p>
+<ul>
+<li><strong>真的是因为 CLIP 预训练让模型获得了强大的视觉先验吗？</strong></li>
+<li><strong>还是因为多挂了一个几亿参数的独立模型带来的算力红利？</strong></li>
+<li><strong>如果不搞独立的外部编码器，直接把图片当成普通 Token 喂给单体大模型（Encoder-Free），为什么在复杂任务上频频翻车？</strong></li>
+</ul>
+<p>为了彻底回答这些问题，来自 Meta FAIR 与纽约大学（NYU）的 Ellis Brown、谢赛宁等研究人员开展了一项极具系统工程思维的研究——<strong>《Unbundling Multimodal Vision Encoding》（解耦多模态视觉编码）</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《Unbundling Multimodal Vision Encoding》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.17334">arXiv:2611.17334</a> (HTML 预览：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.17334v1">https://arxiv.org/html/2611.17334v1</a>)<br>
+<strong>核心贡献</strong>：在严格控制总训练算力（Lifetime Compute）、统一数据源的前提下，训练了 200 多个端到端模型，将传统视觉编码器解耦为三个正交设计维度。证明了<strong>外部视觉预训练是伪需求</strong>、<strong>专属视觉算力不可或缺</strong>，并提出了颠覆串行瓶颈的 <strong>In-Fusion（内嵌融合）架构</strong>，大幅降低了推理首字延迟（TTFT）。</p>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端/架构/系统研发）</strong> 的视角，不罗列晦涩的损失函数推导，深入剖析其 <strong>架构解耦思维、资源争用机理、In-Fusion 系统实现与线上服务化（Serving）选型</strong>。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/18/Unbundling-Vision-Encoding/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -224,9 +435,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-16 20:55:00 / 修改时间：20:56:08" itemprop="dateCreated datePublished" datetime="2026-11-16T20:55:00+08:00">2026-11-16</time>
+      <time title="创建时间：2026-11-16 20:55:00" itemprop="dateCreated datePublished" datetime="2026-11-16T20:55:00+08:00">2026-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-18 18:53:57" itemprop="dateModified" datetime="2026-11-18T18:53:57+08:00">2026-11-18</time>
     </span>
 
   
@@ -326,9 +543,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-16 19:58:00 / 修改时间：20:56:08" itemprop="dateCreated datePublished" datetime="2026-11-16T19:58:00+08:00">2026-11-16</time>
+      <time title="创建时间：2026-11-16 19:58:00" itemprop="dateCreated datePublished" datetime="2026-11-16T19:58:00+08:00">2026-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-18 18:53:57" itemprop="dateModified" datetime="2026-11-18T18:53:57+08:00">2026-11-18</time>
     </span>
 
   
@@ -436,9 +659,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-16 19:35:00 / 修改时间：20:56:08" itemprop="dateCreated datePublished" datetime="2026-11-16T19:35:00+08:00">2026-11-16</time>
+      <time title="创建时间：2026-11-16 19:35:00" itemprop="dateCreated datePublished" datetime="2026-11-16T19:35:00+08:00">2026-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-18 18:53:57" itemprop="dateModified" datetime="2026-11-18T18:53:57+08:00">2026-11-18</time>
     </span>
 
   
@@ -503,228 +732,8 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/16/AntEmbed/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/16/AntEmbed/" class="post-title-link" itemprop="url">【论文分享】统一检索底库与双模查询：AntEmbed 如何用自蒸馏解耦多模态向量的“速度与精度”</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2026-11-16 18:52:00 / 修改时间：20:56:08" itemprop="dateCreated datePublished" datetime="2026-11-16T18:52:00+08:00">2026-11-16</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.3k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>12 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在构建大规模多模态搜索、以图搜图、以及多模态 RAG（检索增强生成）系统时，后端架构师常常面临一个经典的系统设计两难困境（Trade-off）：<strong>高并发低延迟</strong> 与 <strong>复杂场景高精度</strong> 无法兼得。</p>
-<ul>
-<li><strong>判别式向量（Discriminative Embedding，快模式）</strong>：单次前向直接吐出 Embedding。响应在毫秒级，吞吐量极大，非常适合在线海量流量召回；但在面对复杂文档图表（VisDoc）或长视频推理时，语义理解偏粗糙，常有“视而不见”的漏召回。</li>
-<li><strong>生成式推理向量（Generative / CoT Embedding，慢模式）</strong>：让多模态大模型先生成一段逐步推理（Chain-of-Thought），把细粒度特征想清楚后再提取向量。效果极佳，但由于存在逐字生成的自回归延迟，P99 耗时飙升至数秒，在线高并发场景根本无法承受。</li>
-</ul>
-<p>为了把两者揉进同一个系统，早期的研究（如 UME-R1）设计了双 Token 机制，但这在工程上带来了灾难性的副作用：<strong>两个模式的向量空间相互割裂，导致底库必须维护两套独立的向量索引，存储成本直接翻倍，路由逻辑极其脆弱</strong>。</p>
-<p>针对这一系统级痛点，蚂蚁集团（Ant Group）与苏州大学联合提出了 <strong>AntEmbed</strong>：</p>
-<blockquote>
-<p><strong>论文题目</strong>：《AntEmbed: Dual-Mode Multimodal Embedding Model for Efficient and Fine-Grained Retrieval》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.16405">https://arxiv.org/abs/2611.16405</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.16405v1">https://arxiv.org/html/2611.16405v1</a>)<br>
-<strong>核心贡献</strong>：混淆集驱动的针对性 CoT 构造、多正例跨视图对齐损失、跨模态自蒸馏（KL + L2）机制，实现“单个向量库，双模平滑查询”。</p>
-</blockquote>
-<p>本文立足于 <strong>软件开发工程师（后端/架构/系统研发）</strong> 的视角，不纠缠复杂的理论推导，深入剖析其 <strong>架构折中（Trade-off）、单库兼容设计、离线自蒸馏流水线</strong>，并冷静客观地审视其 Benchmark 成绩背后的真实工程账本。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/16/AntEmbed/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/12/ZoomGain/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/12/ZoomGain/" class="post-title-link" itemprop="url">【论文分享】用 Git Diff 思维打磨多模态大模型：ZoomGain 如何用 9K 样本让小模型逆袭千亿巨兽</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-12 17:05:00" itemprop="dateCreated datePublished" datetime="2026-11-12T17:05:00+08:00">2026-11-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-16 20:56:08" itemprop="dateModified" datetime="2026-11-16T20:56:08+08:00">2026-11-16</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.5k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>17 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在多模态大模型（Vision-Language Model, VLM）的发展中，<strong>“细粒度视觉感知（Fine-Grained Perception）”</strong> 一直是横亘在学术界与工业落地之间的一道顽疾：</p>
-<p>无论模型参数是 7B、32B 还是高达数百上千亿，当面对一张 1080p 或 4K 的全景大图时，模型经常表现得像个“近视眼”——马拉松选手的跑鞋颜色、远处建筑物上的文字小标、密集排列的微小零件瑕疵，模型要么视而不见，要么凭借语言先验开始“看图脑补”。</p>
-<p>以往解决这个问题的常规思路无非两条：</p>
-<ol>
-<li><strong>算法暴力堆算力</strong>：拼命拉高视觉编码器（ViT）分辨率，切更多 Token 喂给大模型，结果面临自注意力 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>N</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> 的显存爆炸与极高推理延迟；</li>
-<li><strong>数据苦力堆人头</strong>：雇佣昂贵的人工标注团队，人工放大图片、标包围盒、写问答对，标注成本高、周期长且质检一致性极差。</li>
-</ol>
-<p>近日，来自<strong>蚂蚁集团（inclusionAI 团队）与浙江大学</strong>的研究人员在 arXiv 上提出了一项极具软件工程美感的研究：<strong>ZoomGain</strong>。</p>
-<p>他们跳出了算法打补丁的传统套路，抓住了一个关键的直觉状态落差：<strong>同一个模型，看全景大图看不清细节，但只要把该区域局部裁剪放大（Zoom-in），它自己就能看懂！</strong> 论文利用这种“全景与局部放大的感知代差”，设计了一套全自动的“差分流水线”，<strong>零人工出题</strong>生成高纯度数据；随后仅凭 <strong>9K 样本、纯强化学习（GRPO）训练 140 步</strong>，就让 4B/9B 的小模型在多个细粒度感知基准上直接超越了数百亿乃至千亿参数的大模型。</p>
-<blockquote>
-<p><strong>论文题目</strong>：<em>ZoomGain: Mining Global-to-Zoom Perception Gaps for Fine-Grained Visual Supervision</em><br>
-<strong>论文编号</strong>：arXiv:2611.14076<br>
-<strong>作者团队</strong>：InclusionAI (Ant Group 蚂蚁集团) &amp; 浙江大学等<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.14076">https://arxiv.org/abs/2611.14076</a><br>
-<strong>HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.14076">https://arxiv.org/html/2611.14076</a><br>
-<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/inclusionAI/ZoomGain">https://github.com/inclusionAI/ZoomGain</a><br>
-<strong>核心成果</strong>：零人工出题构建 1,000 题双语基准 ZoomGainBench；仅用 9,000 条高质量差分数据配合纯强化学习（140 步），让 Qwen-9B 在 HR-Bench 4K 达到 <strong>90.25</strong> 分，在 13 个外部泛化基准上综合成绩超越 397B 千亿巨型模型。</p>
-</blockquote>
-<p>站在软件工程师与系统设计者的视角，这篇论文本质上是一份极为标准的 <strong>“通过差分计算自举高信噪比数据，辅以严密多级质检网关与规则驱动的 TDD 优化系统”</strong> 的工程范例。本文将剥离算法黑话，用系统架构与软件工程的视角对其进行全面深度剖析。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/12/ZoomGain/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 </div>
@@ -747,14 +756,14 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">468k</span>
+    <span title="站点总字数">479k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">28:21</span>
+    <span title="站点阅读时长">29:01</span>
   </span>
 </div>
 <div class="busuanzi-count">
