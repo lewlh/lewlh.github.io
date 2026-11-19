@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在当下的多模态大模型（VLM）与长视频理解系统中，处理几十分钟乃至数小时的视频一直是一块“硬骨头”。显存容量与上下文窗口的物理极限，决定了系统无法将全片的所有画面一股脑喂给模型。 在学术界评测与工业界落地中，几乎所有系统都默认遵循着一套不成文的行业惯例——“一刀切预算（Uniform Frame Budget）”：无论用户提问的是一个一目了然的静态物体（“视频开头那辆车是什么颜色？”），还是极其复">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】零训练、不加一分钱算力：FrameRouter 如何用配额调度思维击破长视频大模型“一刀切”内耗">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/11/19/FrameRouter/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在当下的多模态大模型（VLM）与长视频理解系统中，处理几十分钟乃至数小时的视频一直是一块“硬骨头”。显存容量与上下文窗口的物理极限，决定了系统无法将全片的所有画面一股脑喂给模型。 在学术界评测与工业界落地中，几乎所有系统都默认遵循着一套不成文的行业惯例——“一刀切预算（Uniform Frame Budget）”：无论用户提问的是一个一目了然的静态物体（“视频开头那辆车是什么颜色？”），还是极其复">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-19T05:35:00.000Z">
+<meta property="article:modified_time" content="2026-11-19T06:28:53.979Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="FrameRouter">
+<meta property="article:tag" content="架构设计">
+<meta property="article:tag" content="系统工程视角">
+<meta property="article:tag" content="视频大模型">
+<meta property="article:tag" content="论文分享">
+<meta property="article:tag" content="资源调度">
+<meta property="article:tag" content="长视频理解">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/11/19/FrameRouter/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/11/19/FrameRouter/","path":"papers/2026/11/19/FrameRouter/","title":"【论文分享】零训练、不加一分钱算力：FrameRouter 如何用配额调度思维击破长视频大模型“一刀切”内耗"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】零训练、不加一分钱算力：FrameRouter 如何用配额调度思维击破长视频大模型“一刀切”内耗 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">347</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">108</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E6%A0%B8%E5%BF%83%E5%B7%A5%E7%A8%8B%E7%97%9B%E7%82%B9%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E2%80%9C%E5%8A%A0%E5%B8%A7%E6%95%B0%E2%80%9D%E5%8F%8D%E8%80%8C%E4%BC%9A%E8%AE%A9%E6%80%A7%E8%83%BD%E6%81%B6%E5%8C%96%EF%BC%9F"><span class="nav-text">01. 核心工程痛点：为什么“加帧数”反而会让性能恶化？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E9%94%99%E8%AF%AF%E9%9B%86%E7%9A%84%E2%80%9C%E9%9D%9E%E5%B5%8C%E5%A5%97%E6%80%A7%EF%BC%88Non-nested-Errors%EF%BC%89%E2%80%9D"><span class="nav-text">1.1 错误集的“非嵌套性（Non-nested Errors）”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E5%86%97%E4%BD%99%E6%95%B0%E6%8D%AE%E5%BC%95%E5%8F%91%E7%9A%84%E6%B3%A8%E6%84%8F%E5%8A%9B%E8%A1%B0%E5%87%8F%E4%B8%8E%E5%B9%BB%E8%A7%89"><span class="nav-text">1.2 冗余数据引发的注意力衰减与幻觉</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E8%8C%83%E5%BC%8F%EF%BC%9A%E4%BB%8E%E2%80%9C%E7%AE%97%E6%B3%95%E5%BE%AE%E8%B0%83%E2%80%9D%E5%88%B0%E2%80%9C%E9%85%8D%E9%A2%9D%E8%B7%AF%E7%94%B1%E2%80%9D"><span class="nav-text">02. 问题解决范式：从“算法微调”到“配额路由”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%95%B4%E4%BD%93%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%B7%A5%E4%BD%9C%E6%B5%81%EF%BC%88Architecture-Pipeline%EF%BC%89"><span class="nav-text">03. 整体系统架构与工作流（Architecture &amp; Pipeline）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%A8%A1%E5%9D%97%E4%B8%80%EF%BC%9A%E8%BD%BB%E9%87%8F%E8%AF%81%E6%8D%AE%E9%9C%80%E6%B1%82%E8%A7%A3%E6%9E%90%E5%99%A8%EF%BC%88Evidence-Demand-Parser%EF%BC%89"><span class="nav-text">3.1 模块一：轻量证据需求解析器（Evidence-Demand Parser）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E6%A8%A1%E5%9D%97%E4%BA%8C%EF%BC%9A%E7%A1%AE%E5%AE%9A%E6%80%A7%E9%85%8D%E9%A2%9D%E5%88%86%E9%85%8D%E5%99%A8%EF%BC%88Quota-Constrained-Allocator%EF%BC%89"><span class="nav-text">3.2 模块二：确定性配额分配器（Quota-Constrained Allocator）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E6%A8%A1%E5%9D%97%E4%B8%89%EF%BC%9A%E5%8D%95%E5%88%86%E6%94%AF%E6%89%A7%E8%A1%8C%EF%BC%88Single-Branch-Execution%EF%BC%89"><span class="nav-text">3.3 模块三：单分支执行（Single-Branch Execution）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E7%A9%BF%E9%80%8F%E5%AD%A6%E6%9C%AF%E9%BB%91%E8%AF%9D%EF%BC%9A20-%E8%A1%8C%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%A0%81%E7%9C%8B%E6%87%82%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-text">04. 穿透学术黑话：20 行核心代码看懂实现细节</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E6%A0%B8%E5%BF%83%E5%88%86%E9%85%8D%E8%B0%83%E5%BA%A6%E7%AE%97%E6%B3%95%E7%9A%84-Python-%E5%AE%9E%E7%8E%B0"><span class="nav-text">4.1 核心分配调度算法的 Python 实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%85%E9%A1%BB%E2%80%9C%E9%AB%98%E9%85%8D%E4%BC%98%E5%85%88%EF%BC%88High-First%EF%BC%89%E2%80%9D%EF%BC%9F"><span class="nav-text">4.2 为什么必须“高配优先（High-First）”？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E9%9B%B6%E8%AE%AD%E7%BB%83%E7%9A%84-Prompt-%E5%B7%A5%E7%A8%8B%E6%98%AF%E5%A6%82%E4%BD%95%E7%94%9F%E6%95%88%E7%9A%84%EF%BC%9F"><span class="nav-text">4.3 零训练的 Prompt 工程是如何生效的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E6%A0%B8%E5%BF%83%E5%AE%9E%E9%AA%8C%E6%88%98%E6%8A%A5%E4%B8%8E%E6%95%8F%E6%84%9F%E5%BA%A6%E9%AA%8C%E8%AF%81"><span class="nav-text">05. 核心实验战报与敏感度验证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-Video-MME-v2-%E6%A0%B8%E5%BF%83%E8%AF%84%E6%B5%8B%E7%BB%93%E6%9E%9C"><span class="nav-text">5.1 Video-MME-v2 核心评测结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E9%85%8D%E9%A2%9D%E9%80%89%E5%9E%8B%E7%9A%84%E9%B2%81%E6%A3%92%E6%80%A7%EF%BC%88Quota-Plateau%EF%BC%89"><span class="nav-text">5.2 配额选型的鲁棒性（Quota Plateau）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84%E6%9E%B6%E6%9E%84%E5%BB%B6%E5%B1%95%EF%BC%9A%E4%BB%8E%E2%80%9C%E6%8E%A8%E7%90%86%E8%B7%AF%E7%94%B1%E2%80%9D%E5%88%B0%E2%80%9C%E8%A7%86%E9%A2%91%E6%B9%96%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E2%80%9D"><span class="nav-text">06. 软件工程师的架构延展：从“推理路由”到“视频湖数据处理”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E5%BB%B6%E5%B1%95%EF%BC%9A%E8%A7%86%E9%A2%91%E6%B9%96%EF%BC%88Video-Lakehouse%EF%BC%89%E7%9A%84%E9%AB%98%E6%95%88-ETL-%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="nav-text">场景延展：视频湖（Video Lakehouse）的高效 ETL 架构设计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%99%E4%B8%80%E6%9E%B6%E6%9E%84%E4%B8%BA%E8%A7%86%E9%A2%91%E6%B9%96%E5%B8%A6%E6%9D%A5%E7%9A%84%E5%B7%A5%E7%A8%8B%E8%B4%A8%E5%8F%98"><span class="nav-text">这一架构为视频湖带来的工程质变</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E7%BB%93%E8%AF%AD"><span class="nav-text">07. 结语</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">347</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/19/FrameRouter/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】零训练、不加一分钱算力：FrameRouter 如何用配额调度思维击破长视频大模型“一刀切”内耗 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】零训练、不加一分钱算力：FrameRouter 如何用配额调度思维击破长视频大模型“一刀切”内耗
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-19 13:35:00 / 修改时间：14:28:53" itemprop="dateCreated datePublished" datetime="2026-11-19T13:35:00+08:00">2026-11-19</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在当下的多模态大模型（VLM）与长视频理解系统中，处理几十分钟乃至数小时的视频一直是一块“硬骨头”。显存容量与上下文窗口的物理极限，决定了系统无法将全片的所有画面一股脑喂给模型。</p>
+<p>在学术界评测与工业界落地中，几乎所有系统都默认遵循着一套不成文的行业惯例——<strong>“一刀切预算（Uniform Frame Budget）”</strong>：无论用户提问的是一个一目了然的静态物体（“视频开头那辆车是什么颜色？”），还是极其复杂的长时序因果追踪（“主人公在整部电影中一共回了几次头，分别在什么时间？”），后台服务一律机械地从视频中抽取**固定数量的帧数（例如统一抽 64 帧）**输入给下游模型。</p>
+<p>这种设计在工程实现上固然简单直白，但在面对真实场景时，却带来了严重的<strong>系统级资源错配与性能反噬</strong>。</p>
+<p>针对这一长期被视作“默认假设”的基础设定，清华大学与哈尔滨工程大学的研究团队在近期发表的论文中提出了一个极具软件工程美感的破局解法：<strong>FrameRouter</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：《FrameRouter: Frame Budget Routing for Long-Video Understanding on Video-MME-v2 and Beyond》<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2611.23055" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2611.23055</a> (HTML 版本：<a target="_blank" href="https://arxiv.org/html/2611.23055" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2611.23055</a>)<br>
+<strong>作者团队</strong>：Bingjun Luo, Jialin Guo, Siqi Li（清华大学 &amp; 哈尔滨工程大学）<br>
+<strong>开源代码</strong>：<a target="_blank" href="https://github.com/bingjunluo/FrameRouter" rel="external nofollow noreferrer noopener">https://github.com/bingjunluo/FrameRouter</a><br>
+<strong>核心战果</strong>：<strong>零训练（Training-free）、零微调、零改动底层采样器</strong>，在全局平均处理帧数严格维持 64 帧不变（即计算成本完全不增加）的前提下，在权威长视频基准 <strong>Video-MME-v2</strong> 上斩获开源思维链模型（Thinking Models）<strong>SOTA</strong>，准确率大幅攀升 <strong>+4.4%</strong>，更在部分基准上超越了 50 帧配置的 GPT-5 参考成绩。</p>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端架构 / 分布式系统 / 数据工程）</strong> 的视角，穿透学术论文中密密麻麻的数学集合论包装，深度拆解其背后的<strong>系统资源调度逻辑、非对称风险控制哲学</strong>以及<strong>核心代码实现</strong>，并进一步延展讨论如何将这套范式落地到企业级**“视频数据湖”**的低成本自适应 ETL 流程中。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-核心工程痛点：为什么“加帧数”反而会让性能恶化？">01. 核心工程痛点：为什么“加帧数”反而会让性能恶化？</h2>
+<p>很多初涉多模态工程的同学都有一个直觉：“如果大模型视频问答答不对，那多抽点帧（比如从 64 帧加到 96 帧甚至 128 帧）准没错，只要显存塞得下。”</p>
+<p>然而，论文作者在 Video-MME-v2 全集上做了一组极具警示意义的基线诊断实验（分别测试 48 帧、64 帧、96 帧三种全视频均匀抽样配置），揭示了一个颠覆直觉的工程事实：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">               【64 帧基准策略做错的所有问题】</span><br><span class="line">      ┌───────────────────────┬───────────────────────┐</span><br><span class="line">      │                       │                       │</span><br><span class="line"> 10.3% 被 48 帧救回       9.4% 两者皆可救       10.1% 被 96 帧救回</span><br><span class="line">(低配反而做对了)                                (高配才能做对)</span><br><span class="line">      │                       │                       │</span><br><span class="line">      └───────────────────────┴───────────────────────┘</span><br><span class="line">                剩余 70.2%：当前三种配置均未解决</span><br></pre></td></tr></table></figure>
+<p>这组数据透露了两个关键的系统瓶颈：</p>
+<h3 id="1-1-错误集的“非嵌套性（Non-nested-Errors）”">1.1 错误集的“非嵌套性（Non-nested Errors）”</h3>
+<p>在软件系统性能调优中，我们通常期望高配实例的表现是低配实例的“超集”。但在大模型视觉理解中：</p>
+<ul>
+<li><strong>把预算从 64 帧强推到 96 帧</strong>，虽然救回了约 10.1% 的复杂长时序问题；</li>
+<li><strong>但它同时也把原本 64 帧能做对的大量题目给改错了！</strong></li>
+</ul>
+<h3 id="1-2-冗余数据引发的注意力衰减与幻觉">1.2 冗余数据引发的注意力衰减与幻觉</h3>
+<p>为什么帧数变多反而导致错误？这完全符合分布式检索与信息论的常识：</p>
+<ul>
+<li>输入过多的视觉 Token 会造成**“注意力稀释（Lost in the Middle）”**；</li>
+<li>无关背景帧和重复画面引入了大量高频视觉噪声（Visual Noise），直接诱发了大模型的过度联想和幻觉（Hallucination）。</li>
+</ul>
+<blockquote>
+<p><strong>工程直觉：</strong> 一味加算力不仅无法带来单调递增的收益，反而会平白增加延迟与费用。<strong>不同的请求对视觉证据（Visual Evidence）的密度需求存在天然的异质性</strong>。强行一刀切，本质上是在用高算力做低效的“做题家内耗”。</p>
+</blockquote>
+<hr>
+<h2 id="02-问题解决范式：从“算法微调”到“配额路由”">02. 问题解决范式：从“算法微调”到“配额路由”</h2>
+<p>面对这个问题，学术界与工业界通常有两种截然不同的解题范式：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">维度</th>
+<th style="text-align:left">传统算法微调范式（Within-question Frame Selection）</th>
+<th style="text-align:left">FrameRouter 的系统工程范式（Budget Routing）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>核心思路</strong></td>
+<td style="text-align:left">训练一个小模型在视频里寻找“哪几秒关键”，挑出特定的高光帧。</td>
+<td style="text-align:left"><strong>不碰视频帧的选择机制</strong>，模型和采样器保持冻结（Frozen），仅在宏观上调度预算（48 / 64 / 96 帧）。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>系统复杂度</strong></td>
+<td style="text-align:left">极高。每个请求都要先扫描提取整段视频的深层特征，流水线复杂，带来巨大的冷启动与推理延迟。</td>
+<td style="text-align:left">极低。推理前仅用毫秒级纯文本调用评估需求等级，完全不加载视频流。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>算力与成本</strong></td>
+<td style="text-align:left">单次请求的计算开销不可预测，无法保证严格的 SLA 预算红线。</td>
+<td style="text-align:left"><strong>零和博弈，严格算力守恒</strong>。保证全局平均处理帧数精确等于 64 帧基线。</td>
+</tr>
+</tbody>
+</table>
+<p>论文将这一范式正式定义为 <strong>“固定均值帧预算路由（Fixed-Mean Frame-Budget Routing）”</strong>：</p>
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mfrac><mn>1</mn><mi>N</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><msub><mi>B</mi><mi>i</mi></msub><mo>=</mo><msub><mi>B</mi><mtext>ref</mtext></msub><mo>=</mo><mn>64</mn></mrow><annotation encoding="application/x-tex">\frac{1}{N}\sum_{i=1}^N B_i = B_{\text{ref}} = 64
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:3.106em;vertical-align:-1.2777em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.8283em;"><span style="top:-1.8723em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span><span style="top:-4.3em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.109em;">N</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.2777em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0502em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0502em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0502em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0502em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">ref</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">64</span></span></span></span></span></p>
+<p><strong>在不重训大模型、不修改采样器、不增加一秒额外平均算力的前提下，把简单请求省下来的帧数配额，精准补贴给复杂长程问题，实现系统整体的帕累托最优。</strong></p>
+<hr>
+<h2 id="03-整体系统架构与工作流（Architecture-Pipeline）">03. 整体系统架构与工作流（Architecture &amp; Pipeline）</h2>
+<p>FrameRouter 的系统架构高度模块化，各环节完全解耦，呈现出非常清晰的三层流水线：</p>
+<pre><code class="highlight mermaid">flowchart TD
+    A[&quot;用户输入 (Question &amp; Options)&quot;] --&gt; B[&quot;阶段一：轻量证据需求解析器 (Priority Parser)&lt;br/&gt;• 纯文本输入，严格零数据泄漏&lt;br/&gt;• 输出双通道置信分: p_low (可降级分), p_high (需升级分)&quot;]
+    
+    B --&gt; C[&quot;阶段二：确定性配额分配器 (Quota Allocator)&lt;br/&gt;• 算力守恒约束: (64-48)*n_low = (96-64)*n_high&lt;br/&gt;• 高优先级优先 Top-K 排序 (带哈希断平局，100% 幂等)&quot;]
+    
+    C --&gt; D&#123;&quot;生成确定性路由表 (Routes Map)&quot;&#125;
+    D -- &quot;p_high Top-K&quot; --&gt; E1[&quot;96 帧采样策略 (High)&quot;]
+    D -- &quot;p_low Top-K&quot; --&gt; E2[&quot;48 帧采样策略 (Low)&quot;]
+    D -- &quot;默认保底&quot; --&gt; E3[&quot;64 帧采样策略 (Mid)&quot;]
+    
+    E1 --&gt; F[&quot;阶段三：下游多模态 VLM (单分支执行)&lt;br/&gt;• 命中哪个跑哪个，严禁多重推理后置仲裁&quot;]
+    E2 --&gt; F
+    E3 --&gt; F
+    
+    F --&gt; G[&quot;最终评测与回答 (Predictions &amp; Metrics)&quot;]</code></pre>
+<h3 id="3-1-模块一：轻量证据需求解析器（Evidence-Demand-Parser）">3.1 模块一：轻量证据需求解析器（Evidence-Demand Parser）</h3>
+<ul>
+<li><strong>职责</strong>：评估当前提问对视觉信息采样的渴望程度。</li>
+<li><strong>Zero-Leakage 设计原则</strong>：严禁接触视频画面、视频字幕、兄弟问题或真实标签。它仅读取提问文本和选项文本。</li>
+<li><strong>双通道独立打分</strong>：
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>p</mi><mtext>low</mtext></msup><mo>∈</mo><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">p^{\text{low}} \in [0, 1]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0435em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">low</span></span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">]</span></span></span></span>：<strong>降级安全性（Can we downgrade to 48f?）</strong>。若证据被明确的台词、字幕或静态画面锁死，降为 48 帧安全，打高分。</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>p</mi><mtext>high</mtext></msup><mo>∈</mo><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">p^{\text{high}} \in [0, 1]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0435em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">high</span></span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">]</span></span></span></span>：<strong>升级迫切性（Must we upgrade to 96f?）</strong>。若涉及全片动作计数（Counting）、时间先后排序（Action Ordering）、跨场景微细动作，必须升为 96 帧，打高分。</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-2-模块二：确定性配额分配器（Quota-Constrained-Allocator）">3.2 模块二：确定性配额分配器（Quota-Constrained Allocator）</h3>
+<ul>
+<li><strong>配额天平</strong>：低配省出的算力，必须精确对冲高配多耗的算力。<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mn>64</mn><mo>−</mo><mn>48</mn><mo stretchy="false">)</mo><mo>×</mo><msub><mi>n</mi><mtext>low</mtext></msub><mo>=</mo><mo stretchy="false">(</mo><mn>96</mn><mo>−</mo><mn>64</mn><mo stretchy="false">)</mo><mo>×</mo><msub><mi>n</mi><mtext>high</mtext></msub><mtext>  </mtext><mo>⟹</mo><mtext>  </mtext><mn>16</mn><mo>×</mo><msub><mi>n</mi><mtext>low</mtext></msub><mo>=</mo><mn>32</mn><mo>×</mo><msub><mi>n</mi><mtext>high</mtext></msub><mtext>  </mtext><mo>⟹</mo><mtext>  </mtext><mrow><msub><mi mathvariant="bold">n</mi><mtext>low</mtext></msub><mo>=</mo><mn mathvariant="bold">2</mn><mo>×</mo><msub><mi mathvariant="bold">n</mi><mtext>high</mtext></msub></mrow></mrow><annotation encoding="application/x-tex">(64 - 48) \times n_{\text{low}} = (96 - 64) \times n_{\text{high}} \implies 16 \times n_{\text{low}} = 32 \times n_{\text{high}} \implies \mathbf{n_{\text{low}} = 2 \times n_{\text{high}}}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">64</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">48</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">low</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord">96</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">64</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8111em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">high</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">⟹</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">16</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">low</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">32</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8111em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">high</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">⟹</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.9305em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord"><span class="mord mathbf">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">low</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathbf">2</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathbf">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">high</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span></span></span></p>
+这意味着系统具有<strong>完全确定的一对二置换关系</strong>：每多派发 1 个 96 帧高配名额，系统就必须选出 2 个问题降级为 48 帧，剩下的全部分配 64 帧默认值。</li>
+</ul>
+<h3 id="3-3-模块三：单分支执行（Single-Branch-Execution）">3.3 模块三：单分支执行（Single-Branch Execution）</h3>
+<p>在生产环境中，很多团队喜欢搞“投机式并行（Speculative Execution）”——同时跑 48、64、96 帧，然后再找个裁判模型挑最好的。这种做法在工程上叫“多倍算力作弊”，线上成本成倍膨胀。<br>
+FrameRouter 坚持<strong>单分支命中即执行</strong>，不增加任何多余的大模型前向计算。</p>
+<hr>
+<h2 id="04-穿透学术黑话：20-行核心代码看懂实现细节">04. 穿透学术黑话：20 行核心代码看懂实现细节</h2>
+<p>这篇论文最妙的地方在于：论文正文中用密密麻麻的形式化数学语言包装的理论，落实到工程实现中，极其简洁、清爽且易维护。</p>
+<h3 id="4-1-核心分配调度算法的-Python-实现">4.1 核心分配调度算法的 Python 实现</h3>
+<p>没有花哨的凸优化工具，也没有复杂的强化学习网络，核心调度逻辑在 Python 中不过十几行代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">List</span>, <span class="type">Dict</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">allocate_routes</span>(<span class="params">items: <span class="type">List</span>[<span class="type">Dict</span>], n_high: <span class="built_in">int</span></span>) -&gt; <span class="type">Dict</span>[<span class="built_in">str</span>, <span class="built_in">int</span>]:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    固定均值算力路由分配核心算法</span></span><br><span class="line"><span class="string">    :param items: 包含 item_id, p_low, p_high 的问题元数据列表</span></span><br><span class="line"><span class="string">    :param n_high: 预设的 96 帧高配名额</span></span><br><span class="line"><span class="string">    :return: &#123;item_id: 分配的帧数 (48 / 64 / 96)&#125;</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 1. 严格算力平衡方程: 16 * n_low = 32 * n_high</span></span><br><span class="line">    n_low = <span class="number">2</span> * n_high</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 2. 幂等性断平局函数 (Tie-breaker): 分数相同时按 ID 哈希排序，确保无随机抖动</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">tie_breaker</span>(<span class="params">item</span>):</span><br><span class="line">        <span class="keyword">return</span> hashlib.md5(<span class="built_in">str</span>(item[<span class="string">&#x27;id&#x27;</span>]).encode()).hexdigest()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 3. 第一阶段：高优先级优先 (High-First)</span></span><br><span class="line">    <span class="comment"># 按 p_high 降序排序，圈出最迫切需要视觉算力的问题</span></span><br><span class="line">    sorted_by_high = <span class="built_in">sorted</span>(</span><br><span class="line">        items, </span><br><span class="line">        key=<span class="keyword">lambda</span> x: (x[<span class="string">&#x27;p_high&#x27;</span>], tie_breaker(x)), </span><br><span class="line">        reverse=<span class="literal">True</span></span><br><span class="line">    )</span><br><span class="line">    high_set = <span class="built_in">set</span>(x[<span class="string">&#x27;id&#x27;</span>] <span class="keyword">for</span> x <span class="keyword">in</span> sorted_by_high[:n_high])</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 4. 第二阶段：在排除高配后的剩余池子中选低配 (Low-Second)</span></span><br><span class="line">    remaining_items = [x <span class="keyword">for</span> x <span class="keyword">in</span> items <span class="keyword">if</span> x[<span class="string">&#x27;id&#x27;</span>] <span class="keyword">not</span> <span class="keyword">in</span> high_set]</span><br><span class="line">    sorted_by_low = <span class="built_in">sorted</span>(</span><br><span class="line">        remaining_items, </span><br><span class="line">        key=<span class="keyword">lambda</span> x: (x[<span class="string">&#x27;p_low&#x27;</span>], tie_breaker(x)), </span><br><span class="line">        reverse=<span class="literal">True</span></span><br><span class="line">    )</span><br><span class="line">    low_set = <span class="built_in">set</span>(x[<span class="string">&#x27;id&#x27;</span>] <span class="keyword">for</span> x <span class="keyword">in</span> sorted_by_low[:n_low])</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 5. 构建确定性路由映射表</span></span><br><span class="line">    routes = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> item <span class="keyword">in</span> items:</span><br><span class="line">        qid = item[<span class="string">&#x27;id&#x27;</span>]</span><br><span class="line">        <span class="keyword">if</span> qid <span class="keyword">in</span> high_set:</span><br><span class="line">            routes[qid] = <span class="number">96</span></span><br><span class="line">        <span class="keyword">elif</span> qid <span class="keyword">in</span> low_set:</span><br><span class="line">            routes[qid] = <span class="number">48</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            routes[qid] = <span class="number">64</span>  <span class="comment"># 剩余请求默认保持 64 帧基准</span></span><br><span class="line">            </span><br><span class="line">    <span class="keyword">return</span> routes</span><br></pre></td></tr></table></figure>
+<h3 id="4-2-为什么必须“高配优先（High-First）”？">4.2 为什么必须“高配优先（High-First）”？</h3>
+<p>很多程序员可能会疑惑：为什么不先选 48 帧，再选 96 帧？<br>
+这背后体现了极具智慧的<strong>非对称风险控制（Asymmetric Risk Management）</strong>：</p>
+<ul>
+<li><strong>误降级的后果是毁灭性的</strong>：如果一个复杂的计数题被误降配到 48 帧，由于关键动作帧被漏采，模型无论多么聪明都绝不可能答对。</li>
+<li><strong>误升级的后果只是轻微冗余</strong>：如果一个简单题被误分配了 96 帧，它至多只是多吃了一点 GPU 计算时间，模型依然有极高概率答对。</li>
+<li><strong>工程决策</strong>：优先满足 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>p</mi><mtext>high</mtext></msup></mrow><annotation encoding="application/x-tex">p^{\text{high}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0435em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">high</span></span></span></span></span></span></span></span></span></span></span></span></span>，把高危、高需求请求全部锁定保护起来，剩下的再考虑节能降配。</li>
+</ul>
+<h3 id="4-3-零训练的-Prompt-工程是如何生效的？">4.3 零训练的 Prompt 工程是如何生效的？</h3>
+<p>系统不需要训练专用分类器，而是利用现有 LLM 执行轻量 JSON 解析：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;policy&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DEFAULT_64F&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;priority_48&quot;</span><span class="punctuation">:</span> <span class="number">0.15</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;priority_96&quot;</span><span class="punctuation">:</span> <span class="number">0.85</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;confidence&quot;</span><span class="punctuation">:</span> <span class="number">0.90</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;evidence_anchor&quot;</span><span class="punctuation">:</span> <span class="string">&quot;temporal&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;rationale&quot;</span><span class="punctuation">:</span> <span class="string">&quot;requires counting repetitive hand movements across full video&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>限制推理开销</strong>：通过 <code>max_tokens = 160</code> 和 <code>temperature = 0</code>，单个请求的纯文本解析耗时在毫秒级，开销不到后续完整视频多模态推理的 2%，在工程上可以完全忽略。</li>
+</ul>
+<hr>
+<h2 id="05-核心实验战报与敏感度验证">05. 核心实验战报与敏感度验证</h2>
+<h3 id="5-1-Video-MME-v2-核心评测结果">5.1 Video-MME-v2 核心评测结果</h3>
+<p>在权威长视频基准 <strong>Video-MME-v2</strong> 上（基于 Qwen3.5-397B 旗舰开源模型，平均均值维持 64 帧）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型体系 / 推理模式</th>
+<th style="text-align:center">帧数基准</th>
+<th style="text-align:center">整体准确率 (Avg Acc)</th>
+<th style="text-align:center">连贯性 (Coherence)</th>
+<th style="text-align:center">非线性推理 (Non-Lin)</th>
+<th style="text-align:center">核心高难类别 (Level 2)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Qwen3.5-397B (Think 原生基线)</strong></td>
+<td style="text-align:center">64 帧均匀</td>
+<td style="text-align:center">48.9%</td>
+<td style="text-align:center">32.7%</td>
+<td style="text-align:center">30.6%</td>
+<td style="text-align:center">30.4%</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>FrameRouter (本文路由方案)</strong></td>
+<td style="text-align:center"><strong>均值 64 帧</strong></td>
+<td style="text-align:center"><strong>53.3% (+4.4%)</strong></td>
+<td style="text-align:center"><strong>37.9% (+5.2%)</strong></td>
+<td style="text-align:center"><strong>34.9% (+4.3%)</strong></td>
+<td style="text-align:center"><strong>38.1% (+7.7%)</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><em>参考：GPT-5 (闭源基线)</em></td>
+<td style="text-align:center">50 帧</td>
+<td style="text-align:center">55.6%</td>
+<td style="text-align:center">36.3%</td>
+<td style="text-align:center">37.0%</td>
+<td style="text-align:center">39.1%</td>
+</tr>
+<tr>
+<td style="text-align:left"><em>参考：Gemini-3-Pro (闭源基线)</em></td>
+<td style="text-align:center">1 fps</td>
+<td style="text-align:center">66.1%</td>
+<td style="text-align:center">47.0%</td>
+<td style="text-align:center">49.4%</td>
+<td style="text-align:center">50.0%</td>
+</tr>
+</tbody>
+</table>
+<p>在没有进行一行模型权重训练的前提下，仅凭帧数调度，<strong>高难度任务准确率直接飙升 7.7%</strong>，连贯性与非线性推理指标全面突破，刷新了开源思维链模型在该基准上的最佳纪录。</p>
+<h3 id="5-2-配额选型的鲁棒性（Quota-Plateau）">5.2 配额选型的鲁棒性（Quota Plateau）</h3>
+<p>在系统落地中，工程师最讨厌“极其脆弱的超参数”。论文在 5.3 节做了大规模配额扫描（Figure 3a）：</p>
+<ul>
+<li>在大约 3200 道题的数据集中，作者将 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mtext>high</mtext></msub></mrow><annotation encoding="application/x-tex">n_{\text{high}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7167em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">high</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span> 从 200 一路扫到 900；</li>
+<li>实验发现，当 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mtext>high</mtext></msub></mrow><annotation encoding="application/x-tex">n_{\text{high}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7167em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">high</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span> 落在 <strong>400 ~ 700</strong> 这一极宽的区间内时，系统的准确率（53.2% ~ 53.4%）形成了一条非常平坦的高原；</li>
+<li>这证明了系统具备极高的容错空间，在实际工程落地时，<strong>工程师不需要精确拟合超参数，只要指定一个大致合理的比例（例如 15%~20% 走高配），系统就能稳定收获红利。</strong></li>
+</ul>
+<hr>
+<h2 id="06-软件工程师的架构延展：从“推理路由”到“视频湖数据处理”">06. 软件工程师的架构延展：从“推理路由”到“视频湖数据处理”</h2>
+<p>这篇论文的工程范式绝不仅限于大模型推理评测，它对于大数据与多模态数据基础设施有着极高的迁移参考价值。</p>
+<h3 id="场景延展：视频湖（Video-Lakehouse）的高效-ETL-架构设计">场景延展：视频湖（Video Lakehouse）的高效 ETL 架构设计</h3>
+<p>假设我们要搭建一套视频数据湖，目标是 <strong>“一次索引、持久留存、按需推理”</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">              海量原始视频流 (Raw Video Stream)</span><br><span class="line">                           │</span><br><span class="line">                           ▼</span><br><span class="line">┌────────────────────────────────────────────────────────┐</span><br><span class="line">│ 阶段一：极廉价前置探针 (Cheap Metadata Probe)             │</span><br><span class="line">│ • 成本几乎为 0 的轻量计算：                              │</span><br><span class="line">│   - FFmpeg I 帧分布 / 场景切换分值 (Scene Cut Score)    │</span><br><span class="line">│   - 帧间差分哈希跳变 (pHash / SSIM)                      │</span><br><span class="line">│   - 音频活动检测 (VAD) / 字幕生成密度                    │</span><br><span class="line">└──────────────────────────┬─────────────────────────────┘</span><br><span class="line">                           │ 评估切片的信息熵与动态度</span><br><span class="line">                           ▼</span><br><span class="line">┌────────────────────────────────────────────────────────┐</span><br><span class="line">│ 阶段二：自适应动态配额分配器 (Adaptive Rate Allocator)    │</span><br><span class="line">│ • 满足集群每日向量存储预算红线（保持均值 0.5 fps 成本）：   │</span><br><span class="line">│   - 静态/低动态切片 (监控/PPT) -&gt; 降频至 0.05 fps (20s一帧) │</span><br><span class="line">│   - 正常叙事切片              -&gt; 保持 0.5 fps (2s一帧)   │</span><br><span class="line">│   - 剧烈变动/密集动作切片     -&gt; 升频至 2.0 fps (1s两帧) │</span><br><span class="line">└──────────────────────────┬─────────────────────────────┘</span><br><span class="line">                           │ 仅提取关键特征帧</span><br><span class="line">                           ▼</span><br><span class="line">┌────────────────────────────────────────────────────────┐</span><br><span class="line">│ 阶段三：重负载向量化与两级检索 (Storage &amp; Search)       │</span><br><span class="line">│ • 稀疏高质量特征存入 Milvus 向量库 (杜绝静态垃圾向量污染)│</span><br><span class="line">│ • 底层冷存储保留原片物理时间戳 Offset                   │</span><br><span class="line">│ • 在线检索：先向量召回片段，若置信度不足，再按需拉帧推理 │</span><br><span class="line">└────────────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+<h4 id="这一架构为视频湖带来的工程质变">这一架构为视频湖带来的工程质变</h4>
+<ol>
+<li><strong>阻断“存储与算力雪崩”</strong>：避免在 2 小时的静止监控或网课录屏上无脑生成成千上万个高度冗余的 Embedding 向量，直接削减 60%~80% 的向量库内存与计算成本；</li>
+<li><strong>净化向量索引质量</strong>：防止向量数据库的 ANN 近邻搜索被长程静态画面的相似向量占满，大幅提高检索召回精度；</li>
+<li><strong>践行系统架构黄金法则</strong>：
+<blockquote>
+<p><strong>“永远以极廉价的元数据探针（Metadata Probe）为前置哨兵，对异质数据进行动态分级路由，以保护后链路最昂贵的计算与存储资源。”</strong></p>
+</blockquote>
+</li>
+</ol>
+<hr>
+<h2 id="07-结语">07. 结语</h2>
+<p>在当下大模型算法层出不穷、日趋繁琐的背景下，<strong>FrameRouter 给整个 AI 工程界上了一堂极佳的系统架构课</strong>：</p>
+<p>它没有沉溺于对模型底层做伤筋动骨的微调，也没有引入重型复杂的特征提取模块，而是站在全局资源的视角，敏锐地洞察到了 <strong>“一刀切预算”与“数据异质性”</strong> 之间的核心矛盾，用极简的配额调度逻辑实现了四两拨千斤的系统级飞跃。</p>
+<p>对于致力于将 AI 模型转化为高可用、高 ROI 生产力系统的软件工程师而言，这种 <strong>“向资源调度要性能、向精细化运营要算力”</strong> 的工程范式，往往比单纯追求更大的参数量更具工业价值与生命力。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%A7%86%E9%A2%91%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 视频大模型</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="tag"># 架构设计</a>
+              <a href="/tags/%E9%95%BF%E8%A7%86%E9%A2%91%E7%90%86%E8%A7%A3/" rel="tag"># 长视频理解</a>
+              <a href="/tags/FrameRouter/" rel="tag"># FrameRouter</a>
+              <a href="/tags/%E8%B5%84%E6%BA%90%E8%B0%83%E5%BA%A6/" rel="tag"># 资源调度</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%B7%A5%E7%A8%8B%E8%A7%86%E8%A7%92/" rel="tag"># 系统工程视角</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/18/MetaEncoder/" rel="next" title="【论文分享】毫秒级决策与海量检索的工程统一：MetaEncoder 如何用双塔架构重构 System 1 多模态微服务">
+                  【论文分享】毫秒级决策与海量检索的工程统一：MetaEncoder 如何用双塔架构重构 System 1 多模态微服务 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">483k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">29:16</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>

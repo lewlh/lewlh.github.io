@@ -39,7 +39,7 @@
 <meta property="og:description" content="很多熟悉搜索、推荐与 RAG 系统的后端工程师在第一眼看到 Meta AI 这篇论文时，往往会产生一个巨大的问号：  “既然带 -embedding 后缀的双塔模型（如 CLIP、BGE、Qwen3-VL-Embedding）早就满天飞，海量检索的业务链路（离线生成向量入向量库，在线算 Query 向量做近邻检索）十几年都没变过，这篇论文的价值到底在哪里？它跟市面上其他厂家的 Embedding">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-11-18T09:40:00.000Z">
-<meta property="article:modified_time" content="2026-11-18T11:12:41.766Z">
+<meta property="article:modified_time" content="2026-11-19T06:28:53.980Z">
 <meta property="article:author" content="豪豪">
 <meta property="article:tag" content="MetaEncoder">
 <meta property="article:tag" content="双塔架构">
@@ -135,7 +135,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">344</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">107</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">347</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">108</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -173,13 +173,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">107</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">344</span>
+        <span class="site-state-item-count">347</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -234,9 +234,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-18 17:40:00 / 修改时间：19:12:41" itemprop="dateCreated datePublished" datetime="2026-11-18T17:40:00+08:00">2026-11-18</time>
+      <time title="创建时间：2026-11-18 17:40:00" itemprop="dateCreated datePublished" datetime="2026-11-18T17:40:00+08:00">2026-11-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-19 14:28:53" itemprop="dateModified" datetime="2026-11-19T14:28:53+08:00">2026-11-19</time>
     </span>
 
   
@@ -514,7 +520,7 @@
 <li><strong>不要盲目用自回归生成硬啃所有业务</strong>：生成式模型不仅慢、贵，还带着不可控的非确定性。很多被当做“Prompt 工程”来做的规则判定、工具分流、安全审查，本质上都是典型的 System 1 问题；</li>
 <li><strong>双塔架构具有极强的工程韧性</strong>：通过将 30B 多模态底座引入 <strong>Options-in-Prompt</strong> 与 <strong>装箱训练</strong>，双塔模型不仅保留了<strong>毫秒级恒定延迟、离线特征缓存、千万级并发检索</strong>的工业级长板，更将业务决策拉平到了媲美重型大模型的可用水准。</li>
 </ol>
-<p>对于正在被大模型推理延迟、显存成本与脆弱格式解析困扰的系统研发团队而言，这种**“让 System 1 回归极速判别，让 System 2 专注深层思考”**的解耦架构，正是通往下一代高可用智能基础设施的最佳范式。</p>
+<p>对于正在被大模型推理延迟、显存成本与脆弱格式解析困扰的系统研发团队而言，这种 <strong>“让 System 1 回归极速判别，让 System 2 专注深层思考”</strong> 的解耦架构，正是通往下一代高可用智能基础设施的最佳范式。</p>
 
     </div>
 
@@ -537,6 +543,9 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
+                <a href="/papers/2026/11/19/FrameRouter/" rel="prev" title="【论文分享】零训练、不加一分钱算力：FrameRouter 如何用配额调度思维击破长视频大模型“一刀切”内耗">
+                  <i class="fa fa-angle-left"></i> 【论文分享】零训练、不加一分钱算力：FrameRouter 如何用配额调度思维击破长视频大模型“一刀切”内耗
+                </a>
             </div>
             <div class="post-nav-item">
                 <a href="/papers/2026/11/18/Unbundling-Vision-Encoding/" rel="next" title="【论文分享】重构多模态的“祖传代码”：Meta FAIR 拆解视觉编码器，为什么说 In-Fusion 才是低延迟与高精度的未来？">
@@ -574,14 +583,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">479k</span>
+    <span title="站点总字数">483k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">29:01</span>
+    <span title="站点阅读时长">29:16</span>
   </span>
 </div>
 <div class="busuanzi-count">
