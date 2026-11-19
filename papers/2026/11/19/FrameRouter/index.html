@@ -39,7 +39,7 @@
 <meta property="og:description" content="在当下的多模态大模型（VLM）与长视频理解系统中，处理几十分钟乃至数小时的视频一直是一块“硬骨头”。显存容量与上下文窗口的物理极限，决定了系统无法将全片的所有画面一股脑喂给模型。 在学术界评测与工业界落地中，几乎所有系统都默认遵循着一套不成文的行业惯例——“一刀切预算（Uniform Frame Budget）”：无论用户提问的是一个一目了然的静态物体（“视频开头那辆车是什么颜色？”），还是极其复">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-11-19T05:35:00.000Z">
-<meta property="article:modified_time" content="2026-11-19T06:28:53.979Z">
+<meta property="article:modified_time" content="2026-11-19T09:53:31.431Z">
 <meta property="article:author" content="豪豪">
 <meta property="article:tag" content="FrameRouter">
 <meta property="article:tag" content="架构设计">
@@ -135,7 +135,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">347</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">108</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">349</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">109</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -173,13 +173,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">109</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">347</span>
+        <span class="site-state-item-count">349</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -236,7 +236,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-19 13:35:00 / 修改时间：14:28:53" itemprop="dateCreated datePublished" datetime="2026-11-19T13:35:00+08:00">2026-11-19</time>
+      <time title="创建时间：2026-11-19 13:35:00 / 修改时间：17:53:31" itemprop="dateCreated datePublished" datetime="2026-11-19T13:35:00+08:00">2026-11-19</time>
     </span>
 
   
@@ -271,7 +271,7 @@
     
     
     <div class="post-body" itemprop="articleBody"><p>在当下的多模态大模型（VLM）与长视频理解系统中，处理几十分钟乃至数小时的视频一直是一块“硬骨头”。显存容量与上下文窗口的物理极限，决定了系统无法将全片的所有画面一股脑喂给模型。</p>
-<p>在学术界评测与工业界落地中，几乎所有系统都默认遵循着一套不成文的行业惯例——<strong>“一刀切预算（Uniform Frame Budget）”</strong>：无论用户提问的是一个一目了然的静态物体（“视频开头那辆车是什么颜色？”），还是极其复杂的长时序因果追踪（“主人公在整部电影中一共回了几次头，分别在什么时间？”），后台服务一律机械地从视频中抽取**固定数量的帧数（例如统一抽 64 帧）**输入给下游模型。</p>
+<p>在学术界评测与工业界落地中，几乎所有系统都默认遵循着一套不成文的行业惯例——<strong>“一刀切预算（Uniform Frame Budget）”</strong>：无论用户提问的是一个一目了然的静态物体（“视频开头那辆车是什么颜色？”），还是极其复杂的长时序因果追踪（“主人公在整部电影中一共回了几次头，分别在什么时间？”），后台服务一律机械地从视频中抽取 **固定数量的帧数（例如统一抽 64 帧）**输入给下游模型。</p>
 <p>这种设计在工程实现上固然简单直白，但在面对真实场景时，却带来了严重的<strong>系统级资源错配与性能反噬</strong>。</p>
 <p>针对这一长期被视作“默认假设”的基础设定，清华大学与哈尔滨工程大学的研究团队在近期发表的论文中提出了一个极具软件工程美感的破局解法：<strong>FrameRouter</strong>。</p>
 <blockquote>
@@ -281,7 +281,7 @@
 <strong>开源代码</strong>：<a target="_blank" href="https://github.com/bingjunluo/FrameRouter" rel="external nofollow noreferrer noopener">https://github.com/bingjunluo/FrameRouter</a><br>
 <strong>核心战果</strong>：<strong>零训练（Training-free）、零微调、零改动底层采样器</strong>，在全局平均处理帧数严格维持 64 帧不变（即计算成本完全不增加）的前提下，在权威长视频基准 <strong>Video-MME-v2</strong> 上斩获开源思维链模型（Thinking Models）<strong>SOTA</strong>，准确率大幅攀升 <strong>+4.4%</strong>，更在部分基准上超越了 50 帧配置的 GPT-5 参考成绩。</p>
 </blockquote>
-<p>本文立足于 <strong>软件开发工程师（后端架构 / 分布式系统 / 数据工程）</strong> 的视角，穿透学术论文中密密麻麻的数学集合论包装，深度拆解其背后的<strong>系统资源调度逻辑、非对称风险控制哲学</strong>以及<strong>核心代码实现</strong>，并进一步延展讨论如何将这套范式落地到企业级**“视频数据湖”**的低成本自适应 ETL 流程中。</p>
+<p>本文立足于 <strong>软件开发工程师（后端架构 / 分布式系统 / 数据工程）</strong> 的视角，穿透学术论文中密密麻麻的数学集合论包装，深度拆解其背后的<strong>系统资源调度逻辑、非对称风险控制哲学</strong>以及<strong>核心代码实现</strong>，并进一步延展讨论如何将这套范式落地到企业级 <strong>“视频数据湖”</strong> 的低成本自适应 ETL 流程中。</p>
 <span id="more"></span>
 <hr>
 <h2 id="01-核心工程痛点：为什么“加帧数”反而会让性能恶化？">01. 核心工程痛点：为什么“加帧数”反而会让性能恶化？</h2>
@@ -298,7 +298,7 @@
 <h3 id="1-2-冗余数据引发的注意力衰减与幻觉">1.2 冗余数据引发的注意力衰减与幻觉</h3>
 <p>为什么帧数变多反而导致错误？这完全符合分布式检索与信息论的常识：</p>
 <ul>
-<li>输入过多的视觉 Token 会造成**“注意力稀释（Lost in the Middle）”**；</li>
+<li>输入过多的视觉 Token 会造成 <strong>“注意力稀释（Lost in the Middle）”</strong>；</li>
 <li>无关背景帧和重复画面引入了大量高频视觉噪声（Visual Noise），直接诱发了大模型的过度联想和幻觉（Hallucination）。</li>
 </ul>
 <blockquote>
@@ -496,6 +496,9 @@ FrameRouter 坚持<strong>单分支命中即执行</strong>，不增加任何多
 
           <div class="post-nav">
             <div class="post-nav-item">
+                <a href="/papers/2026/11/19/VIVID/" rel="prev" title="【论文分享】零Token开销与0.22%微调：VIVID 如何用“差量编解码+CDC事件溯源”击破视频大模型静态盲区">
+                  <i class="fa fa-angle-left"></i> 【论文分享】零Token开销与0.22%微调：VIVID 如何用“差量编解码+CDC事件溯源”击破视频大模型静态盲区
+                </a>
             </div>
             <div class="post-nav-item">
                 <a href="/papers/2026/11/18/MetaEncoder/" rel="next" title="【论文分享】毫秒级决策与海量检索的工程统一：MetaEncoder 如何用双塔架构重构 System 1 多模态微服务">
@@ -533,14 +536,14 @@ FrameRouter 坚持<strong>单分支命中即执行</strong>，不增加任何多
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">483k</span>
+    <span title="站点总字数">488k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">29:16</span>
+    <span title="站点阅读时长">29:36</span>
   </span>
 </div>
 <div class="busuanzi-count">

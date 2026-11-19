@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">347</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">108</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">349</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">109</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-count">109</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">347</span>
+        <span class="site-state-item-count">349</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,122 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/16/AURA2-Streaming/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/16/AURA2-Streaming/" class="post-title-link" itemprop="url">【论文分享】告别被动问答：AURA 2.0 如何用流式事件循环与分级记忆打造 344ms 极速主动多模态助手</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-16 19:58:00" itemprop="dateCreated datePublished" datetime="2026-11-16T19:58:00+08:00">2026-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在过往的多模态大模型（Multimodal LLMs）应用开发中，后端与算法工程师普遍面临着一个根本性的交互范式桎梏：<strong>系统本质上是一个单向、被动、同步阻塞的“请求-响应”（Request-Response / RPC）模型</strong>。</p>
+<ul>
+<li><strong>传统模式（Passive Query-Driven）</strong>：用户不主动打字或发语音，模型就处于深度休眠；用户上传一段 30 秒的视频并提问，服务端执行一次耗时数秒的重量级 Pre-fill 推理，然后全量吐回结果。</li>
+<li><strong>理想模式（Proactive Event-Driven）</strong>：AI 助手应该像坐在你副驾驶的老司机或身旁的真人助理一样，保持对环境的“全天候低功耗感知”。大多数时候它安安静静，但在发现关键事件（如你锅里的水烧开了、组装家具用错了螺丝、窗外出现著名地标）时，能够<strong>主动开麦提醒（Model-Initiated Conversation, MIC）</strong>，并在说话时同步调取外部 API（SATC）或在屏幕画框标出目标（IVG）。</li>
+</ul>
+<p>然而，要想在工程上落地这种“全天候流式视频交互”，有两座近乎绝望的大山挡在软件工程师面前：</p>
+<ol>
+<li><strong>显存与计算的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>N</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> 爆炸</strong>：源源不断的视频流以每秒数十帧的速率推入，如果把历史帧无休止塞进 Context Window，显存不出几分钟就会 OOM，且自注意力延迟随时间持续飙升；</li>
+<li><strong>极高频决策下的并发吞吐崩溃</strong>：如果系统每秒对视频帧轮询判定一次，那么在真实世界 95% 以上“无事发生”的平淡场景下，服务器都在浪费宝贵的 GPU 算力执行无效前向传播与语音合成。</li>
+</ol>
+<p>针对这些痛点，香港中文大学（CUHK）等团队重磅推出了开源流式视频大模型框架 <strong>AURA 2.0</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《AURA 2.0: From User-Driven Responses to Model-Initiated Conversations in Streaming Video》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.17048">https://arxiv.org/abs/2611.17048</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.17048">https://arxiv.org/html/2611.17048</a>)<br>
+<strong>官方开源仓库</strong>：<a target="_blank" rel="noopener" href="https://github.com/aurateam2026/AURA">https://github.com/aurateam2026/AURA</a><br>
+<strong>开源模型权重</strong>：<a target="_blank" rel="noopener" href="https://huggingface.co/aurateam/AURA">https://huggingface.co/aurateam/AURA</a> (基于 Qwen3.5-9B 全参数微调)<br>
+<strong>核心工程贡献</strong>：基于流式时间片（Chunk）的状态机控制协议、LSM-Tree 风格的分级记忆压缩（LHIM）、三阶段防遗忘微调流水线、以及端到端仅 <strong>344ms 客户端首包音频延迟（TTFP）</strong> 的极低时延推理优化。</p>
+</blockquote>
+<p>本文站在 <strong>软件开发工程师与分布式系统架构师</strong> 的视角，跳过复杂的学术套话，深度拆解其 <strong>系统架构、分级存储设计、双端短路机制与工程权衡（Trade-offs）</strong>。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/16/AURA2-Streaming/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +348,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 14:28:53" itemprop="dateModified" datetime="2026-11-19T14:28:53+08:00">2026-11-19</time>
+      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
     </span>
 
   
@@ -341,7 +457,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 14:28:53" itemprop="dateModified" datetime="2026-11-19T14:28:53+08:00">2026-11-19</time>
+      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
     </span>
 
   
@@ -451,7 +567,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 14:28:53" itemprop="dateModified" datetime="2026-11-19T14:28:53+08:00">2026-11-19</time>
+      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
     </span>
 
   
@@ -567,7 +683,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 14:28:53" itemprop="dateModified" datetime="2026-11-19T14:28:53+08:00">2026-11-19</time>
+      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
     </span>
 
   
@@ -638,125 +754,6 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/12/viscot-steer/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/12/viscot-steer/" class="post-title-link" itemprop="url">【论文分享】不用重训模型也能打补丁？Viscot-Steer：基于激活干涉与状态机重塑视觉思维链迁移</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-12 16:00:00" itemprop="dateCreated datePublished" datetime="2026-11-12T16:00:00+08:00">2026-11-12</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 14:28:53" itemprop="dateModified" datetime="2026-11-19T14:28:53+08:00">2026-11-19</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>12 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在当下的多模态大模型（LVLM）演进中，<strong>视觉思维链（Visual Chain-of-Thought, Visual-CoT）</strong> 正成为模型实现高阶推理的核心能力。</p>
-<p>与早先简单粗暴的“输入图片直接猜答案”不同，具备 Visual-CoT 能力的模型（如 DeepEyes）在看图作答时展现出类似于人类专家的系统性思考模式：</p>
-<ol>
-<li><strong>推理解析（Reasoning）</strong>：“要回答这道题，我需要先在图里找到对应的标线或元器件。”</li>
-<li><strong>视觉定位（Grounding）</strong>：“找到了，定位坐标框为 <code>[120, 340, 180, 420]</code>。”</li>
-<li><strong>最终答题（Answer）</strong>：“结合上述视觉证据，得出最终结论。”</li>
-</ol>
-<p>然而，在产业落地与多端部署中，算法与工程团队常常陷入一个两难的尴尬境地：</p>
-<ul>
-<li><strong>大模型很聪明，但吃不下资源</strong>：拥有完整 Visual-CoT 能力的开源模型往往体积庞大、依赖昂贵算力，难以在边缘端或低延时服务中大规模部署。</li>
-<li><strong>小模型跑得飞快，但“眼瞎心盲”</strong>：若想让 3B、4B 或其他异构架构的模型也拥有同等能力，传统的唯一路径是<strong>重训或监督微调（SFT / DPO）</strong>。但这需要昂贵的多模态高质量打标数据、漫长的训练周期，并且一旦基座升级，所有适配成本都得从头再来。</li>
-</ul>
-<p>针对这一痛点，中国科学技术大学与新加坡国立大学团队近期在 arXiv 提出了一个极具软件工程美感的全新范式：</p>
-<blockquote>
-<p><strong>论文题目</strong>：<em>Viscot-steer: Disentangling and Transferring Visual Chain-of-Thought via Activation Steering</em><br>
-<strong>论文编号</strong>：arXiv:2611.11209<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.11209">https://arxiv.org/abs/2611.11209</a><br>
-<strong>HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.11209">https://arxiv.org/html/2611.11209</a><br>
-<strong>核心成果</strong>：完全无需反向传播训练（<strong>Training-Free，0 参数更新</strong>），仅凭“静态提取能力向量差分 + 运行时时序状态机动态注入”，跨架构成功将 DeepEyes-7B 的 Visual-CoT 能力无缝移植到 Qwen2.5-VL、Qwen3-VL、InternVL 等异构小模型上，并在 V*、HR-Bench 4K 上实现 <strong>+6.28%</strong> 至 <strong>+14.13%</strong> 的显著涨点。</p>
-</blockquote>
-<p>初读这篇论文，算法工程师可能会关注其激活差分与频域变换的数学细节；但站在<strong>软件工程师、后端架构师与系统研发</strong>的角度，这篇论文堪称一份令人拍案叫绝的 <strong>“AI 运行时热补丁（Monkey Patch）与 AOP 切面拦截”架构实战</strong>。</p>
-<p>本文将剥开晦涩的学术包装，用软件开发者的代码与系统视角，深入拆解其工程实现范式与问题解决直觉。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/12/viscot-steer/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -781,14 +778,14 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">483k</span>
+    <span title="站点总字数">488k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">29:16</span>
+    <span title="站点阅读时长">29:36</span>
   </span>
 </div>
 <div class="busuanzi-count">
