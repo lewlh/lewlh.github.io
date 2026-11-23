@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">357</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">111</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">361</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">112</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">111</span>
+          <span class="site-state-item-count">112</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">357</span>
+        <span class="site-state-item-count">361</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,112 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/23/MEM-SQL/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/23/MEM-SQL/" class="post-title-link" itemprop="url">【论文分享】告别从零裸写：如何用分层缓存与懒加载将 Text-to-SQL 成本暴降 76%？深度拆解 MEM-SQL 与工程落地实战</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-23 17:45:00 / 修改时间：17:54:35" itemprop="dateCreated datePublished" datetime="2026-11-23T17:45:00+08:00">2026-11-23</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在当今企业级智能数据问答、BI 报表和大模型数据库交互的工程落地中，<strong>Text-to-SQL（自然语言转 SQL）</strong> 几乎是所有数据团队都绕不开的核心能力。</p>
+<p>然而，一旦进入真实生产环境，软件开发工程师很快就会遭遇三大残酷的“工程泥潭”：</p>
+<ol>
+<li><strong>Schema 爆炸与 Prompt 臃肿</strong>：企业数据库动辄上百张表、上千个字段。传统方案为了让 LLM 理解数据库，不得不把几万 Token 的 DDL、字段类型和注释全部塞入 Prompt。这不仅导致<strong>单次请求 API 成本高昂、网络响应延迟长达数秒甚至十几秒</strong>，更引发了大模型“注意力漂移（Lost in the Middle）”，产生大量字段幻觉；</li>
+<li><strong>多表关联（JOIN）极易翻车</strong>：让大模型从零推导 5~8 张表之间的外键关联路径，极易漏写关联条件或产生笛卡尔积错误；</li>
+<li><strong>严重违反软件复用常识</strong>：现有学术基准（如 Spider、BIRD）假定“每一次查询都是彼此完全孤立的”。但在真实业务中，<strong>80% 的查询本质上都是对历史高频查询的微调</strong>（今天查“2023年华东区销售额”，明天查“2024年华北区退款率”——两者的多表 JOIN 和结构 90% 完全相同）。每次都让大模型无状态地从零编译，是巨大的算力浪费。</li>
+</ol>
+<p>针对这一系列落地痛点，来自 <strong>香港大学 NICE Lab、新加坡国立大学（NUS）与香港科技大学（广州）</strong> 的联合研究团队于 2026 年底提出了一套极具工程美感的解决方案——<strong>MEM-SQL</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《MEM-SQL: Memory-Empowered Text-to-SQL》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.18338">arXiv:2611.18338</a><br>
+<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.18338v1">https://arxiv.org/html/2611.18338v1</a><br>
+<strong>核心贡献</strong>：打破“每次从零查全量表结构生成 SQL”的传统无状态假定，构建“模板骨架 + 复杂 JOIN 组件 + 领域概念映射”的三层历史记忆库；首创<strong>最差项覆盖率门禁（Coverage Gate）<strong>与</strong>按需模式链接（OSL，懒加载 Schema）</strong>，在平均执行准确率提升至 <strong>50.0%</strong> 的同时，<strong>输入 Token 暴降 76.6%，端到端延迟降低 68.8%</strong>，且 95.4% 的查询甚至完全无需读取数据库 DDL！</p>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师、系统架构师与后端研发</strong> 的视角，不罗列晦涩的纯理论公式，深入剖析其 <strong>架构设计模式、分层缓存机制、懒加载流程控制、失败边界（Failure Modes）</strong>，并结合工业界实际场景（如基于 MyScaleDB 的视频检索与二次精筛）探讨如何将这套范式无缝落地为可交付的生产级系统。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/23/MEM-SQL/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +332,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-23 16:30:00 / 修改时间：17:37:31" itemprop="dateCreated datePublished" datetime="2026-11-23T16:30:00+08:00">2026-11-23</time>
+      <time title="创建时间：2026-11-23 16:30:00 / 修改时间：17:54:35" itemprop="dateCreated datePublished" datetime="2026-11-23T16:30:00+08:00">2026-11-23</time>
     </span>
 
   
@@ -460,7 +566,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-23 16:20:00 / 修改时间：17:37:31" itemprop="dateCreated datePublished" datetime="2026-11-23T16:20:00+08:00">2026-11-23</time>
+      <time title="创建时间：2026-11-23 16:20:00 / 修改时间：17:54:35" itemprop="dateCreated datePublished" datetime="2026-11-23T16:20:00+08:00">2026-11-23</time>
     </span>
 
   
@@ -580,7 +686,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-23 17:37:31" itemprop="dateModified" datetime="2026-11-23T17:37:31+08:00">2026-11-23</time>
+      <time title="修改时间：2026-11-23 17:54:35" itemprop="dateModified" datetime="2026-11-23T17:54:35+08:00">2026-11-23</time>
     </span>
 
   
@@ -692,7 +798,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-23 17:37:31" itemprop="dateModified" datetime="2026-11-23T17:37:31+08:00">2026-11-23</time>
+      <time title="修改时间：2026-11-23 17:54:35" itemprop="dateModified" datetime="2026-11-23T17:54:35+08:00">2026-11-23</time>
     </span>
 
   
@@ -757,117 +863,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/18/MetaEncoder/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/18/MetaEncoder/" class="post-title-link" itemprop="url">【论文分享】毫秒级决策与海量检索的工程统一：MetaEncoder 如何用双塔架构重构 System 1 多模态微服务</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-18 17:40:00" itemprop="dateCreated datePublished" datetime="2026-11-18T17:40:00+08:00">2026-11-18</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-23 17:37:31" itemprop="dateModified" datetime="2026-11-23T17:37:31+08:00">2026-11-23</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>15 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>很多熟悉搜索、推荐与 RAG 系统的后端工程师在第一眼看到 Meta AI 这篇论文时，往往会产生一个巨大的问号：</p>
-<blockquote>
-<p><em>“既然带 <code>-embedding</code> 后缀的双塔模型（如 CLIP、BGE、Qwen3-VL-Embedding）早就满天飞，海量检索的业务链路（离线生成向量入向量库，在线算 Query 向量做近邻检索）十几年都没变过，这篇论文的价值到底在哪里？它跟市面上其他厂家的 Embedding 模型究竟有何区别？”</em></p>
-</blockquote>
-<p>带着这个极其现实的工程疑问读下去，你才会发现这篇论文的惊艳之处：<strong>海量检索的标准链路确实没有变；真正的质变，发生在你以前根本不敢用、也无法用 Embedding 模型去碰的另一半——“业务规则决策与 Agent 动态路由（System 1 Decision-Making）”上！</strong></p>
-<p>Meta 团队基于开源的 <code>Muse-Glimmer-30B</code> 多模态底座，提出了 <strong>MetaEncoder</strong>：</p>
-<blockquote>
-<p><strong>论文题目</strong>：《MetaEncoder: Exploring the Limit of Bi-Encoders for Multimodal System One Decision Making with Natural Language Interface》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.11316">https://arxiv.org/abs/2610.11316</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.11316">https://arxiv.org/html/2610.11316</a>)<br>
-<strong>开源权重</strong>：<a target="_blank" rel="noopener" href="https://huggingface.co/facebook/meta-encoder">facebook/meta-encoder</a>（含升级版 v1）<br>
-<strong>官方复现评测</strong>：<a target="_blank" rel="noopener" href="https://github.com/facebook/meta-encoder-eval">facebook/meta-encoder-eval</a><br>
-<strong>核心贡献</strong>：打破“封闭分类决策”与“开放海量检索”的系统隔离；通过 <strong>Options-in-Prompt（Prompt 候选注入）</strong>、<strong>单向对比学习</strong> 与 <strong>Packed Contrastive Training（装箱对比训练）</strong>，实现一套微服务兼顾 15ms 极速业务决策与千万级图文/视频多模态检索。</p>
-</blockquote>
-<p>本文立足于 <strong>软件开发工程师（后端/架构/分布式系统）</strong> 的视角，跳过复杂的算法推导，深度复盘<strong>业务流程到底在哪一步发生了蜕变</strong>、三种打分架构的系统级选型权衡、关键工程落地黑科技，并结合同行工程师最关心的核心疑点（入库格式、多模态支持、公开 Benchmark 战报）提供全方位的技术全景。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/18/MetaEncoder/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -892,14 +887,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">512k</span>
+    <span title="站点总字数">517k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">31:02</span>
+    <span title="站点阅读时长">31:19</span>
   </span>
 </div>
 <div class="busuanzi-count">
