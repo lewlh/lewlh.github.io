@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">349</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">109</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">350</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">110</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">110</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">349</span>
+        <span class="site-state-item-count">350</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,120 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/23/AVTR-AdaptiveReasoning/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/23/AVTR-AdaptiveReasoning/" class="post-title-link" itemprop="url">【论文分享】脚手架模式与自适应路由：AVTR 如何让大模型“边看边想”，并砍掉 33% 推理延迟</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-23 16:20:00 / 修改时间：16:22:20" itemprop="dateCreated datePublished" datetime="2026-11-23T16:20:00+08:00">2026-11-23</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在当前多模态大模型（Vision-Language Models, VLMs）的演进浪潮中，<strong>长思维链（Long-Thought CoT / Reasoning Model）</strong> 几乎成为了行业标配。大家习惯性地认为：只要让模型“深思熟虑”（生成成百上千个 <code>&lt;think&gt;...&lt;/think&gt;</code> 文本 token），任何复杂的多模态难题都能迎刃而解。</p>
+<p>然而，在工业界实际落地和真实复杂评测中，这套被广泛推崇的范式却经常在前端业务中“翻车”：</p>
+<ul>
+<li><strong>面对精细几何与空间任务</strong>：模型洋洋洒洒输出了几千字的逻辑长文，最后给出的物体相对方位、相机运动轨迹依然完全相反；</li>
+<li><strong>面对简单直观问题</strong>：即便只需看一眼就能回答的题目，模型依然机械地进入漫长思考，导致系统 P99 延迟飙升、算力成本激增；</li>
+<li><strong>面对长视频时间定位</strong>：开启文本思考不仅没提分，准确率反而发生<strong>系统性倒退</strong>。</li>
+</ul>
+<p>究其根源，当下的主流 VLM 在系统设计上存在一个根本性的架构畸形——<strong>“多模态输入，单模态推理”（Multimodal Input, Unimodal Reasoning）</strong>。模型用眼睛观察，却只用纯文本嘴巴去思考。当底层视觉证据本身不完整、不精确时，无论上层逻辑推演多么缜密，也只是在“高质量地胡说八道”。</p>
+<p>针对这一痛点，Meta AI 与沙特阿卜杜拉国王科技大学（KAUST）团队近期提出了破局方案：<strong>AVTR（Adaptive Visual-Textual Reasoning）</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：《AVTR: Adaptive Multimodal Reasoning with Visual Imagination》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.24161">https://arxiv.org/abs/2611.24161</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.24161">https://arxiv.org/html/2611.24161</a>)<br>
+<strong>项目主页</strong>：<a target="_blank" rel="noopener" href="https://xiaoqian-shen.github.io/AVTR/">https://xiaoqian-shen.github.io/AVTR/</a><br>
+<strong>作者团队</strong>：Xiaoqian Shen, Yunyang Xiong, Mohamed Elhoseiny 等（Meta AI &amp; KAUST）<br>
+<strong>核心战果</strong>：</p>
+<ul>
+<li><strong>全场景综合大幅提升</strong>：在覆盖高分辨率图像、空间推理、长视频理解与时序定位等 <strong>16 个权威基准</strong>上，平均分超越强基线 Qwen3.5 达 <strong>4.5 分</strong>（相较直接回答提升 6.1 分），在空间推理 VSI-Bench 上暴涨 <strong>+13.8 分</strong>；</li>
+<li><strong>推理延迟反降 33%</strong>：通过代价感知的动态门控，打破“一刀切”思考链，平均端到端推理耗时减少 <strong>4.3 秒</strong>；</li>
+<li><strong>推理期零像素开销</strong>：训练期借助扩散模型作为监督“脚手架”，推理期彻底剥离，单次并行查询仅需 <strong>50ms</strong>；</li>
+<li><strong>小模型收益更显著</strong>：在 2B 级小模型（Qwen3.5-2B）上，平均分由 55.4 分飙升至 <strong>61.3 分（+6.3 分）</strong>。</li>
+</ul>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端架构 / 性能调优 / 系统设计）</strong> 的视角，穿透算法层面的公式包装，深度拆解其背后的<strong>脚手架架构模式（Scaffolding Pattern）、快慢路径自适应调度、批处理并行优化</strong>以及给业务工程带来的核心直觉启示。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/23/AVTR-AdaptiveReasoning/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -224,9 +338,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-19 17:30:00 / 修改时间：17:53:31" itemprop="dateCreated datePublished" datetime="2026-11-19T17:30:00+08:00">2026-11-19</time>
+      <time title="创建时间：2026-11-19 17:30:00" itemprop="dateCreated datePublished" datetime="2026-11-19T17:30:00+08:00">2026-11-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-23 16:22:20" itemprop="dateModified" datetime="2026-11-23T16:22:20+08:00">2026-11-23</time>
     </span>
 
   
@@ -330,9 +450,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-19 13:35:00 / 修改时间：17:53:31" itemprop="dateCreated datePublished" datetime="2026-11-19T13:35:00+08:00">2026-11-19</time>
+      <time title="创建时间：2026-11-19 13:35:00" itemprop="dateCreated datePublished" datetime="2026-11-19T13:35:00+08:00">2026-11-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-23 16:22:20" itemprop="dateModified" datetime="2026-11-23T16:22:20+08:00">2026-11-23</time>
     </span>
 
   
@@ -441,7 +567,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
+      <time title="修改时间：2026-11-23 16:22:20" itemprop="dateModified" datetime="2026-11-23T16:22:20+08:00">2026-11-23</time>
     </span>
 
   
@@ -552,7 +678,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
+      <time title="修改时间：2026-11-23 16:22:20" itemprop="dateModified" datetime="2026-11-23T16:22:20+08:00">2026-11-23</time>
     </span>
 
   
@@ -620,114 +746,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/16/DumpToken-Retrieval/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/16/DumpToken-Retrieval/" class="post-title-link" itemprop="url">【论文分享】给向量模型装个“接地线”：CIKM 2026 DUMP Token 如何零改动净化 Embedding 表征</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-16 20:55:00" itemprop="dateCreated datePublished" datetime="2026-11-16T20:55:00+08:00">2026-11-16</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.1k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>11 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在构建 RAG（检索增强生成）、大模型知识库和企业级语义搜索系统时，后端与算法工程师最常打交道的底层基建之一就是 <strong>文本 Embedding 模型</strong>。</p>
-<p>从系统工程的角度看，Embedding 模型的本质是一个<strong>高倍率的“有损压缩管道”</strong>：它需要把几百到上千个 Token 的动态交互，强行压缩进一个固定维度（如 768 或 1024 维）的浮点数向量中。</p>
-<p>然而，在 Transformer 原生的计算机制下，这个压缩过程长期存在一个隐蔽的“底层缺陷”：<strong>表征干扰（Representational Interference）</strong>。由于 Softmax 的强制归一化特性，句子中的标点、停用词以及系统自发产生的“注意力黑洞（Attention Sink）”杂波，被迫与真正的核心语义纠缠在一起，最终污染了输出向量的纯度。</p>
-<p>针对这一长期困扰向量检索质量的工程痛点，韩国高丽大学与崇实大学的团队在 CIKM 2026 上提出了一套极其优雅、四两拨千斤的解决方案——<strong>DUMP Token（垃圾桶前缀 Token）</strong>：</p>
-<blockquote>
-<p><strong>论文题目</strong>：《Reducing Representational Interference in Retrieval Embeddings with Trainable Prefix Tokens》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.07298">arXiv:2611.07298</a><br>
-<strong>ResearchGate</strong>：<a target="_blank" rel="noopener" href="https://www.researchgate.net/publication/417540835_Reducing_Representational_Interference_in_Retrieval_Embeddings_with_Trainable_Prefix_Tokens">Publication 417540835</a><br>
-<strong>核心贡献</strong>：不改模型结构、不加任何辅助 Loss、不改变最终 Pooling 规则，仅靠在文本前缀插入几个可训练的 <code>[DUMP]</code> Token，就能自动将注意力杂波引流隔离，使标准检索提升 2.46%，长文本检索提升 2.41%。</p>
-</blockquote>
-<p>本文立足于 <strong>软件开发工程师（系统/后端/架构研发）</strong> 的视角，不罗列晦涩的纯理论推导，深入剖析其 <strong>系统缺陷机理、旁路解耦范式、端到端训练流水线与工程落地避坑指南</strong>。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/16/DumpToken-Retrieval/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -752,14 +770,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">488k</span>
+    <span title="站点总字数">493k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">29:36</span>
+    <span title="站点阅读时长">29:51</span>
   </span>
 </div>
 <div class="busuanzi-count">

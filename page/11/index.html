@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">349</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">109</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">350</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">110</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">109</span>
+          <span class="site-state-item-count">110</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">349</span>
+        <span class="site-state-item-count">350</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,122 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/16/UniPro-Livestream-Grounding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/10/16/UniPro-Livestream-Grounding/" class="post-title-link" itemprop="url">【论文分享】告别直播带货切片的“级联崩溃”：从电商视频联合理解到 UniPro 极简架构落地</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-16 15:30:00" itemprop="dateCreated datePublished" datetime="2026-10-16T15:30:00+08:00">2026-10-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-23 16:22:20" itemprop="dateModified" datetime="2026-11-23T16:22:20+08:00">2026-11-23</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在抖音、淘宝、TikTok 等电商直播业务的工程研发中，<strong>“直播高光自动化切片（Livestream Video Clipping）”</strong> 是近年来最吸金也是最具业务价值的场景之一：系统需要从主播连续数小时的带货录像中，自动识别出“主播正在讲货架上的哪件商品”，并精准把主播试穿、展示面料、讲解核心卖点的几十秒片段“咔嚓”切出来，自动合成带货短视频或挂载到商品详情页。</p>
+<p>面对这一需求，传统的后端微服务架构设计通常会自然而然地拆解为两个独立模块：</p>
+<ol>
+<li><strong>服务 A（商品检索服务）</strong>：把视频截一段，丢给多模态检索模型，在 3 万件 SKU 的底库里搜出是哪个商品（Product Retrieval）；</li>
+<li><strong>服务 B（时间定位服务）</strong>：给定商品名称或查询词（如“试穿环节”），在视频轨里通过时间定位算法找起止时间戳 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><msub><mi>t</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[t_{start}, t_{end}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>（Moment Localization）。</li>
+</ol>
+<p>然而，当工业界真正把这套解耦架构推上线时，却遭遇了残酷的 <strong>“级联崩溃（Cascading Error）”</strong>：即使服务 A 的商品识别准确率单测能达到近 40%，但由于两个微服务特征割裂、无法互相提供支撑证据，到了实际联合评测时，系统的联合切片准确率（Pair mAP）暴跌到惨不忍睹的 <strong>10.13%</strong>！</p>
+<p>近日，针对长视频电商直播的开创性基准与模型研究在 arXiv 发布：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《Grounded Product Understanding in Livestream Videos》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2609.20508">https://arxiv.org/abs/2609.20508</a><br>
+<strong>HTML 页面</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2609.20508">https://arxiv.org/html/2609.20508</a><br>
+<strong>核心资产</strong>：</p>
+<ol>
+<li><strong>GPUB 基准</strong>：涵盖 3,000 个真实直播切片、8,975 个高光证据段、31,831 个精细服装 SKU 的大规模评估基准；</li>
+<li><strong>UniPro 模型</strong>：基于 2B 级小底座（Qwen3-VL-Embedding-2B）打造的多任务联合理解模型，将 Pair mAP 从 10.13% 大幅拉升到 24.58%，Top-1 联合成功率飙升至 38.81%。</li>
+</ol>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师、系统架构师与后端研发</strong> 的视角，深入拆解为什么传统“检索+截取”微服务会失效、UniPro 如何用“共享缓存 + 锚点降维 + 轻量扇出”化解时序长视频的算力爆炸，以及仅需 4 张显卡的三阶段低成本工程微调落地方案。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/10/16/UniPro-Livestream-Grounding/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +348,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
+      <time title="修改时间：2026-11-23 16:22:20" itemprop="dateModified" datetime="2026-11-23T16:22:20+08:00">2026-11-23</time>
     </span>
 
   
@@ -343,7 +459,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
+      <time title="修改时间：2026-11-23 16:22:20" itemprop="dateModified" datetime="2026-11-23T16:22:20+08:00">2026-11-23</time>
     </span>
 
   
@@ -456,7 +572,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
+      <time title="修改时间：2026-11-23 16:22:20" itemprop="dateModified" datetime="2026-11-23T16:22:20+08:00">2026-11-23</time>
     </span>
 
   
@@ -573,7 +689,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/260
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
+      <time title="修改时间：2026-11-23 16:22:20" itemprop="dateModified" datetime="2026-11-23T16:22:20+08:00">2026-11-23</time>
     </span>
 
   
@@ -638,121 +754,6 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/260
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/06/22/F2G-VideoGrounding/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/06/22/F2G-VideoGrounding/" class="post-title-link" itemprop="url">【论文分享】告别视频大模型“盲猜时间戳”：中科院与哈工大 ICML 2026 新作 F2G 深度拆解（附小团队低成本时序检索反思）</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-06-22 14:00:00" itemprop="dateCreated datePublished" datetime="2026-06-22T14:00:00+08:00">2026-06-22</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-19 17:53:31" itemprop="dateModified" datetime="2026-11-19T17:53:31+08:00">2026-11-19</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.1k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>15 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在智能安防、视频切片剪辑 Agent、车载记录仪检索以及多模态视频 RAG 等系统的工程研发中，<strong>视频时序定位（Video Temporal Grounding, VTG）</strong> 是一项基础核心能力：给定一段未经剪辑的原始视频和一句自然语言指令（如“<em>找出小狗咬住飞盘的瞬间</em>”），系统需要快速返回精确到秒级甚至毫秒级的起止时间戳 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><msub><mi>t</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo separator="true">,</mo><msub><mi>t</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[t_{start}, t_{end}]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">s</span><span class="mord mathnormal mtight">t</span><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">n</span><span class="mord mathnormal mtight">d</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">]</span></span></span></span>。</p>
-<p>随着多模态大模型（Video-LLM）能力的飞速提升，学术界近年掀起了一股 <strong>“端到端全交给大模型”</strong> 的浪潮：把视频抽帧转化为成千上万个视觉 Token 塞进上下文窗口，让大模型自回归逐字生成时间数字字符串（如“<em>从 12.3 秒到 18.5 秒</em>”）。</p>
-<p>然而，当软件开发工程师真正将这套方案搬上测试环境或生产环境时，往往会遭遇残酷的现实毒打：</p>
-<ol>
-<li><strong>数值脆弱与高抖动（Brittle Numerics &amp; High Jitter）</strong>：大模型本质是离散词表概率生成器，强行让它做连续实数坐标回归，输出的时间戳方差极大。同一视频调两次，结果可能完全漂移；</li>
-<li><strong>黑盒不可观测（Zero Observability）</strong>：一旦时间戳算偏了，系统完全是个黑盒，无法断点定位是大模型“没认出动作”、“认错动作”，还是“看懂了但数字算错了”；</li>
-<li><strong>推理性价比极低</strong>：为了输出短短几个数字，线上每次请求都要让庞大的多模态大模型自回归解码，推理成本和并发吞吐直接劝退中小团队。</li>
-</ol>
-<p>近日，来自<strong>中国科学院大学（UCAS）、哈尔滨工业大学（HIT）、香港城市大学（CityU HK）</strong> 等机构的研究团队在机器学习顶会 <strong>ICML 2026</strong> 上发表了一篇立足于结构化感知的破局之作：</p>
-<blockquote>
-<p><strong>《Foresee-to-Ground: From Predictive Temporal Perception to Evidence-Driven Reasoning for Video Temporal Grounding》</strong> (arXiv:2605.21973)<br>
-论文会议：ICML 2026<br>
-论文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2605.21973">https://arxiv.org/abs/2605.21973</a><br>
-HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2605.21973">https://arxiv.org/html/2605.21973</a><br>
-开源项目：<a target="_blank" rel="noopener" href="https://github.com/zelion2003/Foresee-to-Ground">https://github.com/zelion2003/Foresee-to-Ground</a><br>
-核心创新：颠覆传统“黑盒直接回归时间戳”模式，提出 <strong>Identify-then-Measure（先识别候选，再微调测量）</strong> 分治架构。通过自监督预训练构建全局紧凑证据池，并引入带有显式 ID 引用的契约化接口，全面提升严苛定位精度与推理稳定性。</p>
-</blockquote>
-<p>本文将立足于 <strong>软件开发工程师、系统架构师与后端研发</strong> 的视角，深入拆解 F2G 的问题解决范式、三阶段工程流水线、接口契约设计，并结合小团队与初创企业的现实资源约束，客观反思端到端 Video-LLM 方案的落地性价比与降本迁移路径。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/06/22/F2G-VideoGrounding/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/12/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -777,14 +778,14 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/260
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">488k</span>
+    <span title="站点总字数">493k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">29:36</span>
+    <span title="站点阅读时长">29:51</span>
   </span>
 </div>
 <div class="busuanzi-count">
