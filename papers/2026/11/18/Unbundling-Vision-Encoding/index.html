@@ -39,7 +39,7 @@
 <meta property="og:description" content="在当今的多模态大语言模型（MLLM）架构中，我们早已对一种“标准范式”习以为常：用一个预训练好的独立视觉编码器（如 CLIP、SigLIP），通过一个线性层或小型 MLP（Projector），挂载到一个纯文本大模型（LLM）前面。 站在软件工程的角度审视，这种结构像极了系统设计初期的 “跨团队胶水架构”：由于历史原因，团队直接把一个现成的第三方图片处理服务（ViT&#x2F;CLIP）和一个文本生成服务（">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-11-18T08:35:00.000Z">
-<meta property="article:modified_time" content="2026-11-24T10:52:25.722Z">
+<meta property="article:modified_time" content="2026-11-24T11:03:16.256Z">
 <meta property="article:author" content="豪豪">
 <meta property="article:tag" content="In-Fusion">
 <meta property="article:tag" content="Qwen3-VL">
@@ -161,7 +161,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E7%B3%BB%E7%BB%9F%E7%97%9B%E7%82%B9%E4%B8%8E%E9%97%AE%E9%A2%98%E8%A7%A3%E8%80%A6%EF%BC%9A%E4%BC%A0%E7%BB%9F%E8%A7%86%E8%A7%89%E7%BC%96%E7%A0%81%E5%99%A8%E7%9A%84%E2%80%9C%E4%B8%89%E5%A4%A7%E8%AE%BE%E8%AE%A1%E6%8D%86%E7%BB%91%E2%80%9D"><span class="nav-text">01. 系统痛点与问题解耦：传统视觉编码器的“三大设计捆绑”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%8E%A7%E5%88%B6%E5%8F%98%E9%87%8F%E6%B3%95%E4%B8%8B%E7%9A%84%E4%B8%89%E5%A4%A7%E5%8F%8D%E5%B8%B8%E8%AF%86%E7%BB%93%E8%AE%BA"><span class="nav-text">02. 控制变量法下的三大反常识结论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA-1%EF%BC%9A%E8%A7%86%E8%A7%89%E5%85%88%E9%AA%8C%EF%BC%88%E9%A2%84%E8%AE%AD%E7%BB%83%EF%BC%89%E6%98%AF%E2%80%9C%E4%BC%AA%E9%9C%80%E6%B1%82%E2%80%9D%EF%BC%8C%E7%AB%AF%E5%88%B0%E7%AB%AF%E8%81%94%E5%90%88%E8%AE%AD%E7%BB%83%E5%AE%8C%E5%85%A8%E5%B9%B3%E6%9B%BF"><span class="nav-text">结论 1：视觉先验（预训练）是“伪需求”，端到端联合训练完全平替</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA-2%EF%BC%9A%E4%B8%93%E5%B1%9E%E7%AE%97%E5%8A%9B%E4%B8%8D%E5%8F%AF%E6%88%96%E7%BC%BA%EF%BC%8C%E6%9C%B4%E7%B4%A0-Encoder-Free-%E6%98%AF%E8%B4%9F%E4%BC%98%E5%8C%96"><span class="nav-text">结论 2：专属算力不可或缺，朴素 Encoder-Free 是负优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA-3%EF%BC%9A%E4%B8%93%E5%B1%9E%E7%AE%97%E5%8A%9B%E6%97%A0%E9%9C%80%E5%89%8D%E7%BD%AE%EF%BC%8C%E5%86%85%E5%B5%8C%E5%88%B0%E4%B8%BB%E5%B9%B2%E5%89%8D-8-%E5%B1%82%E5%8D%B3%E5%8F%AF%E5%B9%B3%E6%9B%BF"><span class="nav-text">结论 3：专属算力无需前置，内嵌到主干前 8 层即可平替</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-In-Fusion-%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82%EF%BC%9A%E5%A6%82%E4%BD%95%E4%BB%A5%E2%80%9C%E9%9B%B6%E5%88%9D%E5%A7%8B%E5%8C%96%E5%A2%9E%E9%87%8F%E5%88%86%E6%94%AF%E2%80%9D%E6%97%A0%E7%BC%9D%E8%9E%8D%E5%85%A5"><span class="nav-text">03. In-Fusion 系统实现细节：如何以“零初始化增量分支”无缝融入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%95%B0%E5%AD%A6%E4%B8%8E%E4%BB%A3%E7%A0%81%E9%80%BB%E8%BE%91"><span class="nav-text">3.1 数学与代码逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E9%9B%B6%E5%88%9D%E5%A7%8B%E5%8C%96%EF%BC%88Zero-initialization%EF%BC%89%E5%B8%A6%E6%9D%A5%E7%9A%84%E5%86%B7%E5%90%AF%E5%8A%A8%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="nav-text">3.2 零初始化（Zero-initialization）带来的冷启动稳定性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E7%BA%BF%E4%B8%8A%E6%8E%A8%E7%90%86%E9%9D%A9%E5%91%BD%EF%BC%9A%E9%A6%96%E5%AD%97%E5%BB%B6%E8%BF%9F%EF%BC%88TTFT%EF%BC%89%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84%E7%BA%A2%E5%88%A9"><span class="nav-text">04. 线上推理革命：首字延迟（TTFT）与服务化架构红利</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%A0%B9%E6%B2%BB%E9%A6%96%E5%AD%97%E5%BB%B6%E8%BF%9F-TTFT%EF%BC%88Time-To-First-Token%EF%BC%89%E7%9A%84%E4%B8%B2%E8%A1%8C%E9%98%BB%E5%A1%9E"><span class="nav-text">1. 根治首字延迟 TTFT（Time-To-First-Token）的串行阻塞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%BD%BB%E5%BA%95%E8%A7%A3%E8%84%B1-Continuous-Batching-%E8%B0%83%E5%BA%A6%E5%99%A8"><span class="nav-text">2. 彻底解脱 Continuous Batching 调度器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E8%B7%A8%E8%B6%8A%E5%8F%82%E6%95%B0%E9%98%B6%E6%A2%AF%EF%BC%9AScaling-Law-%E4%B8%8E%E5%A4%96%E6%8E%A8%E6%9C%89%E6%95%88%E6%80%A7%E9%AA%8C%E8%AF%81"><span class="nav-text">05. 跨越参数阶梯：Scaling Law 与外推有效性验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%BE%B9%E7%95%8C%E6%9D%A1%E4%BB%B6%EF%BC%9A%E5%A6%82%E6%9E%9C%E6%83%B3%E6%8E%A8%E7%BF%BB%E8%AE%BA%E6%96%87%E7%BB%93%E8%AE%BA%EF%BC%8C%E8%AF%A5%E4%BB%8E%E4%BD%95%E5%A4%84%E5%85%A5%E6%89%8B%EF%BC%9F"><span class="nav-text">06. 系统的边界条件：如果想推翻论文结论，该从何处入手？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E5%B7%A5%E4%B8%9A%E8%90%BD%E5%9C%B0%E4%B8%8E%E6%9C%80%E6%96%B0%E5%BC%80%E6%BA%90%E5%A4%9A%E6%A8%A1%E6%80%81%E9%80%89%E5%9E%8B%E6%8C%87%E5%8D%97%EF%BC%88-le-35-text-B-%EF%BC%89"><span class="nav-text">07. 工业落地与最新开源多模态选型指南（≤35B\le 35\text{B}≤35B）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E9%80%89%E5%9E%8B%E9%81%BF%E5%9D%91%E6%80%BB%E7%BB%93"><span class="nav-text">核心选型避坑总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#08-%E7%BB%93%E8%AF%AD"><span class="nav-text">08. 结语</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E5%8E%9F%E6%B1%81%E5%8E%9F%E5%91%B3%E6%8B%86%E8%A7%A3%EF%BC%9A%E8%AE%BA%E6%96%87%E7%AB%A0%E8%8A%82%EF%BC%88Section-1-8%EF%BC%89%E5%85%A8%E6%99%AF%E6%A2%B3%E7%90%86"><span class="nav-text">01. 原汁原味拆解：论文章节（Section 1~8）全景梳理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%C2%A71-%E5%BC%95%E8%A8%80%EF%BC%88Introduction%EF%BC%89%EF%BC%9A%E5%A4%9A%E6%A8%A1%E6%80%81%E8%A7%86%E8%A7%89%E7%BC%96%E7%A0%81%E7%9A%84%E4%B8%89%E5%A4%A7%E6%8D%86%E7%BB%91%E5%81%87%E8%AF%B4"><span class="nav-text">§1 引言（Introduction）：多模态视觉编码的三大捆绑假说</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%C2%A72-%E5%8F%97%E6%8E%A7%E5%AE%9E%E9%AA%8C%E5%8D%8F%E8%AE%AE%EF%BC%88A-Controlled-Protocol-for-Comparing-Multimodal-Recipes%EF%BC%89"><span class="nav-text">§2 受控实验协议（A Controlled Protocol for Comparing Multimodal Recipes）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%C2%A73-%E8%A7%86%E8%A7%89%E7%BC%96%E7%A0%81%E5%99%A8%E9%9C%80%E8%A6%81%E5%8D%95%E7%8B%AC%E9%A2%84%E8%AE%AD%E7%BB%83%E5%90%97%EF%BC%9F%EF%BC%88Does-Encoder-Need-Separate-Pretraining-%EF%BC%89"><span class="nav-text">§3 视觉编码器需要单独预训练吗？（Does Encoder Need Separate Pretraining?）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%C2%A74-%E8%A7%86%E8%A7%89%E7%BC%96%E7%A0%81%E5%BF%85%E9%A1%BB%E6%8B%A5%E6%9C%89%E4%B8%93%E5%B1%9E%E5%8F%82%E6%95%B0%E5%90%97%EF%BC%9F%EF%BC%88Does-Vision-Need-Dedicated-Capacity-%EF%BC%89"><span class="nav-text">§4 视觉编码必须拥有专属参数吗？（Does Vision Need Dedicated Capacity?）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%C2%A75-%E4%B8%93%E5%B1%9E%E5%AE%B9%E9%87%8F%E5%BF%85%E9%A1%BB%E6%94%BE%E5%9C%A8%E8%9E%8D%E5%90%88%E4%B9%8B%E5%89%8D%E5%90%97%EF%BC%9F%EF%BC%88Does-Capacity-Need-to-Precede-Fusion-%EF%BC%89"><span class="nav-text">§5 专属容量必须放在融合之前吗？（Does Capacity Need to Precede Fusion?）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%C2%A76-%E8%B6%85%E8%B6%8A%E7%90%86%E8%AE%BA%E7%AE%97%E5%8A%9B%EF%BC%9A%E5%B7%A5%E4%B8%9A%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E6%B7%B1%E5%BA%A6%E8%80%83%E9%87%8F"><span class="nav-text">§6 超越理论算力：工业生产环境深度考量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%C2%A77-%C2%A78-%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C%E3%80%81%E8%AE%A8%E8%AE%BA%E4%B8%8E%E5%B1%80%E9%99%90%E6%80%A7"><span class="nav-text">§7 &amp; §8 相关工作、讨论与局限性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%8E%A7%E5%88%B6%E5%8F%98%E9%87%8F%E6%B3%95%E4%B8%8B%E7%9A%84%E6%A0%B8%E5%BF%83%E9%87%8F%E5%8C%96%E8%AF%81%E6%8D%AE%E4%B8%8E-Debug-%E8%8C%83%E5%BC%8F"><span class="nav-text">02. 控制变量法下的核心量化证据与 Debug 范式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%AF%81%E6%8D%AE-1%EF%BC%9A%E6%8A%8A%E5%8F%82%E6%95%B0%E8%A1%A5%E7%BB%99%E5%85%B1%E4%BA%AB%E4%B8%BB%E5%B9%B2%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E6%95%91%E4%B8%8D%E5%9B%9E-Encoder-Free%EF%BC%9F"><span class="nav-text">数据证据 1：把参数补给共享主干，为什么救不回 Encoder-Free？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%AF%81%E6%8D%AE-2%EF%BC%9A%E4%B8%93%E5%B1%9E%E5%AE%B9%E9%87%8F%E6%94%BE%E5%9C%A8%E5%93%AA%E9%87%8C%E6%9C%80%E7%AE%A1%E7%94%A8%EF%BC%9F"><span class="nav-text">数据证据 2：专属容量放在哪里最管用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A7%91%E5%AD%A6-Debug-%E8%8C%83%E5%BC%8F%EF%BC%9A%E5%A6%82%E4%BD%95%E6%8F%AA%E5%87%BA%E5%89%8D%E4%BA%BA%E8%AE%BA%E6%96%87%E7%9A%84%E7%BC%BA%E9%99%B7%EF%BC%9F"><span class="nav-text">科学 Debug 范式：如何揪出前人论文的缺陷？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-In-Fusion-%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E4%B8%8E%E4%BB%A3%E7%A0%81%E7%BA%A7%E5%B7%A5%E7%A8%8B%E5%AE%9E%E7%8E%B0"><span class="nav-text">03. In-Fusion 系统架构与代码级工程实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%A0%B8%E5%BF%83%E6%95%B0%E5%AD%A6%E5%85%AC%E5%BC%8F"><span class="nav-text">3.1 核心数学公式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-PyTorch-%E7%BA%A7%E5%B7%A5%E7%A8%8B%E4%BB%A3%E7%A0%81%E5%8F%82%E8%80%83"><span class="nav-text">3.2 PyTorch 级工程代码参考</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E7%BA%BF%E4%B8%8A-Serving-%E9%9D%A9%E5%91%BD%EF%BC%9A%E9%A6%96%E5%AD%97%E5%BB%B6%E8%BF%9F%EF%BC%88TTFT%EF%BC%89%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%8C%96%E7%BA%A2%E5%88%A9"><span class="nav-text">04. 线上 Serving 革命：首字延迟（TTFT）与服务化红利</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E8%B7%A8%E8%B6%8A%E5%8F%82%E6%95%B0%E9%98%B6%E6%A2%AF%EF%BC%9AScaling-Law-%E4%B8%8E%E5%A4%96%E6%8E%A8%E9%AA%8C%E8%AF%81"><span class="nav-text">05. 跨越参数阶梯：Scaling Law 与外推验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%9B%B4%E8%A7%89%E4%B8%8E%E7%89%A9%E7%90%86%E9%9A%90%E5%96%BB"><span class="nav-text">06. 软件工程师的工程直觉与物理隐喻</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E8%A7%89-1%EF%BC%9AAPI-%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D%EF%BC%88%E7%AB%AF%E5%88%B0%E7%AB%AF-vs-%E8%83%B6%E6%B0%B4%E4%BB%A3%E7%A0%81%EF%BC%89"><span class="nav-text">直觉 1：API 阻抗匹配（端到端 vs 胶水代码）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E8%A7%89-2%EF%BC%9A%E8%B5%84%E6%BA%90%E9%9A%94%E7%A6%BB%E4%B8%8E%E5%85%B3%E6%B3%A8%E7%82%B9%E5%88%86%E7%A6%BB%EF%BC%88%E9%AB%98%E9%A2%91%E5%83%8F%E7%B4%A0-vs-%E7%A6%BB%E6%95%A3%E7%AC%A6%E5%8F%B7%EF%BC%89"><span class="nav-text">直觉 2：资源隔离与关注点分离（高频像素 vs 离散符号）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E8%A7%89-3%EF%BC%9A%E7%BC%96%E8%AF%91%E6%B5%81%E6%B0%B4%E7%BA%BF%EF%BC%88%E5%89%8D-8-%E5%B1%82%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90-vs-%E6%B7%B1%E5%B1%82%E8%AF%AD%E4%B9%89%E4%BC%98%E5%8C%96%EF%BC%89"><span class="nav-text">直觉 3：编译流水线（前 8 层语法分析 vs 深层语义优化）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#07-%E5%B7%A5%E4%B8%9A%E8%90%BD%E5%9C%B0%E4%B8%8E%E6%9C%80%E6%96%B0%E5%BC%80%E6%BA%90%E5%A4%9A%E6%A8%A1%E6%80%81%E9%80%89%E5%9E%8B%E6%8C%87%E5%8D%97"><span class="nav-text">07. 工业落地与最新开源多模态选型指南</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E5%B8%88%E5%AE%9E%E6%88%98%E9%81%BF%E5%9D%91%E5%BB%BA%E8%AE%AE"><span class="nav-text">架构师实战避坑建议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#08-%E7%BB%93%E8%AF%AD"><span class="nav-text">08. 结语</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -243,7 +243,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-24 18:52:25" itemprop="dateModified" datetime="2026-11-24T18:52:25+08:00">2026-11-24</time>
+      <time title="修改时间：2026-11-24 19:03:16" itemprop="dateModified" datetime="2026-11-24T19:03:16+08:00">2026-11-24</time>
     </span>
 
   
@@ -260,14 +260,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>4.8k</span>
+      <span>5.4k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>18 分钟</span>
+      <span>20 分钟</span>
     </span>
 </div>
 
@@ -279,50 +279,230 @@
     
     <div class="post-body" itemprop="articleBody"><p>在当今的多模态大语言模型（MLLM）架构中，我们早已对一种“标准范式”习以为常：<strong>用一个预训练好的独立视觉编码器（如 CLIP、SigLIP），通过一个线性层或小型 MLP（Projector），挂载到一个纯文本大模型（LLM）前面</strong>。</p>
 <p>站在软件工程的角度审视，这种结构像极了系统设计初期的 <strong>“跨团队胶水架构”</strong>：由于历史原因，团队直接把一个现成的第三方图片处理服务（ViT/CLIP）和一个文本生成服务（LLaMA/Qwen）拼在一起。大家虽然觉得这套管道又重又笨（双模型调度复杂、推理延迟高、显存碎片化），但由于它“能跑且指标不错”，便成了业界奉为圭臬的“祖传代码”。</p>
-<p>业界也因此产生了一系列悬而未决的争论：</p>
+<p>业界也因此产生了一系列悬而未决的架构大论战：</p>
 <ul>
-<li><strong>真的是因为 CLIP 预训练让模型获得了强大的视觉先验吗？</strong></li>
-<li><strong>还是因为多挂了一个几亿参数的独立模型带来的算力红利？</strong></li>
-<li><strong>如果不搞独立的外部编码器，直接把图片当成普通 Token 喂给单体大模型（Encoder-Free），为什么在复杂任务上频频翻车？</strong></li>
+<li><strong>争论 1</strong>：真的是因为 CLIP 预训练让模型获得了强大的视觉先验吗？</li>
+<li><strong>争论 2</strong>：还是因为多挂了一个几亿参数的独立模型带来的专属算力红利？</li>
+<li><strong>争论 3</strong>：如果不搞独立的外部编码器，直接把图片当成普通 Token 喂给单体大模型（Encoder-Free），为什么在复杂 OCR 和细粒度图表上频频翻车？</li>
 </ul>
-<p>为了彻底回答这些问题，来自 Meta FAIR 与纽约大学（NYU）的 Ellis Brown、谢赛宁等研究人员开展了一项极具系统工程思维的研究——<strong>《Unbundling Multimodal Vision Encoding》（解耦多模态视觉编码）</strong>：</p>
+<p>为了彻底回答这些问题，来自 Meta FAIR 基础人工智能研究院的 Ellis Brown、Chris Hoang、Shengyi Qian、Shang-Wen Li 与 Mike Lewis 开展了一项极具系统工程思维的研究——<strong>《Unbundling Multimodal Vision Encoding》（解耦多模态视觉编码）</strong>：</p>
 <blockquote>
 <p><strong>论文题目</strong>：《Unbundling Multimodal Vision Encoding》<br>
-<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2611.17334" rel="external nofollow noreferrer noopener">arXiv:2611.17334</a> (HTML 预览：<a target="_blank" href="https://arxiv.org/html/2611.17334v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2611.17334v1</a>)<br>
-<strong>核心贡献</strong>：在严格控制总训练算力（Lifetime Compute）、统一数据源的前提下，训练了 200 多个端到端模型，将传统视觉编码器解耦为三个正交设计维度。证明了<strong>外部视觉预训练是伪需求</strong>、<strong>专属视觉算力不可或缺</strong>，并提出了颠覆串行瓶颈的 <strong>In-Fusion（内嵌融合）架构</strong>，大幅降低了推理首字延迟（TTFT）。</p>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2611.17334" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2611.17334</a> (HTML 预览：<a target="_blank" href="https://arxiv.org/html/2611.17334v1" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2611.17334v1</a>)<br>
+<strong>作者团队</strong>：Ellis Brown, Chris Hoang, Shengyi Qian, Shang-Wen Li, Mike Lewis, Marjan Ghazvininejad, Luke Zettlemoyer, Lucas Beyer, Mengye Ren, Jakob Verbeek, Saining Xie, Hu Xu（Meta FAIR &amp; NYU）<br>
+<strong>核心战果</strong>：</p>
+<ul>
+<li><strong>打破先验神话</strong>：在拉平总生命周期算力（Lifetime Compute）与数据源的前提下，<strong>从零端到端联合训练完全持平外部预训练编码器</strong>，甚至在预训练上投入超过 15% 算力反成负优化；</li>
+<li><strong>实证专属算力刚需</strong>：纯共享参数的无编码器（Encoder-free）在 OCR/图表等任务上断崖式下跌，且给主干补足等额参数依然无法弥补差距；</li>
+<li><strong>提出 In-Fusion 架构</strong>：专属参数无需前置成独立 ViT，只需内嵌在主干网络前 8 层，即可在保持顶尖精度的同时大幅砍掉推理首字延迟（TTFT）。</li>
+</ul>
 </blockquote>
-<p>本文立足于 <strong>软件开发工程师（后端/架构/系统研发）</strong> 的视角，不罗列晦涩的损失函数推导，深入剖析其 <strong>架构解耦思维、资源争用机理、In-Fusion 系统实现与线上服务化（Serving）选型</strong>。</p>
+<p>本文立足于 <strong>软件开发工程师（后端/架构/性能调优）</strong> 的视角，先按照论文本身的章节结构梳理其严谨的论证逻辑，再深入剖析其 <strong>架构解耦思维、In-Fusion 代码实现、推理调度优化与工业选型指南</strong>。</p>
 <span id="more"></span>
 <hr>
-<h2 id="01-系统痛点与问题解耦：传统视觉编码器的“三大设计捆绑”">01. 系统痛点与问题解耦：传统视觉编码器的“三大设计捆绑”</h2>
-<p>以往各大实验室在发布多模态模型时，模型之间的数据集不同、总算力预算不同、底模大小不同，就像在不同硬件配置、不同网络环境下测试两套分布式系统，根本无法得出客观的因果结论。</p>
-<p>论文作者指出现有的传统视觉编码器方案，实际上<strong>强行捆绑（Bundled）了三个完全正交的设计选择</strong>：</p>
+<h2 id="01-原汁原味拆解：论文章节（Section-1-8）全景梳理">01. 原汁原味拆解：论文章节（Section 1~8）全景梳理</h2>
+<p>为了让大家清晰地理解这篇论文的研究脉络，我们首先顺着作者的思路，逐章还原这篇论文到底做了什么：</p>
+<h3 id="§1-引言（Introduction）：多模态视觉编码的三大捆绑假说">§1 引言（Introduction）：多模态视觉编码的三大捆绑假说</h3>
+<p>论文开门见山指出：当前主流多模态方案把视觉编码器视为一个整体，但实际上它<strong>强行捆绑（Bundled）了三个正交的设计选择</strong>：</p>
+<ol>
+<li><strong>外部先验（Visual Prior）</strong>：从上游预训练任务（如对比学习、图像识别）引入的特征；</li>
+<li><strong>专属容量（Dedicated Capacity）</strong>：专门分配给图像 Token、不与文本共享的私有参数；</li>
+<li><strong>融合前置（Pre-fusion Placement）</strong>：这些参数放在主干网络前，作为独立的外部流水线运行。</li>
+</ol>
+<p>以往的对比实验往往“鸡同鸭讲”：有的换了数据，有的换了底模，有的把编码器几百亿的预训练算力当成“免费白送”。本文的核心目标，就是<strong>将这三个变量逐一解绑，做真正严格受控的消融对比</strong>。</p>
+<hr>
+<h3 id="§2-受控实验协议（A-Controlled-Protocol-for-Comparing-Multimodal-Recipes）">§2 受控实验协议（A Controlled Protocol for Comparing Multimodal Recipes）</h3>
+<p>为了做到真正的控制变量，作者制定了极其严密的工程标准：</p>
 <table>
 <thead>
 <tr>
-<th style="text-align:left">维度（Design Choice）</th>
-<th style="text-align:left">含义解释</th>
-<th style="text-align:left">对应的工程类比</th>
+<th style="text-align:left">架构流派</th>
+<th style="text-align:center">1. 外部预训练先验</th>
+<th style="text-align:center">2. 视觉专属参数容量</th>
+<th style="text-align:center">3. 融合前置（独立编码器）</th>
+<th style="text-align:left">物理形态</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align:left"><strong>1. 视觉先验 (Visual Prior)</strong></td>
-<td style="text-align:left">编码器必须先通过独立的上游图像任务（如对比学习、图像识别）进行预训练。</td>
-<td style="text-align:left">是否需要引入独立的第三方预热缓存 / 外部微服务？</td>
+<td style="text-align:left"><strong>Pretrained Encoder</strong>（传统外挂）</td>
+<td style="text-align:center">✅</td>
+<td style="text-align:center" rowspan="2" colspan="2">✅</td>
 </tr>
 <tr>
-<td style="text-align:left"><strong>2. 专属算力 (Dedicated Capacity)</strong></td>
-<td style="text-align:left">为图像 Token 分配专门的计算模块/参数，不与文本 Token 挤在一个空间。</td>
-<td style="text-align:left">资源隔离：不同负载是否走独立线程池/硬件队列？</td>
+<td style="text-align:left"><strong>Scratch Encoder</strong>（从头编码器）</td>
+<td style="text-align:center" rowspan="3">❌</td>
+<td style="text-align:left">ViT 随机初始化，与主干直接端到端联合训练</td>
 </tr>
 <tr>
-<td style="text-align:left"><strong>3. 布局位置 (Pre-fusion Placement)</strong></td>
-<td style="text-align:left">视觉特征是在送入主干前串行跑完（独立 ViT），还是在融合阶段计算？</td>
-<td style="text-align:left">串行多阶段 Pipeline vs 单一流水线内部并行分发。</td>
+<td style="text-align:left"><strong>Encoder-free</strong>（无编码器）</td>
+<td style="text-align:center">❌</td>
+<td style="text-align:center" rowspan="2">❌</td>
+<td style="text-align:left">图像切片直接线性映射入主干，全员共享参数</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>In-fusion（本文提出）</strong></td>
+<td style="text-align:center">✅</td>
+<td style="text-align:left"><strong>无外部 ViT，主干网络前 8 层挂载专属视觉增量分支</strong></td>
 </tr>
 </tbody>
 </table>
+<ul>
+<li><strong>主干网络（Backbone）</strong>：采用 Qwen3 风格的 Decoder-only Transformer（RMSNorm、RoPE、SwiGLU、GQA、QK-Norm）。主力对比在 1.7B 和 4B，并设置 0.6B~6.4B 扩展梯队。专属视觉参数固定为 0.4B。</li>
+<li><strong>数据池统一</strong>：纯文本取自 Nemotron-CC v2/v2.1，图文对使用 MetaCLIP 1.2 英文子集，图文混合比严格保持 30:70。</li>
+<li><strong>全生命周期算力对齐（Lifetime Compute FLOPs）</strong>：无论做几阶段训练，所有 FLOPs 均计入总账。做上游预训练，就必须等比例扣除多模态联合训练的步数。</li>
+</ul>
+<hr>
+<h3 id="§3-视觉编码器需要单独预训练吗？（Does-Encoder-Need-Separate-Pretraining-）">§3 视觉编码器需要单独预训练吗？（Does Encoder Need Separate Pretraining?）</h3>
+<ul>
+<li><strong>实验</strong>：对比从头联合训练（Scratch Encoder）与四种主流预训练目标（MetaCLIP、WebSSL、Cap、CapPa）。</li>
+<li><strong>发现</strong>：在总算力对齐下，<strong>从头训练的编码器与预训练编码器表现完全持平</strong>。如果预训练算力占比超过 15%，下游 VQA 成绩反而明显下滑。此外，若先训纯文本再延迟引入视觉，会导致模型出现“视觉偷懒（Vision Laziness）”。</li>
+<li><strong>结论</strong>：<strong>视觉先验是伪需求</strong>，端到端联合训练完全可平替上游预训练。</li>
+</ul>
+<hr>
+<h3 id="§4-视觉编码必须拥有专属参数吗？（Does-Vision-Need-Dedicated-Capacity-）">§4 视觉编码必须拥有专属参数吗？（Does Vision Need Dedicated Capacity?）</h3>
+<ul>
+<li><strong>实验</strong>：对比从头编码器（1.7B + 0.4B ViT）与纯共享参数的 Encoder-free（1.7B 主干）。</li>
+<li><strong>发现</strong>：
+<ol>
+<li>Encoder-free 在 VQA 理解上全线落后，尤其是细粒度 OCR 和图表分析上发生<strong>断崖式暴跌（落后超 10~13 个点）</strong>；</li>
+<li>哪怕把 0.4B 参数补偿给 Encoder-free 的主干（加深或加宽到 2.1B），纯文本分数上涨了，但<strong>视觉问答分数毫无起色</strong>！</li>
+<li>尝试更换更复杂的两层投影或四层分层 MLP（Hierarchical MLP）Patch Embedding，依然追不上专属参数。</li>
+</ol>
+</li>
+<li><strong>结论</strong>：<strong>视觉编码必须拥有专属容量</strong>，通用共享参数无法吸收底层视觉信号的复杂性。</li>
+</ul>
+<hr>
+<h3 id="§5-专属容量必须放在融合之前吗？（Does-Capacity-Need-to-Precede-Fusion-）">§5 专属容量必须放在融合之前吗？（Does Capacity Need to Precede Fusion?）</h3>
+<ul>
+<li><strong>核心创新</strong>：既然需要 0.4B 专属参数，为什么非要放在外面串行执行？作者提出了 <strong>In-Fusion 架构</strong>——在主干网络内部挂载仅针对视觉 Token 激活的增量参数（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>W</mi></mrow><annotation encoding="application/x-tex">\Delta W</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.1389em;">W</span></span></span></span> 与 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>F</mi></mrow><annotation encoding="application/x-tex">\Delta F</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.1389em;">F</span></span></span></span>）。</li>
+<li><strong>位置消融</strong>：将这 0.4B 参数分别放在“每一层”、“稀疏 8 层”、“最后 8 层”、“最前 8 层”。
+<ul>
+<li>结果：前三者全部失败；<strong>只有集中在最前 8 层（前 29% 深度）的方案，全面追平了独立外部 ViT！</strong></li>
+</ul>
+</li>
+<li><strong>Scaling Law 验证</strong>：在 0.6B 到 6.4B 的梯子上，In-Fusion 始终与独立编码器曲线高度重合，而 Encoder-free 则持续落后（需约 3 倍算力才能追平）。</li>
+<li><strong>结论</strong>：<strong>专属容量无需前置，内嵌至主干网络最前几层即可完美平替。</strong></li>
+</ul>
+<hr>
+<h3 id="§6-超越理论算力：工业生产环境深度考量">§6 超越理论算力：工业生产环境深度考量</h3>
+<ul>
+<li><strong>即使编码器“完全免费”，死磕预训练也没用</strong>：将 MetaCLIP 预训练算力猛拉 6 倍，ImageNet 准确率从 80.4% 提到 84.4%，但接入多模态阶段后，下游 VQA 性能没有哪怕 0.1 分的增益。</li>
+<li><strong>纯文本底座二阶段微调（Midtraining）</strong>：基于已训好的 1.7B 纯文本 LLM 进行增量多模态训练，In-Fusion 依然击败免费的 MetaCLIP（因为 CLIP 对比学习特征丢失了大量局部细节，已被语言偏置固化的 LLM 难以逆转）。</li>
+<li><strong>线上延迟暴跌</strong>：消除了外部 ViT 的串行计算等待，In-Fusion 的首字延迟（TTFT）大幅下降，且训练吞吐完全不输 Encoder-free。</li>
+</ul>
+<hr>
+<h3 id="§7-§8-相关工作、讨论与局限性">§7 &amp; §8 相关工作、讨论与局限性</h3>
+<ul>
+<li>论文指出了未来值得深挖的工业前沿：当前实验基于密集模型（Dense Transformer），而在 <strong>稀疏混合专家（MoE）</strong> 架构中，In-Fusion 的模态路由可以极其自然地与 MoE 专家机制融合。</li>
+<li>面对超高分辨率、动态切片与超长视频时，浅层集中交互对显存与计算带来的压力仍需进一步工程探索。</li>
+</ul>
+<hr>
+<h2 id="02-控制变量法下的核心量化证据与-Debug-范式">02. 控制变量法下的核心量化证据与 Debug 范式</h2>
+<p>论文中两组最关键的实验对比，揭示了传统设计的两大约束真相：</p>
+<h3 id="数据证据-1：把参数补给共享主干，为什么救不回-Encoder-Free？">数据证据 1：把参数补给共享主干，为什么救不回 Encoder-Free？</h3>
+<p>在 1.7B 主干、相同 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2.6</mn><mo>×</mo><msup><mn>10</mn><mn>21</mn></msup></mrow><annotation encoding="application/x-tex">2.6\times 10^{21}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">2.6</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">21</span></span></span></span></span></span></span></span></span></span></span></span> FLOPs 算力下，给 Encoder-Free 强行补足 0.4B 参数（总参数对齐 2.1B）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">架构变体</th>
+<th style="text-align:center">专属参数</th>
+<th style="text-align:center">共享参数</th>
+<th style="text-align:center">Avg VQA (%)</th>
+<th style="text-align:center">OCR 分项 (%)</th>
+<th style="text-align:center">Avg Text (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Scratch Encoder (基线)</strong></td>
+<td style="text-align:center"><strong>0.4B</strong></td>
+<td style="text-align:center"><strong>–</strong></td>
+<td style="text-align:center"><strong>44.4</strong></td>
+<td style="text-align:center"><strong>38.2</strong></td>
+<td style="text-align:center">49.7</td>
+</tr>
+<tr>
+<td style="text-align:left">Encoder-free (基线)</td>
+<td style="text-align:center" rowspan="4">–</td>
+<td style="text-align:center">–</td>
+<td style="text-align:center">39.0</td>
+<td style="text-align:center">25.2</td>
+<td style="text-align:center">50.7</td>
+</tr>
+<tr>
+<td style="text-align:left">+ 加宽主干 (Wider)</td>
+<td style="text-align:center" rowspan="3">0.4B</td>
+<td style="text-align:center">38.6</td>
+<td style="text-align:center">29.3</td>
+<td style="text-align:center">51.3</td>
+</tr>
+<tr>
+<td style="text-align:left">+ 加深主干 (Deeper)</td>
+<td style="text-align:center">38.7</td>
+<td style="text-align:center">26.3</td>
+<td style="text-align:center">51.2</td>
+</tr>
+<tr>
+<td style="text-align:left">+ 又宽又深 (Wider &amp; Deeper)</td>
+<td style="text-align:center">38.8</td>
+<td style="text-align:center">25.1</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!IMPORTANT]<br>
+<strong>数据昭示的真相</strong>：即使把共享参数规模拉到与编码器总参数完全一致，Encoder-Free 在 OCR 上的得分（25~29%）依然大幅落后于编码器方案（38.2%）。<strong>参数放在哪里、给谁用，远比参数总量更重要。</strong></p>
+</blockquote>
+<h3 id="数据证据-2：专属容量放在哪里最管用？">数据证据 2：专属容量放在哪里最管用？</h3>
+<p>固定 0.4B 专属参数注入到 1.7B 主干的不同层级：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">注入位置方案</th>
+<th style="text-align:center">Avg VQA (%)</th>
+<th style="text-align:center">OCR 分项 (%)</th>
+<th style="text-align:center">Avg Text (%)</th>
+<th style="text-align:left">综合评价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">每一层均摊（狭窄分支）</td>
+<td style="text-align:center">39.1</td>
+<td style="text-align:center">25.3</td>
+<td style="text-align:center" rowspan="3">50.8</td>
+<td style="text-align:left">与无编码器无异（失败）</td>
+</tr>
+<tr>
+<td style="text-align:left">稀疏分散在 8 个层</td>
+<td style="text-align:center">39.0</td>
+<td style="text-align:center">25.6</td>
+<td style="text-align:left">算力被稀释（失败）</td>
+</tr>
+<tr>
+<td style="text-align:left">放在最后 8 层 (Last 8)</td>
+<td style="text-align:center">39.1</td>
+<td style="text-align:center">24.9</td>
+<td style="text-align:left">毫无效果（失败）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>集中在最前 8 层 (First 8)</strong></td>
+<td style="text-align:center"><strong>44.0</strong></td>
+<td style="text-align:center"><strong>37.6</strong></td>
+<td style="text-align:center">49.8</td>
+<td style="text-align:left"><strong>全面打平独立 ViT（成功！）</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="科学-Debug-范式：如何揪出前人论文的缺陷？">科学 Debug 范式：如何揪出前人论文的缺陷？</h3>
+<p>此前有知名论文（Shukor et al., 2025）宣称“无编码器模型可以逼平或超越带编码器模型”。作者没有盲从，而是通过复现深挖出两个关键技术陷阱：</p>
+<ol>
+<li><strong>学习率配置失当</strong>：前人实验中编码器的学习率设置得过小，导致带编码器的基线模型实际上处于“欠拟合”的残血状态；</li>
+<li><strong>评估指标被掩盖（Metric Drowning）</strong>：前人把纯文本 Loss、图文混合 Loss 和图像描述 Loss 做了简单算术平均。由于文本样本占据绝对主流，文本 Loss 的变动彻底淹没了视觉性能的灾难性下滑。作者换用留出集的图像描述 Loss（Caption Loss）后，发现其与下游 VQA 成绩呈现出高度一致的真实相关性。</li>
+</ol>
+<hr>
+<h2 id="03-In-Fusion-系统架构与代码级工程实现">03. In-Fusion 系统架构与代码级工程实现</h2>
 <pre><code class="highlight mermaid">flowchart TD
     subgraph Traditional[&quot;传统 Pre-fusion: 串行双塔胶水架构&quot;]
         Img1[&quot;图像输入&quot;] --&gt; ViT[&quot;独立预训练 ViT 编码器&lt;br/&gt;(串行耗时阻塞, 独立占用显存)&quot;]
@@ -346,55 +526,17 @@
         Early --&gt; Late[&quot;主干后 20 层&lt;br/&gt;(纯共享联合深度推理)&quot;]
         NoteC[&quot;精准解耦方案:&lt;br/&gt;无先验 + 保留专属参数 + 融合内计算&lt;br/&gt;(消除串行瓶颈, 首字延迟暴跌)&quot;]
     end</code></pre>
-<p>通过构建统一的 Qwen3 风格主干网络、严格统一的数据池以及完全对齐的总生命周期算力预算（Lifetime Compute），作者开始了针对这三个维度的控制变量“科学 Debug”。</p>
-<hr>
-<h2 id="02-控制变量法下的三大反常识结论">02. 控制变量法下的三大反常识结论</h2>
-<h3 id="结论-1：视觉先验（预训练）是“伪需求”，端到端联合训练完全平替">结论 1：视觉先验（预训练）是“伪需求”，端到端联合训练完全平替</h3>
-<ul>
-<li><strong>实验做法</strong>：在相同的总算力预算下，一组使用经过海量数据预训练的 MetaCLIP 并微调；另一组视觉编码器直接随机初始化，和语言主干一起从零进行端到端联合训练。此外还测试了“假定外部预训练完全免费”的极限工况。</li>
-<li><strong>实验结果</strong>：<strong>从零联合训练的编码器，在各项视觉理解基准（VQA、OCR、通用问答）上完全持平甚至超越了预训练编码器。</strong> 哪怕你给 CLIP 增加 6 倍算力让其 ImageNet 分数从 80% 刷到 84%，接入多模态系统后下游任务毫无增益。</li>
-<li><strong>💡 软件工程直觉</strong>：
-<ul>
-<li><strong>警惕代理指标（Proxy Metric）的局部过度优化</strong>：CLIP 优化的是跨模态向量相似度（对比损失），但这与下游真正的视觉推理、细节辨析、复杂上下文理解并不完全对齐。单独追求某个中间服务的指标极致，并不能提升整个系统的端到端吞吐质量。</li>
-<li><strong>消除双阶段维护债务</strong>：省去了“维护外部预训练数据流水线 -&gt; 训练 ViT -&gt; Checkpoint 导出 -&gt; 启动多模态训练”的繁琐链路，端到端单流水线训练更鲁棒、更易持续集成。</li>
-</ul>
+<h3 id="3-1-核心数学公式">3.1 核心数学公式</h3>
+<p>在主干网络前 8 层，对于任意 Token <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span> 及其视觉指示掩码 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>i</mi></msub><mo>∈</mo><mo stretchy="false">{</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">m_i \in \{0, 1\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6891em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">}</span></span></span></span>（图像 Token 为 1，文本为 0）：</p>
+<ol>
+<li><strong>多头注意力投影分支</strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi mathvariant="bold">z</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo>=</mo><msub><mi>W</mi><mi>P</mi></msub><mtext> </mtext><msub><mi mathvariant="bold">z</mi><mi>i</mi></msub><mo>+</mo><msub><mi>m</mi><mi>i</mi></msub><mtext> </mtext><mi mathvariant="normal">Δ</mi><msub><mi>W</mi><mi>P</mi></msub><mtext> </mtext><msub><mi mathvariant="bold">z</mi><mi>i</mi></msub><mo separator="true">,</mo><mspace width="1em"/><mi>P</mi><mo>∈</mo><mo stretchy="false">{</mo><mi>Q</mi><mo separator="true">,</mo><mi>K</mi><mo separator="true">,</mo><mi>V</mi><mo separator="true">,</mo><mi>O</mi><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">P(\mathbf{z}_{i}) = W_{P}\,\mathbf{z}_{i} + m_{i}\,\Delta W_{P}\,\mathbf{z}_{i}, \quad P \in \{Q, K, V, O\}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathbf">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">P</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathbf">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">P</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathbf">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord mathnormal">Q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.2222em;">V</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mclose">}</span></span></span></span></span></p>
 </li>
-</ul>
-<h3 id="结论-2：专属算力不可或缺，朴素-Encoder-Free-是负优化">结论 2：专属算力不可或缺，朴素 Encoder-Free 是负优化</h3>
-<ul>
-<li><strong>实验做法</strong>：既然不要预训练，能否像 Fuyu、Chameleon 等“无编码器架构（Encoder-Free）”那样，把编码器彻底删掉，将图像 patch 直接投射为 Token 扔进纯文本主干？为了绝对公平，作者给 Encoder-Free 的主干增加了等额的 0.4B 参数（将其加宽或加深），使参数总量完全一致。</li>
-<li><strong>实验结果</strong>：<strong>Encoder-Free 全线溃败。</strong>
-<ul>
-<li>在依赖微小像素细节的 OCR 和 ChartQA（图表分析）上，Encoder-Free 比带编码器的模型足足<strong>落后了 10~15 个百分点</strong>；</li>
-<li>给 LLM 主干加深加宽补足参数，文本能力确实上升了，但视觉细节识别<strong>完全没有改善</strong>。</li>
-</ul>
+<li><strong>前馈网络（FFN）分支</strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msubsup><mi mathvariant="bold">h</mi><mi>i</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msubsup><mo>=</mo><msub><mi mathvariant="bold">h</mi><mi>i</mi></msub><mo>+</mo><mi>F</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">(</mo><msub><mi mathvariant="bold">h</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>+</mo><msub><mi>m</mi><mi>i</mi></msub><mtext> </mtext><mi mathvariant="normal">Δ</mi><mi>F</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">(</mo><msub><mi mathvariant="bold">h</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{h}_{i}^{\prime} = \mathbf{h}_{i} + F(N(\mathbf{h}_{i})) + m_{i}\,\Delta F(N(\mathbf{h}_{i}))
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0489em;vertical-align:-0.247em;"></span><span class="mord"><span class="mord mathbf">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8019em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathbf">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">F</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mopen">(</span><span class="mord"><span class="mord mathbf">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">))</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.1389em;">F</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mopen">(</span><span class="mord"><span class="mord mathbf">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">))</span></span></span></span></span></p>
 </li>
-<li><strong>💡 软件工程直觉</strong>：
-<ul>
-<li><strong>关注点分离（Separation of Concerns）与资源争用（Resource Contention）</strong>：文本 Token 是高度离散、强语义符号；原始图像 Patch 则是连续、高频、低层级的空间信号。如果强行让它们在同一个 Transformer 层的相同权重（Attention &amp; FFN）里计算，会导致严重的<strong>模态间参数干扰（Modality Interference）</strong>。</li>
-<li>就像在并发服务中，把“极轻量的高频 IO 轮询”和“极繁重的 CPU 密集渲染”放在同一个无隔离的线程池中，会造成频繁的上下文切换与 CPU Cache 严重污染，必须进行物理隔离。</li>
-</ul>
-</li>
-</ul>
-<h3 id="结论-3：专属算力无需前置，内嵌到主干前-8-层即可平替">结论 3：专属算力无需前置，内嵌到主干前 8 层即可平替</h3>
-<ul>
-<li><strong>实验做法</strong>：既然专属算力必须留着，它非得是一个挂在前面的独立模型吗？作者将这 0.4B 的专属参数做成“轻量增量分支”，直接嵌入到 LLM 主干不同层级进行测试。</li>
-<li><strong>实验结果</strong>：
-<ul>
-<li>均匀摊在每一层：效果奇差；</li>
-<li>放在主干的中后层（如 21~28 层）：效果甚至不如无编码器；</li>
-<li><strong>集中在前 1~8 层（前 29% 深度）：完美复刻独立编码器的各项能力指标！</strong></li>
-</ul>
-</li>
-<li><strong>💡 软件工程直觉</strong>：
-<ul>
-<li><strong>特征抽取的层级局部性（Locality of Abstraction）</strong>：图像从原始像素到高级语义，必须经历“像素 -&gt; 边缘纹理 -&gt; 部件几何 -&gt; 实体概念”的逐层提炼。这一过程必须在网络刚接触到原始数据的前期迅速完成。一旦前 8 层的专用模块完成了特征提纯，后序的高层网络就可以将视觉 Token 视作与文本无异的高级语义符号，顺理成章地进行跨模态逻辑推理。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h2 id="03-In-Fusion-系统实现细节：如何以“零初始化增量分支”无缝融入">03. In-Fusion 系统实现细节：如何以“零初始化增量分支”无缝融入</h2>
-<p>In-Fusion 在架构上极度优雅，它没有像 MoT（Mixture-of-Transformers）那样对文本和图像完全分库分表，而是<strong>让所有 Token 共享一套主干底座，仅在特定层为视觉 Token 挂载弹性分支</strong>。</p>
+</ol>
+<p>所有视觉增量模块在初始化时<strong>全部置零（Zero-Initialization）</strong>，保证训练第 0 步时模型行为与基础主干完全一致，实现平滑冷启动。</p>
 <pre><code class="highlight mermaid">flowchart TD
     subgraph InFusionLayer[&quot;In-Fusion 骨干层内部计算流（前 1~8 层）&quot;]
         Input[&quot;输入 Token 隐状态 z_i&quot;] --&gt; PreNorm[&quot;RMSNorm 归一化&quot;]
@@ -413,28 +555,11 @@
         SharedFFN --&gt; Output[&quot;残差输出: h + F + m_i * ΔF&quot;]
         VisionFFN --&gt; Output
     end</code></pre>
-<h3 id="3-1-数学与代码逻辑">3.1 数学与代码逻辑</h3>
-<p>对于输入序列中的任意 Token <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span>，引入模态指示变量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>i</mi></msub><mo>∈</mo><mo stretchy="false">{</mo><mn>0</mn><mo separator="true">,</mo><mn>1</mn><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">m_i \in \{0, 1\}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6891em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">1</span><span class="mclose">}</span></span></span></span>（视觉 Token 为 1，文本为 0）：</p>
-<ol>
-<li>
-<p><strong>联合注意力投影（Joint Attention with Vision Deltas）</strong>：</p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><msub><mi mathvariant="bold">z</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo>=</mo><msub><mi>W</mi><mi>P</mi></msub><mtext> </mtext><msub><mi mathvariant="bold">z</mi><mi>i</mi></msub><mo>+</mo><msub><mi>m</mi><mi>i</mi></msub><mtext> </mtext><mi mathvariant="normal">Δ</mi><msub><mi>W</mi><mi>P</mi></msub><mtext> </mtext><msub><mi mathvariant="bold">z</mi><mi>i</mi></msub><mo separator="true">,</mo><mspace width="1em"/><mi>P</mi><mo>∈</mo><mo stretchy="false">{</mo><mi>Q</mi><mo separator="true">,</mo><mi>K</mi><mo separator="true">,</mo><mi>V</mi><mo separator="true">,</mo><mi>O</mi><mo stretchy="false">}</mo></mrow><annotation encoding="application/x-tex">P(\mathbf{z}_{i}) = W_{P}\,\mathbf{z}_{i} + m_{i}\,\Delta W_{P}\,\mathbf{z}_{i}, \quad P \in \{Q, K, V, O\}
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="mopen">(</span><span class="mord"><span class="mord mathbf">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">P</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathbf">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">P</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathbf">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:1em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{</span><span class="mord mathnormal">Q</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">K</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.2222em;">V</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mclose">}</span></span></span></span></span></p>
-<p>文本 Token 完全复用基座权重；视觉 Token 在投影时加上专属增量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>W</mi><mi>P</mi></msub></mrow><annotation encoding="application/x-tex">\Delta W_P</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">P</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>。跨模态注意力机制（Q与K计算）依然在统一的序列长度内全局进行。</p>
-</li>
-<li>
-<p><strong>前馈网络分支（Additive FFN Branch）</strong>：</p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msubsup><mi mathvariant="bold">h</mi><mi>i</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msubsup><mo>=</mo><msub><mi mathvariant="bold">h</mi><mi>i</mi></msub><mo>+</mo><mi>F</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">(</mo><msub><mi mathvariant="bold">h</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>+</mo><msub><mi>m</mi><mi>i</mi></msub><mtext> </mtext><mi mathvariant="normal">Δ</mi><mi>F</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">(</mo><msub><mi mathvariant="bold">h</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{h}_{i}^{\prime} = \mathbf{h}_{i} + F(N(\mathbf{h}_{i})) + m_{i}\,\Delta F(N(\mathbf{h}_{i}))
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0489em;vertical-align:-0.247em;"></span><span class="mord"><span class="mord mathbf">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8019em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathbf">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">F</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mopen">(</span><span class="mord"><span class="mord mathbf">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">))</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.1389em;">F</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mopen">(</span><span class="mord"><span class="mord mathbf">h</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">))</span></span></span></span></span></p>
-<p>其中 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi></mrow><annotation encoding="application/x-tex">F</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">F</span></span></span></span> 为共享的主干 FFN，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>F</mi></mrow><annotation encoding="application/x-tex">\Delta F</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.1389em;">F</span></span></span></span> 为较窄的专属视觉 FFN。</p>
-</li>
-</ol>
-<h3 id="3-2-零初始化（Zero-initialization）带来的冷启动稳定性">3.2 零初始化（Zero-initialization）带来的冷启动稳定性</h3>
-<p>在软件设计中，灰度上线讲究“平滑无感”。<br>
-In-Fusion 在初始化时，将所有增量权重 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><msub><mi>W</mi><mi>P</mi></msub></mrow><annotation encoding="application/x-tex">\Delta W_P</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord">Δ</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">P</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 以及 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>F</mi></mrow><annotation encoding="application/x-tex">\Delta F</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.1389em;">F</span></span></span></span> 的输出投影层<strong>全部置零（Zero-init）</strong>。这意味着在训练步数 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>t</mi><mi>e</mi><mi>p</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">Step = 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="mord mathnormal">t</span><span class="mord mathnormal">e</span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> 时，模型完全等价于一个原生的纯文本模型，没有任何梯度剧变与破坏性干扰，从第一步开始就能实现稳定、平滑的端到端学习。</p>
+<h3 id="3-2-PyTorch-级工程代码参考">3.2 PyTorch 级工程代码参考</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">InFusionEarlyBlock</span>(nn.Module):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    放置在主干网络前 8 层的 In-Fusion Transformer Block</span></span><br><span class="line"><span class="string">    针对软件工程师：这就是一个标准层 + 一个仅限特定模态走入的并联分支</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, d_model, n_heads, d_ffn, d_vision_ffn</span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        <span class="comment"># 1. 通用共享组件（所有 Token 均参与）</span></span><br><span class="line">        <span class="variable language_">self</span>.norm1 = nn.RMSNorm(d_model)</span><br><span class="line">        <span class="variable language_">self</span>.attn = MultiHeadAttention(d_model, n_heads)</span><br><span class="line">        <span class="variable language_">self</span>.norm2 = nn.RMSNorm(d_model)</span><br><span class="line">        <span class="variable language_">self</span>.ffn = SwiGLUFFN(d_model, d_ffn)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 2. 视觉专属组件（仅图像 Token 激活，占满 0.4B 参数预算）</span></span><br><span class="line">        <span class="variable language_">self</span>.vision_delta_qkv = nn.Linear(d_model, d_model * <span class="number">3</span>, bias=<span class="literal">False</span>)</span><br><span class="line">        <span class="variable language_">self</span>.vision_delta_out = nn.Linear(d_model, d_model, bias=<span class="literal">False</span>)</span><br><span class="line">        <span class="variable language_">self</span>.vision_delta_ffn = SwiGLUFFN(d_model, d_vision_ffn)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 工程核心细节：零初始化！确保训练第 0 步完全等价于纯文本模型</span></span><br><span class="line">        nn.init.zeros_(<span class="variable language_">self</span>.vision_delta_out.weight)</span><br><span class="line">        nn.init.zeros_(<span class="variable language_">self</span>.vision_delta_ffn.down_proj.weight)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x: torch.Tensor, is_vision_mask: torch.Tensor</span>) -&gt; torch.Tensor:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        x: [Batch, SeqLen, Dim]</span></span><br><span class="line"><span class="string">        is_vision_mask: [Batch, SeqLen, 1], 图像 Token 标记为 1.0，文本为 0.0</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># ==================== Step 1: 注意力层计算 ====================</span></span><br><span class="line">        norm_x = <span class="variable language_">self</span>.norm1(x)</span><br><span class="line">        q, k, v = <span class="variable language_">self</span>.attn.project_qkv(norm_x)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 图像 Token 叠加专属注意力增量</span></span><br><span class="line">        <span class="keyword">if</span> is_vision_mask.<span class="built_in">any</span>():</span><br><span class="line">            delta_q, delta_k, delta_v = <span class="variable language_">self</span>.vision_delta_qkv(norm_x).chunk(<span class="number">3</span>, dim=-<span class="number">1</span>)</span><br><span class="line">            q = q + is_vision_mask * delta_q</span><br><span class="line">            k = k + is_vision_mask * delta_k</span><br><span class="line">            v = v + is_vision_mask * delta_v</span><br><span class="line">            </span><br><span class="line">        attn_out = <span class="variable language_">self</span>.attn.compute_attention(q, k, v)</span><br><span class="line">        <span class="keyword">if</span> is_vision_mask.<span class="built_in">any</span>():</span><br><span class="line">            attn_out = attn_out + is_vision_mask * <span class="variable language_">self</span>.vision_delta_out(attn_out)</span><br><span class="line">        x = x + attn_out</span><br><span class="line"></span><br><span class="line">        <span class="comment"># ==================== Step 2: FFN 层计算 ====================</span></span><br><span class="line">        norm_x = <span class="variable language_">self</span>.norm2(x)</span><br><span class="line">        ffn_out = <span class="variable language_">self</span>.ffn(norm_x)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 图像 Token 叠加专属 FFN 增量</span></span><br><span class="line">        <span class="keyword">if</span> is_vision_mask.<span class="built_in">any</span>():</span><br><span class="line">            ffn_out = ffn_out + is_vision_mask * <span class="variable language_">self</span>.vision_delta_ffn(norm_x)</span><br><span class="line">        x = x + ffn_out</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure>
 <hr>
-<h2 id="04-线上推理革命：首字延迟（TTFT）与服务化架构红利">04. 线上推理革命：首字延迟（TTFT）与服务化架构红利</h2>
-<p>对于部署工程师（vLLM、TensorRT-LLM 运维）而言，这篇论文带来的线上性能收益甚至超越了算法指标本身。</p>
+<h2 id="04-线上-Serving-革命：首字延迟（TTFT）与服务化红利">04. 线上 Serving 革命：首字延迟（TTFT）与服务化红利</h2>
+<p>在 H200 硬件、16 并发、448 像素图像 + 256 文本 Token 的标准推理压测下，In-Fusion 展现出了极其亮眼的工程性能：</p>
 <pre><code class="highlight mermaid">sequenceDiagram
     autonumber
     participant Client as 客户端并发请求
@@ -458,59 +583,33 @@ In-Fusion 在初始化时，将所有增量权重 <span class="katex"><span clas
     Note over LLM: 前 8 层视觉自动走增量分支，全流程无缝流水线
     LLM--&gt;&gt;Client: 极速吐出首字 Token (TTFT 显著降低)
     end</code></pre>
-<h3 id="1-根治首字延迟-TTFT（Time-To-First-Token）的串行阻塞">1. 根治首字延迟 TTFT（Time-To-First-Token）的串行阻塞</h3>
-<ul>
-<li>在传统架构下，LLM 必须处于 <strong>“阻塞等待（Block Wait）”</strong> 状态，必须等几十层的 ViT 算完，才能拿到特征构建第一层的 KV Cache。</li>
-<li>在 In-Fusion 架构下，图像 Patch 经简单的线性投射直接作为输入 Token。全模型是一个单体流水线，消除了跨服务调度的通信与调度开销。论文在 H200 硬件上的测试表明，在同等参数预算下，<strong>In-Fusion 的首字延迟显著低于传统编码器方案</strong>。</li>
-</ul>
-<h3 id="2-彻底解脱-Continuous-Batching-调度器">2. 彻底解脱 Continuous Batching 调度器</h3>
-<p>在现代高并发推理框架中，混合请求（纯文本 vs 带图请求）并发是最让调度器头疼的问题：</p>
-<ul>
-<li><strong>传统架构</strong>：带图请求要卡在 ViT 队列，纯文本请求在 LLM 队列，导致 GPU 计算单元非对称空闲与显存碎片化。</li>
-<li><strong>In-Fusion 架构</strong>：<strong>单模型单进程交付</strong>。遇到纯文本请求，掩码 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">m_i=0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> 自动旁路视觉分支；遇到图文请求原地并行分支。批处理调度器无需对图文做任何异构特判，极大简化了推理引擎的基础设施负担。</li>
-</ul>
-<hr>
-<h2 id="05-跨越参数阶梯：Scaling-Law-与外推有效性验证">05. 跨越参数阶梯：Scaling Law 与外推有效性验证</h2>
-<p>很多人会产生疑问：<em>“这套结论会不会只在小模型有效，一旦参数扩展到几十甚至上百亿，无编码器单体模型就会涌现出奇迹？”</em></p>
-<p>为了彻底击碎这一侥幸心理，作者构建了 <strong>0.6B 到 6.4B 的 5 级参数梯子（Scaling Ladder）</strong>，并引入 Chinchilla 式的幂律公式进行严谨的拟合验证：</p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>L</mi><mo stretchy="false">(</mo><mi>N</mi><mo separator="true">,</mo><mi>D</mi><mo stretchy="false">)</mo><mo>=</mo><mi>E</mi><mo>+</mo><mi>A</mi><mo>⋅</mo><msup><mi>N</mi><mrow><mo>−</mo><mi>α</mi></mrow></msup><mo>+</mo><mi>B</mi><mo>⋅</mo><msup><mi>D</mi><mrow><mo>−</mo><mi>β</mi></mrow></msup></mrow><annotation encoding="application/x-tex">L(N, D) = E + A \cdot N^{-\alpha} + B \cdot D^{-\beta}
-</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">L</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">D</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.0576em;">E</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.9047em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8213em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.0037em;">α</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0502em;">B</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8991em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">D</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span></span></span></span></span></span></span></span></span></span></span></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Scaling Ladder 核心参数配置表（视觉参数恒定占非嵌入参数约 29%）：</span><br><span class="line">- 0.6B 主干: 视觉参数 115M (In-Fusion 占前 6 层)</span><br><span class="line">- 1.0B 主干: 视觉参数 227M (In-Fusion 占前 8 层)</span><br><span class="line">- 1.7B 主干: 视觉参数 401M (In-Fusion 占前 8 层)</span><br><span class="line">- 3.2B 主干: 视觉参数 809M (In-Fusion 占前 10 层)</span><br><span class="line">- 6.4B 主干: 视觉参数 1.69B (In-Fusion 占前 13 层)</span><br></pre></td></tr></table></figure>
-<p>通过跨越一个数量级的系统拟合，作者得出了两项极具说服力的数学结论：</p>
 <ol>
-<li><strong>恒定的“算力赤字”鸿沟</strong>：在从 0.6B 到 6.4B 的整个曲线上，<strong>无编码器（Encoder-free）要想在 VQA 和 Caption Loss 上追平带编码器的模型，始终需要 2.6 ~ 3.1 倍的额外算力消耗</strong>！这一差距曲线在缩放过程中几乎完全平行，没有任何收敛或被“参数涌现”弥合的迹象。</li>
-<li><strong>全尺寸贴合</strong>：在整条缩放梯子上，<strong>In-Fusion 架构在各项任务指标上始终与独立从零训练编码器完全重合（Tracks the encoder at every size）</strong>。</li>
-<li><strong>留出盲测验证</strong>：使用该幂律公式去盲测预测未参与拟合的 1.7B 和 4B 模型，平均绝对误差仅有 <strong>1.6%</strong>，证实了该外推规律的高度可靠性。</li>
+<li><strong>消灭流水线气泡（Pipeline Bubble）</strong>：传统架构必须等外部数十层 ViT 计算彻底结束，LLM 才能开始计算第一个 Token。In-Fusion 下，图像切片直接由简单的轻量卷积/线性层映射为 Token，全流程仅需一次统一的 Prefill 前向传播，显著降低 TTFT；</li>
+<li><strong>对连续批处理（Continuous Batching）天然友好</strong>：在 vLLM 等高并发引擎中，带图请求与纯文本请求往往高度混合。传统架构下带图请求卡在外部 ViT 队列，造成 GPU 显存分裂与计算核心空转；In-Fusion 作为<strong>单进程单模型</strong>，遇到纯文本只需将掩码置 0 即可旁路计算，调度器完全无需对多模态做异构特判。</li>
 </ol>
 <hr>
-<h2 id="06-系统的边界条件：如果想推翻论文结论，该从何处入手？">06. 系统的边界条件：如果想推翻论文结论，该从何处入手？</h2>
-<p>没有放之四海皆准的银弹，任何架构结论都有其限定的边界。如果未来的算法研究员想要 challenge 这篇论文，以下 4 个方向最具突破可能：</p>
+<h2 id="05-跨越参数阶梯：Scaling-Law-与外推验证">05. 跨越参数阶梯：Scaling Law 与外推验证</h2>
+<p>为了防止“小模型上的巧合”，研究团队构建了跨越一个数量级的 5 级参数梯子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Scaling Ladder 核心参数配置表（视觉参数恒定占非嵌入参数约 29%）：</span><br><span class="line">- 0.6B 主干: 视觉专属参数 115M (In-Fusion 占前 6 层)</span><br><span class="line">- 1.0B 主干: 视觉专属参数 227M (In-Fusion 占前 8 层)</span><br><span class="line">- 1.7B 主干: 视觉专属参数 401M (In-Fusion 占前 8 层)</span><br><span class="line">- 3.2B 主干: 视觉专属参数 809M (In-Fusion 占前 10 层)</span><br><span class="line">- 6.4B 主干: 视觉专属参数 1.69B (In-Fusion 占前 13 层)</span><br></pre></td></tr></table></figure>
+<p>通过幂律公式 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo stretchy="false">(</mo><mi>N</mi><mo separator="true">,</mo><mi>D</mi><mo stretchy="false">)</mo><mo>=</mo><mi>E</mi><mo>+</mo><mi>A</mi><mo>⋅</mo><msup><mi>N</mi><mrow><mo>−</mo><mi>α</mi></mrow></msup><mo>+</mo><mi>B</mi><mo>⋅</mo><msup><mi>D</mi><mrow><mo>−</mo><mi>β</mi></mrow></msup></mrow><annotation encoding="application/x-tex">L(N, D) = E + A \cdot N^{-\alpha} + B \cdot D^{-\beta}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">L</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">D</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.0576em;">E</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8547em;vertical-align:-0.0833em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.7713em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.0037em;">α</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0502em;">B</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">⋅</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8491em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0278em;">D</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span></span></span></span></span></span></span></span></span></span> 拟合，得到两个铁律：</p>
 <ol>
-<li><strong>纯视觉数据的非对称压制（Data Asymmetry）</strong>：
-<ul>
-<li><em>前提打破点</em>：论文实验中，预训练与联合训练使用的是相同规模的数据。如果工业界有百亿级未标注纯图像数据进行自监督表征预训练（如 DINOv2），而多模态高质量对齐数据只有极少量，“视觉先验无用论”是否会被逆转？</li>
-</ul>
-</li>
-<li><strong>超高分辨率与动态切片（High-Res AnyRes Tiling）</strong>：
-<ul>
-<li><em>系统瓶颈点</em>：在 4K 扫描件或超密文档中，一张图切出上千个 Token。传统 Pre-Fusion 可以在 ViT 后面做 4:1 的空间池化压缩；而 In-Fusion 如果让上千个 raw patch token 直冲 LLM 前 8 层的 Joint Attention，其 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>L</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(L^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> 的注意力与 KV Cache 开销可能会成为致命短板。</li>
-</ul>
-</li>
-<li><strong>稀疏专家架构（Sparse MoE）</strong>：
-<ul>
-<li><em>架构分化点</em>：在万亿 MoE 模型中，底层的 Expert 本就会按数据分布自发分化。在稀疏路由机制下，Encoder-Free 是否能自然演化出专属的“视觉专家”从而抵消劣势？</li>
-</ul>
-</li>
-<li><strong>超长视频流与跨模态交错文本</strong>：
-<ul>
-<li>面对成百上千帧视频的时序跨度，仅仅依赖网络前 29% 的层级进行特征提纯是否仍然足够？</li>
-</ul>
-</li>
+<li><strong>恒定的 3 倍算力赤字</strong>：在整条尺度曲线上，<strong>Encoder-free 模型要想在 VQA 和 Caption Loss 上追平带编码器的模型，始终需要 2.6 ~ 3.1 倍的额外计算量</strong>，差距曲线完全平行，没有任何收敛迹象；</li>
+<li><strong>全尺寸贴合</strong>：从 0.6B 到 6.4B，<strong>In-Fusion 架构在各项任务指标上始终与独立从头训练编码器完全贴合</strong>，并以 1.6% 的平均绝对误差精准预测了未参与拟合的模型性能。</li>
 </ol>
 <hr>
-<h2 id="07-工业落地与最新开源多模态选型指南（-le-35-text-B-）">07. 工业落地与最新开源多模态选型指南（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mn>35</mn><mtext>B</mtext></mrow><annotation encoding="application/x-tex">\le 35\text{B}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7719em;vertical-align:-0.136em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">35</span><span class="mord text"><span class="mord">B</span></span></span></span></span>）</h2>
-<p>对于不从事模型训练的业务开发工程师，这篇论文给我们的核心指导就是：<strong>明确架构特征，根据业务瓶颈进行精准选型</strong>。</p>
-<p>结合当下的最新开源模型生态，在 35B 以下的区间，推荐按照以下矩阵进行选型：</p>
+<h2 id="06-软件工程师的工程直觉与物理隐喻">06. 软件工程师的工程直觉与物理隐喻</h2>
+<h3 id="直觉-1：API-阻抗匹配（端到端-vs-胶水代码）">直觉 1：API 阻抗匹配（端到端 vs 胶水代码）</h3>
+<p>外部预训练的 CLIP/SigLIP 就像一个独立维护的第三方类库，它的优化目标是向量相似度（粗粒度分类）。而主干语言模型需要的是精细的因果推理和上下文辨析。直接外挂这种模型，主干网络需要耗费巨大的学习成本去“翻译和适应”第三方格式。<strong>端到端从头联合训练，相当于系统原生自研的专有驱动，第一行代码就完全服务于主干需求。</strong></p>
+<h3 id="直觉-2：资源隔离与关注点分离（高频像素-vs-离散符号）">直觉 2：资源隔离与关注点分离（高频像素 vs 离散符号）</h3>
+<p>语言是高密度、离散、具备高度语义符号的体系；图像像素则是连续、低信息密度、充满空间冗余的信号。在同一批参数里强行混算两种异构数据，会发生严重的<strong>模态参数干扰（Resource Contention）</strong>。专设专属参数，就如同为系统配置了专用的协处理器。</p>
+<h3 id="直觉-3：编译流水线（前-8-层语法分析-vs-深层语义优化）">直觉 3：编译流水线（前 8 层语法分析 vs 深层语义优化）</h3>
+<p>这与编译器工作流高度契合：</p>
+<ul>
+<li><strong>前端阶段（Frontend，前 8 层）</strong>：词法分析与 AST 解析。必须针对源码语言（原始像素切片）使用专用语法器进行降噪与提纯；</li>
+<li><strong>后端阶段（Backend，8 层之后）</strong>：中间表示优化（IR Optimization）。一旦完成初步抽象，所有 Token 在高维空间里已被统一表征，高层网络无需区别对待，专心执行跨模态统一逻辑推理。</li>
+</ul>
+<hr>
+<h2 id="07-工业落地与最新开源多模态选型指南">07. 工业落地与最新开源多模态选型指南</h2>
 <pre><code class="highlight mermaid">flowchart TD
     Start[&quot;业务需求评估&quot;] --&gt; Target&#123;&quot;系统核心瓶颈&quot;&#125;
     
@@ -522,11 +621,12 @@ In-Fusion 在初始化时，将所有增量权重 <span class="katex"><span clas
     
     Target --&gt;|&quot;高并发 API、单卡显存受限、边缘端运行&quot;| OptC[&quot;吞吐与硬件成本优先&quot;]
     OptC --&gt; ModelC[&quot;首选: DeepSeek-VL2 27B MoE 或 MiniCPM-V 3.0/2.6&lt;br/&gt;激活参数极小或 Token 压缩率极高&quot;]</code></pre>
-<h3 id="核心选型避坑总结">核心选型避坑总结</h3>
+<h3 id="架构师实战避坑建议">架构师实战避坑建议</h3>
 <ol>
-<li><strong>彻底淘汰“冻结式拼装模型”</strong>：如早期的 LLaVA-1.5，已被证实是过渡期的落后产物，严禁用于新业务。</li>
-<li><strong>重度依赖细粒度视觉（OCR/图表）</strong>：优先选择 <strong>Qwen3-VL 系列</strong>。其最新引入的 <strong>DeepStack 架构</strong> 直接打通了 ViT 浅层到主干的通路，与本文强调的“保护浅层未抽象视觉细节”不谋而合。</li>
-<li><strong>在线实时交互、智能客服、高并发网关</strong>：重点关注 <strong>Mono-InternVL</strong>（论文引用的单体内聚标杆）或 <strong>DeepSeek-VL2（稀疏 MoE）</strong>，最大化利用统一单体流水线的调度优势与低 TTFT 红利。</li>
+<li><strong>坚决淘汰早期的“冻结式拼装模型”</strong>：如早期 LLaVA-1.5，已被证实属于过渡期的低效技术栈，严禁用于新业务；</li>
+<li><strong>细粒度 OCR / 图表分析强依赖场景</strong>：优先选用 <strong>Qwen3-VL 系列</strong>。其最新的 DeepStack 架构支持从视觉编码器浅层直接引流细节至主干网络，契合了“保护未高度抽象的浅层视觉细节”的本质规律；</li>
+<li><strong>低延迟人机交互与实时网关场景</strong>：优先选用 <strong>Mono-InternVL</strong> 或 <strong>DeepSeek-VL2（稀疏 MoE 路由）</strong>，直接享受单体引擎调度与低 TTFT 优势；</li>
+<li><strong>自研多模态模型路线建议</strong>：切勿盲目追求完全共享参数的 Encoder-free；建议采用 In-Fusion 思路，将视觉专属算力内嵌于主干浅层，或利用 MoE 架构实现模态专用专家路由。</li>
 </ol>
 <hr>
 <h2 id="08-结语">08. 结语</h2>
@@ -602,7 +702,7 @@ In-Fusion 在初始化时，将所有增量权重 <span class="katex"><span clas
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">32:39</span>
+    <span title="站点阅读时长">32:42</span>
   </span>
 </div>
 <div class="busuanzi-count">

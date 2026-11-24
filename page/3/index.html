@@ -232,7 +232,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-24 18:52:25" itemprop="dateModified" datetime="2026-11-24T18:52:25+08:00">2026-11-24</time>
+      <time title="修改时间：2026-11-24 19:03:16" itemprop="dateModified" datetime="2026-11-24T19:03:16+08:00">2026-11-24</time>
     </span>
 
   
@@ -242,14 +242,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>4.8k</span>
+      <span>5.4k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>18 分钟</span>
+      <span>20 分钟</span>
     </span>
 </div>
 
@@ -262,19 +262,25 @@
     <div class="post-body" itemprop="articleBody">
           <p>在当今的多模态大语言模型（MLLM）架构中，我们早已对一种“标准范式”习以为常：<strong>用一个预训练好的独立视觉编码器（如 CLIP、SigLIP），通过一个线性层或小型 MLP（Projector），挂载到一个纯文本大模型（LLM）前面</strong>。</p>
 <p>站在软件工程的角度审视，这种结构像极了系统设计初期的 <strong>“跨团队胶水架构”</strong>：由于历史原因，团队直接把一个现成的第三方图片处理服务（ViT/CLIP）和一个文本生成服务（LLaMA/Qwen）拼在一起。大家虽然觉得这套管道又重又笨（双模型调度复杂、推理延迟高、显存碎片化），但由于它“能跑且指标不错”，便成了业界奉为圭臬的“祖传代码”。</p>
-<p>业界也因此产生了一系列悬而未决的争论：</p>
+<p>业界也因此产生了一系列悬而未决的架构大论战：</p>
 <ul>
-<li><strong>真的是因为 CLIP 预训练让模型获得了强大的视觉先验吗？</strong></li>
-<li><strong>还是因为多挂了一个几亿参数的独立模型带来的算力红利？</strong></li>
-<li><strong>如果不搞独立的外部编码器，直接把图片当成普通 Token 喂给单体大模型（Encoder-Free），为什么在复杂任务上频频翻车？</strong></li>
+<li><strong>争论 1</strong>：真的是因为 CLIP 预训练让模型获得了强大的视觉先验吗？</li>
+<li><strong>争论 2</strong>：还是因为多挂了一个几亿参数的独立模型带来的专属算力红利？</li>
+<li><strong>争论 3</strong>：如果不搞独立的外部编码器，直接把图片当成普通 Token 喂给单体大模型（Encoder-Free），为什么在复杂 OCR 和细粒度图表上频频翻车？</li>
 </ul>
-<p>为了彻底回答这些问题，来自 Meta FAIR 与纽约大学（NYU）的 Ellis Brown、谢赛宁等研究人员开展了一项极具系统工程思维的研究——<strong>《Unbundling Multimodal Vision Encoding》（解耦多模态视觉编码）</strong>：</p>
+<p>为了彻底回答这些问题，来自 Meta FAIR 基础人工智能研究院的 Ellis Brown、Chris Hoang、Shengyi Qian、Shang-Wen Li 与 Mike Lewis 开展了一项极具系统工程思维的研究——<strong>《Unbundling Multimodal Vision Encoding》（解耦多模态视觉编码）</strong>：</p>
 <blockquote>
 <p><strong>论文题目</strong>：《Unbundling Multimodal Vision Encoding》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.17334">arXiv:2611.17334</a> (HTML 预览：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.17334v1">https://arxiv.org/html/2611.17334v1</a>)<br>
-<strong>核心贡献</strong>：在严格控制总训练算力（Lifetime Compute）、统一数据源的前提下，训练了 200 多个端到端模型，将传统视觉编码器解耦为三个正交设计维度。证明了<strong>外部视觉预训练是伪需求</strong>、<strong>专属视觉算力不可或缺</strong>，并提出了颠覆串行瓶颈的 <strong>In-Fusion（内嵌融合）架构</strong>，大幅降低了推理首字延迟（TTFT）。</p>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.17334">https://arxiv.org/abs/2611.17334</a> (HTML 预览：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.17334v1">https://arxiv.org/html/2611.17334v1</a>)<br>
+<strong>作者团队</strong>：Ellis Brown, Chris Hoang, Shengyi Qian, Shang-Wen Li, Mike Lewis, Marjan Ghazvininejad, Luke Zettlemoyer, Lucas Beyer, Mengye Ren, Jakob Verbeek, Saining Xie, Hu Xu（Meta FAIR &amp; NYU）<br>
+<strong>核心战果</strong>：</p>
+<ul>
+<li><strong>打破先验神话</strong>：在拉平总生命周期算力（Lifetime Compute）与数据源的前提下，<strong>从零端到端联合训练完全持平外部预训练编码器</strong>，甚至在预训练上投入超过 15% 算力反成负优化；</li>
+<li><strong>实证专属算力刚需</strong>：纯共享参数的无编码器（Encoder-free）在 OCR/图表等任务上断崖式下跌，且给主干补足等额参数依然无法弥补差距；</li>
+<li><strong>提出 In-Fusion 架构</strong>：专属参数无需前置成独立 ViT，只需内嵌在主干网络前 8 层，即可在保持顶尖精度的同时大幅砍掉推理首字延迟（TTFT）。</li>
+</ul>
 </blockquote>
-<p>本文立足于 <strong>软件开发工程师（后端/架构/系统研发）</strong> 的视角，不罗列晦涩的损失函数推导，深入剖析其 <strong>架构解耦思维、资源争用机理、In-Fusion 系统实现与线上服务化（Serving）选型</strong>。</p>
+<p>本文立足于 <strong>软件开发工程师（后端/架构/性能调优）</strong> 的视角，先按照论文本身的章节结构梳理其严谨的论证逻辑，再深入剖析其 <strong>架构解耦思维、In-Fusion 代码实现、推理调度优化与工业选型指南</strong>。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/papers/2026/11/18/Unbundling-Vision-Encoding/#more" rel="contents">
@@ -344,7 +350,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-24 18:52:25" itemprop="dateModified" datetime="2026-11-24T18:52:25+08:00">2026-11-24</time>
+      <time title="修改时间：2026-11-24 19:03:16" itemprop="dateModified" datetime="2026-11-24T19:03:16+08:00">2026-11-24</time>
     </span>
 
   
@@ -452,7 +458,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-24 18:52:25" itemprop="dateModified" datetime="2026-11-24T18:52:25+08:00">2026-11-24</time>
+      <time title="修改时间：2026-11-24 19:03:16" itemprop="dateModified" datetime="2026-11-24T19:03:16+08:00">2026-11-24</time>
     </span>
 
   
@@ -568,7 +574,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-24 18:52:25" itemprop="dateModified" datetime="2026-11-24T18:52:25+08:00">2026-11-24</time>
+      <time title="修改时间：2026-11-24 19:03:16" itemprop="dateModified" datetime="2026-11-24T19:03:16+08:00">2026-11-24</time>
     </span>
 
   
@@ -677,7 +683,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-24 18:52:25" itemprop="dateModified" datetime="2026-11-24T18:52:25+08:00">2026-11-24</time>
+      <time title="修改时间：2026-11-24 19:03:16" itemprop="dateModified" datetime="2026-11-24T19:03:16+08:00">2026-11-24</time>
     </span>
 
   
@@ -774,7 +780,7 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">32:39</span>
+    <span title="站点阅读时长">32:42</span>
   </span>
 </div>
 <div class="busuanzi-count">
