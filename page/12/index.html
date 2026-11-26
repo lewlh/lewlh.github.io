@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">374</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">118</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">376</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">119</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">118</span>
+          <span class="site-state-item-count">119</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">374</span>
+        <span class="site-state-item-count">376</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,115 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/" class="post-title-link" itemprop="url">【论文分享】把长视频“刻进脑神经”：解析 MIT³ (Memory Internalization via Test-Time Training)</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-10-23 13:56:00" itemprop="dateCreated datePublished" datetime="2026-10-23T13:56:00+08:00">2026-10-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-26 16:50:18" itemprop="dateModified" datetime="2026-11-26T16:50:18+08:00">2026-11-26</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>继前几天研读了通过超网络前向生成权重的前沿论文 <a href="/papers/2026/10/24/WIRE-WeightSpaceImplicitRepresentationEncoding/">《打破长视频的显存与计算魔咒：解析前沿论文 WIRE》</a> 之后，今天我们来深入探讨同一时期在计算机视觉顶会开源社区引发广泛讨论的另一篇重量级论文——《Memory Internalization via Test-Time Training for Long-Video Understanding》（引入了 <strong>MIT³</strong> 框架）。</p>
+<p>如果说上一篇 WIRE 走的是“极速流式压缩、输入端保留压缩 Token、超网络毫秒级生成补丁”的工程路线；那么这篇来自<strong>上海交通大学与同济大学团队</strong>的 MIT³ 则走了一条更为激进且极具科幻感的“内化”路线：</p>
+<blockquote>
+<p><strong>“拿到一部长视频，AI 先通过测试时训练（Test-Time Training）把整部视频的记忆一次性‘刻’进脑神经网络；记完之后，彻底销毁原视频！后续不管你问 10 个还是 1000 个问题，AI 全程两手空空，以纯文本（Video-free）模式闭卷秒回。”</strong></p>
+</blockquote>
+<p>在这篇分享中，我们将摒弃晦涩抽象的数学黑话，系统拆解 MIT³ 的核心哲学、破解的工业难题、因果追踪与视觉记忆蒸馏的底层原理、工程复现细节以及与 WIRE 的横向架构对比。</p>
+<blockquote>
+<p><strong>论文题目</strong>：Memory Internalization via Test-Time Training for Long-Video Understanding<br>
+<strong>作者团队</strong>：Haonan Zhao, Jiaxuan Chen, Qingyang Liu, Shuochen Chang, Siyu Sun, Jiangtong Li, Li Niu (上海交通大学、同济大学)<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.26910">https://arxiv.org/abs/2610.26910</a><br>
+<strong>arXiv HTML</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.26910">https://arxiv.org/html/2610.26910</a></p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/10/23/MIT3-MemoryInternalizationViaTestTimeTraining/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +341,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-26 16:12:48" itemprop="dateModified" datetime="2026-11-26T16:12:48+08:00">2026-11-26</time>
+      <time title="修改时间：2026-11-26 16:50:18" itemprop="dateModified" datetime="2026-11-26T16:50:18+08:00">2026-11-26</time>
     </span>
 
   
@@ -343,7 +452,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-26 16:12:48" itemprop="dateModified" datetime="2026-11-26T16:12:48+08:00">2026-11-26</time>
+      <time title="修改时间：2026-11-26 16:50:18" itemprop="dateModified" datetime="2026-11-26T16:50:18+08:00">2026-11-26</time>
     </span>
 
   
@@ -454,7 +563,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-26 16:12:48" itemprop="dateModified" datetime="2026-11-26T16:12:48+08:00">2026-11-26</time>
+      <time title="修改时间：2026-11-26 16:50:18" itemprop="dateModified" datetime="2026-11-26T16:50:18+08:00">2026-11-26</time>
     </span>
 
   
@@ -570,7 +679,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-26 16:12:48" itemprop="dateModified" datetime="2026-11-26T16:12:48+08:00">2026-11-26</time>
+      <time title="修改时间：2026-11-26 16:50:18" itemprop="dateModified" datetime="2026-11-26T16:50:18+08:00">2026-11-26</time>
     </span>
 
   
@@ -637,118 +746,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/09/26/EgoMemReason/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/09/26/EgoMemReason/" class="post-title-link" itemprop="url">【论文分享】当长视频跨越“一整周”：EgoMemReason 揭露了大模型与 Video-RAG 的哪些工程死穴？</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-09-26 16:10:00" itemprop="dateCreated datePublished" datetime="2026-09-26T16:10:00+08:00">2026-09-26</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-26 16:12:48" itemprop="dateModified" datetime="2026-11-26T16:12:48+08:00">2026-11-26</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.3k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>12 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在 AI 智能眼镜、具身智能（Embodied Agents）与全天候生活记录（Life-logging）等应用场景中，后台系统面临着一个极其棘手的流式数据挑战：<strong>7×24 小时不间断采集的第一人称视频流</strong>。</p>
-<p>当数据跨度从几分钟拉长到“一整周（Week-long）”时，用户的真实提问往往不再是“<em>视频第 3 分钟桌上有什么？</em>”，而是：</p>
-<ul>
-<li><em>“我前天下午放在厨房操作台的那个碗，后来被谁挪到哪了？”</em></li>
-<li><em>“这周以来，我一共喝过几罐不同牌子的饮料？”</em></li>
-<li><em>“我平时吃完午饭后，通常下一步会去哪里？”</em></li>
-</ul>
-<p>面对这类跨天、稀疏分布的“记忆驱动型推理（Memory-Driven Reasoning）”，业界很多团队习惯性地把希望寄托在 <strong>“加大模型上下文窗口（多塞帧）”</strong> 或 <strong>“视频转文字摘要 + 向量检索（Video-RAG）”</strong> 上。然而，由 <strong>北卡罗来纳大学教堂山分校（UNC Chapel Hill）Mohit Bansal 团队等</strong> 推出的长视频记忆评测基准 <strong>EgoMemReason</strong>，给整个行业泼了一盆冷水：</p>
-<blockquote>
-<p><strong>论文题目</strong>：《EgoMemReason: A Memory-Driven Reasoning Benchmark for Long-Horizon Egocentric Video Understanding》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2605.09874">arXiv:2605.09874</a>（HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2605.09874v2">https://arxiv.org/html/2605.09874v2</a>）<br>
-<strong>作者团队</strong>：Ziyang Wang, Yue Zhang, Shoubin Yu, Ce Zhang, Zengqi Zhao, Jaehong Yoon, Hyunji Lee, Gedas Bertasius, Mohit Bansal<br>
-<strong>核心战果（残酷现实）</strong>：构建了包含 <strong>500 道</strong> 跨天多跳推理题的评测集，每题平均需回溯 <strong>25.9 小时</strong> 视频历史、聚合 <strong>5.1 个</strong> 离散证据片段。团队对 <strong>17 个</strong> 代表性系统（含通用多模态大模型、视频专用模型与 Agentic RAG 框架）进行压测，<strong>最高综合准确率仅 39.6%</strong>（Gemini-3-Flash），随机盲猜基线为 16.8%。</p>
-</blockquote>
-<p>作为软件开发工程师，如果把这篇 Benchmark 论文当成一份 <strong>“超长时空流式系统的集成测试报告与排雷指南”</strong>，它最大的价值不在于提出了什么新算法，而在于用严谨的对照实验<strong>证伪了多条看似合理的工程路线</strong>。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/09/26/EgoMemReason/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/11/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/13/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -773,14 +770,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">548k</span>
+    <span title="站点总字数">553k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">33:11</span>
+    <span title="站点阅读时长">33:31</span>
   </span>
 </div>
 <div class="busuanzi-count">

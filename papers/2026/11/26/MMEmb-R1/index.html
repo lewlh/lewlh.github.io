@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在构建多模态搜索、以图搜视频以及企业级多模态 RAG（检索增强生成）系统时，向量表征模型（Embedding Model）是整个检索链路的底层基石。 近年来，为了突破传统双塔模型（如 CLIP）和静态大模型（如 VLM2Vec）在复杂逻辑、视频时序推断上的能力上限，学术界开始流行将 “慢思考 &#x2F; 思维链（Chain-of-Thought, CoT）” 引入多模态向量生成——让模型在吐出向量之前，先">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】吞吐暴涨3.1倍、拒绝“过度思考”：字节与港中文 EMNLP 2026 新作 MMEmb-R1 如何用因果筛选与自适应路由重构多模态向量引擎">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/11/26/MMEmb-R1/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在构建多模态搜索、以图搜视频以及企业级多模态 RAG（检索增强生成）系统时，向量表征模型（Embedding Model）是整个检索链路的底层基石。 近年来，为了突破传统双塔模型（如 CLIP）和静态大模型（如 VLM2Vec）在复杂逻辑、视频时序推断上的能力上限，学术界开始流行将 “慢思考 &#x2F; 思维链（Chain-of-Thought, CoT）” 引入多模态向量生成——让模型在吐出向量之前，先">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-26T08:45:00.000Z">
+<meta property="article:modified_time" content="2026-11-26T08:50:18.003Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="MMEmb-R1">
+<meta property="article:tag" content="向量检索">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="强化学习">
+<meta property="article:tag" content="自适应推理">
+<meta property="article:tag" content="论文分享">
+<meta property="article:tag" content="软件工程视角">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/11/26/MMEmb-R1/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/11/26/MMEmb-R1/","path":"papers/2026/11/26/MMEmb-R1/","title":"【论文分享】吞吐暴涨3.1倍、拒绝“过度思考”：字节与港中文 EMNLP 2026 新作 MMEmb-R1 如何用因果筛选与自适应路由重构多模态向量引擎"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】吞吐暴涨3.1倍、拒绝“过度思考”：字节与港中文 EMNLP 2026 新作 MMEmb-R1 如何用因果筛选与自适应路由重构多模态向量引擎 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">376</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">119</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E8%A1%8C%E4%B8%9A%E7%97%9B%E7%82%B9%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E7%B2%97%E6%9A%B4%E5%BC%95%E5%85%A5%E2%80%9C%E6%80%9D%E7%BB%B4%E9%93%BE%E2%80%9D%E6%88%90%E4%BA%86%E5%B7%A5%E7%A8%8B%E7%81%BE%E9%9A%BE%EF%BC%9F"><span class="nav-text">01. 行业痛点：为什么粗暴引入“思维链”成了工程灾难？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E7%BB%93%E6%9E%84%E6%80%A7%E9%94%99%E4%BD%8D%E5%BC%95%E5%8F%91%E2%80%9C%E6%A0%BC%E5%BC%8F%E4%BD%9C%E5%BC%8A%E2%80%9D%EF%BC%88Shortcut-Behavior%EF%BC%89"><span class="nav-text">1.1 结构性错位引发“格式作弊”（Shortcut Behavior）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E5%85%A8%E9%87%8F%E8%87%AA%E5%9B%9E%E5%BD%92%E5%B8%A6%E6%9D%A5%E7%9A%84%E5%90%9E%E5%90%90%E9%9B%AA%E5%B4%A9%E4%B8%8E%E2%80%9C%E8%BF%87%E5%BA%A6%E6%80%9D%E8%80%83%E2%80%9D"><span class="nav-text">1.2 全量自回归带来的吞吐雪崩与“过度思考”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E5%8E%98%E6%B8%85%E8%BE%B9%E7%95%8C%EF%BC%9AMMEmb-R1-%E6%98%AF%E2%80%9C%E5%8D%95%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E9%85%8D%E6%96%B9%E2%80%9D%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E2%80%9C%E5%A4%96%E9%83%A8%E7%BC%96%E6%8E%92%E7%B3%BB%E7%BB%9F%E2%80%9D"><span class="nav-text">02. 厘清边界：MMEmb-R1 是“单模型训练配方”，而不是“外部编排系统”</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6%E6%B7%B1%E5%BA%A6%E6%8B%86%E8%A7%A3%EF%BC%9A%E4%B8%89%E5%A4%A7%E5%B7%A5%E7%A8%8B%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E8%8C%83%E5%BC%8F"><span class="nav-text">03. 核心机制深度拆解：三大工程问题解决范式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%95%B0%E6%8D%AE%E6%B8%85%E6%B4%97%E8%8C%83%E5%BC%8F%EF%BC%9A%E5%BC%82%E6%9E%84%E5%B9%B6%E5%8F%91%E7%94%9F%E6%88%90-%E5%8F%8D%E4%BA%8B%E5%AE%9E-A-B-%E5%87%80%E5%A2%9E%E7%9B%8A%E6%89%93%E5%88%86%EF%BC%88Pair-Aware-Selection%EF%BC%89"><span class="nav-text">3.1 数据清洗范式：异构并发生成 + 反事实 A&#x2F;B 净增益打分（Pair-Aware Selection）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E6%9E%B6%E6%9E%84%E5%8D%8F%E8%AE%AE%E8%8C%83%E5%BC%8F%EF%BC%9A%E5%8F%8C%E6%8F%90%E5%8F%96%E7%82%B9%EF%BC%88-d-emb-r-emb-%EF%BC%89%E4%B8%8E%E9%98%B2%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5"><span class="nav-text">3.2 架构协议范式：双提取点（&lt;d_emb&gt; &#x2F; &lt;r_emb&gt;）与防依赖注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E5%86%B3%E7%AD%96%E6%8E%A7%E5%88%B6%E8%8C%83%E5%BC%8F%EF%BC%9A%E7%94%A8-GRPO-%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%81%9A%E2%80%9C%E4%BB%A3%E4%BB%B7%E6%84%9F%E7%9F%A5%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1%E2%80%9D"><span class="nav-text">3.3 决策控制范式：用 GRPO 强化学习做“代价感知动态路由”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E4%B8%9A%E5%8A%A1%E6%98%A0%E5%B0%84%EF%BC%9A%E5%9C%A8%E2%80%9C%E8%A7%86%E9%A2%91%E6%95%B0%E6%8D%AE%E6%B9%96%E2%80%9D%E4%B8%8E%E2%80%9C%E5%9C%A8%E7%BA%BF%E8%A7%86%E9%A2%91%E6%90%9C%E7%B4%A2%E2%80%9D%E4%B8%AD%EF%BC%8C%E5%BF%AB%E6%85%A2%E6%80%9D%E8%80%83%E4%BD%95%E6%97%B6%E8%A7%A6%E5%8F%91%EF%BC%9F"><span class="nav-text">04. 业务映射：在“视频数据湖”与“在线视频搜索”中，快慢思考何时触发？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E5%AE%9E%E9%AA%8C%E6%88%98%E6%9E%9C%E4%B8%8E%E6%80%A7%E8%83%BD%E8%B4%A6%E6%9C%AC"><span class="nav-text">05. 实验战果与性能账本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E5%90%9E%E5%90%90%E9%87%8F%E4%B8%8E%E7%B2%BE%E5%BA%A6%E5%8F%8C%E8%B5%A2%E5%AE%9E%E6%B5%8B%EF%BC%888%C3%97-H20-90GB%EF%BC%8CBatch-Size-24%EF%BC%8CQwen2-VL-2B%EF%BC%89"><span class="nav-text">5.1 吞吐量与精度双赢实测（8× H20 90GB，Batch Size&#x3D;24，Qwen2-VL-2B）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E4%B8%BB%E6%B5%81%E6%A6%9C%E5%8D%95%E5%AF%B9%E6%AF%94%E4%B8%8E%E8%A7%86%E9%A2%91%E6%A8%A1%E6%80%81%E4%BC%98%E5%8A%BF%EF%BC%88MMEB-V2%EF%BC%89"><span class="nav-text">5.2 主流榜单对比与视频模态优势（MMEB-V2）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E6%B6%88%E8%9E%8D%E5%AE%9E%E9%AA%8C%E4%B8%8E%E5%B8%95%E7%B4%AF%E6%89%98%E5%89%8D%E6%B2%BF%E9%AA%8C%E8%AF%81%EF%BC%88%E5%9F%BA%E4%BA%8E-Qwen2-VL-2B%EF%BC%8C%E6%BB%A1%E5%88%86-65-0%EF%BC%89"><span class="nav-text">5.3 消融实验与帕累托前沿验证（基于 Qwen2-VL-2B，满分 65.0）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E5%B7%A5%E7%A8%8B%E8%90%BD%E5%9C%B0%E5%B1%80%E9%99%90%E4%B8%8E%E6%9E%B6%E6%9E%84%E5%B8%88%E5%AE%9E%E6%88%98%E5%BB%BA%E8%AE%AE"><span class="nav-text">06. 工程落地局限与架构师实战建议</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">119</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">376</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/26/MMEmb-R1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】吞吐暴涨3.1倍、拒绝“过度思考”：字节与港中文 EMNLP 2026 新作 MMEmb-R1 如何用因果筛选与自适应路由重构多模态向量引擎 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】吞吐暴涨3.1倍、拒绝“过度思考”：字节与港中文 EMNLP 2026 新作 MMEmb-R1 如何用因果筛选与自适应路由重构多模态向量引擎
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-26 16:45:00 / 修改时间：16:50:18" itemprop="dateCreated datePublished" datetime="2026-11-26T16:45:00+08:00">2026-11-26</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>19 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在构建多模态搜索、以图搜视频以及企业级多模态 RAG（检索增强生成）系统时，向量表征模型（Embedding Model）是整个检索链路的底层基石。</p>
+<p>近年来，为了突破传统双塔模型（如 CLIP）和静态大模型（如 VLM2Vec）在复杂逻辑、视频时序推断上的能力上限，学术界开始流行将 <strong>“慢思考 / 思维链（Chain-of-Thought, CoT）”</strong> 引入多模态向量生成——让模型在吐出向量之前，先像做阅读理解一样生成一段 <code>&lt;reason&gt;...&lt;/reason&gt;</code> 分析文本，再提取最终向量。</p>
+<p>然而，在真实工程落地中，这种“一刀切”塞入思维链的做法却暴露出极其严重的系统性内耗：</p>
+<ul>
+<li><strong>隐蔽的“空转作弊”（Shortcut Behavior）</strong>：上游大模型辛辛苦苦自回归吐出几百个推理 Token，但下游提取 Embedding 时注意力权重几乎全落在原始输入上，思维链沦为毫无实质作用的“格式样板代码”；</li>
+<li><strong>“过度思考”拖垮 SLA（Overthinking &amp; Latency Explosion）</strong>：哪怕是一个极其简单的检索请求（比如画面里一只显眼的企鹅，或者单字 <code>&quot;cat&quot;</code>），模型也要先展开几百字的头脑风暴——<strong>不仅把系统吞吐量从 22+ QPS 拽垮到 3 QPS，还会因为“想太多、乱发散”引入语义噪声，导致检索准确率不升反降</strong>。</li>
+</ul>
+<p>针对这一痛点，字节跳动、香港中文大学（MMLab）与复旦大学在 <strong>EMNLP 2026</strong> 联合推出了 <strong>MMEmb-R1</strong> 框架：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《MMEmb-R1: Reasoning-Enhanced Multimodal Embedding with Pair-Aware Selection and Adaptive Control》<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://aclanthology.org/2026.emnlp-main.2419.pdf" rel="external nofollow noreferrer noopener">https://aclanthology.org/2026.emnlp-main.2419.pdf</a><br>
+<strong>作者团队</strong>：Yuchi Wang, Dingkang Yang, Haiyang Yu, Weikang Bian, Jiefeng Long, Xiao Liang, Chao Feng, Hongsheng Li（香港中文大学 MMLab、字节跳动、复旦大学）<br>
+<strong>核心战果</strong>：</p>
+<ul>
+<li><strong>小参数反超大模型</strong>：在覆盖图像、视频、视觉文档共 <strong>78 个任务</strong> 的权威基准 <code>MMEB-V2</code> 上，仅 <strong>4B</strong> 参数量（<code>Qwen3-VL-4B</code>）即拿下 <strong>71.2</strong> 的 SOTA 总分，超越 7B 级强基线 <code>RzenEmbed-v1-7B</code>（68.9）与 <code>UME-R1-7B</code>（64.5）；<strong>2B</strong> 模型（68.3）亦全面领先同级竞品，且在**视频（Video）**模态上提升尤为显著；</li>
+<li><strong>吞吐量飙升 3.1 倍且精度更高</strong>：借助自适应快慢思考控制，实测端到端吞吐达到 <strong>10.02 queries/s</strong>（对比强制慢思考基线 <code>UME-R1</code> 的 3.21 queries/s <strong>提速 3.1 倍</strong>），且总分反超强制思考模式 <strong>+1.4 分</strong>；</li>
+<li><strong>实证发现帕累托最优拐点</strong>：实验测得思考调用率在 <strong>74.3%</strong> 时达到准确率峰值，强行推向 100% 后精度反而出现 <strong>-0.8%</strong> 的倒退。</li>
+</ul>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端架构 / 搜索系统 / 工程落地）</strong> 的视角，跳过繁琐的理论推导，重点拆解它的**“离线训练流水线”与“在线生产调用流”边界、反事实 A/B 数据清洗范式、快慢双通道强化学习路由**，以及它在<strong>视频数据湖入库</strong>与<strong>在线视频搜索</strong>中的真实落地姿势。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-行业痛点：为什么粗暴引入“思维链”成了工程灾难？">01. 行业痛点：为什么粗暴引入“思维链”成了工程灾难？</h2>
+<p>在讨论解决方案前，我们先用系统工程的视角复盘前人方案（如 <code>UME-R1</code>、<code>TTE</code>）究竟卡在了哪里。</p>
+<h3 id="1-1-结构性错位引发“格式作弊”（Shortcut-Behavior）">1.1 结构性错位引发“格式作弊”（Shortcut Behavior）</h3>
+<p>向量模型的训练遵循<strong>双边对比学习（Pairwise Contrastive Learning）</strong>——目标是拉近 <code>(Query, 正样本 Target)</code> 之间的向量距离。但以往方案生成思维链（CoT）时，却是<strong>单边独立生成</strong>的：用某个教师大模型，分别为 Query 和 Target 各自生成一段描述或分析，然后硬拼接到输入里训模型。</p>
+<p>这种“生产与消费解耦”的设计导致了一个典型 Bug：</p>
+<ul>
+<li>教师模型在写思考文本时，根本不知道这段话能不能帮 Query 和 Target 配对成功；</li>
+<li>于是底层的向量模型在反向传播中学“精”了：<strong>它发现前面那段 CoT 经常是废话，干脆在 Attention 层把 CoT Token 的权重降到极低，直接看原始图/文，同时在输出端机械地模仿一下 <code>&lt;reason&gt;</code> 格式应付了事。</strong></li>
+</ul>
+<p>论文第 2 页的注意力热力图实证了这一点：<code>UME-R1</code> 的 Embedding Token 对 CoT 区域几乎“视而不见”，而 <code>MMEmb-R1</code> 才真正把思考内容纳入了向量聚合。</p>
+<h3 id="1-2-全量自回归带来的吞吐雪崩与“过度思考”">1.2 全量自回归带来的吞吐雪崩与“过度思考”</h3>
+<p>大模型直接抽向量（Direct Mode）只需要一次前向传播（Prefill），吞吐极高；而一旦强行引入 CoT，模型必须先进行逐字自回归解码（Autoregressive Decoding），延迟和显存带宽消耗呈数量级放大。</p>
+<p>更糟糕的是，<strong>算力花出去了，效果反而变差了</strong>：</p>
+<ul>
+<li><strong>简单查询不需要思考</strong>：例如 Target 只有一个词 <code>&quot;cat&quot;</code>，强制思考的模型的输出变成：<em>“‘cat’ 可以指代多种猫科动物，包括家猫、野猫，甚至狮子、老虎等大型猫科……”</em>——原本极其清晰的语义，硬生生被过度发散的联想稀释成了噪音。</li>
+<li><strong>系统层面</strong>：就像后台网关把所有简单的 KV 缓存命中请求，统统强行转发给最重的分布式事务集群去处理，既拖垮了全站 QPS，又制造了大量脏数据。</li>
+</ul>
+<hr>
+<h2 id="02-厘清边界：MMEmb-R1-是“单模型训练配方”，而不是“外部编排系统”">02. 厘清边界：MMEmb-R1 是“单模型训练配方”，而不是“外部编排系统”</h2>
+<p>很多工程背景的同学初看论文的三阶段架构图容易产生一个困惑：<strong>“这套三阶段流水线，到底是跑在生产环境里处理视频数据湖的，还是用来训练模型的？”</strong></p>
+<p>答案非常明确：<strong>论文主体提出的三阶段流程，是一套“模型微调训练配方（Training Recipe）”，目的是把一个开源多模态大模型（如 Qwen3-VL）微调改造为一个兼顾快慢思考的专用向量编码器（MMEmb-R1）。</strong></p>
+<p>必须把**【模型研发期（离线训练）】<strong>和</strong>【生产运行期（线上服务）】**的物理边界彻底切开：</p>
+<pre><code class="highlight mermaid">flowchart TB
+    subgraph TrainTime[&quot;【一、模型研发期（Offline Training Pipeline）】—— 用完即弃的重型脚手架&quot;]
+        direction LR
+        S1[&quot;阶段 1: 离线因果数据工程&lt;br/&gt;3个异构 Worker 生成候选思考&lt;br/&gt;+ 32B 裁判模型计算 A/B 净增益&lt;br/&gt;(产出一份 120 万带权数据集)&quot;] --&gt; S2[&quot;阶段 2: 联合微调 (SFT)&lt;br/&gt;冻结 ViT，更新 Projector 与 LLM&lt;br/&gt;注入 &lt;d_emb&gt; 与 &lt;r_emb&gt; 双提取点&quot;]
+        S2 --&gt; S3[&quot;阶段 3: 自适应控制 (GRPO 强化学习)&lt;br/&gt;1 万条样本训练决策策略&lt;br/&gt;权衡相似度收益 δ 与 Token 长度成本&quot;]
+        S3 --&gt; Artifact([&quot;交付唯一产物：&lt;br/&gt;微调后的 MMEmb-R1 模型权重 (2B/4B)&quot;])
+    end
+
+    subgraph ServeTime[&quot;【二、生产运行期（Online / Batch Serving）】—— 轻量单体推理服务&quot;]
+        direction LR
+        SingleInput[&quot;单次输入单元&lt;br/&gt;(1 个视频 / 1 张图 / 1 条搜索文本)&quot;] --&gt; Model[&quot;MMEmb-R1 推理服务&quot;]
+        Model --&gt;|&quot;简单样本: 发射 &lt;EMPTY&gt;&quot;| Fast[&quot;快路径: 直接取 &lt;d_emb&gt; 向量&lt;br/&gt;(零解码开销)&quot;]
+        Model --&gt;|&quot;复杂样本: 生成 &lt;reason&gt;&quot;| Slow[&quot;慢路径: 思考后取 &lt;r_emb&gt; 向量&lt;br/&gt;(深度语义推理)&quot;]
+    end
+
+    Artifact -.-&gt;|&quot;模型部署上线&lt;br/&gt;(Worker 与 32B 裁判均不上线)&quot;| Model</code></pre>
+<p>从这个边界图就能看懂几个关键工程事实：</p>
+<ol>
+<li><strong>它是重新微调训练的模型</strong>：MMEmb-R1 基于开源的 <code>Qwen2-VL</code> / <code>Qwen2.5-VL</code> / <code>Qwen3-VL</code> 底座进行微调（冻结视觉编码器 ViT，更新多模态投影层 Projector 与 LLM 主干）。</li>
+<li><strong>重型模型全部留在训练期</strong>：阶段一使用的三个 Worker 大模型和 32B 裁判模型只是“离线数据工厂”，<strong>永远不会部署到线上</strong>。线上跑的只有一个轻量级的 <code>2B</code> 或 <code>4B</code> 单体模型。</li>
+<li><strong>单次处理粒度是“单个数据项”</strong>：上线后的 MMEmb-R1 是一个标准的“单输入 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 单向量”算子（微服务）。处理百万级视频数据湖时，由外部大数据框架（如 Spark/Ray）拆分并发调用它。</li>
+</ol>
+<hr>
+<h2 id="03-核心机制深度拆解：三大工程问题解决范式">03. 核心机制深度拆解：三大工程问题解决范式</h2>
+<p>穿透论文公式，MMEmb-R1 在方法论上贡献了三个极具工程美感的设计范式。</p>
+<h3 id="3-1-数据清洗范式：异构并发生成-反事实-A-B-净增益打分（Pair-Aware-Selection）">3.1 数据清洗范式：异构并发生成 + 反事实 A/B 净增益打分（Pair-Aware Selection）</h3>
+<p>为了解决“单教师偏见”与“CoT 对匹配无效”的问题，作者没有采用传统的“人工写 Prompt 规则过滤”，而是引入了一套<strong>因果干预（Counterfactual Intervention）打分流水线</strong>：</p>
+<ol>
+<li><strong>多 Worker 模拟先验多样性</strong>：同一个输入（Query 或 Target）并发发给 3 类互补的异构大模型生成思考候选：
+<ul>
+<li><strong>Instruct 模型（<code>InternVL3-14B-Instruct</code>）</strong>：按严格模板输出，精简、结构化、聚焦核心实体；</li>
+<li><strong>Thinking 慢思考模型（<code>GLM-4.1V-Thinking</code>）</strong>：放开格式限制进行长链条探索推理，方差大、偏啰嗦，但偶尔能挖出极高价值的深层逻辑；</li>
+<li><strong>高容量商业模型（<code>Doubao-Seed-1.6-Vision</code>）</strong>：世界知识最广，实验测得其中位推理增益最高（0.070，高于 Thinking 的 0.058 和 Instruct 的 0.037）。</li>
+</ul>
+</li>
+<li><strong>“A/B 对照测试”算净收益（Net Uplift）</strong>：如何判断一段思考对 <code>(Query, Target)</code> 配对是否真有用？作者引入一个 32B 裁判模型（<code>Qwen3-VL-32B-Instruct</code>）跑两次前向，提取首 Token 输出 <code>YES</code> 与 <code>NO</code> 的对数概率差（<code>diff = log p([YES]) - log p([NO])</code>）：
+<ul>
+<li><strong>对照组 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">c_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></strong>：只给原始的 <code>(Query, Target)</code>，问裁判“它们在检索上语义相关吗？”</li>
+<li><strong>实验组 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>r</mi></msub></mrow><annotation encoding="application/x-tex">c_r</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></strong>：把候选思考 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi></mrow><annotation encoding="application/x-tex">r</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">r</span></span></span></span> 塞进去，再问同一个问题。</li>
+<li><strong>反事实净增益</strong>：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>r</mi><mo>=</mo><msub><mi>c</mi><mi>r</mi></msub><mo>−</mo><msub><mi>c</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\Delta r = c_r - c_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>。</li>
+</ul>
+</li>
+<li><strong>工程过滤与加权</strong>：
+<ul>
+<li>过滤掉 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>r</mi><mo>≤</mo><mo>−</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">\Delta r \le -0.1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8193em;vertical-align:-0.136em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.0278em;">r</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">−</span><span class="mord">0.1</span></span></span></span> 的负收益“废话/噪音”；</li>
+<li>对留存下来的思考，按 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>r</mi></mrow><annotation encoding="application/x-tex">\Delta r</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">Δ</span><span class="mord mathnormal" style="margin-right:0.0278em;">r</span></span></span></span> 做 Softmax 归一化得到采样权重 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>r</mi></msub></mrow><annotation encoding="application/x-tex">w_r</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，让真正弥合语义鸿沟的思考在后续训练中占主导地位。</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p><strong>工程替代降本方案</strong>：在附录 A.6 中，作者还验证了如果觉得 32B 裁判推理成本太高，可以蒸馏一个 <strong>2B 级轻量打分器（<code>Evaluator-Flash</code>）</strong>，依然能稳定跑出 63.2 分（大幅领先 UME-R1 的 60.1）。</p>
+</blockquote>
+<h3 id="3-2-架构协议范式：双提取点（-d-emb-r-emb-）与防依赖注入">3.2 架构协议范式：双提取点（<code>&lt;d_emb&gt;</code> / <code>&lt;r_emb&gt;</code>）与防依赖注入</h3>
+<p>为了在一个模型里无缝切换“不思考直出”和“先思考再出”，作者在 Prompt 协议层面做了极其干净的契约设计（附录 Table 11）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;input_image&gt;&lt;input_video&gt;&lt;input_text&gt;&lt;d_emb&gt; Represent the above input text, images, videos, </span><br><span class="line">or any combination of the three as embeddings. You may output the thinking process in </span><br><span class="line">&lt;reason&gt; &lt;/reason&gt; tags and then summarize the entire input in a word or sentence. Finally, </span><br><span class="line">use the &lt;r_emb&gt; tag to represent the entire input. If explicit reasoning is not necessary </span><br><span class="line">(e.g., the task is simple or the input is concise), you may directly produce the embeddings </span><br><span class="line">without generating intermediate thinking.</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>&lt;d_emb&gt;</code>（快通道锚点）</strong>：直接挂在原始输入之后。在 Prefill 阶段结束后即可直接抽取该位置的隐状态作为直接向量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>d</mi></msub></mrow><annotation encoding="application/x-tex">z_d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.044em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>；</li>
+<li><strong><code>&lt;r_emb&gt;</code>（慢通道锚点）</strong>：如果模型判断需要推理，则自回归生成 <code>&lt;reason&gt;...&lt;/reason&gt;</code> 和一句话总结，最后输出 <code>&lt;r_emb&gt;</code>，抽取其隐状态作为推理向量 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mi>r</mi></msub></mrow><annotation encoding="application/x-tex">z_r</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.044em;">z</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.044em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>。</li>
+</ul>
+<p><strong>防退化 Trick（附录 B.3）</strong>：在 Stage 2 联合微调（120 万条数据）时，为了防止模型养成“不写小作文就不会算向量”的坏习惯，作者针对低增益样本或极短文本（少于 5 个词），以 10% 的概率刻意将思考文本替换为 <code>&lt;empty&gt;</code>，倒逼模型保住直出向量的底线能力。</p>
+<h3 id="3-3-决策控制范式：用-GRPO-强化学习做“代价感知动态路由”">3.3 决策控制范式：用 GRPO 强化学习做“代价感知动态路由”</h3>
+<p>到了 Stage 3（约 1 万条样本），模型已经具备了“快/慢”两种能力，剩下的问题是如何让它<strong>自己学会看菜下碟</strong>。作者采用无 Critic 模型的 <strong>GRPO（Group Relative Policy Optimization）</strong> 强化学习，把延迟约束直接写进奖励函数（Reward）：</p>
+<ol>
+<li><strong>连续效用度量（Reasoning Utility）</strong>：先用 Stage 2 训好的模型分别算出每条样本在慢路径和快路径下的正样本相似度 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>s</mi><mi>i</mi><mi>r</mi></msubsup></mrow><annotation encoding="application/x-tex">s_i^r</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9231em;vertical-align:-0.2587em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6644em;"><span style="top:-2.4413em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2587em;"><span></span></span></span></span></span></span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>s</mi><mi>i</mi><mi>d</mi></msubsup></mrow><annotation encoding="application/x-tex">s_i^d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.1078em;vertical-align:-0.2587em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8491em;"><span style="top:-2.4413em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2587em;"><span></span></span></span></span></span></span></span></span></span>，得出连续的<strong>效用差值</strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>δ</mi><mi>i</mi></msub><mo>=</mo><msubsup><mi>s</mi><mi>i</mi><mi>r</mi></msubsup><mo>−</mo><msubsup><mi>s</mi><mi>i</mi><mi>d</mi></msubsup></mrow><annotation encoding="application/x-tex">\delta_i = s_i^r - s_i^d
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0379em;">δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0379em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.9614em;vertical-align:-0.247em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7144em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0278em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.1461em;vertical-align:-0.247em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8991em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">d</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>δ</mi><mi>i</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta_i &gt; 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0379em;">δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0379em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> 说明思考确实帮检索提了分；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>δ</mi><mi>i</mi></msub><mo>≤</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta_i \le 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0379em;">δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0379em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span> 说明思考纯属浪费甚至帮了倒忙。</li>
+<li><strong>带成本惩罚的自适应奖励 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mrow><mi>a</mi><mi>d</mi><mi>a</mi></mrow></msub></mrow><annotation encoding="application/x-tex">R_{ada}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">a</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></strong>：<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>R</mi><mrow><mi>a</mi><mi>d</mi><mi>a</mi></mrow></msub><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mi>α</mi><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>选择 DIRECT (发射 &lt;EMPTY&gt;) 且步数 </mtext><mi>n</mi><mo>≤</mo><mn>500</mn></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><msub><mi>δ</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><mo stretchy="false">(</mo><msub><mi>L</mi><mi>i</mi></msub><mo stretchy="false">)</mo><mo separator="true">,</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>选择 REASON (生成思考)</mtext></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">R_{ada} = \begin{cases} \alpha, &amp; \text{选择 DIRECT (发射 &lt;EMPTY&gt;) 且步数 } n \le 500 \\ \delta_i - \mu(L_i), &amp; \text{选择 REASON (生成思考)} \end{cases}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">a</span><span class="mord mathnormal mtight">d</span><span class="mord mathnormal mtight">a</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:3em;vertical-align:-1.25em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mpunct">,</span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.0379em;">δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0379em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord mathnormal">μ</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mpunct">,</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord cjk_fallback">选择</span><span class="mord"> DIRECT (</span><span class="mord cjk_fallback">发射</span><span class="mord"> &lt;EMPTY&gt;) </span><span class="mord cjk_fallback">且步数</span><span class="mord"> </span></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord">500</span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord cjk_fallback">选择</span><span class="mord"> REASON (</span><span class="mord cjk_fallback">生成思考</span><span class="mord">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<ul>
+<li><strong>冷启动探索保护（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>0.2</mn></mrow><annotation encoding="application/x-tex">\alpha = 0.2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0.2</span></span></span></span>）</strong>：刚进入 RL 时，模型继承了 SFT 阶段爱写思考的惯性，前 500 步必须给 <code>DIRECT</code> 动作发“探索补贴”，避免策略塌缩成全量慢思考；</li>
+<li><strong>长度预算惩罚 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo stretchy="false">(</mo><msub><mi>L</mi><mi>i</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\mu(L_i)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">μ</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></strong>：思考生成的 Token 越多，扣除的成本惩罚越高；当思考长度超过 <strong>512 个 Token</strong> 时，还会额外追加惩罚系数 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>=</mo><msup><mn>10</mn><mrow><mo>−</mo><mn>3</mn></mrow></msup></mrow><annotation encoding="application/x-tex">c = 10^{-3}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal">c</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span></span></span> 严控长尾延迟。</li>
+</ul>
+</li>
+<li><strong>对称奖励约束</strong>：配合格式校验奖励 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mrow><mi>f</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">R_{format}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.1076em;">f</span><span class="mord mathnormal mtight" style="margin-right:0.0278em;">or</span><span class="mord mathnormal mtight">ma</span><span class="mord mathnormal mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span> 和批内正负例排序奖励 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mrow><mi>e</mi><mi>m</mi><mi>b</mi></mrow></msub></mrow><annotation encoding="application/x-tex">R_{emb}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">e</span><span class="mord mathnormal mtight">mb</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，并同时在 <code>Query -&gt; Target</code> 和 <code>Target -&gt; Query</code> 两个方向计算均值，确保模型作为双边编码器的一致性。</li>
+</ol>
+<hr>
+<h2 id="04-业务映射：在“视频数据湖”与“在线视频搜索”中，快慢思考何时触发？">04. 业务映射：在“视频数据湖”与“在线视频搜索”中，快慢思考何时触发？</h2>
+<p>结合多模态搜索与视频数据湖的真实工程实践，很多架构师最关心的问题是：<strong>快思考与慢思考，究竟是在视频数据预处理入库时发生，还是在用户实时搜索时发生？</strong></p>
+<p><strong>精确答案是：两个阶段在机制上都会触发，但两者的工程定位与优化策略截然不同。</strong></p>
+<pre><code class="highlight mermaid">flowchart LR
+    subgraph LakeIngest[&quot;【阶段 A：视频数据湖预处理 / 离线建库阶段】&quot;]
+        Lake[(&quot;视频数据湖&lt;br/&gt;(海量存量/增量视频切片)&quot;)] --&gt;|&quot;分布式任务并发调用&lt;br/&gt;(每次喂入单个视频)&quot;| EncOffline[&quot;MMEmb-R1 离线编码集群&quot;]
+        EncOffline --&gt;|&quot;• 论文基准: 自适应快/慢思考&lt;br/&gt;• 工程最佳实践: 对延迟不敏感，&lt;br/&gt;  可放宽阈值甚至强制走慢思考&quot;| VecDB[(&quot;向量数据库&lt;br/&gt;Milvus / Faiss / ES&quot;)]
+    end
+
+    subgraph OnlineSearch[&quot;【阶段 B：在线视频搜索阶段（高并发实时链路）】&quot;]
+        User[&quot;用户搜索请求&lt;br/&gt;(文本 / 以图搜视频 / 视频搜视频)&quot;] --&gt;|&quot;单条实时请求&quot;| EncOnline[&quot;MMEmb-R1 在线服务&lt;br/&gt;(自适应路由核心主战场)&quot;]
+        EncOnline --&gt;|&quot;简单直白查询 -&gt; DIRECT&lt;br/&gt;几十毫秒极速直出&quot;| QFast[&quot;Query 向量&quot;]
+        EncOnline --&gt;|&quot;隐含逻辑/时序推演 -&gt; REASON&lt;br/&gt;生成 &lt;reason&gt; 后出向量&quot;| QSlow[&quot;Query 向量&quot;]
+        QFast &amp; QSlow --&gt;|&quot;ANN 相似度召回&quot;| VecDB
+        VecDB --&gt; Res[&quot;返回 Top-K 匹配视频&quot;]
+    end</code></pre>
+<ol>
+<li><strong>在论文设定中（对称机制）</strong>：无论是把视频库里的候选视频（Target）变成向量，还是把用户的搜索请求（Query）变成向量，调用的都是同一个 MMEmb-R1 模型。论文里的视频问答/时刻检索（如“视频里人炒完菜下一步要干嘛”），模型会对复杂动作视频动态触发慢思考，推演出“下一步应该加调料”；而遇到静止清晰的单个物体画面，则直接发射 <code>&lt;EMPTY&gt;</code> 走快路径。</li>
+<li><strong>在真实生产落地中（非对称优化，论文 Limitations 专门指出）</strong>：
+<ul>
+<li><strong>视频数据湖预处理（Corpus Side）—— 离线吞吐优先，可用算力换精度</strong>：存量/新增视频进数据湖建索引属于离线批处理，不卡前端用户的毫秒级等待。正如论文第 9 页（Limitations）提到的，检索场景中<strong>底库侧的向量是可以离线预计算（Precomputed）的</strong>。在真实工程里，团队甚至可以在入库链路里适度放宽长度惩罚或强制高质量切片走慢思考，把视频里隐含的因果与时序逻辑提前“榨取”进向量库中。</li>
+<li><strong>在线视频搜索（Query Side）—— 自适应路由的核心战场</strong>：用户在线发起搜索时，每一毫秒延迟都直接影响体验与服务器并发容量。此时 MMEmb-R1 的 <strong>Adaptive Control</strong> 发挥了决定性作用：80% 的常规直观搜索直接走 <code>&lt;d_emb&gt;</code> 快车道扛住高 QPS；只有 20% 涉及多跳推断、意图隐晦的长尾 Query 才实时走 <code>&lt;reason&gt;</code> 慢车道，既守住了 SLA，又保住了复杂查询的召回率。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="05-实验战果与性能账本">05. 实验战果与性能账本</h2>
+<p>论文在包含 78 个跨模态任务的 <code>MMEB-V2</code> 基准上进行了全面压测，以下三组数据最具工程参考价值：</p>
+<h3 id="5-1-吞吐量与精度双赢实测（8×-H20-90GB，Batch-Size-24，Qwen2-VL-2B）">5.1 吞吐量与精度双赢实测（8× H20 90GB，Batch Size=24，Qwen2-VL-2B）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">推理策略 / 对比模型</th>
+<th style="text-align:center">吞吐量 (Throughput)</th>
+<th style="text-align:center">MMEB-V2 综合得分</th>
+<th style="text-align:left">工程视角解读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>MMEmb-R1 (Direct 纯快路径)</strong></td>
+<td style="text-align:center"><strong>22.70 queries/s</strong></td>
+<td style="text-align:center">59.2</td>
+<td style="text-align:left">吞吐天花板，但复杂推理场景精度坍塌</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>UME-R1 (前人基线，强制思考)</strong></td>
+<td style="text-align:center">3.21 queries/s</td>
+<td style="text-align:center">60.1</td>
+<td style="text-align:left">既慢且效果平庸（单教师冗余 + 格式作弊）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>MMEmb-R1 (Reason 强制思考)</strong></td>
+<td style="text-align:center">5.79 queries/s</td>
+<td style="text-align:center">63.6</td>
+<td style="text-align:left">吞吐已是 UME-R1 的 1.8 倍，证明筛选后思考更精炼</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>MMEmb-R1 (Adaptive 自适应)</strong></td>
+<td style="text-align:center"><strong>10.02 queries/s</strong></td>
+<td style="text-align:center"><strong>65.0</strong></td>
+<td style="text-align:left"><strong>吞吐较 UME-R1 暴涨 3.1 倍，且准确率反超全量思考 +1.4 分</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-2-主流榜单对比与视频模态优势（MMEB-V2）">5.2 主流榜单对比与视频模态优势（MMEB-V2）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型名称</th>
+<th style="text-align:center">骨干底座</th>
+<th style="text-align:center">Image 综合</th>
+<th style="text-align:center"><strong>Video 综合</strong></th>
+<th style="text-align:center">VisDoc 综合</th>
+<th style="text-align:center"><strong>全局总分 (All)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>VLM2Vec-V2</code> (纯判别式)</td>
+<td style="text-align:center" rowspan="2">Qwen2-VL-2B</td>
+<td style="text-align:center">64.9</td>
+<td style="text-align:center">34.9</td>
+<td style="text-align:center">65.4</td>
+<td style="text-align:center">58.0</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>UME-R1</code> (强制 CoT)</td>
+<td style="text-align:center">66.6</td>
+<td style="text-align:center">42.2</td>
+<td style="text-align:center">63.9</td>
+<td style="text-align:center">60.1</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Embed-RL</code> (并发工作)</td>
+<td style="text-align:center" rowspan="2">Qwen3-VL-2B</td>
+<td style="text-align:center">69.2</td>
+<td style="text-align:center">52.1</td>
+<td style="text-align:center"><strong>74.1</strong></td>
+<td style="text-align:center">66.8</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MMEmb-R1</code> (Ours-2B)</strong></td>
+<td style="text-align:center"><strong>71.5</strong></td>
+<td style="text-align:center"><strong>55.6</strong></td>
+<td style="text-align:center">73.2</td>
+<td style="text-align:center"><strong>68.3</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>RzenEmbed-v1</code> (7B 基线)</td>
+<td style="text-align:center">Qwen2-VL-7B</td>
+<td style="text-align:center">73.6</td>
+<td style="text-align:center">48.9</td>
+<td style="text-align:center"><strong>76.8</strong></td>
+<td style="text-align:center">68.9</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Embed-RL</code> (4B 基线)</td>
+<td style="text-align:center" rowspan="2">Qwen3-VL-4B</td>
+<td style="text-align:center">70.1</td>
+<td style="text-align:center">53.0</td>
+<td style="text-align:center">74.7</td>
+<td style="text-align:center">68.1</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>MMEmb-R1</code> (Ours-4B)</strong></td>
+<td style="text-align:center"><strong>74.8</strong></td>
+<td style="text-align:center"><strong>56.6</strong></td>
+<td style="text-align:center">76.7</td>
+<td style="text-align:center"><strong>71.2</strong></td>
+</tr>
+</tbody>
+</table>
+<p>可以清晰看到，在最考验时序逻辑与动态推理的 <strong>Video</strong> 维度上，<code>MMEmb-R1 (4B)</code> 拿下了 <strong>56.6</strong> 分，比同等参数量的 <code>Embed-RL-4B</code> 高出 <strong>+3.6</strong> 分，更是大幅甩开 7B 级非推理基线 <code>RzenEmbed-v1</code>（48.9）达 <strong>+7.7</strong> 分。</p>
+<h3 id="5-3-消融实验与帕累托前沿验证（基于-Qwen2-VL-2B，满分-65-0）">5.3 消融实验与帕累托前沿验证（基于 Qwen2-VL-2B，满分 65.0）</h3>
+<ul>
+<li><strong>去掉多 Worker，退化为单教师思考</strong>：得分暴跌 <strong>-3.8 分</strong>（降至 61.2）<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 证明异构模型采样是打破单一教师盲区的关键；</li>
+<li><strong>去掉对感知筛选（均匀采样）</strong>：得分下跌 <strong>-2.2 分</strong>（降至 62.8）<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 证明不是所有思考都有用，必须按 Pair 匹配度筛选；</li>
+<li><strong>去掉反事实基线校准（不减 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">c_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>）</strong>：得分下跌 <strong>-0.9 分</strong>（降至 64.1）<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 证明“净增益（Uplift）”比“绝对打分”更抗噪音；</li>
+<li><strong>随机 50% 触发思考 vs 自适应策略</strong>：随机跳过得分仅 60.6，而自适应策略拿到 65.0（逼近理论上帝视角 Oracle 上限 66.2），且当调节成本系数观察调用比例曲线时，<strong>准确率在 74.3% 思考比例处触顶（62.7%），强行推向 100% 反而跌落 0.8%</strong>，实证了过度思考的真实破坏力。</li>
+</ul>
+<hr>
+<h2 id="06-工程落地局限与架构师实战建议">06. 工程落地局限与架构师实战建议</h2>
+<p>尽管 MMEmb-R1 给出了极其漂亮的解题范式，但如果你打算在团队内部复现或将其思想引入生产系统，以下三点现实约束需要提前做好架构预案：</p>
+<ol>
+<li><strong>快慢混合部署的尾延迟隔离（P99 Jitter）</strong>：虽然自适应路由把平均吞吐拉到了 10.02 QPS，但落到单次请求上，<code>DIRECT</code> 请求只需一次 Prefill（几十毫秒），而 <code>REASON</code> 请求需要解码上百个 Token（数百毫秒甚至秒级）。在生产环境直接混跑在同一个推理队列中，极易引发<strong>慢请求阻塞快请求（Head-of-Line Blocking）</strong>，或者导致动态组批（Continuous Batching）效率下降。工程上建议将复杂长思考调度剥离为独立队列或设定严格的最大解码步数熔断阈值（如论文中的 512 Token 软上限）。</li>
+<li><strong>离线数据洗库的算力门坎与平替</strong>：论文原版用 3 个大模型生成候选再用 32B 裁判模型跑两遍，120 万条数据的离线成本不低。实际小团队落地时，强烈建议采纳论文附录 A.6 验证过的 <strong><code>Evaluator-Flash</code>（2B 小裁判模型蒸馏）</strong> 路线，先用小样本让大模型打分，再训一个 2B 裁判清洗全量数据湖日志，能将离线预处理算力压低一个数量级。</li>
+<li><strong>跨工程领域的通用思考范式迁移</strong>：这篇论文最值得非算法出身的研发人员带走的，是它的三个底层工程直觉：
+<ul>
+<li><strong>用 Uplift（净增量）做数据治理</strong>：评估任何中间产物（缓存、特征、RAG 召回文档、CoT 文本）的价值，不要看它本身长得好不好看，要测 <code>Metric(with_X) - Metric(without_X)</code>；</li>
+<li><strong>拒绝一刀切的“重型管线”</strong>：将 SLA 延迟预算（Token 长度）直接编码进调度器或 RL 的目标函数，让系统在准确率与延迟之间自动寻找帕累托前沿；</li>
+<li><strong>警惕静默无效代码（Shortcut）</strong>：多模块串联时，必须建立可观测性校验（如观察权重利用度、做去掉中间输入的对比消融），防止系统表面看似在运转复杂推理，实则底层完全在绕路空转。</li>
+</ul>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2/" rel="tag"># 向量检索</a>
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%A7%86%E8%A7%92/" rel="tag"># 软件工程视角</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag"># 强化学习</a>
+              <a href="/tags/MMEmb-R1/" rel="tag"># MMEmb-R1</a>
+              <a href="/tags/%E8%87%AA%E9%80%82%E5%BA%94%E6%8E%A8%E7%90%86/" rel="tag"># 自适应推理</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/26/VideoTrail/" rel="next" title="【论文分享】告别“盲拖进度条”与聊天框幻觉：VideoTrail 如何用多层语义树重构长视频信息检索范式？">
+                  【论文分享】告别“盲拖进度条”与聊天框幻觉：VideoTrail 如何用多层语义树重构长视频信息检索范式？ <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">553k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">33:31</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>

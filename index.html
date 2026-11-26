@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">374</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">118</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">376</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">119</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">118</span>
+          <span class="site-state-item-count">119</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">374</span>
+        <span class="site-state-item-count">376</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,117 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/26/MMEmb-R1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/26/MMEmb-R1/" class="post-title-link" itemprop="url">【论文分享】吞吐暴涨3.1倍、拒绝“过度思考”：字节与港中文 EMNLP 2026 新作 MMEmb-R1 如何用因果筛选与自适应路由重构多模态向量引擎</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-26 16:45:00 / 修改时间：16:50:18" itemprop="dateCreated datePublished" datetime="2026-11-26T16:45:00+08:00">2026-11-26</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>19 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在构建多模态搜索、以图搜视频以及企业级多模态 RAG（检索增强生成）系统时，向量表征模型（Embedding Model）是整个检索链路的底层基石。</p>
+<p>近年来，为了突破传统双塔模型（如 CLIP）和静态大模型（如 VLM2Vec）在复杂逻辑、视频时序推断上的能力上限，学术界开始流行将 <strong>“慢思考 / 思维链（Chain-of-Thought, CoT）”</strong> 引入多模态向量生成——让模型在吐出向量之前，先像做阅读理解一样生成一段 <code>&lt;reason&gt;...&lt;/reason&gt;</code> 分析文本，再提取最终向量。</p>
+<p>然而，在真实工程落地中，这种“一刀切”塞入思维链的做法却暴露出极其严重的系统性内耗：</p>
+<ul>
+<li><strong>隐蔽的“空转作弊”（Shortcut Behavior）</strong>：上游大模型辛辛苦苦自回归吐出几百个推理 Token，但下游提取 Embedding 时注意力权重几乎全落在原始输入上，思维链沦为毫无实质作用的“格式样板代码”；</li>
+<li><strong>“过度思考”拖垮 SLA（Overthinking &amp; Latency Explosion）</strong>：哪怕是一个极其简单的检索请求（比如画面里一只显眼的企鹅，或者单字 <code>&quot;cat&quot;</code>），模型也要先展开几百字的头脑风暴——<strong>不仅把系统吞吐量从 22+ QPS 拽垮到 3 QPS，还会因为“想太多、乱发散”引入语义噪声，导致检索准确率不升反降</strong>。</li>
+</ul>
+<p>针对这一痛点，字节跳动、香港中文大学（MMLab）与复旦大学在 <strong>EMNLP 2026</strong> 联合推出了 <strong>MMEmb-R1</strong> 框架：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《MMEmb-R1: Reasoning-Enhanced Multimodal Embedding with Pair-Aware Selection and Adaptive Control》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://aclanthology.org/2026.emnlp-main.2419.pdf">https://aclanthology.org/2026.emnlp-main.2419.pdf</a><br>
+<strong>作者团队</strong>：Yuchi Wang, Dingkang Yang, Haiyang Yu, Weikang Bian, Jiefeng Long, Xiao Liang, Chao Feng, Hongsheng Li（香港中文大学 MMLab、字节跳动、复旦大学）<br>
+<strong>核心战果</strong>：</p>
+<ul>
+<li><strong>小参数反超大模型</strong>：在覆盖图像、视频、视觉文档共 <strong>78 个任务</strong> 的权威基准 <code>MMEB-V2</code> 上，仅 <strong>4B</strong> 参数量（<code>Qwen3-VL-4B</code>）即拿下 <strong>71.2</strong> 的 SOTA 总分，超越 7B 级强基线 <code>RzenEmbed-v1-7B</code>（68.9）与 <code>UME-R1-7B</code>（64.5）；<strong>2B</strong> 模型（68.3）亦全面领先同级竞品，且在**视频（Video）**模态上提升尤为显著；</li>
+<li><strong>吞吐量飙升 3.1 倍且精度更高</strong>：借助自适应快慢思考控制，实测端到端吞吐达到 <strong>10.02 queries/s</strong>（对比强制慢思考基线 <code>UME-R1</code> 的 3.21 queries/s <strong>提速 3.1 倍</strong>），且总分反超强制思考模式 <strong>+1.4 分</strong>；</li>
+<li><strong>实证发现帕累托最优拐点</strong>：实验测得思考调用率在 <strong>74.3%</strong> 时达到准确率峰值，强行推向 100% 后精度反而出现 <strong>-0.8%</strong> 的倒退。</li>
+</ul>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端架构 / 搜索系统 / 工程落地）</strong> 的视角，跳过繁琐的理论推导，重点拆解它的**“离线训练流水线”与“在线生产调用流”边界、反事实 A/B 数据清洗范式、快慢双通道强化学习路由**，以及它在<strong>视频数据湖入库</strong>与<strong>在线视频搜索</strong>中的真实落地姿势。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/26/MMEmb-R1/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +337,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-26 15:50:00 / 修改时间：16:12:48" itemprop="dateCreated datePublished" datetime="2026-11-26T15:50:00+08:00">2026-11-26</time>
+      <time title="创建时间：2026-11-26 15:50:00 / 修改时间：16:50:18" itemprop="dateCreated datePublished" datetime="2026-11-26T15:50:00+08:00">2026-11-26</time>
     </span>
 
   
@@ -254,7 +365,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>在日常开发与学习中，视频早已成为获取技术教程、源码解析、产品评测和学术讲座的重要载体。然而，相比于文本可以通过 <code>Ctrl+F</code> 秒级定位，长视频在信息检索上却是一个极其不友好的**“线性黑盒”**。</p>
+          <p>在日常开发与学习中，视频早已成为获取技术教程、源码解析、产品评测和学术讲座的重要载体。然而，相比于文本可以通过 <code>Ctrl+F</code> 秒级定位，长视频在信息检索上却是一个极其不友好的 <strong>“线性黑盒”</strong>。</p>
 <p>当软件工程师试图从一个 1 小时的技术分享或 3 小时的实战录像中定位某一个具体知识点时，现有的视频平台（如 YouTube、B 站）通常只提供三种原始手段：</p>
 <ol>
 <li><strong>拖拽进度条（Scrubbing）</strong>：纯靠视觉缩略图盲猜，遇到 PPT 讲座或口播视频，前后几十分钟画面几乎一模一样，完全失效；</li>
@@ -266,7 +377,7 @@
 <p><strong>论文题目</strong>：《VideoTrail: Interactive Video Foraging Through Hierarchical Visualization》<br>
 <strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.25377">arXiv:2611.25377</a>（HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.25377v1">https://arxiv.org/html/2611.25377v1</a>）<br>
 <strong>作者团队</strong>：Catherine Yeh, Bryan Wang, Fernanda Viégas, Martin Wattenberg<br>
-<strong>核心成果</strong>：将非结构化长视频通过多模态大模型（MLLM）递归拆解为最多 4 层的<strong>交互式语义导航树</strong>，并结合**信息寻觅理论（IFT）**实现视觉/文本线索的自适应呈现。在对照用户实验（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>16</mn></mrow><annotation encoding="application/x-tex">N=16</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">16</span></span></span></span>）中，检索准确率显著提升（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>&lt;</mo><mn>.001</mn></mrow><annotation encoding="application/x-tex">p&lt;.001</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7335em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">.001</span></span></span></span>），任务完成耗时显著缩短（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>&lt;</mo><mn>.05</mn></mrow><annotation encoding="application/x-tex">p&lt;.05</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7335em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">.05</span></span></span></span>），全面超越原生时间轴与 YouTube 官方 AI 问答。</p>
+<strong>核心成果</strong>：将非结构化长视频通过多模态大模型（MLLM）递归拆解为最多 4 层的 <strong>交互式语义导航树</strong>，并结合 <strong>信息寻觅理论（IFT）</strong> 实现视觉/文本线索的自适应呈现。在对照用户实验（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>16</mn></mrow><annotation encoding="application/x-tex">N=16</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">16</span></span></span></span>）中，检索准确率显著提升（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>&lt;</mo><mn>.001</mn></mrow><annotation encoding="application/x-tex">p&lt;.001</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7335em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">.001</span></span></span></span>），任务完成耗时显著缩短（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>&lt;</mo><mn>.05</mn></mrow><annotation encoding="application/x-tex">p&lt;.05</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7335em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">.05</span></span></span></span>），全面超越原生时间轴与 YouTube 官方 AI 问答。</p>
 </blockquote>
 <p>本文立足于 <strong>软件开发工程师（全栈 / 系统架构 / AI 应用研发）</strong> 的视角，先完整还原论文的工程脉络与实验结论，再深度提炼其背后的<strong>流水线架构设计、范式转移（从 Chatbot 到脚手架）与工程权衡直觉</strong>。</p>
           <!--noindex-->
@@ -338,7 +449,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-26 16:12:48" itemprop="dateModified" datetime="2026-11-26T16:12:48+08:00">2026-11-26</time>
+      <time title="修改时间：2026-11-26 16:50:18" itemprop="dateModified" datetime="2026-11-26T16:50:18+08:00">2026-11-26</time>
     </span>
 
   
@@ -447,7 +558,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-26 16:12:48" itemprop="dateModified" datetime="2026-11-26T16:12:48+08:00">2026-11-26</time>
+      <time title="修改时间：2026-11-26 16:50:18" itemprop="dateModified" datetime="2026-11-26T16:50:18+08:00">2026-11-26</time>
     </span>
 
   
@@ -568,7 +679,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-26 16:12:48" itemprop="dateModified" datetime="2026-11-26T16:12:48+08:00">2026-11-26</time>
+      <time title="修改时间：2026-11-26 16:50:18" itemprop="dateModified" datetime="2026-11-26T16:50:18+08:00">2026-11-26</time>
     </span>
 
   
@@ -638,120 +749,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/24/EvoMem/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/24/EvoMem/" class="post-title-link" itemprop="url">【论文分享】打破长视频上下文焦虑：分层时序记忆、状态自适应检索与防回归热补丁——软件工程视角深度剖析 EvoMem</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-24 16:15:00" itemprop="dateCreated datePublished" datetime="2026-11-24T16:15:00+08:00">2026-11-24</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-26 16:12:48" itemprop="dateModified" datetime="2026-11-26T16:12:48+08:00">2026-11-26</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>16 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在当今多模态大模型（LVLM）与长视频理解的工程落地中，<strong>“如何处理数小时级别的超长视频”</strong> 已经成为多模态数据湖、视频 RAG、智能监控与具身智能领域最棘手的痛点。</p>
-<p>随着各类视觉大模型不断宣称支持 1M 甚至 10M 上下文，很多团队陷入了一种 <strong>“上下文暴力美学”的幻觉</strong>：以为只要上下文窗口足够大，把成百上千帧图像直接丢给大模型就能搞定一切。</p>
-<p>然而，一旦进入工业级生产环境，软件开发工程师很快就会撞上下述三面残酷的高墙：</p>
-<ol>
-<li><strong>计算与显存成本指数爆炸</strong>：对一段 2 小时的长视频哪怕仅以 1 FPS 进行采样，也会产生 7,200 帧画面，视觉 Token 瞬间冲破百万大关。无论是算力账单还是端到端推理延迟，都完全无法支撑线上商业化交付；</li>
-<li><strong>“大海捞针”与注意力涣散（Attention Dilution）</strong>：长视频中真正与问题相关的关键线索往往极其稀疏（可能仅有几秒钟），其余 99% 都是冗余背景。大模型的注意力机制在海量上下文的冲刷下，极易出现时序错位与幻觉；</li>
-<li><strong>传统 Video-RAG 的时序失灵</strong>：现有的视频检索增强方案大多依赖全局语义相似度。然而在现实视频中，相似的行为（如“喝水”、“打电话”、“放钥匙”）会在不同时间段反复发生。缺乏时间状态约束的检索，极易拉取到错误时间段的碎片信息；而自由发散的多轮 Agent 则频频陷入死循环检索或过早停机（Premature Stopping）。</li>
-</ol>
-<p>针对这一系列痛点，来自 <strong>浙江大学、上海人工智能实验室等机构</strong> 的研究团队于 2026 年底提出了一套极具工程参考价值的解决方案——<strong>EvoMem</strong>：</p>
-<blockquote>
-<p><strong>论文题目</strong>：《EvoMem: Self-Evolving Skills for Time-Aware Long Video Memory Agents》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.25889">arXiv:2611.25889</a><br>
-<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.25889">https://arxiv.org/html/2611.25889</a><br>
-<strong>发布时间</strong>：2026 年 11 月<br>
-<strong>核心战果</strong>：在 EgoLifeQA、Ego-R1 Bench、LVBench、Video-MME (Long) 四大长视频与具身权威评测集上全面刷新 SOTA，平均准确率达到 <strong>60.1%</strong>，较以往最强基线提升 <strong>8.6 个百分点</strong>！</p>
-</blockquote>
-<p>本文立足于 <strong>软件开发工程师、系统架构师与后端研发</strong> 的视角，不沉溺于纯算法公式，深入拆解其 <strong>分层存储设计、状态机查询规划、不对称防回归自进化门禁</strong>，并剥开其学术包装，客观审视其工业落地成本与实战启发。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/24/EvoMem/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -776,14 +773,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">548k</span>
+    <span title="站点总字数">553k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">33:11</span>
+    <span title="站点阅读时长">33:31</span>
   </span>
 </div>
 <div class="busuanzi-count">
