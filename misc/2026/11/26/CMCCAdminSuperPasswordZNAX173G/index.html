@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="家里宽带是中国移动送的千兆光猫（兆能 ZN-AX173G），运营商默认只给我们用背铭牌上的 user 普通账号登录后台，能看到的设置少得可怜：改不了桥接、看不到宽带账号密码、也管不了端口映射。想对光猫做真正的自主管理，就需要拿到超级管理员 CMCCAdmin 的密码。 最近看到 CSDN 博主 coolfax 的文章《2025年中国移动 兆能ZN-AX173G 光猫超级管理员密码破解方法（新）》，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="中国移动光猫超级管理员（CMCCAdmin）密码获取方法 —— ZN-AX173G 实测有效">
+<meta property="og:url" content="https://lewlh.github.io/misc/2026/11/26/CMCCAdminSuperPasswordZNAX173G/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="家里宽带是中国移动送的千兆光猫（兆能 ZN-AX173G），运营商默认只给我们用背铭牌上的 user 普通账号登录后台，能看到的设置少得可怜：改不了桥接、看不到宽带账号密码、也管不了端口映射。想对光猫做真正的自主管理，就需要拿到超级管理员 CMCCAdmin 的密码。 最近看到 CSDN 博主 coolfax 的文章《2025年中国移动 兆能ZN-AX173G 光猫超级管理员密码破解方法（新）》，">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-26T12:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-26T15:15:22.748Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="CMCCAdmin">
+<meta property="article:tag" content="TR-069">
+<meta property="article:tag" content="ZN-AX173G">
+<meta property="article:tag" content="中国移动">
+<meta property="article:tag" content="光猫">
+<meta property="article:tag" content="家庭网络">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/misc/2026/11/26/CMCCAdminSuperPasswordZNAX173G/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/misc/2026/11/26/CMCCAdminSuperPasswordZNAX173G/","path":"misc/2026/11/26/CMCCAdminSuperPasswordZNAX173G/","title":"中国移动光猫超级管理员（CMCCAdmin）密码获取方法 —— ZN-AX173G 实测有效"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>中国移动光猫超级管理员（CMCCAdmin）密码获取方法 —— ZN-AX173G 实测有效 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">391</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">121</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E8%80%81%E6%96%B9%E6%B3%95%E5%A4%B1%E6%95%88%E4%BA%86"><span class="nav-text">背景：为什么老方法失效了</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4"><span class="nav-text">操作步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E7%94%A8%E6%99%AE%E9%80%9A%E8%B4%A6%E5%8F%B7%E7%99%BB%E5%BD%95%E5%85%89%E7%8C%AB"><span class="nav-text">第一步：用普通账号登录光猫</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E4%B8%8B%E8%BD%BD%E5%85%89%E7%8C%AB%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-text">第二步：下载光猫配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E4%BB%8E%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E6%8F%90%E5%8F%96%E8%B6%85%E5%AF%86"><span class="nav-text">第三步：从配置文件中提取超密</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E4%BA%8E%E5%88%A0%E9%99%A4-TR-069%EF%BC%9A%E5%8E%9F%E4%BD%9C%E8%80%85%E7%9A%84%E5%BB%BA%E8%AE%AE%E5%AE%9E%E6%B5%8B%E8%A1%8C%E4%B8%8D%E9%80%9A"><span class="nav-text">关于删除 TR-069：原作者的建议实测行不通</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E4%B8%8E%E9%A3%8E%E9%99%A9%E6%8F%90%E7%A4%BA"><span class="nav-text">注意事项与风险提示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-text">参考资料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">121</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">391</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/misc/2026/11/26/CMCCAdminSuperPasswordZNAX173G/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="中国移动光猫超级管理员（CMCCAdmin）密码获取方法 —— ZN-AX173G 实测有效 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          中国移动光猫超级管理员（CMCCAdmin）密码获取方法 —— ZN-AX173G 实测有效
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-26 20:00:00 / 修改时间：23:15:22" itemprop="dateCreated datePublished" datetime="2026-11-26T20:00:00+08:00">2026-11-26</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>4 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>家里宽带是中国移动送的千兆光猫（兆能 ZN-AX173G），运营商默认只给我们用背铭牌上的 <code>user</code> 普通账号登录后台，能看到的设置少得可怜：改不了桥接、看不到宽带账号密码、也管不了端口映射。想对光猫做真正的自主管理，就需要拿到超级管理员 <code>CMCCAdmin</code> 的密码。</p>
+<p>最近看到 CSDN 博主 coolfax 的文章<a target="_blank" href="https://blog.csdn.net/coolfax/article/details/152826297" rel="external nofollow noreferrer noopener">《2025年中国移动 兆能ZN-AX173G 光猫超级管理员密码破解方法（新）》</a>，介绍了一种通过下载光猫配置文件直接读取超密的新方法。<strong>今天亲测有效</strong>，成功用 <code>CMCCAdmin</code> 登录光猫后台拿到了最高权限。好方法值得分享，特整理成本文。</p>
+<span id="more"></span>
+<hr>
+<h2 id="背景：为什么老方法失效了">背景：为什么老方法失效了</h2>
+<p>该博主在 2024 年曾写过一篇<a target="_blank" href="https://blog.csdn.net/coolfax/article/details/136924260" rel="external nofollow noreferrer noopener">《中国移动 吉比特 ZN-AX173G 光猫超级管理员密码破解方法》</a>，走的是开启 Telnet 进工厂模式的路线，但那个方法后来被运营商通过固件升级修复了。</p>
+<p>网上流传更广的通用超密 <code>CMCCAdmin / aDm8H%MdA</code> 在新固件上也基本失效——因为运营商会通过 TR-069 协议远程下发指令，动态重置每台光猫的超级密码。</p>
+<p>而这次的新方法简单粗暴：<strong>直接下载光猫的配置文件，从里面把当前的超密读出来</strong>，不需要开 Telnet，也不需要拆机。</p>
+<h2 id="操作步骤">操作步骤</h2>
+<h3 id="第一步：用普通账号登录光猫">第一步：用普通账号登录光猫</h3>
+<p>浏览器打开 <code>http://192.168.1.1</code> 进入管理登录页面，使用光猫背面铭牌上提供的 <code>user</code> 账号和密码登录。</p>
+<h3 id="第二步：下载光猫配置文件">第二步：下载光猫配置文件</h3>
+<p>登录之后，直接在浏览器地址栏输入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.1.1/romfile.cfg</span><br></pre></td></tr></table></figure>
+<p>回车后会弹出文件下载提示，把 <code>romfile.cfg</code> 这个文件保存下来。</p>
+<h3 id="第三步：从配置文件中提取超密">第三步：从配置文件中提取超密</h3>
+<p>用文本编辑器（记事本即可）打开保存回来的 <code>romfile.cfg</code>，里面是几百行配置代码。不用慌，按 <code>Ctrl+F</code> 查找关键字：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CMCCAdmin</span><br></pre></td></tr></table></figure>
+<p>找到后看旁边的 <code>web_passwd=</code> 字段，它的值就是你要的超级管理员密码。</p>
+<p>然后退出普通账号登录，改用超级管理员账号登录：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>用户名</td>
+<td><code>CMCCAdmin</code></td>
+</tr>
+<tr>
+<td>密码</td>
+<td><code>romfile.cfg</code> 中 <code>web_passwd=</code> 后面的值</td>
+</tr>
+</tbody>
+</table>
+<p>登录成功后就可以使用最高权限管理光猫了：改桥接、查宽带账号密码、配端口、管 WiFi 都不在话下。</p>
+<h2 id="关于删除-TR-069：原作者的建议实测行不通">关于删除 TR-069：原作者的建议实测行不通</h2>
+<p>拿到超密并不意味着一劳永逸。<strong>运营商可以通过 TR-069 远程下发新指令，修改这个超级密码、还原你的网络配置</strong>，让这个密码随时失效（原作者就踩过这个坑）。</p>
+<p>所以原作者建议登录后第一时间斩断运营商的&quot;远程黑手&quot;：在「宽带设置」的【连接名称】里选中带 <strong>TR-069</strong> 字样的那条连接（形如 <code>1_TR-069_xxxxxx</code>），点击页面底部的【删除】按钮后保存并重启光猫。</p>
+<p><strong>不过笔者实测发现，这条路在 ZN-AX173G 当前的固件上是行不通的——TR-069 这条连接实际上删不掉</strong>，应该是被固件保护起来了，运营商的远程管理通道依然在线。</p>
+<p>好在这个缺陷并非无法应对：本文的超密获取方法<strong>可以随时重复执行</strong>。就算哪天运营商远程重置了密码导致登录失败，只要重新下载一次 <code>romfile.cfg</code>，就能拿到新的超密。换句话说，删除 TR-069 只是&quot;一次根治&quot;，而重复读取配置文件则是&quot;终身有效的解法&quot;，掌握了方法，主动权始终在自己手里。</p>
+<h2 id="注意事项与风险提示">注意事项与风险提示</h2>
+<ul>
+<li><strong>先备份</strong>：下载的 <code>romfile.cfg</code> 本身就是光猫的全量配置备份，建议妥善保存一份，刷机或改错配置时可用于恢复；</li>
+<li><strong>改配置需谨慎</strong>：超密登录后动的是运营商侧的核心配置，删连接、改 VLAN、改桥接前最好截图记录原值，改错可能导致断网，最终还得找装维师傅上门；</li>
+<li><strong>密码可能再次失效</strong>：TR-069 连接删不掉，运营商仍可能远程重置超密或还原配置。若发现超密失效，重复本文第二、三步重新获取即可；</li>
+<li><strong>适用性</strong>：该方法在 2026 年 11 月实测对移动 ZN-AX173G 有效，其他型号或其他运营商的光猫固件可能有差异，仅供参考。</li>
+</ul>
+<h2 id="参考资料">参考资料</h2>
+<ul>
+<li><a target="_blank" href="https://blog.csdn.net/coolfax/article/details/152826297" rel="external nofollow noreferrer noopener">2025年中国移动 兆能ZN-AX173G 光猫超级管理员密码破解方法（新）</a> — coolfax</li>
+<li><a target="_blank" href="https://blog.csdn.net/coolfax/article/details/136924260" rel="external nofollow noreferrer noopener">中国移动 吉比特 ZN-AX173G 光猫超级管理员密码破解方法</a> — coolfax（已失效的老方法）</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%85%89%E7%8C%AB/" rel="tag"># 光猫</a>
+              <a href="/tags/%E4%B8%AD%E5%9B%BD%E7%A7%BB%E5%8A%A8/" rel="tag"># 中国移动</a>
+              <a href="/tags/ZN-AX173G/" rel="tag"># ZN-AX173G</a>
+              <a href="/tags/CMCCAdmin/" rel="tag"># CMCCAdmin</a>
+              <a href="/tags/TR-069/" rel="tag"># TR-069</a>
+              <a href="/tags/%E5%AE%B6%E5%BA%AD%E7%BD%91%E7%BB%9C/" rel="tag"># 家庭网络</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/evaluations/2026/11/26/Inkling2MiniStrataBenchmark/" rel="next" title="【性能评测】Inkling-2-Mini 在 1080Ti&#x2F;2080Ti 上的 Strata 部署与推理性能横评">
+                  【性能评测】Inkling-2-Mini 在 1080Ti/2080Ti 上的 Strata 部署与推理性能横评 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">557k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">33:45</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
