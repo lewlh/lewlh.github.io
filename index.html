@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">368</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">116</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">371</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">117</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">116</span>
+          <span class="site-state-item-count">117</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">368</span>
+        <span class="site-state-item-count">371</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,112 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/26/VideoTrail/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/26/VideoTrail/" class="post-title-link" itemprop="url">【论文分享】告别“盲拖进度条”与聊天框幻觉：VideoTrail 如何用多层语义树重构长视频信息检索范式？</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-26 15:50:00 / 修改时间：15:56:06" itemprop="dateCreated datePublished" datetime="2026-11-26T15:50:00+08:00">2026-11-26</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在日常开发与学习中，视频早已成为获取技术教程、源码解析、产品评测和学术讲座的重要载体。然而，相比于文本可以通过 <code>Ctrl+F</code> 秒级定位，长视频在信息检索上却是一个极其不友好的**“线性黑盒”**。</p>
+<p>当软件工程师试图从一个 1 小时的技术分享或 3 小时的实战录像中定位某一个具体知识点时，现有的视频平台（如 YouTube、B 站）通常只提供三种原始手段：</p>
+<ol>
+<li><strong>拖拽进度条（Scrubbing）</strong>：纯靠视觉缩略图盲猜，遇到 PPT 讲座或口播视频，前后几十分钟画面几乎一模一样，完全失效；</li>
+<li><strong>固定章节（Chapters）与字幕搜索（Transcript）</strong>：单模态线索极其脆弱——章节粒度太粗（往往只有单层目录），字幕搜索缺乏画面上下文，搜到关键词后仍需来回试错跳转；</li>
+<li><strong>套壳 AI 聊天框（Ask AI Chatbot）</strong>：看似智能，实则隐藏了严重的交互成本——用户需要先组织语言写 Prompt，拿到一段不知真假的文字摘要和孤立时间戳后，还得手动点进去“听前因后果”以校验模型是否产生幻觉。</li>
+</ol>
+<p>针对“目标驱动型观影（Goal-directed Viewing）”的痛点，来自<strong>哈佛大学、Adobe Research 与 Google DeepMind</strong> 的联合研究团队（包括著名数据可视化专家 Fernanda Viégas 和 Martin Wattenberg）提出了 <strong>VideoTrail</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《VideoTrail: Interactive Video Foraging Through Hierarchical Visualization》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.25377">arXiv:2611.25377</a>（HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.25377v1">https://arxiv.org/html/2611.25377v1</a>）<br>
+<strong>作者团队</strong>：Catherine Yeh, Bryan Wang, Fernanda Viégas, Martin Wattenberg<br>
+<strong>核心成果</strong>：将非结构化长视频通过多模态大模型（MLLM）递归拆解为最多 4 层的<strong>交互式语义导航树</strong>，并结合**信息寻觅理论（IFT）**实现视觉/文本线索的自适应呈现。在对照用户实验（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>16</mn></mrow><annotation encoding="application/x-tex">N=16</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">16</span></span></span></span>）中，检索准确率显著提升（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>&lt;</mo><mn>.001</mn></mrow><annotation encoding="application/x-tex">p&lt;.001</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7335em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">.001</span></span></span></span>），任务完成耗时显著缩短（<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>&lt;</mo><mn>.05</mn></mrow><annotation encoding="application/x-tex">p&lt;.05</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7335em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">.05</span></span></span></span>），全面超越原生时间轴与 YouTube 官方 AI 问答。</p>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（全栈 / 系统架构 / AI 应用研发）</strong> 的视角，先完整还原论文的工程脉络与实验结论，再深度提炼其背后的<strong>流水线架构设计、范式转移（从 Chatbot 到脚手架）与工程权衡直觉</strong>。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/26/VideoTrail/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -224,9 +330,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-24 18:45:00 / 修改时间：19:03:16" itemprop="dateCreated datePublished" datetime="2026-11-24T18:45:00+08:00">2026-11-24</time>
+      <time title="创建时间：2026-11-24 18:45:00" itemprop="dateCreated datePublished" datetime="2026-11-24T18:45:00+08:00">2026-11-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-26 15:56:06" itemprop="dateModified" datetime="2026-11-26T15:56:06+08:00">2026-11-26</time>
     </span>
 
   
@@ -327,9 +439,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-24 17:35:00 / 修改时间：19:03:16" itemprop="dateCreated datePublished" datetime="2026-11-24T17:35:00+08:00">2026-11-24</time>
+      <time title="创建时间：2026-11-24 17:35:00" itemprop="dateCreated datePublished" datetime="2026-11-24T17:35:00+08:00">2026-11-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-26 15:56:06" itemprop="dateModified" datetime="2026-11-26T15:56:06+08:00">2026-11-26</time>
     </span>
 
   
@@ -442,9 +560,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-24 16:35:00 / 修改时间：19:03:16" itemprop="dateCreated datePublished" datetime="2026-11-24T16:35:00+08:00">2026-11-24</time>
+      <time title="创建时间：2026-11-24 16:35:00" itemprop="dateCreated datePublished" datetime="2026-11-24T16:35:00+08:00">2026-11-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-26 15:56:06" itemprop="dateModified" datetime="2026-11-26T15:56:06+08:00">2026-11-26</time>
     </span>
 
   
@@ -550,9 +674,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-24 16:15:00 / 修改时间：19:03:16" itemprop="dateCreated datePublished" datetime="2026-11-24T16:15:00+08:00">2026-11-24</time>
+      <time title="创建时间：2026-11-24 16:15:00" itemprop="dateCreated datePublished" datetime="2026-11-24T16:15:00+08:00">2026-11-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-26 15:56:06" itemprop="dateModified" datetime="2026-11-26T15:56:06+08:00">2026-11-26</time>
     </span>
 
   
@@ -622,118 +752,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/23/MEM-SQL/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/23/MEM-SQL/" class="post-title-link" itemprop="url">【论文分享】告别从零裸写：如何用分层缓存与懒加载将 Text-to-SQL 成本暴降 76%？深度拆解 MEM-SQL 与工程落地实战</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-23 17:45:00" itemprop="dateCreated datePublished" datetime="2026-11-23T17:45:00+08:00">2026-11-23</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-24 19:03:16" itemprop="dateModified" datetime="2026-11-24T19:03:16+08:00">2026-11-24</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>16 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在当今企业级智能数据问答、BI 报表和大模型数据库交互的工程落地中，<strong>Text-to-SQL（自然语言转 SQL）</strong> 几乎是所有数据团队都绕不开的核心能力。</p>
-<p>然而，一旦进入真实生产环境，软件开发工程师很快就会遭遇三大残酷的“工程泥潭”：</p>
-<ol>
-<li><strong>Schema 爆炸与 Prompt 臃肿</strong>：企业数据库动辄上百张表、上千个字段。传统方案为了让 LLM 理解数据库，不得不把几万 Token 的 DDL、字段类型和注释全部塞入 Prompt。这不仅导致<strong>单次请求 API 成本高昂、网络响应延迟长达数秒甚至十几秒</strong>，更引发了大模型“注意力漂移（Lost in the Middle）”，产生大量字段幻觉；</li>
-<li><strong>多表关联（JOIN）极易翻车</strong>：让大模型从零推导 5~8 张表之间的外键关联路径，极易漏写关联条件或产生笛卡尔积错误；</li>
-<li><strong>严重违反软件复用常识</strong>：现有学术基准（如 Spider、BIRD）假定“每一次查询都是彼此完全孤立的”。但在真实业务中，<strong>80% 的查询本质上都是对历史高频查询的微调</strong>（今天查“2023年华东区销售额”，明天查“2024年华北区退款率”——两者的多表 JOIN 和结构 90% 完全相同）。每次都让大模型无状态地从零编译，是巨大的算力浪费。</li>
-</ol>
-<p>针对这一系列落地痛点，来自 <strong>香港大学 NICE Lab、新加坡国立大学（NUS）与香港科技大学（广州）</strong> 的联合研究团队于 2026 年底提出了一套极具工程美感的解决方案——<strong>MEM-SQL</strong>：</p>
-<blockquote>
-<p><strong>论文题目</strong>：《MEM-SQL: Memory-Empowered Text-to-SQL》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.18338">arXiv:2611.18338</a><br>
-<strong>HTML 格式</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.18338v1">https://arxiv.org/html/2611.18338v1</a><br>
-<strong>核心贡献</strong>：打破“每次从零查全量表结构生成 SQL”的传统无状态假定，构建“模板骨架 + 复杂 JOIN 组件 + 领域概念映射”的三层历史记忆库；首创<strong>最差项覆盖率门禁（Coverage Gate）<strong>与</strong>按需模式链接（OSL，懒加载 Schema）</strong>，在平均执行准确率提升至 <strong>50.0%</strong> 的同时，<strong>输入 Token 暴降 76.6%，端到端延迟降低 68.8%</strong>，且 95.4% 的查询甚至完全无需读取数据库 DDL！</p>
-</blockquote>
-<p>本文立足于 <strong>软件开发工程师、系统架构师与后端研发</strong> 的视角，不罗列晦涩的纯理论公式，深入剖析其 <strong>架构设计模式、分层缓存机制、懒加载流程控制、失败边界（Failure Modes）</strong>，并结合工业界实际场景（如基于 MyScaleDB 的视频检索与二次精筛）探讨如何将这套范式无缝落地为可交付的生产级系统。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/23/MEM-SQL/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -758,14 +776,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">539k</span>
+    <span title="站点总字数">544k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">32:42</span>
+    <span title="站点阅读时长">32:58</span>
   </span>
 </div>
 <div class="busuanzi-count">
