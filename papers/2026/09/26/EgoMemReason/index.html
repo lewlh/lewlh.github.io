@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在 AI 智能眼镜、具身智能（Embodied Agents）与全天候生活记录（Life-logging）等应用场景中，后台系统面临着一个极其棘手的流式数据挑战：7×24 小时不间断采集的第一人称视频流。 当数据跨度从几分钟拉长到“一整周（Week-long）”时，用户的真实提问往往不再是“视频第 3 分钟桌上有什么？”，而是：  “我前天下午放在厨房操作台的那个碗，后来被谁挪到哪了？” “这周以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】当长视频跨越“一整周”：EgoMemReason 揭露了大模型与 Video-RAG 的哪些工程死穴？">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/09/26/EgoMemReason/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在 AI 智能眼镜、具身智能（Embodied Agents）与全天候生活记录（Life-logging）等应用场景中，后台系统面临着一个极其棘手的流式数据挑战：7×24 小时不间断采集的第一人称视频流。 当数据跨度从几分钟拉长到“一整周（Week-long）”时，用户的真实提问往往不再是“视频第 3 分钟桌上有什么？”，而是：  “我前天下午放在厨房操作台的那个碗，后来被谁挪到哪了？” “这周以">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-09-26T08:10:00.000Z">
+<meta property="article:modified_time" content="2026-11-26T08:12:48.136Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="Benchmark">
+<meta property="article:tag" content="EgoMemReason">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="视频理解">
+<meta property="article:tag" content="论文分享">
+<meta property="article:tag" content="软件工程视角">
+<meta property="article:tag" content="长程记忆">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/09/26/EgoMemReason/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/09/26/EgoMemReason/","path":"papers/2026/09/26/EgoMemReason/","title":"【论文分享】当长视频跨越“一整周”：EgoMemReason 揭露了大模型与 Video-RAG 的哪些工程死穴？"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】当长视频跨越“一整周”：EgoMemReason 揭露了大模型与 Video-RAG 的哪些工程死穴？ | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">374</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">118</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E9%97%AE%E9%A2%98%E5%AE%9A%E4%B9%89%E4%B8%8E%E8%8C%83%E5%BC%8F%E6%8B%86%E8%A7%A3%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BB%A5%E5%89%8D%E7%9A%84%E8%AF%84%E6%B5%8B%E5%8F%AA%E6%98%AF%E2%80%9C%E5%8D%95%E7%82%B9%E6%9F%A5%E8%AF%A2%E2%80%9D%EF%BC%9F"><span class="nav-text">01. 问题定义与范式拆解：为什么以前的评测只是“单点查询”？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E6%95%B0%E6%8D%AE%E5%B7%A5%E7%A8%8B%E6%B5%81%E6%B0%B4%E7%BA%BF%EF%BC%9A%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E8%AF%84%E6%B5%8B%E9%9B%86%E2%80%9C%E8%87%AA%E6%AC%BA%E6%AC%BA%E4%BA%BA%E2%80%9D%EF%BC%9F"><span class="nav-text">02. 数据工程流水线：如何避免评测集“自欺欺人”？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-17-%E5%A4%A7%E7%B3%BB%E7%BB%9F%E5%8E%8B%E6%B5%8B%E4%B8%8E-4-%E4%B8%AA%E2%80%9C%E5%8F%8D%E7%9B%B4%E8%A7%89%E2%80%9D%E6%8E%92%E9%9B%B7%E5%8F%91%E7%8E%B0"><span class="nav-text">03. 17 大系统压测与 4 个“反直觉”排雷发现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%92%E9%9B%B7-1%EF%BC%9A%E2%80%9C%E8%A7%86%E9%A2%91%E8%BD%AC%E6%96%87%E6%9C%AC%E6%91%98%E8%A6%81-RAG%E2%80%9D-%E9%81%AD%E9%81%87%E6%9C%89%E6%8D%9F%E5%8E%8B%E7%BC%A9%E6%AD%BB%E5%B1%80"><span class="nav-text">排雷 1：“视频转文本摘要 + RAG” 遭遇有损压缩死局</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%92%E9%9B%B7-2%EF%BC%9A%E6%9A%B4%E5%8A%9B%E5%A2%9E%E5%8A%A0%E9%87%87%E6%A0%B7%E5%B8%A7%E6%95%B0%EF%BC%88Input-Scaling%EF%BC%89%EF%BC%8C%E4%BF%A1%E5%99%AA%E6%AF%94%E8%BF%85%E9%80%9F%E5%B4%A9%E5%A1%8C"><span class="nav-text">排雷 2：暴力增加采样帧数（Input Scaling），信噪比迅速崩塌</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%92%E9%9B%B7-3%EF%BC%9A%E9%95%BF%E7%A8%8B%E8%AE%B0%E5%BF%86%E5%9C%BA%E6%99%AF%E4%B8%8B%EF%BC%8CCoT%EF%BC%88%E6%80%9D%E7%BB%B4%E9%93%BE%EF%BC%89%E5%8F%8D%E8%80%8C%E6%98%AF%E2%80%9C%E6%AF%92%E8%8D%AF%E2%80%9D"><span class="nav-text">排雷 3：长程记忆场景下，CoT（思维链）反而是“毒药”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%92%E9%9B%B7-4%EF%BC%9AOracle%EF%BC%88%E4%B8%8A%E5%B8%9D%E8%A7%86%E8%A7%92%EF%BC%89%E5%AE%9E%E9%AA%8C%E6%B8%85%E6%99%B0%E5%AE%9A%E7%95%8C%E4%BA%86%E7%B3%BB%E7%BB%9F%E7%93%B6%E9%A2%88"><span class="nav-text">排雷 4：Oracle（上帝视角）实验清晰定界了系统瓶颈</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E5%AE%A2%E8%A7%82%E5%AE%A1%E8%A7%86%E4%B8%8E%E5%AF%B9%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9A%84%E5%AE%9E%E6%88%98%E5%90%AF%E5%8F%91"><span class="nav-text">04. 客观审视与对系统架构师的实战启发</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">118</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">374</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/09/26/EgoMemReason/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】当长视频跨越“一整周”：EgoMemReason 揭露了大模型与 Video-RAG 的哪些工程死穴？ | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】当长视频跨越“一整周”：EgoMemReason 揭露了大模型与 Video-RAG 的哪些工程死穴？
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-09-26 16:10:00" itemprop="dateCreated datePublished" datetime="2026-09-26T16:10:00+08:00">2026-09-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-26 16:12:48" itemprop="dateModified" datetime="2026-11-26T16:12:48+08:00">2026-11-26</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>12 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在 AI 智能眼镜、具身智能（Embodied Agents）与全天候生活记录（Life-logging）等应用场景中，后台系统面临着一个极其棘手的流式数据挑战：<strong>7×24 小时不间断采集的第一人称视频流</strong>。</p>
+<p>当数据跨度从几分钟拉长到“一整周（Week-long）”时，用户的真实提问往往不再是“<em>视频第 3 分钟桌上有什么？</em>”，而是：</p>
+<ul>
+<li><em>“我前天下午放在厨房操作台的那个碗，后来被谁挪到哪了？”</em></li>
+<li><em>“这周以来，我一共喝过几罐不同牌子的饮料？”</em></li>
+<li><em>“我平时吃完午饭后，通常下一步会去哪里？”</em></li>
+</ul>
+<p>面对这类跨天、稀疏分布的“记忆驱动型推理（Memory-Driven Reasoning）”，业界很多团队习惯性地把希望寄托在 <strong>“加大模型上下文窗口（多塞帧）”</strong> 或 <strong>“视频转文字摘要 + 向量检索（Video-RAG）”</strong> 上。然而，由 <strong>北卡罗来纳大学教堂山分校（UNC Chapel Hill）Mohit Bansal 团队等</strong> 推出的长视频记忆评测基准 <strong>EgoMemReason</strong>，给整个行业泼了一盆冷水：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《EgoMemReason: A Memory-Driven Reasoning Benchmark for Long-Horizon Egocentric Video Understanding》<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2605.09874" rel="external nofollow noreferrer noopener">arXiv:2605.09874</a>（HTML 版本：<a target="_blank" href="https://arxiv.org/html/2605.09874v2" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2605.09874v2</a>）<br>
+<strong>作者团队</strong>：Ziyang Wang, Yue Zhang, Shoubin Yu, Ce Zhang, Zengqi Zhao, Jaehong Yoon, Hyunji Lee, Gedas Bertasius, Mohit Bansal<br>
+<strong>核心战果（残酷现实）</strong>：构建了包含 <strong>500 道</strong> 跨天多跳推理题的评测集，每题平均需回溯 <strong>25.9 小时</strong> 视频历史、聚合 <strong>5.1 个</strong> 离散证据片段。团队对 <strong>17 个</strong> 代表性系统（含通用多模态大模型、视频专用模型与 Agentic RAG 框架）进行压测，<strong>最高综合准确率仅 39.6%</strong>（Gemini-3-Flash），随机盲猜基线为 16.8%。</p>
+</blockquote>
+<p>作为软件开发工程师，如果把这篇 Benchmark 论文当成一份 <strong>“超长时空流式系统的集成测试报告与排雷指南”</strong>，它最大的价值不在于提出了什么新算法，而在于用严谨的对照实验<strong>证伪了多条看似合理的工程路线</strong>。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-问题定义与范式拆解：为什么以前的评测只是“单点查询”？">01. 问题定义与范式拆解：为什么以前的评测只是“单点查询”？</h2>
+<p>在软件工程视角下，过去的视频理解基准测试（甚至包括部分号称周级的测试集），本质上测的都是 <strong>Point Query（单点局部查询）</strong>——答案往往集中在某个 10 分钟以内的局部时间窗里，大模型只要把对应片段“检索出来看一眼”就能答对。</p>
+<p>而 <strong>EgoMemReason</strong> 强制要求系统具备 <strong>Multi-hop Aggregation（多跳跨天聚合）</strong> 能力：</p>
+<ol>
+<li><strong>严格的时间因果边界</strong>：每道题都有一个指定的查询时间戳 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>q</mi></msub></mrow><annotation encoding="application/x-tex">t_q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9012em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span>，系统<strong>只能访问 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>q</mi></msub></mrow><annotation encoding="application/x-tex">t_q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9012em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span></span></span></span> 之前的历史视频流</strong>，严禁“剧透”未来帧；</li>
+<li><strong>强制跨度约束</strong>：支撑答案的多个证据片段之间，时间间隔至少超过 <strong>2 小时</strong>，平均需要回溯 <strong>25.9 小时</strong>、串联 <strong>5.1 个</strong> 碎片；</li>
+<li><strong>三种记忆访问范式的工程映射</strong>：论文没有把记忆笼统地视为一个黑盒向量库，而是将其解耦为三种截然不同的数据结构与访问模式：</li>
+</ol>
+<pre><code class="highlight mermaid">flowchart TD
+    Stream[&quot;7天连续第一人称视频流 (V &lt;= t_q)&quot;] --&gt; MemSys&#123;&quot;三大正交记忆子系统&quot;&#125;
+    
+    MemSys --&gt; Entity[&quot;1. 实体记忆 (Entity Memory)&lt;br/&gt;对应工程: 状态机与全局账本&quot;]
+    MemSys --&gt; Event[&quot;2. 事件记忆 (Event Memory)&lt;br/&gt;对应工程: 分布式链路追踪与 DAG&quot;]
+    MemSys --&gt; Behavior[&quot;3. 行为记忆 (Behavior Memory)&lt;br/&gt;对应工程: 用户画像与模式挖掘&quot;]
+    
+    Entity --&gt; E1[&quot;累积状态追踪&lt;br/&gt;(同一物体跨天位置/状态演变)&quot;]
+    Entity --&gt; E2[&quot;时序条件计数&lt;br/&gt;(截止 t_q 的跨天去重盘点)&quot;]
+    
+    Event --&gt; Ev1[&quot;跨天事件排序&lt;br/&gt;(多个离散活动的拓扑时序)&quot;]
+    Event --&gt; Ev2[&quot;多约束事件关联&lt;br/&gt;(按时间/地点/动作过滤匹配)&quot;]
+    
+    Behavior --&gt; B1[&quot;空间偏好推断&lt;br/&gt;(高频常驻地点与习惯归纳)&quot;]
+    Behavior --&gt; B2[&quot;行为模式预测&lt;br/&gt;(基于常规路径预测下一步)&quot;]</code></pre>
+<p>用后端工程师熟悉的语言来翻译这六项核心挑战：</p>
+<ul>
+<li><strong>实体记忆（State Machine &amp; Ledger）</strong>：考验系统能否维护对象的生命周期状态（如碗从“操作台 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 水槽 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 餐桌”的状态迁移），并在不同光照、视角下对同一实体做<strong>跨时间去重计数</strong>；</li>
+<li><strong>事件记忆（Distributed Tracing &amp; Topological Sort）</strong>：考验系统在海量噪音日志中，对相隔数天发生的离散事件维持<strong>全局时钟一致性与因果顺序</strong>；</li>
+<li><strong>行为记忆（Log Mining &amp; Profiling）</strong>：考验系统能否从极其稀疏、分散在整整一周的重复观测中，<strong>归纳出统计规律</strong>（而不是被某一次异常操作带偏）。</li>
+</ul>
+<hr>
+<h2 id="02-数据工程流水线：如何避免评测集“自欺欺人”？">02. 数据工程流水线：如何避免评测集“自欺欺人”？</h2>
+<p>虽然论文没有提出新的推理系统，但它在附录中展示的 <strong>4 阶段评测集构建 ETL Pipeline</strong>，对于在业务中需要自建“AI 黄金测试集（Golden Dataset）”的研发团队具有极高的工程参考价值：</p>
+<pre><code class="highlight mermaid">flowchart LR
+    Raw[&quot;原始 EgoLife 7天录像&quot;] --&gt; S1[&quot;Stage 1: 金字塔预聚合&lt;br/&gt;(30s 密集状态标注 -&gt; 10m -&gt; 2h -&gt; 1d)&quot;]
+    S1 --&gt; S2[&quot;Stage 2: 异构模型出题&lt;br/&gt;(GPT-5.2 生成多跳问题 + 同源高迷惑干扰项)&quot;]
+    S2 --&gt; S3[&quot;Stage 3: 自动化防作弊过滤&lt;br/&gt;(无视频盲测剔除文本泄漏 + 证据间隔&gt;=2h)&quot;]
+    S3 --&gt; S4[&quot;Stage 4: 人工专家 QA 闭环&lt;br/&gt;(6位标注员每题审核20分钟 -&gt; 仅15%留存)&quot;]</code></pre>
+<p>这套流水线中有三个非常值得借鉴的<strong>数据工程防呆设计</strong>：</p>
+<ol>
+<li><strong>避免同源自我强化（Cross-Version Generation）</strong>：Stage 1 用 <code>GPT-5</code> 按严格的状态模板（出现/消失、开/关、位置移动、人机交互）提取 30 秒切片描述并逐级 Rollup 汇总；Stage 2 刻意换用 <code>GPT-5.2</code> 来出题，减少同一模型表达习惯带来的偏差。</li>
+<li><strong>对抗性干扰项（Hard Negatives）</strong>：错误选项不是随机抽的，而是从<strong>同一位用户的真实历史录像</strong>中提取的“同地点、同物品、但时间或状态不符”的干扰信息，彻底堵死大模型靠常识猜题的捷径。</li>
+<li><strong>防泄漏盲测 + 高压人工审计</strong>：在 Stage 3 中，先<strong>不给视频、只把题目和选项发给三个大模型盲猜</strong>，只要多数能猜对的题一律丢弃（防止题目文本暗示答案）。即便经过机器过滤，进入 Stage 4 人工审核后，<strong>最终只有 15% 的初始候选题目留存下来，且留存题目中有 70.4% 的机器生成答案经过了人工大幅修订</strong>。</li>
+</ol>
+<hr>
+<h2 id="03-17-大系统压测与-4-个“反直觉”排雷发现">03. 17 大系统压测与 4 个“反直觉”排雷发现</h2>
+<p>作者评测了 8 个通用多模态大模型、5 个视频专用模型和 4 个 Agentic RAG 框架，核心数据如下（准确率 %）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模型类别</th>
+<th style="text-align:left">代表系统</th>
+<th style="text-align:center">实体-追踪</th>
+<th style="text-align:center">实体-计数</th>
+<th style="text-align:center">事件-排序</th>
+<th style="text-align:center">事件-关联</th>
+<th style="text-align:center">行为-空间</th>
+<th style="text-align:center">行为-活动</th>
+<th style="text-align:center"><strong>综合准确率</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>基线</strong></td>
+<td style="text-align:left">随机盲猜 (Random)</td>
+<td style="text-align:center">19.6</td>
+<td style="text-align:center">16.7</td>
+<td style="text-align:center">11.1</td>
+<td style="text-align:center">17.3</td>
+<td style="text-align:center">19.3</td>
+<td style="text-align:center">19.2</td>
+<td style="text-align:center"><strong>16.8</strong></td>
+</tr>
+<tr>
+<td style="text-align:left" rowspan="4"><strong>通用 MLLM</strong></td>
+<td style="text-align:left"><strong>Gemini-3-Flash</strong></td>
+<td style="text-align:center"><strong>46.0</strong></td>
+<td style="text-align:center">28.0</td>
+<td style="text-align:center">36.0</td>
+<td style="text-align:center"><strong>44.0</strong></td>
+<td style="text-align:center" colspan="2">44.0</td>
+</tr>
+<tr>
+<td style="text-align:left">Gemini-3.1-Pro</td>
+<td style="text-align:center">40.0</td>
+<td style="text-align:center">26.0</td>
+<td style="text-align:center"><strong>44.0</strong></td>
+<td style="text-align:center">33.0</td>
+<td style="text-align:center">40.0</td>
+<td style="text-align:center"><strong>48.0</strong></td>
+<td style="text-align:center"><strong>37.4</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">Qwen-3-VL-32B</td>
+<td style="text-align:center">35.0</td>
+<td style="text-align:center">46.0</td>
+<td style="text-align:center">28.0</td>
+<td style="text-align:center">27.0</td>
+<td style="text-align:center"><strong>50.0</strong></td>
+<td style="text-align:center">46.0</td>
+<td style="text-align:center"><strong>36.8</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">GPT-5</td>
+<td style="text-align:center">29.0</td>
+<td style="text-align:center">42.0</td>
+<td style="text-align:center">20.0</td>
+<td style="text-align:center">18.0</td>
+<td style="text-align:center">32.0</td>
+<td style="text-align:center">28.0</td>
+<td style="text-align:center"><strong>27.8</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>视频专用</strong></td>
+<td style="text-align:left">Molmo2-8B</td>
+<td style="text-align:center">36.0</td>
+<td style="text-align:center"><strong>50.0</strong></td>
+<td style="text-align:center">27.0</td>
+<td style="text-align:center">25.0</td>
+<td style="text-align:center">34.0</td>
+<td style="text-align:center">22.0</td>
+<td style="text-align:center"><strong>33.2</strong></td>
+</tr>
+<tr>
+<td style="text-align:left" rowspan="4"><strong>Agent 框架</strong></td>
+<td style="text-align:left">AVP</td>
+<td style="text-align:center">34.0</td>
+<td style="text-align:center">42.0</td>
+<td style="text-align:center">31.0</td>
+<td style="text-align:center">27.0</td>
+<td style="text-align:center">38.0</td>
+<td style="text-align:center">34.0</td>
+<td style="text-align:center"><strong>34.0</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">WorldMM</td>
+<td style="text-align:center">32.0</td>
+<td style="text-align:center">44.0</td>
+<td style="text-align:center" colspan="2">21.0</td>
+<td style="text-align:center">34.0</td>
+</tr>
+<tr>
+<td style="text-align:left">Ego-R1</td>
+<td style="text-align:center">30.0</td>
+<td style="text-align:center">18.0</td>
+<td style="text-align:center">23.0</td>
+<td style="text-align:center">18.0</td>
+<td style="text-align:center">48.0</td>
+<td style="text-align:center">32.0</td>
+<td style="text-align:center"><strong>25.8</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">SiLVR</td>
+<td style="text-align:center">31.0</td>
+<td style="text-align:center">14.0</td>
+<td style="text-align:center">27.0</td>
+<td style="text-align:center">17.0</td>
+<td style="text-align:center">18.0</td>
+<td style="text-align:center">28.0</td>
+<td style="text-align:center"><strong>22.4</strong></td>
+</tr>
+</tbody>
+</table>
+<p>从这份压测成绩单以及后续消融实验中，可以提炼出 <strong>4 个直接颠覆日常工程直觉的排雷结论</strong>：</p>
+<h3 id="排雷-1：“视频转文本摘要-RAG”-遭遇有损压缩死局">排雷 1：“视频转文本摘要 + RAG” 遭遇有损压缩死局</h3>
+<p>很多工程师构建长视频应用的标准架构是：<em>切分 30 秒片段 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> VLM 生成文本描述（Caption）<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 存入向量库 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> Agent 按需检索</em>。但实验表明，这类 Agentic 框架（SiLVR 22.4%、WorldMM 30.6%）<strong>全面跑输直接抽帧输入原生大模型（39.6%）</strong>。</p>
+<ul>
+<li><strong>错误归因</strong>：作者人工剖析了 SiLVR 的 100 个失败样本，发现 <strong>35% 死于检索漏召回，30% 死于视觉感知错误，32% 死于逻辑推理错误</strong>。</li>
+<li><strong>工程本质</strong>：文本摘要是一种极高损的压缩。生成 Caption 时模型不可能把画面里所有物体的细微状态（比如“碗沿有没有油渍”、“盖子是半开还是拧紧”）全写进文字里；一旦后续问题需要回查这些细节，纯文本记忆库里根本没有对应索引，神仙难救。相反，经过像素级定位预训练（Pointing &amp; Tracking）的 <code>Molmo2-8B</code> 在实体计数上拿下了全场最高的 <strong>50.0%</strong>。</li>
+</ul>
+<h3 id="排雷-2：暴力增加采样帧数（Input-Scaling），信噪比迅速崩塌">排雷 2：暴力增加采样帧数（Input Scaling），信噪比迅速崩塌</h3>
+<p>有人会想：是不是采样的帧数太少漏掉了关键画面？实验测试了从 <code>32</code> 帧一路扩充到 <code>1024</code> 帧的效果：</p>
+<ul>
+<li><code>Gemini-3-Flash</code>：256 帧（39.0%）<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 512 帧（39.6%）<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> <strong>1024 帧（跌至 37.8%）</strong>；</li>
+<li><code>Qwen-3-VL-32B</code>：256 帧（35.6%）<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> 512 帧（36.8%）<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo></mrow><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.3669em;"></span><span class="mrel">→</span></span></span></span> <strong>1024 帧（跌至 36.2%）</strong>；</li>
+<li><code>Qwen-3-VL-8B</code>：在 256 帧达到峰值（29.6%）后，512 和 1024 帧均出现回落。</li>
+</ul>
+<p><strong>工程直觉</strong>：在没有精准索引过滤的前提下，往上下文窗口硬塞几百上千帧低密度信息，只会导致注意力机制被海量冗余背景稀释（Attention Dilution），信噪比下降。</p>
+<h3 id="排雷-3：长程记忆场景下，CoT（思维链）反而是“毒药”">排雷 3：长程记忆场景下，CoT（思维链）反而是“毒药”</h3>
+<p>在常规代码生成、数学推理中屡试不爽的 <code>Chain-of-Thought</code>（让模型一步步思考），在 EgoMemReason 上遭到了毁灭性打击——<strong>开启 CoT 后，模型综合准确率直接暴跌约三分之一（1/3）！</strong></p>
+<ul>
+<li><strong>原因分析</strong>：在跨越数天的嘈杂多模态信息中，模型第一步很容易出现细微的视觉幻觉或时间戳错位（Visual Perception Error 占所有错误的 28%）。在自回归推理链条中，第一步的微小偏差会被当作“既定事实”不断向后传递、放大，导致<strong>错误级联（Cascading Failure）</strong>。直接回答（Direct QA）反而保留了更高的容错率。</li>
+</ul>
+<h3 id="排雷-4：Oracle（上帝视角）实验清晰定界了系统瓶颈">排雷 4：Oracle（上帝视角）实验清晰定界了系统瓶颈</h3>
+<p>为了搞清楚模型到底是“找不到片段”，还是“找到了也推不出来”，作者给 <code>Gemini-3-Flash</code> 开了一个<strong>上帝视角测试</strong>：跳过全视频搜索，直接把答案所需的平均 5.1 个黄金视频片段切出来喂给它。</p>
+<ul>
+<li>结果：<strong>准确率从 39.6% 一举跃升至 67.2%</strong>。</li>
+<li><strong>架构定界</strong>：这 27.6 个百分点的巨大落差证明，当前系统的第一大瓶颈是 <strong>超长流中的“检索与定位（Search &amp; Retrieval）”</strong>；而即便检索完美，剩下的 <strong>32.8% 错误率</strong> 则说明模型在 <strong>跨时空多片段逻辑拼装（Reasoning）</strong> 上依然存在硬伤。此外，当检索时间跨度从 <code>&lt;8小时</code> 拉长到 <code>32小时+</code> 时，事件记忆（Event Memory）准确率直接腰斩以上（在 Qwen-3-VL-8B 上从 8–16h 的 31.1% 跌至 32h+ 的 13.5%）。</li>
+</ul>
+<hr>
+<h2 id="04-客观审视与对系统架构师的实战启发">04. 客观审视与对系统架构师的实战启发</h2>
+<p>客观来说，作为一篇纯 Benchmark 论文，<strong>它本身并没有提供任何开箱即用的代码架构、记忆压缩算法，也没有讨论生产环境极其关心的推理延迟（Latency）与 Token 成本账单</strong>。如果你正在寻找“如何写一个高性能视频记忆引擎”的具体方案，这篇论文给不了你现成的轮子。</p>
+<p>但它非常清晰地划出了 <strong>下一代长程记忆 AI 系统（无论是智能眼镜后台、安防监控分析，还是超长日志排障 Agent）必须遵循的架构底线</strong>：</p>
+<ol>
+<li><strong>放弃“纯文本 RAG”和“超大 Context 硬吞”两条懒惰路线</strong>：纯文本摘要丢视觉细节，纯堆帧数降信噪比。未来的多模态记忆引擎必须是 <strong>混合分层存储（Hybrid Storage Tiering）</strong>——用轻量级时空索引/摘要做粗筛，保留原始视觉切片或高保真特征的**按需懒加载（Lazy Loading）**通道，在需要核验物体状态时回源看图。</li>
+<li><strong>三类记忆需要异构的索引结构，不能“一库通吃”</strong>：
+<ul>
+<li>查 <strong>实体（Entity）</strong> 适合维护类似数仓“拉链表（SCD Type 2）”或图数据库的<strong>状态变更日志</strong>，记录实体的位置与属性快照；</li>
+<li>查 <strong>事件（Event）</strong> 必须强依赖<strong>绝对时间戳与局部因果链</strong>，不能只靠语义向量相似度乱撞；</li>
+<li>查 <strong>行为（Behavior）</strong> 适合定期通过离线批处理任务（Batch Job）<strong>预聚合用户画像特征</strong>，而不是每次查询都临时去翻过去 7 天的流水账。</li>
+</ul>
+</li>
+<li><strong>警惕长链路 Agent 的错误级联</strong>：在设计多步检索、多步推理的 Agent 工作流时，不要盲目迷信长 CoT 自主推演，必须在关键节点引入<strong>基于原始证据的校验门禁（Verification Gate）</strong>，否则一旦前序步骤产生幻觉，后续步骤只会南辕北辙。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E7%90%86%E8%A7%A3/" rel="tag"># 视频理解</a>
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%A7%86%E8%A7%92/" rel="tag"># 软件工程视角</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/EgoMemReason/" rel="tag"># EgoMemReason</a>
+              <a href="/tags/%E9%95%BF%E7%A8%8B%E8%AE%B0%E5%BF%86/" rel="tag"># 长程记忆</a>
+              <a href="/tags/Benchmark/" rel="tag"># Benchmark</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/papers/2026/10/16/GenerativeLateInteractionEmbeddings-GLIE-VisualDocumentRetrieval/" rel="prev" title="【论文分享】把1000个向量压成4个！解密KAUST前沿论文GLIE：如何用生成式晚期交互破除多模态RAG与视频检索的存储魔咒">
+                  <i class="fa fa-angle-left"></i> 【论文分享】把1000个向量压成4个！解密KAUST前沿论文GLIE：如何用生成式晚期交互破除多模态RAG与视频检索的存储魔咒
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/09/09/VideoChat3/" rel="next" title="【论文分享】告别暴力堆帧与时空冗余：南大等新作 VideoChat3 如何用 I3D-ViT 与自适应流式状态机重塑视频多模态大模型">
+                  【论文分享】告别暴力堆帧与时空冗余：南大等新作 VideoChat3 如何用 I3D-ViT 与自适应流式状态机重塑视频多模态大模型 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">548k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">33:11</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
