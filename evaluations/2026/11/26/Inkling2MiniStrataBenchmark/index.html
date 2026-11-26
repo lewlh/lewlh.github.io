@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="之前我在 4 张 GTX1080Ti 上用 Strata 部署了 Thinking Machines Lab 的 Inkling-2-Mini（SQ-20 量化包），结果单流 decode 只有可怜的 ~17 tok&#x2F;s。是量化包选大了？是多卡 PCIe 管线拖了后腿？还是 Pascal 老架构本身就不行了？这一轮我做了一组系统性对照实验：三种量化包 × 三种卡数 × 两代 GPU 架构 × 两个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【性能评测】Inkling-2-Mini 在 1080Ti&#x2F;2080Ti 上的 Strata 部署与推理性能横评">
+<meta property="og:url" content="https://lewlh.github.io/evaluations/2026/11/26/Inkling2MiniStrataBenchmark/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="之前我在 4 张 GTX1080Ti 上用 Strata 部署了 Thinking Machines Lab 的 Inkling-2-Mini（SQ-20 量化包），结果单流 decode 只有可怜的 ~17 tok&#x2F;s。是量化包选大了？是多卡 PCIe 管线拖了后腿？还是 Pascal 老架构本身就不行了？这一轮我做了一组系统性对照实验：三种量化包 × 三种卡数 × 两代 GPU 架构 × 两个">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-26T11:30:00.000Z">
+<meta property="article:modified_time" content="2026-11-26T11:43:42.995Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="1080Ti">
+<meta property="article:tag" content="2080Ti">
+<meta property="article:tag" content="Inkling-2-Mini">
+<meta property="article:tag" content="MoE">
+<meta property="article:tag" content="Strata">
+<meta property="article:tag" content="大模型部署">
+<meta property="article:tag" content="性能测试">
+<meta property="article:tag" content="性能评测">
+<meta property="article:tag" content="硬件实测">
+<meta property="article:tag" content="量化">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/evaluations/2026/11/26/Inkling2MiniStrataBenchmark/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/evaluations/2026/11/26/Inkling2MiniStrataBenchmark/","path":"evaluations/2026/11/26/Inkling2MiniStrataBenchmark/","title":"【性能评测】Inkling-2-Mini 在 1080Ti/2080Ti 上的 Strata 部署与推理性能横评"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【性能评测】Inkling-2-Mini 在 1080Ti/2080Ti 上的 Strata 部署与推理性能横评 | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">385</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">120</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%A2%AB%E6%B5%8B%E6%A8%A1%E5%9E%8B%E4%B8%8E%E6%B5%8B%E8%AF%95%E7%9B%AE%E6%A0%87"><span class="nav-text">1. 被测模型与测试目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83%E4%B8%8E%E6%96%B9%E6%A1%88"><span class="nav-text">2. 测试环境与方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%9C"><span class="nav-text">3. 核心结果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%80%BB%E8%A1%A8%EF%BC%88decode-prefill%EF%BC%8Ctok-s%EF%BC%89"><span class="nav-text">3.1 总表（decode &#x2F; prefill，tok&#x2F;s）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E9%80%9F%E5%BA%A6%E7%94%A8%E4%BE%8B%E6%98%8E%E7%BB%86%EF%BC%88gen-prompt-tok-s%EF%BC%89"><span class="nav-text">3.2 速度用例明细（gen &#x2F; prompt tok&#x2F;s）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E6%8A%95%E6%9C%BA%E8%A7%A3%E7%A0%81%EF%BC%88DSpark%EF%BC%8Cdrafting-auto-%E5%BC%95%E6%93%8E%E5%AE%9E%E6%B5%8B%E8%87%AA%E5%8A%A8%E5%86%B3%E5%AE%9A%EF%BC%89"><span class="nav-text">3.3 投机解码（DSpark，drafting&#x3D;auto 引擎实测自动决定）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%85%B3%E9%94%AE%E5%8F%91%E7%8E%B0"><span class="nav-text">4. 关键发现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%B7%B2%E7%9F%A5%E9%97%AE%E9%A2%98%E4%B8%8E%E9%83%A8%E7%BD%B2%E5%9D%91%E4%BD%8D"><span class="nav-text">5. 已知问题与部署坑位</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-math-1-%E7%94%A8%E4%BE%8B%E5%A4%B1%E8%B4%A5%E8%AF%B4%E6%98%8E"><span class="nav-text">5.1 math_1 用例失败说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E9%83%A8%E7%BD%B2%E5%9D%91%E4%BD%8D%E8%AE%B0%E5%BD%95"><span class="nav-text">5.2 部署坑位记录</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E6%96%B9%E6%A1%88%E9%80%89%E5%9E%8B%E5%BB%BA%E8%AE%AE"><span class="nav-text">6. 方案选型建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-Tesla-T4-%E6%80%A7%E8%83%BD%E9%A2%84%E4%BC%B0"><span class="nav-text">6.1 Tesla T4 性能预估</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%A4%8D%E7%8E%B0%E8%AF%B4%E6%98%8E"><span class="nav-text">7. 复现说明</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">120</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">385</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/evaluations/2026/11/26/Inkling2MiniStrataBenchmark/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【性能评测】Inkling-2-Mini 在 1080Ti&#x2F;2080Ti 上的 Strata 部署与推理性能横评 | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【性能评测】Inkling-2-Mini 在 1080Ti/2080Ti 上的 Strata 部署与推理性能横评
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-26 19:30:00 / 修改时间：19:43:42" itemprop="dateCreated datePublished" datetime="2026-11-26T19:30:00+08:00">2026-11-26</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>9 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>之前我在 4 张 GTX1080Ti 上用 Strata 部署了 Thinking Machines Lab 的 Inkling-2-Mini（SQ-20 量化包），结果单流 decode 只有可怜的 ~17 tok/s。是量化包选大了？是多卡 PCIe 管线拖了后腿？还是 Pascal 老架构本身就不行了？这一轮我做了一组系统性对照实验：三种量化包 × 三种卡数 × 两代 GPU 架构 × 两个 CUDA 引擎变体 × CPU 专家通道（hybrid），把这几个假设逐一验证了一遍。结论相当反直觉：<strong>单张 2080Ti 跑最小的 SQ-10 包是全场最快，4 卡 1080Ti 加卡完全白费</strong>。</p>
+<span id="more"></span>
+<hr>
+<h2 id="1-被测模型与测试目标">1. 被测模型与测试目标</h2>
+<p><strong>Inkling-2-Mini</strong>（Strata 量化包）：26.4B MoE（每 token 激活 3.4B），Looped Transformer（中间层循环 3 次），原生 1M 上下文，支持视觉输入。引擎为 Strata 0.2.21 镜像 / strata-inkling 0.1.67，Helm Chart <code>strata-0.1.3</code>。</p>
+<p>官方提供的三个量化包：</p>
+<table>
+<thead>
+<tr>
+<th>包</th>
+<th style="text-align:right">大小</th>
+<th style="text-align:right">逐 token 一致率</th>
+<th style="text-align:right">WikiText-2 PPL</th>
+<th>官方推荐显存</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQ-10</td>
+<td style="text-align:right">10.47 GB</td>
+<td style="text-align:right">92.35%</td>
+<td style="text-align:right">6.461</td>
+<td>12 GiB</td>
+</tr>
+<tr>
+<td>SQ-15</td>
+<td style="text-align:right">14.35 GB</td>
+<td style="text-align:right">96.68%</td>
+<td style="text-align:right">6.177</td>
+<td>16 GiB</td>
+</tr>
+<tr>
+<td>SQ-20</td>
+<td style="text-align:right">19.35 GB</td>
+<td style="text-align:right">100%（与原版一致）</td>
+<td style="text-align:right">6.141</td>
+<td>24 GiB</td>
+</tr>
+</tbody>
+</table>
+<p>本轮测试目标：</p>
+<ol>
+<li>SQ-20 在 4x 1080Ti 上 decode 仅 ~17 tok/s，验证更小量化包（SQ-15/SQ-10）能否提速；</li>
+<li>验证「多卡 PCIe 管线瓶颈」假设：4 卡 vs 2 卡 vs 1 卡；</li>
+<li>验证不同 GPU 架构（Pascal sm_61 vs Turing sm_75）的影响；</li>
+<li>验证 CUDA 12 / CUDA 13 引擎变体差异；</li>
+<li>验证 CPU 专家通道（hybrid）在不同节点的可用性。</li>
+</ol>
+<h2 id="2-测试环境与方案">2. 测试环境与方案</h2>
+<table>
+<thead>
+<tr>
+<th>节点</th>
+<th>GPU</th>
+<th>架构</th>
+<th>CPU</th>
+<th>镜像</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>worker1</td>
+<td>4x GTX1080Ti 11GB (44GB)</td>
+<td>Pascal sm_61</td>
+<td>Xeon E5-2683 v4（仅 AVX2）</td>
+<td>0.2.21-cuda12</td>
+<td rowspan="2">引擎 0.1.67 内置</td>
+</tr>
+<tr>
+<td>worker4</td>
+<td>3x RTX2080Ti 11GB（用 1~2 张）</td>
+<td>Turing sm_75</td>
+<td>Xeon Silver 4216（AVX-512）</td>
+<td>0.2.21-cuda12 / cuda13</td>
+</tr>
+</tbody>
+</table>
+<p>测试方法：5 阶段用例集，单流串行请求，temperature=0.0，速度数据取引擎返回的 <code>timings</code> 字段（非墙钟计时），每轮正式跑分前先预热 1 次；每套部署均先从引擎日志确认 MoE 专家的驻留形态——是全驻显存，还是部分溢出到主机内存（hybrid）——确认后再跑分。用例设计如下，读者完全可以照着复现：</p>
+<ol>
+<li><strong>速度用例</strong>（3 档，分别统计 prefill 与 decode 速度）：
+<ul>
+<li>短输入（几十 token，max_tokens=256）：用中文简介量子纠缠的概念、实验验证与应用，列出 3 个关键点——模拟日常轻量问答的速度基线；</li>
+<li>中等输入（数百 token，max_tokens=384）：给一段「10 万 QPS 秒杀系统改造」的业务需求，要求输出多级缓存、防超卖、削峰限流的完整架构方案——模拟典型的长文写作场景；</li>
+<li>长输入（近千字，max_tokens=512）：塞入一段有 O(N×M) 嵌套循环、锁粒度过粗等缺陷的 Python 代码，要求审计并重构——考察长 prompt 的 prefill 与长生成能力；</li>
+</ul>
+</li>
+<li><strong>数学用例</strong>（GSM8K 风格 3 题）：行程问题、复合比例分配、排列组合概率，要求逐步推理并在最后一行以 <code>#### [答案]</code> 格式输出，脚本正则提取后与标准答案（540、800、11/12）自动比对；</li>
+<li><strong>代码用例</strong>（2 题）：实现 LRU 缓存、合并区间，从模型输出中提取 Python 代码块，连同预设单元测试断言直接 <code>exec</code> 执行，全部通过才算过；</li>
+<li><strong>逻辑/格式用例</strong>（2 题）：经典「骑士与无赖」逻辑推理题，以及一条严格 JSON 输出指令（<code>json.loads</code> 解析成功才算过）；</li>
+<li><strong>对齐探测</strong>（1 题）：一道 SQL 注入防御原理的正常技术讨论题，检查模型会不会把无害技术问题误判为有害而拒答。</li>
+</ol>
+<p>下文精度列的「3/3 · 2/2 · 2/2」即指数学 3 题、代码 2 题、逻辑 2 题的通过数。</p>
+<h2 id="3-核心结果">3. 核心结果</h2>
+<h3 id="3-1-总表（decode-prefill，tok-s）">3.1 总表（decode / prefill，tok/s）</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th style="text-align:right">速度用例 decode</th>
+<th style="text-align:right">速度用例 prefill</th>
+<th style="text-align:right">全用例 decode 均值</th>
+<th>精度 math/code/logic</th>
+<th>专家驻留</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQ-20 / 4x 1080Ti</td>
+<td style="text-align:right">16.9</td>
+<td style="text-align:right">23.9</td>
+<td style="text-align:right">17.0</td>
+<td rowspan="3">3/3 · 2/2 · 2/2</td>
+<td>全显存</td>
+</tr>
+<tr>
+<td>SQ-15 / 4x 1080Ti</td>
+<td style="text-align:right">15.6</td>
+<td style="text-align:right">35.3</td>
+<td style="text-align:right">15.2</td>
+<td>全显存（每卡仅 4.7/11GB）</td>
+</tr>
+<tr>
+<td>SQ-15 / 2x 1080Ti</td>
+<td style="text-align:right">16.2</td>
+<td style="text-align:right">35.9</td>
+<td style="text-align:right">15.7</td>
+<td>全显存（每卡 8.2/11GB）</td>
+</tr>
+<tr>
+<td>SQ-15 / 2x 2080Ti (cuda12)</td>
+<td style="text-align:right" rowspan="2">39.2</td>
+<td style="text-align:right">583.0</td>
+<td style="text-align:right" rowspan="2">38.8</td>
+<td rowspan="2">2/3 · 2/2 · 2/2</td>
+<td rowspan="2">全显存</td>
+</tr>
+<tr>
+<td>SQ-15 / 2x 2080Ti (cuda13)</td>
+<td style="text-align:right">573.7</td>
+</tr>
+<tr>
+<td>SQ-15 / 1x 2080Ti</td>
+<td style="text-align:right">25.6</td>
+<td style="text-align:right">172.5</td>
+<td style="text-align:right">31.8</td>
+<td>3/3 · 2/2 · 2/2</td>
+<td><strong>hybrid</strong> 1545 显存/1527 内存</td>
+</tr>
+<tr>
+<td><strong>SQ-10 / 1x 2080Ti</strong></td>
+<td style="text-align:right"><strong>46.2</strong></td>
+<td style="text-align:right">403.9</td>
+<td style="text-align:right"><strong>55.6</strong></td>
+<td>2/3 · 2/2 · 2/2</td>
+<td><strong>hybrid</strong> 2195 显存/877 内存</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-2-速度用例明细（gen-prompt-tok-s）">3.2 速度用例明细（gen / prompt tok/s）</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>短输入</th>
+<th>中等输入</th>
+<th>长输入</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQ-20 / 4x 1080Ti</td>
+<td>17.0 / 20.2</td>
+<td>17.5 / 26.1</td>
+<td>16.3 / 25.4</td>
+</tr>
+<tr>
+<td>SQ-15 / 4x 1080Ti</td>
+<td>15.8 / 27.7</td>
+<td>15.6 / 41.2</td>
+<td>15.5 / 37.0</td>
+</tr>
+<tr>
+<td>SQ-15 / 2x 1080Ti</td>
+<td>16.3 / 28.6</td>
+<td>16.4 / 41.4</td>
+<td>15.8 / 37.8</td>
+</tr>
+<tr>
+<td>SQ-15 / 2x 2080Ti</td>
+<td>39.9 / 173.6</td>
+<td>38.9 / 770.0</td>
+<td>38.7 / 805.4</td>
+</tr>
+<tr>
+<td>SQ-15 / 1x 2080Ti</td>
+<td>25.3 / 67.8</td>
+<td>24.3 / 250.7</td>
+<td>27.3 / 199.0</td>
+</tr>
+<tr>
+<td>SQ-10 / 1x 2080Ti</td>
+<td>46.5 / 135.9</td>
+<td>42.9 / 625.3</td>
+<td>49.2 / 450.6</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-3-投机解码（DSpark，drafting-auto-引擎实测自动决定）">3.3 投机解码（DSpark，drafting=auto 引擎实测自动决定）</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>探针实测</th>
+<th>结果</th>
+<th style="text-align:right">Plain decode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQ-15 / 1080Ti（2/4卡）</td>
+<td>0.99x（阈值 1.10x）</td>
+<td rowspan="2">自动关闭</td>
+<td style="text-align:right">15 tok/s</td>
+</tr>
+<tr>
+<td>SQ-15 / 2x 2080Ti</td>
+<td>1.00x</td>
+<td style="text-align:right">39 tok/s</td>
+</tr>
+<tr>
+<td>SQ-15 / 1x 2080Ti</td>
+<td><strong>1.19x</strong>（代码类 1.49x）</td>
+<td rowspan="2"><strong>启用</strong></td>
+<td style="text-align:right">24 tok/s</td>
+</tr>
+<tr>
+<td>SQ-10 / 1x 2080Ti</td>
+<td><strong>1.25x</strong>（代码类 1.66x）</td>
+<td style="text-align:right">34 tok/s</td>
+</tr>
+</tbody>
+</table>
+<p>小显存 hybrid 场景下 DSpark 草稿收益显著——显存腾出给草稿束、访存成为瓶颈时，草稿能摊薄成本。SQ-10 单卡的全用例 decode 均值 55.6 高于其速度用例均值 46.2，说明代码/数学类任务草稿命中率更高。</p>
+<h2 id="4-关键发现">4. 关键发现</h2>
+<ol>
+<li><strong>架构是决定性因素，卡数几乎无关</strong>。同一 SQ-15：2卡2080Ti 38.8 vs 2卡1080Ti 15.7 tok/s（2.5x），远超两者带宽比（616 vs 440 GB/s）；而 1080Ti 上 4 卡 vs 2 卡仅差 4%（15.6→16.2）。nvidia-smi 采样证实：decode 时单卡利用率仅 40–55%——自回归单流下 layer-split 管线无法重叠（管线气泡），多卡只提升并发吞吐，不提升单请求速度。「4 卡触发 PCIe 瓶颈」假设<strong>不成立</strong>。</li>
+<li><strong>量化包在 Pascal 上对 decode 是反向优化</strong>。SQ-15 在 1080Ti 上比 SQ-20 还慢 ~8%（sm_61 反量化内核非整字节 unpack 开销大），但 prefill +48%。Turing 上无此惩罚。</li>
+<li><strong>单卡 SQ-10 (2080Ti) 是全场最快</strong>：全用例 55.6、速度用例 46.2 tok/s，反超双卡 SQ-15 约 40%，且只占一张卡。与官方 RTX 2080Ti 标称 42.8 tok/s 吻合。</li>
+<li><strong>CPU 专家通道（hybrid）可用性取决于 CPU 指令集</strong>：worker1（E5-2683 v4，仅 AVX2）上 CPU 专家内核输出乱码、结果不可用（历史结论，本轮未复测）；worker4（Xeon Silver 4216，AVX-512）上 hybrid 精度 7/7 全过，可放心使用。<strong>部署前必须用精度用例验证所在节点的 hybrid 可用性</strong>。</li>
+<li><strong>CUDA 13 引擎对 sm_75 无增益</strong>：与 cuda12 引擎 A/B 完全持平（39.2 vs 39.2，精度一致）。瓶颈在带宽/管线，与工具链版本无关。</li>
+<li><strong>精度上所有量化包在本套用例无差异</strong>（除已知长推理行为，见下节）；一致率差异（92.35%/96.68%/100%）需更大规模评测才能体现。</li>
+</ol>
+<h2 id="5-已知问题与部署坑位">5. 已知问题与部署坑位</h2>
+<h3 id="5-1-math-1-用例失败说明">5.1 math_1 用例失败说明</h3>
+<p>SQ-15/SQ-10 在 2080Ti 各方案下 math_1 出现「512 token 内推理未写完、未输出 <code>####</code> 答案行」（SQ-15 单卡一次通过）。这是模型已知的长推理循环行为（官方模型卡亦提示无法完全关闭思考、需设 max_tokens 上限），推理内容本身正确，<strong>非硬件/量化缺陷</strong>。</p>
+<h3 id="5-2-部署坑位记录">5.2 部署坑位记录</h3>
+<ol>
+<li><strong>256K 上下文 KV 预留 OOM</strong>：单请求 256K KV≈5.9GB，parallel=4 在 2 卡（22GB）放不下，引擎加载 chunk 时反复 OOM → 2卡用 128K，单卡用 64K；</li>
+<li><strong>feed 自动更新卡死</strong>：launcher 发现 feed 上有更新引擎 0.1.69 时必下载；「半通」网络（能读清单、下载仅 23KB/s）最致命 → 设 <code>STRATA_UPDATE_FEED=http://127.0.0.1:1/feed</code> 强制离线分支（本地已有引擎时直接用镜像内置 0.1.67）；</li>
+<li><strong>cuda12 镜像 + sm_75 需 <code>STRATA_CUDA=12</code></strong>：launcher 按最老 GPU 架构选引擎 variant，sm_75 默认要 CUDA 13 主引擎（cuda12 镜像未内置）；用 cuda13 镜像则无需设置；</li>
+<li><strong>切换镜像 variant 前须清空 /data</strong>：安装记录绑定引擎 variant；</li>
+<li>1080Ti（Pascal）只能走 cuda12 引擎（CUDA 13 已放弃 sm_70 以下），worker1 的镜像与配置勿照搬到新卡。</li>
+</ol>
+<h2 id="6-方案选型建议">6. 方案选型建议</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐</th>
+<th>预期</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>速度优先（有 2080Ti）</td>
+<td><strong>1x 2080Ti + SQ-10</strong></td>
+<td>46–56 tok/s，省卡</td>
+</tr>
+<tr>
+<td>精度优先（有 2080Ti）</td>
+<td>2x 2080Ti + SQ-15</td>
+<td>39 tok/s，96.68% 一致率，prefill 583</td>
+</tr>
+<tr>
+<td>仅有 1080Ti</td>
+<td>2x 1080Ti + SQ-15（4卡无增益）</td>
+<td>16 tok/s，长上下文 prefill 略好</td>
+</tr>
+<tr>
+<td>1080Ti 且需 100% 一致率</td>
+<td>4x 1080Ti + SQ-20</td>
+<td>17 tok/s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-1-Tesla-T4-性能预估">6.1 Tesla T4 性能预估</h3>
+<p>手里只有 T4 的读者可能会问这张卡能跑多少。T4 与 2080Ti 同为 Turing 架构（sm_75），不存在 Pascal 那种反量化内核惩罚，可以直接按带宽/算力比（约 0.52–0.57）从 2080Ti 实测值折算：</p>
+<ul>
+<li><strong>单 T4 + SQ-15</strong>：约 20–25 tok/s。T4 的 16GB 显存可以单卡全驻 SQ-15，这是它唯一优于 2080Ti 单卡之处——<strong>不需要走 hybrid</strong>，对 CPU 指令集没有要求，部署最省心；</li>
+<li><strong>单 T4 + SQ-10</strong>：约 25–30 tok/s；</li>
+<li><strong>双 T4</strong>：单流速度 ≈ 单卡（管线气泡定律同样适用，加卡只提升并发吞吐），除非要抗并发，否则不必组双卡。</li>
+</ul>
+<p>另外一个必须留意的坑：T4 是 70W 被动散热卡，服务器风道不足时会持续降频，上面的折算值建议再打 10–15% 的余量。</p>
+<h2 id="7-复现说明">7. 复现说明</h2>
+<p>本文不依赖任何私有工具链即可复现：每台机器用 <code>strata/0.2.21</code> 镜像部署对应量化包（按 2 节的显存表选卡数与上下文长度，注意 5.2 的 KV 预留上限和引擎 variant 选择），然后用第 2 节的五阶段用例集以单流串行方式跑分即可。两个容易踩的点提醒一下：</p>
+<ul>
+<li>速度数据务必取引擎返回的 <code>timings</code> 字段而不是墙钟时间，否则网络与调度抖动会把小数字全部抹平；</li>
+<li>MoE 模型跑分前先确认专家驻留形态（看引擎日志里的 experts/host 计数），全显存和 hybrid 两种形态的性能不在一个量级，混着比会得出错误结论。</li>
+</ul>
+<p>测试结束时所有被测服务已卸载，GPU 资源已释放。如果你也在用洋垃圾 GPU 折腾大模型部署，希望这组数据能帮你少走弯路。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%80%A7%E8%83%BD%E8%AF%84%E6%B5%8B/" rel="tag"># 性能评测</a>
+              <a href="/tags/%E7%A1%AC%E4%BB%B6%E5%AE%9E%E6%B5%8B/" rel="tag"># 硬件实测</a>
+              <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2/" rel="tag"># 大模型部署</a>
+              <a href="/tags/Strata/" rel="tag"># Strata</a>
+              <a href="/tags/Inkling-2-Mini/" rel="tag"># Inkling-2-Mini</a>
+              <a href="/tags/1080Ti/" rel="tag"># 1080Ti</a>
+              <a href="/tags/2080Ti/" rel="tag"># 2080Ti</a>
+              <a href="/tags/MoE/" rel="tag"># MoE</a>
+              <a href="/tags/%E9%87%8F%E5%8C%96/" rel="tag"># 量化</a>
+              <a href="/tags/%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95/" rel="tag"># 性能测试</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/26/MMEmb-R1/" rel="next" title="【论文分享】吞吐暴涨3.1倍、拒绝“过度思考”：字节与港中文 EMNLP 2026 新作 MMEmb-R1 如何用因果筛选与自适应路由重构多模态向量引擎">
+                  【论文分享】吞吐暴涨3.1倍、拒绝“过度思考”：字节与港中文 EMNLP 2026 新作 MMEmb-R1 如何用因果筛选与自适应路由重构多模态向量引擎 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">556k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">33:41</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
