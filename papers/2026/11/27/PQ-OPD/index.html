@@ -39,7 +39,7 @@
 <meta property="og:description" content="在多模态大模型（VLM）与视频智能体（Video Agent）的工程落地中，“如何让模型看懂长视频与快动作” 始终是困扰后端架构与算法工程师的核心瓶颈。 在面对数分钟的高清视频时，工业界最常见的处理管线往往是 “全局等间距固定抽帧（Fixed-frame Sampling）” —— 例如暴力抽取 32 帧或 64 帧，打包塞进视觉编码器。这种“批处理只读管道”的弊端显而易见：  关键证据严重漏报：">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-11-27T07:10:00.000Z">
-<meta property="article:modified_time" content="2026-11-27T10:53:07.408Z">
+<meta property="article:modified_time" content="2026-11-27T11:03:47.868Z">
 <meta property="article:author" content="豪豪">
 <meta property="article:tag" content="PQ-OPD">
 <meta property="article:tag" content="在策略训练">
@@ -237,7 +237,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-27 15:10:00 / 修改时间：18:53:07" itemprop="dateCreated datePublished" datetime="2026-11-27T15:10:00+08:00">2026-11-27</time>
+      <time title="创建时间：2026-11-27 15:10:00 / 修改时间：19:03:47" itemprop="dateCreated datePublished" datetime="2026-11-27T15:10:00+08:00">2026-11-27</time>
     </span>
 
   
@@ -277,8 +277,8 @@
 <li><strong>关键证据严重漏报</strong>：1 秒内的快动作（如魔术换牌、微小手部操作、眨眼与掉落）在固定抽帧中往往直接被跳过，导致时钟错乱与动作幻觉；</li>
 <li><strong>显存与带宽硬约束</strong>：要想不错过细节，如果把抽帧率拉到几百帧，模型的 Attention 序列长度立即爆炸，推理延迟与显存开销（OOM）将彻底摧毁线上业务系统的 SLA。</li>
 </ul>
-<p>为了解决这个矛盾，近来业界开始转向 <strong>“交互式智能体（Agentic Perception）”</strong> —— 给模型挂载 API 工具（比如时域跳转 <code>seek</code>、局部放大 <code>zoom</code>），让模型按需读取视频。然而，这种方案在**视频问答（VideoQA）<strong>中表现尚可（因为用户提问明确指出了目标），但在更通用的</strong>视频详尽描述（Detailed Video Captioning）**任务中却彻底沦为“无头苍蝇”：用户只给了一句泛泛的“请详细描述视频”，模型根本不知道该从何查起、查到什么程度算完。</p>
-<p>针对这一痛点，**南京大学与快手可灵AI（KlingAI Research）**在最新成果中提出了 <strong>PQ-OPD</strong> 框架：</p>
+<p>为了解决这个矛盾，近来业界开始转向 <strong>“交互式智能体（Agentic Perception）”</strong> —— 给模型挂载 API 工具（比如时域跳转 <code>seek</code>、局部放大 <code>zoom</code>），让模型按需读取视频。然而，这种方案在 <strong>视频问答（VideoQA）</strong> 中表现尚可（因为用户提问明确指出了目标），但在更通用的 <strong>视频详尽描述（Detailed Video Captioning）</strong> 任务中却彻底沦为“无头苍蝇”：用户只给了一句泛泛的“请详细描述视频”，模型根本不知道该从何查起、查到什么程度算完。</p>
+<p>针对这一痛点，<strong>南京大学与快手可灵AI（KlingAI Research）</strong> 在最新成果中提出了 <strong>PQ-OPD</strong> 框架：</p>
 <blockquote>
 <p><strong>论文题目</strong>：《Teaching What to Look For: Privileged Perception Questions for Agentic On-Policy Distillation in Video Captioning》<br>
 <strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2611.22755" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2611.22755</a><br>
@@ -308,7 +308,7 @@
 <p>后来工程界尝试给大模型提供工具接口（API）：</p>
 <ul>
 <li>如果是<strong>问答场景（VideoQA）</strong>：“第 3 秒男主从口袋掏出的是什么？”，Prompt 提供了极明确的检索键（Query Key），模型可以把参数直奔 <code>seek(2.5, 3.5)</code> 和 <code>zoom(...)</code>；</li>
-<li>但在**描述任务（Captioning）**中，输入只有一句全局指令：“<em>请详细描述该视频的所有细节</em>”。此时，模型面临无穷大的动作搜索空间——没有外部精准引导，原生 Agent 要么像无头苍蝇一样随机调用几次工具后放弃，要么过度消耗配额却收效甚微。</li>
+<li>但在 <strong>描述任务（Captioning）</strong> 中，输入只有一句全局指令：“<em>请详细描述该视频的所有细节</em>”。此时，模型面临无穷大的动作搜索空间——没有外部精准引导，原生 Agent 要么像无头苍蝇一样随机调用几次工具后放弃，要么过度消耗配额却收效甚微。</li>
 </ul>
 <hr>
 <h2 id="02-系统设计：按需拉取（Lazy-Loading）的状态机与双工具协议">02. 系统设计：按需拉取（Lazy Loading）的状态机与双工具协议</h2>
@@ -320,14 +320,14 @@
     
     state ToolInvocation &#123;
         [*] --&gt; Choice
-        Choice --&gt; SeekCall: seek(t_start, t_end) 粗粒度时域采样 (&lt;=8帧)
-        Choice --&gt; ZoomCall: zoom(t, [x1,y1,x2,y2]) 细粒度空间局部放大 (1帧高分裁剪)
+        Choice --&gt; SeekCall: seek 时域采样 (最多8帧)
+        Choice --&gt; ZoomCall: zoom 空间局部放大 (1帧高分裁剪)
     &#125;
     
     ToolInvocation --&gt; EnvironmentObservation: 外部环境只读返回切片 (Image Obs o_r)
     EnvironmentObservation --&gt; ReasoningStep: 写入上下文，进入下一轮迭代 (Round r+1)
     
-    ReasoningStep --&gt; FinalCaption: 信息已充分 / 达到最大轮次 (R &lt;= 16)
+    ReasoningStep --&gt; FinalCaption: 信息已充分或达到轮次上限 (R ≤ 16)
     FinalCaption --&gt; [*]: 输出最终详尽描述 (Detailed Caption y)</code></pre>
 <h3 id="2-1-极度克制的精简工具集（Tool-Specifications）">2.1 极度克制的精简工具集（Tool Specifications）</h3>
 <p>作者并没有设计复杂的工具链，仅暴露了两个原语级 API，每个请求限制在 46 万像素内：</p>
@@ -357,23 +357,23 @@
 <p>如果模型在推理期没有任何额外提示，那么怎么才能让它在训练期掌握高超的探索本领？这篇论文最精妙的设计，正是其<strong>训练期与生产期的“不对称架构设计”</strong>。</p>
 <pre><code class="highlight mermaid">flowchart TD
     subgraph OfflinePrep[&quot;离线数据流水线 (Data ETL)&quot;]
-        V[训练视频 V] --&gt; LLM[Gemini 3.1 Pro 离线出题]
-        LLM --&gt; PQ[&quot;感知问题集 Q(V)\n(指明&#x27;看什么/何时看&#x27;，严禁包含答案！)&quot;]
+        V[&quot;训练视频 V&quot;] --&gt; LLM[&quot;Gemini 3.1 Pro 离线出题&quot;]
+        LLM --&gt; PQ[&quot;感知问题集 Q(V)&lt;br/&gt;(指明看什么与何时看，严禁包含答案)&quot;]
     end
 
     subgraph OnlineTraining[&quot;在线训练流水线 (On-Policy Distillation Loop)&quot;]
         subgraph StudentSpace[&quot;学生环境 (Student - 生产态)&quot;]
-            S_Prompt[&quot;基础通用指令\n&#x27;请详细描述该视频&#x27;&quot;] --&gt; S_Model[&quot;Student 模型 (Qwen3.5 9B/4B)\n[参数可导求梯度]&quot;]
-            S_Model --&gt; Rollout[&quot;自主生成决策轨迹\nz1 -&gt; a1 -&gt; o1 -&gt; ... -&gt; y&quot;]
+            S_Prompt[&quot;基础通用指令&lt;br/&gt;&#x27;请详细描述该视频&#x27;&quot;] --&gt; S_Model[&quot;Student 模型 (Qwen3.5 9B/4B)&lt;br/&gt;(参数可导求梯度)&quot;]
+            S_Model --&gt; Rollout[&quot;自主生成决策轨迹&lt;br/&gt;z1 → a1 → o1 → ... → y&quot;]
         end
 
         subgraph TeacherSpace[&quot;特权教师环境 (Teacher - 调试测试桩)&quot;]
-            T_Prompt[&quot;基础指令 + 特权小抄 Q(V)\n[只在训练期挂载]&quot;] --&gt; T_Model[&quot;Teacher 教师模型 (参数冻结)&quot;]
+            T_Prompt[&quot;基础指令 + 特权小抄 Q(V)&lt;br/&gt;(只在训练期挂载)&quot;] --&gt; T_Model[&quot;Teacher 教师模型 (参数冻结)&quot;]
         end
 
-        Rollout -.-&gt;|沿着学生踩出来的历史路径 ht| T_Model
-        T_Model --&gt;|输出当前步理想分布 q(·|ht)| JSD[Top-100 JSD 散度损失]
-        S_Model --&gt;|输出当前步实际分布 p(·|ht)| JSD
+        Rollout -.-&gt;|沿着学生历史路径 ht| T_Model
+        T_Model --&gt;|输出当前步理想分布 q| JSD[&quot;Top-100 JSD 散度损失&quot;]
+        S_Model --&gt;|输出当前步实际分布 p| JSD
         JSD --&gt;|梯度反向传播，仅更新 Student| S_Model
     end</code></pre>
 <h3 id="3-1-什么是“感知问题（Perception-Questions-PQs）”？">3.1 什么是“感知问题（Perception Questions, PQs）”？</h3>
