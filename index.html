@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">391</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">121</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">393</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">122</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">121</span>
+          <span class="site-state-item-count">122</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">391</span>
+        <span class="site-state-item-count">393</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,119 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/27/WeMM-Embedding/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/27/WeMM-Embedding/" class="post-title-link" itemprop="url">【论文分享】2B 反超 8B、单次前向多切面提取与套娃降维：从软件工程视角深度拆解微信多模态向量基座 WeMM-Embedding</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-27 14:35:00 / 修改时间：14:50:30" itemprop="dateCreated datePublished" datetime="2026-11-27T14:35:00+08:00">2026-11-27</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>7.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>27 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在现代搜索、推荐、企业级 RAG（检索增强生成）以及 AI Agent 记忆系统中，<strong>向量表征模型（Embedding Model）</strong> 扮演着底层“语义哈希函数”的角色——它将非结构化的复杂内容映射为定长浮点数数组，使系统能够通过余弦相似度在毫秒级完成亿级规模的检索、分类、聚类与去重。</p>
+<p>回顾多模态向量的架构演进，早期以 CLIP 为代表的双塔模型（Dual-Encoder）虽然打通了“文字搜图片”，但在真实工业生产环境中，后端与搜索架构师很快就会撞上一系列系统性瓶颈：</p>
+<ol>
+<li><strong>异构组合输入的“烟囱式”割裂</strong>：真实业务数据极少是干净的单一图片或短句，更多是图文混排的公众号长文、带语音转写字幕的短视频，或是“上传一张参考图 + 附加一句修改要求”的组合式查询。传统双塔各走各的编码通道，难以表达跨模态交织语义；</li>
+<li><strong>多切面特征引发的算力翻倍与向量库内存墙</strong>：下游业务往往既需要“纯视频画面向量”做视觉查重，又需要“视频+台词联合向量”做语义推荐，跑两次模型直接令 GPU 成本翻倍；同时，动辄 <code>2048</code> 甚至 <code>4096</code> 维的高维向量常驻内存（RAM），在亿级底库下会引发高昂的存储与网络 I/O 开销；</li>
+<li><strong>幂律脏数据与“假负例”内耗</strong>：海量日志天然服从二八定律（热门同质化内容占比极高），且批内对比学习在面对分类或高频标签时，极易把同批里的同类正样本误当成负样本排斥，造成训练内耗。</li>
+</ol>
+<p>针对上述工程痛点，<strong>腾讯微信视觉团队（WeChat Vision）</strong> 正式开源了通用多模态向量模型家族——<strong>WeMM-Embedding</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《WeMM-Embedding: WeChat Multi-Modal Embedding Technical Report》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.24053">https://arxiv.org/abs/2608.24053</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2608.24053v1">https://arxiv.org/html/2608.24053v1</a>)<br>
+<strong>代码仓库</strong>：<a target="_blank" rel="noopener" href="https://github.com/Tencent/WeMM-Embedding">https://github.com/Tencent/WeMM-Embedding</a><br>
+<strong>权重集合</strong>：<a target="_blank" rel="noopener" href="https://huggingface.co/collections/tencent/wemm-embedding">https://huggingface.co/collections/tencent/wemm-embedding</a><br>
+<strong>作者团队</strong>：Junjie Zhou, Ke Mei, Lei Li, Tianyi Wang, Fengyun Rao, Jing Lyu（腾讯微信视觉团队）<br>
+<strong>核心战果</strong>：</p>
+<ul>
+<li><strong>轻量越级与榜单登顶</strong>：提供 <code>2B</code>、<code>4B</code>、<code>9B</code> 三种尺寸。在涵盖 78 个图文/视频/视觉文档任务的权威基准 <code>MMEB-v2</code> 上，仅 <strong>2B</strong> 版本（77.9）即越级超越此前最强的开源 <strong>8B</strong> 基线 <code>Qwen3-VL-Embedding-8B</code>（77.8）；<strong>9B</strong> 版本以 <strong>80.6</strong> 分登顶官方总榜第一，力压所有开源及闭源商业模型；</li>
+<li><strong>Agent 与跨模态检索全面领先</strong>：在新增复杂文本推理与 47 项 Agent 检索（工具、GUI、记忆）的 <code>MMEB-v3</code>（共 190 项任务）中，即便在不支持音频、11 项音频任务直接记 0 分的前提下，<code>2B</code> 版本（56.0）依然击败各路 7B/8B 模型；在 12 项公开跨模态检索基准上，<code>2B</code>（79.8）与 <code>9B</code>（81.7）正面超越 Google <code>Gemini Embedding 2</code>（79.5）；</li>
+<li><strong>超大规模微信生产验证</strong>：微信内部 26 项真实业务评测较同级基线暴涨 <strong>+11.1 分</strong>（72.0 vs 60.9），在微信视频号、公众号、朋友圈、搜一搜及微信电商全量落地，连续拿下 <strong>14 个线上 A/B 测试</strong> 正向收益。</li>
+</ul>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师与系统架构师</strong> 的视角，跳过繁琐的梯度推导，系统拆解其 <strong>统一数据协议设计、单次前向多切面提取、俄罗斯套娃弹性降维、自举式数据清洗飞轮</strong>，厘清它与同门师兄 <strong>WeMM-Video</strong> 的协同边界，并整理一份可直接对照落地的 <strong>输入限制清单与六大业务场景指南</strong>。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/27/WeMM-Embedding/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -224,9 +337,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-26 20:00:00 / 修改时间：23:15:22" itemprop="dateCreated datePublished" datetime="2026-11-26T20:00:00+08:00">2026-11-26</time>
+      <time title="创建时间：2026-11-26 20:00:00" itemprop="dateCreated datePublished" datetime="2026-11-26T20:00:00+08:00">2026-11-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-27 14:50:30" itemprop="dateModified" datetime="2026-11-27T14:50:30+08:00">2026-11-27</time>
     </span>
 
   
@@ -317,9 +436,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-26 19:30:00 / 修改时间：23:15:22" itemprop="dateCreated datePublished" datetime="2026-11-26T19:30:00+08:00">2026-11-26</time>
+      <time title="创建时间：2026-11-26 19:30:00" itemprop="dateCreated datePublished" datetime="2026-11-26T19:30:00+08:00">2026-11-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-27 14:50:30" itemprop="dateModified" datetime="2026-11-27T14:50:30+08:00">2026-11-27</time>
     </span>
 
   
@@ -409,9 +534,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-26 16:45:00 / 修改时间：23:15:22" itemprop="dateCreated datePublished" datetime="2026-11-26T16:45:00+08:00">2026-11-26</time>
+      <time title="创建时间：2026-11-26 16:45:00" itemprop="dateCreated datePublished" datetime="2026-11-26T16:45:00+08:00">2026-11-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-27 14:50:30" itemprop="dateModified" datetime="2026-11-27T14:50:30+08:00">2026-11-27</time>
     </span>
 
   
@@ -453,12 +584,12 @@
 <strong>作者团队</strong>：Yuchi Wang, Dingkang Yang, Haiyang Yu, Weikang Bian, Jiefeng Long, Xiao Liang, Chao Feng, Hongsheng Li（香港中文大学 MMLab、字节跳动、复旦大学）<br>
 <strong>核心战果</strong>：</p>
 <ul>
-<li><strong>小参数反超大模型</strong>：在覆盖图像、视频、视觉文档共 <strong>78 个任务</strong> 的权威基准 <code>MMEB-V2</code> 上，仅 <strong>4B</strong> 参数量（<code>Qwen3-VL-4B</code>）即拿下 <strong>71.2</strong> 的 SOTA 总分，超越 7B 级强基线 <code>RzenEmbed-v1-7B</code>（68.9）与 <code>UME-R1-7B</code>（64.5）；<strong>2B</strong> 模型（68.3）亦全面领先同级竞品，且在**视频（Video）**模态上提升尤为显著；</li>
+<li><strong>小参数反超大模型</strong>：在覆盖图像、视频、视觉文档共 <strong>78 个任务</strong> 的权威基准 <code>MMEB-V2</code> 上，仅 <strong>4B</strong> 参数量（<code>Qwen3-VL-4B</code>）即拿下 <strong>71.2</strong> 的 SOTA 总分，超越 7B 级强基线 <code>RzenEmbed-v1-7B</code>（68.9）与 <code>UME-R1-7B</code>（64.5）；<strong>2B</strong> 模型（68.3）亦全面领先同级竞品，且在 <strong>视频（Video）</strong> 模态上提升尤为显著；</li>
 <li><strong>吞吐量飙升 3.1 倍且精度更高</strong>：借助自适应快慢思考控制，实测端到端吞吐达到 <strong>10.02 queries/s</strong>（对比强制慢思考基线 <code>UME-R1</code> 的 3.21 queries/s <strong>提速 3.1 倍</strong>），且总分反超强制思考模式 <strong>+1.4 分</strong>；</li>
 <li><strong>实证发现帕累托最优拐点</strong>：实验测得思考调用率在 <strong>74.3%</strong> 时达到准确率峰值，强行推向 100% 后精度反而出现 <strong>-0.8%</strong> 的倒退。</li>
 </ul>
 </blockquote>
-<p>本文立足于 <strong>软件开发工程师（后端架构 / 搜索系统 / 工程落地）</strong> 的视角，跳过繁琐的理论推导，重点拆解它的**“离线训练流水线”与“在线生产调用流”边界、反事实 A/B 数据清洗范式、快慢双通道强化学习路由**，以及它在<strong>视频数据湖入库</strong>与<strong>在线视频搜索</strong>中的真实落地姿势。</p>
+<p>本文立足于 <strong>软件开发工程师（后端架构 / 搜索系统 / 工程落地）</strong> 的视角，跳过繁琐的理论推导，重点拆解它的 <strong>“离线训练流水线”与“在线生产调用流”边界、反事实 A/B 数据清洗范式、快慢双通道强化学习路由</strong>，以及它在 <strong>视频数据湖入库</strong> 与 <strong>在线视频搜索</strong>中的真实落地姿势。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/papers/2026/11/26/MMEmb-R1/#more" rel="contents">
@@ -520,9 +651,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2026-11-26 15:50:00 / 修改时间：23:15:22" itemprop="dateCreated datePublished" datetime="2026-11-26T15:50:00+08:00">2026-11-26</time>
+      <time title="创建时间：2026-11-26 15:50:00" itemprop="dateCreated datePublished" datetime="2026-11-26T15:50:00+08:00">2026-11-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-27 14:50:30" itemprop="dateModified" datetime="2026-11-27T14:50:30+08:00">2026-11-27</time>
     </span>
 
   
@@ -590,115 +727,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/24/DiLE-Multimodal/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/24/DiLE-Multimodal/" class="post-title-link" itemprop="url">【论文分享】吞吐暴增101倍且刷新SOTA：DiLE 如何用隐空间推理与在线蒸馏攻克多模态检索的“细粒度混淆”难题</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-24 18:45:00" itemprop="dateCreated datePublished" datetime="2026-11-24T18:45:00+08:00">2026-11-24</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-26 23:15:22" itemprop="dateModified" datetime="2026-11-26T23:15:22+08:00">2026-11-26</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.4k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>16 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在构建大规模多模态搜索、以图搜图、视频检索以及多模态 RAG（检索增强生成）系统时，后端架构师和搜索工程师经常陷入一个两难的工程折中（Trade-off）：<strong>线上系统的极限吞吐与极低延迟</strong>，与<strong>复杂场景下对细粒度特征的判别精度</strong>之间，似乎始终存在无法调和的矛盾。</p>
-<ul>
-<li><strong>经典双塔向量（Bi-Encoder / Pooling）</strong>：单次前向直接池化生成单个 Embedding。线上开销为常数级 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>，毫秒级响应，向量库天然支持海量离线预建库（Offline Pre-indexing）与 ANN 快速召回。然而它的致命缺陷是**“视而不见，容易混淆”**——多模态大模型虽然能看懂图片，但池化成单向量后，往往丢掉了颜色配对、物体相对空间位置、视频动作先后顺序等细粒度证据，遇到“长得很像的李鬼（Hard Negatives）”极易排错。</li>
-<li><strong>生成式推理向量（Generative / CoT Embedding，如 Embed-RL、UME-R1）</strong>：近期学术界为了解决区分度问题，流行让多模态大模型在向量化前先自回归生成一段文字推理链（Chain-of-Thought）。精度确实上去了，但在工程上这无异于一场<strong>灾难</strong>：串行生成数十上百个 Token 导致推理吞吐量暴跌数十至上百倍，显存占用居高不下，P99 延迟突破秒级，高并发在线业务根本无法承载。</li>
-</ul>
-<p>为了彻底打破“要精度就必须忍受低吞吐”的系统桎梏，来自大连理工大学、北京大学与小米 AI 实验室（Xiaomi Inc.）的研究团队提出了全新的通用多模态向量学习框架 <strong>DiLE</strong>：</p>
-<blockquote>
-<p><strong>论文题目</strong>：《DiLE: Discrimination-Aware Latent-Space Learning for Universal Multimodal Embeddings》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.25419">https://arxiv.org/abs/2611.25419</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.25419v1">https://arxiv.org/html/2611.25419v1</a>)<br>
-<strong>核心贡献</strong>：任务引导隐空间压缩（TLSL）、共享与专属 LoRA 专家路由（SPEA）、On-Policy 动态自对抗挖掘与逆向 KL 蒸馏（OPHD），在完全保持纯双塔极简推理的前提下实现 SOTA 细粒度检索精度。</p>
-</blockquote>
-<p>本文立足于 <strong>软件开发工程师（后端/架构/搜索推荐研发）</strong> 的视角，不堆砌繁琐的数学符号，重点剖析其 <strong>架构折中（Trade-off）、训练期脚手架模式、异步双缓冲在线数据流</strong>，以及它为高并发检索系统带来的工程实现启示。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/24/DiLE-Multimodal/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -723,14 +751,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">557k</span>
+    <span title="站点总字数">565k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">33:45</span>
+    <span title="站点阅读时长">34:13</span>
   </span>
 </div>
 <div class="busuanzi-count">
