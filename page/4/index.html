@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">393</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">122</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">399</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">124</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">122</span>
+          <span class="site-state-item-count">124</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">393</span>
+        <span class="site-state-item-count">399</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,226 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/19/FrameRouter/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/19/FrameRouter/" class="post-title-link" itemprop="url">【论文分享】零训练、不加一分钱算力：FrameRouter 如何用配额调度思维击破长视频大模型“一刀切”内耗</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-19 13:35:00" itemprop="dateCreated datePublished" datetime="2026-11-19T13:35:00+08:00">2026-11-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在当下的多模态大模型（VLM）与长视频理解系统中，处理几十分钟乃至数小时的视频一直是一块“硬骨头”。显存容量与上下文窗口的物理极限，决定了系统无法将全片的所有画面一股脑喂给模型。</p>
+<p>在学术界评测与工业界落地中，几乎所有系统都默认遵循着一套不成文的行业惯例——<strong>“一刀切预算（Uniform Frame Budget）”</strong>：无论用户提问的是一个一目了然的静态物体（“视频开头那辆车是什么颜色？”），还是极其复杂的长时序因果追踪（“主人公在整部电影中一共回了几次头，分别在什么时间？”），后台服务一律机械地从视频中抽取 **固定数量的帧数（例如统一抽 64 帧）**输入给下游模型。</p>
+<p>这种设计在工程实现上固然简单直白，但在面对真实场景时，却带来了严重的<strong>系统级资源错配与性能反噬</strong>。</p>
+<p>针对这一长期被视作“默认假设”的基础设定，清华大学与哈尔滨工程大学的研究团队在近期发表的论文中提出了一个极具软件工程美感的破局解法：<strong>FrameRouter</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：《FrameRouter: Frame Budget Routing for Long-Video Understanding on Video-MME-v2 and Beyond》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.23055">https://arxiv.org/abs/2611.23055</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.23055">https://arxiv.org/html/2611.23055</a>)<br>
+<strong>作者团队</strong>：Bingjun Luo, Jialin Guo, Siqi Li（清华大学 &amp; 哈尔滨工程大学）<br>
+<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/bingjunluo/FrameRouter">https://github.com/bingjunluo/FrameRouter</a><br>
+<strong>核心战果</strong>：<strong>零训练（Training-free）、零微调、零改动底层采样器</strong>，在全局平均处理帧数严格维持 64 帧不变（即计算成本完全不增加）的前提下，在权威长视频基准 <strong>Video-MME-v2</strong> 上斩获开源思维链模型（Thinking Models）<strong>SOTA</strong>，准确率大幅攀升 <strong>+4.4%</strong>，更在部分基准上超越了 50 帧配置的 GPT-5 参考成绩。</p>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端架构 / 分布式系统 / 数据工程）</strong> 的视角，穿透学术论文中密密麻麻的数学集合论包装，深度拆解其背后的<strong>系统资源调度逻辑、非对称风险控制哲学</strong>以及<strong>核心代码实现</strong>，并进一步延展讨论如何将这套范式落地到企业级 <strong>“视频数据湖”</strong> 的低成本自适应 ETL 流程中。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/19/FrameRouter/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/18/MetaEncoder/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/18/MetaEncoder/" class="post-title-link" itemprop="url">【论文分享】毫秒级决策与海量检索的工程统一：MetaEncoder 如何用双塔架构重构 System 1 多模态微服务</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-18 17:40:00" itemprop="dateCreated datePublished" datetime="2026-11-18T17:40:00+08:00">2026-11-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>很多熟悉搜索、推荐与 RAG 系统的后端工程师在第一眼看到 Meta AI 这篇论文时，往往会产生一个巨大的问号：</p>
+<blockquote>
+<p><em>“既然带 <code>-embedding</code> 后缀的双塔模型（如 CLIP、BGE、Qwen3-VL-Embedding）早就满天飞，海量检索的业务链路（离线生成向量入向量库，在线算 Query 向量做近邻检索）十几年都没变过，这篇论文的价值到底在哪里？它跟市面上其他厂家的 Embedding 模型究竟有何区别？”</em></p>
+</blockquote>
+<p>带着这个极其现实的工程疑问读下去，你才会发现这篇论文的惊艳之处：<strong>海量检索的标准链路确实没有变；真正的质变，发生在你以前根本不敢用、也无法用 Embedding 模型去碰的另一半——“业务规则决策与 Agent 动态路由（System 1 Decision-Making）”上！</strong></p>
+<p>Meta 团队基于开源的 <code>Muse-Glimmer-30B</code> 多模态底座，提出了 <strong>MetaEncoder</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《MetaEncoder: Exploring the Limit of Bi-Encoders for Multimodal System One Decision Making with Natural Language Interface》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.11316">https://arxiv.org/abs/2610.11316</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2610.11316">https://arxiv.org/html/2610.11316</a>)<br>
+<strong>开源权重</strong>：<a target="_blank" rel="noopener" href="https://huggingface.co/facebook/meta-encoder">facebook/meta-encoder</a>（含升级版 v1）<br>
+<strong>官方复现评测</strong>：<a target="_blank" rel="noopener" href="https://github.com/facebook/meta-encoder-eval">facebook/meta-encoder-eval</a><br>
+<strong>核心贡献</strong>：打破“封闭分类决策”与“开放海量检索”的系统隔离；通过 <strong>Options-in-Prompt（Prompt 候选注入）</strong>、<strong>单向对比学习</strong> 与 <strong>Packed Contrastive Training（装箱对比训练）</strong>，实现一套微服务兼顾 15ms 极速业务决策与千万级图文/视频多模态检索。</p>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端/架构/分布式系统）</strong> 的视角，跳过复杂的算法推导，深度复盘<strong>业务流程到底在哪一步发生了蜕变</strong>、三种打分架构的系统级选型权衡、关键工程落地黑科技，并结合同行工程师最关心的核心疑点（入库格式、多模态支持、公开 Benchmark 战报）提供全方位的技术全景。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/18/MetaEncoder/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +452,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 15:06:19" itemprop="dateModified" datetime="2026-11-27T15:06:19+08:00">2026-11-27</time>
+      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
     </span>
 
   
@@ -350,7 +570,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 15:06:19" itemprop="dateModified" datetime="2026-11-27T15:06:19+08:00">2026-11-27</time>
+      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
     </span>
 
   
@@ -458,7 +678,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 15:06:19" itemprop="dateModified" datetime="2026-11-27T15:06:19+08:00">2026-11-27</time>
+      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
     </span>
 
   
@@ -530,225 +750,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/16/LVLM-EventBoundary/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/16/LVLM-EventBoundary/" class="post-title-link" itemprop="url">【论文分享】大模型能否像人类一样切分视频？高通最新实证：双阶段发现-裁决与小时级事件感知范式</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-16 19:35:00" itemprop="dateCreated datePublished" datetime="2026-11-16T19:35:00+08:00">2026-11-16</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 15:06:19" itemprop="dateModified" datetime="2026-11-27T15:06:19+08:00">2026-11-27</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.7k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>17 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在多模态视频理解（Video Understanding）与智能视频切片系统中，一个最根本却极其困难的问题是：<strong>一段连续发生的长视频，究竟应该从哪里“下刀”切分，才符合人类的心智认知？</strong></p>
-<p>这个任务在计算机视觉领域被称为 <strong>通用事件边界检测（GEBD, Generic Event Boundary Detection）</strong>。与传统的目标检测、动作分类不同，GEBD 不依赖任何预先定义的类别词表（Taxonomy-free）。它不关心画面里发生了什么具体动作（比如“跑步”还是“切菜”），而是探测人类在感知连续视觉流时自发形成的**“事件起止转折点（Event Boundaries）”**。</p>
-<p>在 GPT-4o、Gemini 2.5 Pro 等多模态大语言模型（LVLM）展现出百万级上下文与强大的时序推理能力后，业界普遍产生了一种乐观设想：<strong>能否直接把一段长视频塞给大模型，让它一次性输出所有事件边界的时间戳？</strong></p>
-<p>来自**高通 AI 研究院（Qualcomm AI Research）**的最新实证研究给出了严密而清醒的答案：</p>
-<blockquote>
-<p><strong>《Can an LVLM Perceive Event Boundaries Like a Human?》</strong> (arXiv:2611.16452)<br>
-论文链接：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.16452">https://arxiv.org/abs/2611.16452</a><br>
-HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.16452v1">https://arxiv.org/html/2611.16452v1</a><br>
-作者团队：Hyolim Kang, Jungsoo Lee, Yeji Song, Whie Jung, Janghoon Cho, Juntae Lee (Qualcomm AI Research)<br>
-核心关键词：通用事件边界检测、多模态大语言模型、无监督发现、粗细多尺度金字塔、局部微任务裁决、EgoBoundary</p>
-</blockquote>
-<p>作者团队通过系统的消融实验证实：<strong>大模型单体极其缺乏全时序穷举发现能力（严重漏报），但具备极其强悍的局部语义裁决能力</strong>。基于这种“能力不对称性（Asymmetry）”，论文提出了一套高度符合工业软件工程审美的<strong>两阶段架构（发现-裁决 / Discovery-Refinement）</strong>，并在长达 1 小时的第一人称长视频中，通过<strong>多尺度金字塔与局部无状态微任务化</strong>破局，不仅刷出无监督 SOTA，更在人机对抗测试中证明大模型的事件感知吻合度完全跻身真实人类群体中位数。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/16/LVLM-EventBoundary/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/16/AntEmbed/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/16/AntEmbed/" class="post-title-link" itemprop="url">【论文分享】统一检索底库与双模查询：AntEmbed 如何用自蒸馏解耦多模态向量的“速度与精度”</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-16 18:52:00" itemprop="dateCreated datePublished" datetime="2026-11-16T18:52:00+08:00">2026-11-16</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 15:06:19" itemprop="dateModified" datetime="2026-11-27T15:06:19+08:00">2026-11-27</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.3k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>12 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在构建大规模多模态搜索、以图搜图、以及多模态 RAG（检索增强生成）系统时，后端架构师常常面临一个经典的系统设计两难困境（Trade-off）：<strong>高并发低延迟</strong> 与 <strong>复杂场景高精度</strong> 无法兼得。</p>
-<ul>
-<li><strong>判别式向量（Discriminative Embedding，快模式）</strong>：单次前向直接吐出 Embedding。响应在毫秒级，吞吐量极大，非常适合在线海量流量召回；但在面对复杂文档图表（VisDoc）或长视频推理时，语义理解偏粗糙，常有“视而不见”的漏召回。</li>
-<li><strong>生成式推理向量（Generative / CoT Embedding，慢模式）</strong>：让多模态大模型先生成一段逐步推理（Chain-of-Thought），把细粒度特征想清楚后再提取向量。效果极佳，但由于存在逐字生成的自回归延迟，P99 耗时飙升至数秒，在线高并发场景根本无法承受。</li>
-</ul>
-<p>为了把两者揉进同一个系统，早期的研究（如 UME-R1）设计了双 Token 机制，但这在工程上带来了灾难性的副作用：<strong>两个模式的向量空间相互割裂，导致底库必须维护两套独立的向量索引，存储成本直接翻倍，路由逻辑极其脆弱</strong>。</p>
-<p>针对这一系统级痛点，蚂蚁集团（Ant Group）与苏州大学联合提出了 <strong>AntEmbed</strong>：</p>
-<blockquote>
-<p><strong>论文题目</strong>：《AntEmbed: Dual-Mode Multimodal Embedding Model for Efficient and Fine-Grained Retrieval》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.16405">https://arxiv.org/abs/2611.16405</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.16405v1">https://arxiv.org/html/2611.16405v1</a>)<br>
-<strong>核心贡献</strong>：混淆集驱动的针对性 CoT 构造、多正例跨视图对齐损失、跨模态自蒸馏（KL + L2）机制，实现“单个向量库，双模平滑查询”。</p>
-</blockquote>
-<p>本文立足于 <strong>软件开发工程师（后端/架构/系统研发）</strong> 的视角，不纠缠复杂的理论推导，深入剖析其 <strong>架构折中（Trade-off）、单库兼容设计、离线自蒸馏流水线</strong>，并冷静客观地审视其 Benchmark 成绩背后的真实工程账本。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/16/AntEmbed/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -773,14 +774,14 @@ HTML 格式：<a target="_blank" rel="noopener" href="https://arxiv.org/html/261
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">565k</span>
+    <span title="站点总字数">573k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">34:14</span>
+    <span title="站点阅读时长">34:45</span>
   </span>
 </div>
 <div class="busuanzi-count">

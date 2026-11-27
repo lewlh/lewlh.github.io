@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">393</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">122</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">399</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">124</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">122</span>
+          <span class="site-state-item-count">124</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">393</span>
+        <span class="site-state-item-count">399</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,219 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/02/18/VLM2Vec-V2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/02/18/VLM2Vec-V2/" class="post-title-link" itemprop="url">【论文分享】破除多模态检索的“烟囱式”孤岛：VLM2Vec-V2 如何将自回归大模型改造为跨视频、文档与图文的通用向量引擎</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-02-18 10:00:00" itemprop="dateCreated datePublished" datetime="2026-02-18T10:00:00+08:00">2026-02-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>12 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>对于正在构建企业级 <strong>多模态知识库（Multimodal RAG）</strong> 或 <strong>多模态搜索系统</strong> 的软件开发与系统架构团队而言，最头疼的往往不是算法调优，而是“管道繁重、模型林立”的系统孤岛：</p>
+<p>传统的检索管道通常充斥着“烟囱式”组件——文本检索走一趟 BGE/text-embedding，自然图片检索走一趟 CLIP，扫描件与 PDF 走一趟“OCR 提取 + 文本切片”，视频检索走一趟“抽字幕或关键帧”。不仅运维成本极高，而且各组件打出的高维向量身处不同的几何空间，根本无法直接通过余弦相似度进行跨模态距离对齐。</p>
+<p>正是在这一背景下，Salesforce Research、滑铁卢大学与清华大学等团队联合提出的 <strong>VLM2Vec-V2</strong>（发表于 TMLR 2026）给出了一份教科书级别的工程解决方案：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《VLM2Vec-V2: Advancing Multimodal Embedding for Videos, Images, and Visual Documents》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://openreview.net/forum?id=TpU38jbKIJ">https://openreview.net/forum?id=TpU38jbKIJ</a> (arXiv:2507.04590)<br>
+<strong>开源代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/TIGER-AI-Lab/VLM2Vec">https://github.com/TIGER-AI-Lab/VLM2Vec</a><br>
+<strong>核心贡献</strong>：统一全模态向量转换范式、MMEB-V2 全面评测基准、解耦超大 Batch 显存瓶颈的 GradCache 训练套件</p>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端/全栈/系统架构）</strong> 的视角，不纠缠晦涩的数学公式，而是深入剖析其系统抽象范式、单次前向池化机制、显存优化黑科技（GradCache），以及与阿里 2026 年初发布的工业级开箱模型 Qwen3-VL-Embedding 之间的承接演进关系。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/02/18/VLM2Vec-V2/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/" class="post-title-link" itemprop="url">【论文分享】阿里千问 Qwen3-VL 检索双子星全景解析：面向视频与多模态检索系统的工程落地实战指南</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-02-03 12:45:00" itemprop="dateCreated datePublished" datetime="2026-02-03T12:45:00+08:00">2026-02-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>21 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>对于正在探索 <strong>“多模态输入 + 向量提取 + 向量数据库（SQL 混合检索）+ 动态拼装 SQL + 视频片段精准召回”</strong> 的软件开发团队而言，2026 年初阿里巴巴通义实验室（Qwen 团队）发布的一篇技术报告堪称一场“及时雨”：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《Qwen3-VL-Embedding and Qwen3-VL-Reranker: A Unified Framework for State-of-the-Art Multimodal Retrieval and Ranking》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2601.04720">https://arxiv.org/abs/2601.04720</a><br>
+<strong>开源地址</strong>：<a target="_blank" rel="noopener" href="https://github.com/QwenLM/Qwen3-VL-Embedding">https://github.com/QwenLM/Qwen3-VL-Embedding</a><br>
+<strong>核心资产</strong>：Qwen3-VL-Embedding（2B / 8B）与 Qwen3-VL-Reranker（2B / 8B）</p>
+</blockquote>
+<p>这篇技术报告看似是 Qwen3-VL 系列模型“秀肌肉”的性能榜单刷榜文（在 MMEB-V2 综合多模态检索榜单上斩获 77.8 分夺得全球第一），但深入研读其底层设计与消融实验，你会发现它本质上是一份<strong>下一代工业级多模态与视频搜索引擎的架构蓝图</strong>。</p>
+<p>本文立足于 <strong>软件开发工程师（后端/全栈/系统架构）</strong> 的工程视角，全面组织论文的核心原理与工业落地细节，彻底还原技术原貌，帮助研发团队在搭建视频多模态检索系统时少走弯路。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/02/03/Qwen3-VL-Embedding-Reranker-MultimodalRetrieval/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +445,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 15:06:19" itemprop="dateModified" datetime="2026-11-27T15:06:19+08:00">2026-11-27</time>
+      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
     </span>
 
   
@@ -345,7 +558,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 15:06:19" itemprop="dateModified" datetime="2026-11-27T15:06:19+08:00">2026-11-27</time>
+      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
     </span>
 
   
@@ -455,7 +668,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 15:06:19" itemprop="dateModified" datetime="2026-11-27T15:06:19+08:00">2026-11-27</time>
+      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
     </span>
 
   
@@ -522,232 +735,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/" class="post-title-link" itemprop="url">【论文分享】以 300B 逆袭 2 万亿：Apple 领衔的 DCLM 如何用“绝对控制变量”重写大模型数据法则？</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-09-16 10:00:00" itemprop="dateCreated datePublished" datetime="2025-09-16T10:00:00+08:00">2025-09-16</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 15:06:19" itemprop="dateModified" datetime="2026-11-27T15:06:19+08:00">2026-11-27</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.2k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>11 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在大模型研发领域，长期存在着一种说不清道不明的“糊涂账”：很多团队宣称自己的数据清洗天下第一，但在训练时，他们往往悄悄换了更先进的位置编码、加了特殊的优化器、调整了模型超参数。外界根本分不清：<strong>它的模型跑分高，到底是因为数据真的洗干净了，还是因为它的模型架构偷偷占了便宜？</strong></p>
-<p>在我们上一篇探讨的 <a href="/papers/2025/09/14/TheFineWebDatasets-DecantingTheWeb/">【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineWeb）</a> 中，我们见证了 Hugging Face 如何用极具匠心的工艺打造出一套顶级的“数据淘金滤网”。</p>
-<p>而在同一时期，由 <strong>Apple、华盛顿大学（UW）、丰田研究院（TRI）、哥伦比亚大学</strong> 等顶尖机构联合发布的重磅里程碑论文 <strong>《DataComp-LM: In search of the next generation of training sets for language models》（简称 DCLM）</strong>，则带着极其罕见的**“科学洁癖”<strong>，直接为全世界的大模型数据建立了一套绝对公平的</strong>“标准化高考竞技场”**！</p>
-<p>这篇论文最大的特色，就是<strong>彻底排除了一切模型架构的干扰，将神经网络和训练参数全部焊死为唯一的基准控制组，只拿数据说话</strong>。而它交出的最终实验成绩单，更是直接震撼了整个 AI 工业界：</p>
-<blockquote>
-<p><strong>一个标准的 7B（70 亿参数）语言模型，仅仅吃下 3000 亿（300B）精选 Token，在 53 门标准化统考中的表现，直接打平甚至反超了吃了整整 2 万亿（2.0T）Token 的行业标杆（如 LLaMA-2 7B）！</strong></p>
-</blockquote>
-<blockquote>
-<p><strong>论文题目</strong>：DataComp-LM: In search of the next generation of training sets for language models<br>
-<strong>作者团队</strong>：Jeffrey Li, Alex Fang, Georgios Smyrnis, Ludwig Schmidt 等 (Apple, UW, TRI, Columbia)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2406.11794">https://arxiv.org/abs/2406.11794</a><br>
-<strong>HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2406.11794">https://arxiv.org/html/2406.11794</a><br>
-<strong>开源项目主页</strong>：<a target="_blank" rel="noopener" href="https://datacomp.library.cmu.edu/dclm">https://datacomp.library.cmu.edu/dclm</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2025/09/16/DataComp-LM-InSearchOfNextGenerationTrainingSets/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2025/09/14/TheFineWebDatasets-DecantingTheWeb/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2025/09/14/TheFineWebDatasets-DecantingTheWeb/" class="post-title-link" itemprop="url">【论文分享】大模型“醒酒哲学”：Hugging Face 如何从 15 万亿互联网泥沙中淘出纯金（FineWeb）？</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2025-09-14 15:00:00" itemprop="dateCreated datePublished" datetime="2025-09-14T15:00:00+08:00">2025-09-14</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 15:06:19" itemprop="dateModified" datetime="2026-11-27T15:06:19+08:00">2026-11-27</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>3.6k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>13 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在过去两年里，开源大模型与闭源巨头（GPT-4、Claude）之间始终隔着一道难以逾越的鸿沟。很多团队一度陷入了严重的认知误区：</p>
-<ul>
-<li><em>“是不是闭源大厂的 Transformer 架构有什么未公开的绝密黑科技？”</em></li>
-<li><em>“是不是我们的算力不够庞大、卡堆得不够多？”</em></li>
-</ul>
-<p>全球最大的开源 AI 社区 <strong>Hugging Face</strong> 联合顶尖研究团队，在重磅论文 <strong>《The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale》</strong> 中彻底揭开了大模型行业最大的“遮羞布”：<strong>架构早就全面开源了，各大巨头真正藏在深闺里的终极武器，从来不是模型代码，而是他们秘密打磨的高纯度数据集！</strong></p>
-<p>这篇论文最迷人的地方在于其标题中的词汇——<strong>Decanting（醒酒/倾析）</strong>。如同侍酒师品鉴一瓶历经十年的名庄红酒一样：互联网上十年的公开网页，就像一坛积满了泥沙与碎屑的陈年浊酒；而 Hugging Face 的使命，就是<strong>把最上层清澈醇厚的 15 万亿“黄金酒液”缓缓倒出，将瓶底沉淀的粗俗垃圾尽数抛弃</strong>！</p>
-<blockquote>
-<p><strong>在模型架构早已全面开源的今天，大模型真正的“智商护城河”到底在哪里？是继续盲目堆叠海量无序算力，还是向数据源头的纯度要答案？</strong></p>
-</blockquote>
-<p>论文作者通过长达数月的工业级清洗与严密对照实验给出了震撼全行业的答卷：通过五道精密的“醒酒滤网”，不仅洗出了 <strong>15 万亿 Token 的 FineWeb 纯净语料</strong>，其教育精选版 <strong>FineWeb-Edu</strong> 更是让模型在综合学科知识（MMLU）和科学常识（ARC）上<strong>暴涨 5~10 个百分点</strong>！</p>
-<blockquote>
-<p><strong>论文题目</strong>：The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale<br>
-<strong>作者团队</strong>：Guilherme Penedo, Hynek Kydlíček, Loubna Ben Allal, Anton Lozhkov, Margaret Mitchell, Colin Raffel, Leandro von Werra, Thomas Wolf (Hugging Face)<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2406.17557">https://arxiv.org/abs/2406.17557</a><br>
-<strong>HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2406.17557">https://arxiv.org/html/2406.17557</a><br>
-<strong>开源数据集</strong>：<a target="_blank" rel="noopener" href="https://huggingface.co/datasets/HuggingFaceFW/fineweb">https://huggingface.co/datasets/HuggingFaceFW/fineweb</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2025/09/14/TheFineWebDatasets-DecantingTheWeb/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/16/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><span class="page-number current">17</span><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/18/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -772,14 +759,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">565k</span>
+    <span title="站点总字数">573k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">34:14</span>
+    <span title="站点阅读时长">34:45</span>
   </span>
 </div>
 <div class="busuanzi-count">

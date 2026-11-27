@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><!-- hexo injector head_begin start --><!-- Microsoft Clarity begins-->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "naqjf65d7k");
+    </script>
+    <!-- Microsoft Clarity ends-->
+    <!-- hexo injector head_begin end -->
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta name="google-site-verification" content="RdqEdxmQbwsDW_FrMMvTk8I0O4F6LP09yWHjpl_CRBI">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.css" integrity="sha256-mdaMxrItEW6hMIVJJNPKuX0B7KCSJQVEv3mVY4N2we4=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"lewlh.github.io","root":"/","images":"/images","scheme":"Mist","darkmode":true,"version":"8.29.0","exturl":false,"sidebar":{"position":"right","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"pangu":false,"comments":{"style":"tabs","active":["utterances"],"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在多模态大模型（VLM）与视频智能体（Video Agent）的工程落地中，“如何让模型看懂长视频与快动作” 始终是困扰后端架构与算法工程师的核心瓶颈。 在面对数分钟的高清视频时，工业界最常见的处理管线往往是 “全局等间距固定抽帧（Fixed-frame Sampling）” —— 例如暴力抽取 32 帧或 64 帧，打包塞进视觉编码器。这种“批处理只读管道”的弊端显而易见：  关键证据严重漏报：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【论文分享】告别固定抽帧与盲目瞎猜：南大与可灵AI新作 PQ-OPD 如何用“特权问题+在策略蒸馏”打造自驱感知视频 Agent">
+<meta property="og:url" content="https://lewlh.github.io/papers/2026/11/27/PQ-OPD/index.html">
+<meta property="og:site_name" content="Lewlh&#39;s blog">
+<meta property="og:description" content="在多模态大模型（VLM）与视频智能体（Video Agent）的工程落地中，“如何让模型看懂长视频与快动作” 始终是困扰后端架构与算法工程师的核心瓶颈。 在面对数分钟的高清视频时，工业界最常见的处理管线往往是 “全局等间距固定抽帧（Fixed-frame Sampling）” —— 例如暴力抽取 32 帧或 64 帧，打包塞进视觉编码器。这种“批处理只读管道”的弊端显而易见：  关键证据严重漏报：">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-11-27T07:10:00.000Z">
+<meta property="article:modified_time" content="2026-11-27T10:10:35.358Z">
+<meta property="article:author" content="豪豪">
+<meta property="article:tag" content="PQ-OPD">
+<meta property="article:tag" content="在策略训练">
+<meta property="article:tag" content="多模态大模型">
+<meta property="article:tag" content="智能体架构">
+<meta property="article:tag" content="知识蒸馏">
+<meta property="article:tag" content="视频理解">
+<meta property="article:tag" content="论文分享">
+<meta property="article:tag" content="软件工程视角">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://lewlh.github.io/papers/2026/11/27/PQ-OPD/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://lewlh.github.io/papers/2026/11/27/PQ-OPD/","path":"papers/2026/11/27/PQ-OPD/","title":"【论文分享】告别固定抽帧与盲目瞎猜：南大与可灵AI新作 PQ-OPD 如何用“特权问题+在策略蒸馏”打造自驱感知视频 Agent"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>【论文分享】告别固定抽帧与盲目瞎猜：南大与可灵AI新作 PQ-OPD 如何用“特权问题+在策略蒸馏”打造自驱感知视频 Agent | Lewlh's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LRB75CMZVE"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-LRB75CMZVE","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/6.1.14/fancybox/fancybox.umd.js" integrity="sha256-QnJV4HT5r8i89ovZGRD86iynZqHerEbT2xt69vDM36I=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+  <script class="next-config" data-name="pdf" type="application/json">{"object_url":{"url":"https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.3.1/pdfobject.min.js","integrity":"sha256-jI72I8ZLVflVOisZIOaLvRew3tyvzeu6aZXFm7P7dEo="},"url":"/lib/pdf/web/viewer.html"}</script>
+  <script src="/js/third-party/tags/pdf.js" defer></script>
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+
+
+  
+  <script async src="https://cn.vercount.one/js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha256-UF1fgpAiu3tPJN/uCqEUHNe7pnr+QR0SQDNfgglgtcM=" crossorigin="anonymous">
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lewlh's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">399</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">124</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E6%9E%B6%E6%9E%84%E7%97%9B%E7%82%B9%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E2%80%9C%E6%89%B9%E5%A4%84%E7%90%86%E9%9D%99%E6%80%81%E6%8A%BD%E5%B8%A7%E2%80%9D%E4%B8%8E%E2%80%9C%E9%80%9A%E7%94%A8-Agent-%E7%9B%B2%E8%AF%95%E2%80%9D%E9%83%BD%E4%BC%9A%E5%A4%B1%E6%95%88%EF%BC%9F"><span class="nav-text">01. 架构痛点：为什么“批处理静态抽帧”与“通用 Agent 盲试”都会失效？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E9%9D%99%E6%80%81%E6%89%B9%E5%A4%84%E7%90%86%E6%A8%A1%E5%BC%8F%EF%BC%88Static-Batch-Processing%EF%BC%89%E7%9A%84%E6%9C%AC%E8%B4%A8%E7%BC%BA%E9%99%B7"><span class="nav-text">1.1 静态批处理模式（Static Batch Processing）的本质缺陷</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E5%8E%9F%E7%94%9F-Agent-%E7%9A%84%E2%80%9C%E6%97%A0%E7%9B%AE%E6%A0%87%E6%8E%A2%E7%B4%A2%E7%9B%B2%E5%8C%BA%EF%BC%88Cold-Exploration-Trap%EF%BC%89%E2%80%9D"><span class="nav-text">1.2 原生 Agent 的“无目标探索盲区（Cold Exploration Trap）”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%EF%BC%9A%E6%8C%89%E9%9C%80%E6%8B%89%E5%8F%96%EF%BC%88Lazy-Loading%EF%BC%89%E7%9A%84%E7%8A%B6%E6%80%81%E6%9C%BA%E4%B8%8E%E5%8F%8C%E5%B7%A5%E5%85%B7%E5%8D%8F%E8%AE%AE"><span class="nav-text">02. 系统设计：按需拉取（Lazy Loading）的状态机与双工具协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%9E%81%E5%BA%A6%E5%85%8B%E5%88%B6%E7%9A%84%E7%B2%BE%E7%AE%80%E5%B7%A5%E5%85%B7%E9%9B%86%EF%BC%88Tool-Specifications%EF%BC%89"><span class="nav-text">2.1 极度克制的精简工具集（Tool Specifications）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E4%B8%A5%E6%A0%BC%E5%8F%97%E6%8E%A7%E7%9A%84%E8%B5%84%E6%BA%90%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6%EF%BC%88Circuit-Breakers-Quotas%EF%BC%89"><span class="nav-text">2.2 严格受控的资源保护机制（Circuit Breakers &amp; Quotas）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#03-%E6%A0%B8%E5%BF%83%E8%8C%83%E5%BC%8F%E7%AA%81%E7%A0%B4%EF%BC%9A%E7%A6%BB%E7%BA%BF%E7%89%B9%E6%9D%83%E6%B5%8B%E8%AF%95%E6%A1%A9%EF%BC%88PQs%EF%BC%89%E4%B8%8E%E5%9C%A8%E7%AD%96%E7%95%A5%EF%BC%88On-Policy%EF%BC%89%E5%AE%9E%E6%97%B6%E7%BB%93%E5%AF%B9%E7%BA%A0%E5%81%8F"><span class="nav-text">03. 核心范式突破：离线特权测试桩（PQs）与在策略（On-Policy）实时结对纠偏</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E4%BB%80%E4%B9%88%E6%98%AF%E2%80%9C%E6%84%9F%E7%9F%A5%E9%97%AE%E9%A2%98%EF%BC%88Perception-Questions-PQs%EF%BC%89%E2%80%9D%EF%BC%9F"><span class="nav-text">3.1 什么是“感知问题（Perception Questions, PQs）”？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E9%BB%84%E9%87%91%E6%B3%95%E5%88%99%EF%BC%9A%E5%8F%AA%E6%8F%90%E6%B5%8B%E8%AF%95%E8%A6%81%E6%B1%82%EF%BC%88Query%EF%BC%89%EF%BC%8C%E4%B8%A5%E7%A6%81%E6%B3%84%E9%9C%B2%E6%B5%8B%E8%AF%95%E7%BB%93%E6%9E%9C%EF%BC%88Answer%EF%BC%89"><span class="nav-text">3.2 黄金法则：只提测试要求（Query），严禁泄露测试结果（Answer）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E2%80%9C%E5%9C%A8%E7%AD%96%E7%95%A5%E8%92%B8%E9%A6%8F%EF%BC%88On-Policy%EF%BC%89%E2%80%9D%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E2%80%9C%E7%A6%BB%E7%BA%BF%E8%BD%A8%E8%BF%B9%E5%9B%9E%E6%94%BE%EF%BC%88Off-Policy-SFT%EF%BC%89%E2%80%9D%EF%BC%9F"><span class="nav-text">3.3 为什么是“在策略蒸馏（On-Policy）”，而不是“离线轨迹回放（Off-Policy SFT）”？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#04-%E9%9C%87%E6%92%BC%E7%9A%84%E5%B7%A5%E7%A8%8B%E5%8F%8D%E6%80%9D%EF%BC%9A%E2%80%9C%E7%AD%94%E6%A1%88%E6%B3%84%E6%BC%8F%E2%80%9D%E5%BC%95%E5%8F%91%E7%9A%84%E7%BC%93%E5%AD%98%E4%BD%9C%E5%BC%8A%E4%B8%8E%E7%B3%BB%E7%BB%9F%E9%80%80%E5%8C%96"><span class="nav-text">04. 震撼的工程反思：“答案泄漏”引发的缓存作弊与系统退化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%E8%83%8C%E5%90%8E%E7%9A%84%E8%BD%AF%E4%BB%B6%E9%99%8D%E7%BA%A7%E6%9C%BA%E7%90%86%EF%BC%88Shortcut-Learning%EF%BC%89"><span class="nav-text">深度剖析背后的软件降级机理（Shortcut Learning）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#05-%E6%A0%B8%E5%BF%83%E5%AE%9E%E9%AA%8C%E4%B8%8E%E8%BD%A8%E8%BF%B9%E8%A7%A3%E8%80%A6%EF%BC%88Trajectory-Swapping%EF%BC%89%E9%AA%8C%E8%AF%81"><span class="nav-text">05. 核心实验与轨迹解耦（Trajectory Swapping）验证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E5%85%A8%E9%9D%A2%E9%A2%86%E5%85%88%E7%9A%84%E5%AE%9E%E9%AA%8C%E8%AF%84%E6%B5%8B"><span class="nav-text">5.1 全面领先的实验评测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E7%BB%9D%E5%A6%99%E7%9A%84%E8%BD%A8%E8%BF%B9%E4%BA%92%E6%8D%A2%E5%AE%9E%E9%AA%8C%EF%BC%9A%E5%88%B0%E5%BA%95%E6%98%AF%E2%80%9C%E6%A3%80%E7%B4%A2%E5%81%9A%E5%BE%97%E5%A5%BD%E2%80%9D%E8%BF%98%E6%98%AF%E2%80%9C%E8%A1%A8%E8%BE%BE%E5%86%99%E5%BE%97%E5%A5%BD%E2%80%9D%EF%BC%9F"><span class="nav-text">5.2 绝妙的轨迹互换实验：到底是“检索做得好”还是“表达写得好”？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#06-%E7%94%9F%E4%BA%A7%E8%90%BD%E5%9C%B0%E6%9D%83%E8%A1%A1%E4%B8%8E%E5%B7%A5%E7%A8%8B%E7%9B%B4%E8%A7%89%E5%90%AF%E7%A4%BA"><span class="nav-text">06. 生产落地权衡与工程直觉启示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%88%90%E6%9C%AC%E4%B8%8E%E5%BB%B6%E8%BF%9F%E7%9A%84%E5%B7%A5%E7%A8%8B%E6%9D%83%E8%A1%A1%EF%BC%88Latency-vs-Completeness-Trade-off%EF%BC%89"><span class="nav-text">1. 成本与延迟的工程权衡（Latency vs. Completeness Trade-off）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%AE%97%E5%8A%9B%E7%BA%A6%E6%9D%9F%E4%B8%8B%E7%9A%84%E2%80%9C%E5%BC%B9%E6%80%A7%E9%A2%84%E7%AE%97%E2%80%9D%E8%AE%BE%E8%AE%A1%EF%BC%88Frame-Budget-Elasticity%EF%BC%89"><span class="nav-text">2. 算力约束下的“弹性预算”设计（Frame Budget Elasticity）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E2%80%9C%E6%B5%8B%E8%AF%95%E6%A1%A9%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91%EF%BC%88TDD%EF%BC%89%E2%80%9D%E5%9C%A8%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E4%B8%AD%E7%9A%84%E5%85%B7%E8%B1%A1%E5%8C%96"><span class="nav-text">3. “测试桩驱动开发（TDD）”在大模型训练中的具象化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE%E4%B8%8E%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="nav-text">参考文献与相关资源</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">豪豪</p>
+  <div class="site-description" itemprop="description">豪豪的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">124</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">399</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/27/PQ-OPD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="【论文分享】告别固定抽帧与盲目瞎猜：南大与可灵AI新作 PQ-OPD 如何用“特权问题+在策略蒸馏”打造自驱感知视频 Agent | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          【论文分享】告别固定抽帧与盲目瞎猜：南大与可灵AI新作 PQ-OPD 如何用“特权问题+在策略蒸馏”打造自驱感知视频 Agent
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-27 15:10:00 / 修改时间：18:10:35" itemprop="dateCreated datePublished" datetime="2026-11-27T15:10:00+08:00">2026-11-27</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>16 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在多模态大模型（VLM）与视频智能体（Video Agent）的工程落地中，<strong>“如何让模型看懂长视频与快动作”</strong> 始终是困扰后端架构与算法工程师的核心瓶颈。</p>
+<p>在面对数分钟的高清视频时，工业界最常见的处理管线往往是 <strong>“全局等间距固定抽帧（Fixed-frame Sampling）”</strong> —— 例如暴力抽取 32 帧或 64 帧，打包塞进视觉编码器。这种“批处理只读管道”的弊端显而易见：</p>
+<ul>
+<li><strong>关键证据严重漏报</strong>：1 秒内的快动作（如魔术换牌、微小手部操作、眨眼与掉落）在固定抽帧中往往直接被跳过，导致时钟错乱与动作幻觉；</li>
+<li><strong>显存与带宽硬约束</strong>：要想不错过细节，如果把抽帧率拉到几百帧，模型的 Attention 序列长度立即爆炸，推理延迟与显存开销（OOM）将彻底摧毁线上业务系统的 SLA。</li>
+</ul>
+<p>为了解决这个矛盾，近来业界开始转向 <strong>“交互式智能体（Agentic Perception）”</strong> —— 给模型挂载 API 工具（比如时域跳转 <code>seek</code>、局部放大 <code>zoom</code>），让模型按需读取视频。然而，这种方案在**视频问答（VideoQA）<strong>中表现尚可（因为用户提问明确指出了目标），但在更通用的</strong>视频详尽描述（Detailed Video Captioning）**任务中却彻底沦为“无头苍蝇”：用户只给了一句泛泛的“请详细描述视频”，模型根本不知道该从何查起、查到什么程度算完。</p>
+<p>针对这一痛点，**南京大学与快手可灵AI（KlingAI Research）**在最新成果中提出了 <strong>PQ-OPD</strong> 框架：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《Teaching What to Look For: Privileged Perception Questions for Agentic On-Policy Distillation in Video Captioning》<br>
+<strong>论文链接</strong>：<a target="_blank" href="https://arxiv.org/abs/2611.22755" rel="external nofollow noreferrer noopener">https://arxiv.org/abs/2611.22755</a><br>
+<strong>HTML 预览</strong>：<a target="_blank" href="https://arxiv.org/html/2611.22755" rel="external nofollow noreferrer noopener">https://arxiv.org/html/2611.22755</a><br>
+<strong>作者团队</strong>：Yifan Xu, Ruopeng Gao, Zhixiao Wang, Jiafu Tang, Yichun Yang, Zihao Wang, Yuanxing Zhang, Limin Wang（南京大学 &amp; 快手可灵AI KlingAI Research）<br>
+<strong>核心战果</strong>：</p>
+<ul>
+<li><strong>全基准刷新开源纪录</strong>：在细粒度视频理解三大核心基准（CaReBench、DREAM-1K、VidCapBench-AE）以及下游视频问答（ShortVidBench、MotionBench）上，全面超越同尺度开源基线与未经训练的 Agent 模型；</li>
+<li><strong>小参数越级反超</strong>：采用 9B 教师蒸馏出的 <strong>4B 学生模型（PQ-OPD 4B）</strong>，在多个指标上直接反超了未调优的 9B 完整 Agent（DREAM-1K F1 32.6 vs 31.3）；</li>
+<li><strong>极致低帧预算的高效表现</strong>：在仅允许读取 8 帧/16 帧的极端限制下，PQ-OPD 依靠精准的自主探索定位，性能大幅拉开传统固定抽帧方案；</li>
+<li><strong>开源承诺</strong>：作者团队在论文中明确承诺公开发布构建的感知问题数据集（43K+ PQs）、生成代码及训练后的模型权重。</li>
+</ul>
+</blockquote>
+<p>站在 <strong>软件开发工程师、系统架构师与后端研发</strong> 的视角，这篇论文不仅仅是多模态算法的推进，更是一份关于 <strong>“如何为自主 Agent 构建离线特权测试桩（Privileged Test Harness）、避免模型作弊降级（Shortcut Learning）、实施在策略实时纠偏（Pair Programming / On-Policy Linting）”</strong> 的教科书级工程实践。</p>
+<p>本文将完全剥离复杂的数学黑话，以系统设计与软件架构的语言深度拆解 PQ-OPD 的核心设计。</p>
+<span id="more"></span>
+<hr>
+<h2 id="01-架构痛点：为什么“批处理静态抽帧”与“通用-Agent-盲试”都会失效？">01. 架构痛点：为什么“批处理静态抽帧”与“通用 Agent 盲试”都会失效？</h2>
+<p>在探讨技术架构之前，我们先用软件系统的输入输出（I/O）模型来复盘既有方案的结构性缺陷。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[传统静态方案] Video File ---&gt; 预处理均匀截取 32 帧 (Lossy) ---&gt; 一次性喂给大模型 ---&gt; 输出描述</span><br><span class="line">                            （面临信息丢失与 OOM 的双重挤压）</span><br><span class="line"></span><br><span class="line">[原生 Agent 方案] &quot;请详细描述视频&quot; ---&gt; Agent 随机/盲目调用 seek/zoom ---&gt; 缺乏目标信号，陷入无序死循环或草草收场</span><br></pre></td></tr></table></figure>
+<h3 id="1-1-静态批处理模式（Static-Batch-Processing）的本质缺陷">1.1 静态批处理模式（Static Batch Processing）的本质缺陷</h3>
+<ul>
+<li><strong>高延迟与吞吐天花板</strong>：为了不漏掉信息，工业界早期的做法是把帧数堆到 64 帧、128 帧甚至更高。但 Transformer 的自注意力计算复杂度是序列长度的二次方 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>L</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(L^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>。输入帧翻倍意味着显存占用剧增、首字延迟（TTFT）大幅飙升，根本无法作为低延迟服务提供。</li>
+<li><strong>低信噪比与信息淹没</strong>：视频中绝大多数镜头往往是背景静止或无关过渡，无脑抽帧把 80% 以上的计算资源浪费在静态背景上，而最关键的“瞬时交互”可能正好落在抽帧间隙。</li>
+</ul>
+<h3 id="1-2-原生-Agent-的“无目标探索盲区（Cold-Exploration-Trap）”">1.2 原生 Agent 的“无目标探索盲区（Cold Exploration Trap）”</h3>
+<p>后来工程界尝试给大模型提供工具接口（API）：</p>
+<ul>
+<li>如果是<strong>问答场景（VideoQA）</strong>：“第 3 秒男主从口袋掏出的是什么？”，Prompt 提供了极明确的检索键（Query Key），模型可以把参数直奔 <code>seek(2.5, 3.5)</code> 和 <code>zoom(...)</code>；</li>
+<li>但在**描述任务（Captioning）**中，输入只有一句全局指令：“<em>请详细描述该视频的所有细节</em>”。此时，模型面临无穷大的动作搜索空间——没有外部精准引导，原生 Agent 要么像无头苍蝇一样随机调用几次工具后放弃，要么过度消耗配额却收效甚微。</li>
+</ul>
+<hr>
+<h2 id="02-系统设计：按需拉取（Lazy-Loading）的状态机与双工具协议">02. 系统设计：按需拉取（Lazy Loading）的状态机与双工具协议</h2>
+<p>针对上述问题，PQ-OPD 首先确立了清晰的智能体交互协议。它将视频理解从“一次性内存加载”重构为<strong>基于只读存储的按需分页索引系统</strong>。</p>
+<pre><code class="highlight mermaid">stateDiagram-v2
+    [*] --&gt; InitialState: 接收视频元数据 (Duration, Prompt)
+    InitialState --&gt; ReasoningStep: 生成思考 (Thought z_r)
+    ReasoningStep --&gt; ToolInvocation: 决策是否获取更多视觉证据
+    
+    state ToolInvocation &#123;
+        [*] --&gt; Choice
+        Choice --&gt; SeekCall: seek(t_start, t_end) 粗粒度时域采样 (&lt;=8帧)
+        Choice --&gt; ZoomCall: zoom(t, [x1,y1,x2,y2]) 细粒度空间局部放大 (1帧高分裁剪)
+    &#125;
+    
+    ToolInvocation --&gt; EnvironmentObservation: 外部环境只读返回切片 (Image Obs o_r)
+    EnvironmentObservation --&gt; ReasoningStep: 写入上下文，进入下一轮迭代 (Round r+1)
+    
+    ReasoningStep --&gt; FinalCaption: 信息已充分 / 达到最大轮次 (R &lt;= 16)
+    FinalCaption --&gt; [*]: 输出最终详尽描述 (Detailed Caption y)</code></pre>
+<h3 id="2-1-极度克制的精简工具集（Tool-Specifications）">2.1 极度克制的精简工具集（Tool Specifications）</h3>
+<p>作者并没有设计复杂的工具链，仅暴露了两个原语级 API，每个请求限制在 46 万像素内：</p>
+<ol>
+<li><strong>时域粗筛：<code>seek(t_start, t_end)</code></strong>
+<ul>
+<li><strong>语义</strong>：在指定起止时间内均匀返回至多 8 帧低清概览图；</li>
+<li><strong>作用</strong>：定位动作的发生区间、前后状态变化序列。</li>
+</ul>
+</li>
+<li><strong>空域精查：<code>zoom(t, [x1, y1, x2, y2])</code></strong>
+<ul>
+<li><strong>语义</strong>：在时刻 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi></mrow><annotation encoding="application/x-tex">t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6151em;"></span><span class="mord mathnormal">t</span></span></span></span>，根据归一化坐标框 <code>[0, 1000]</code> 切取该局部的单张高清大图；</li>
+<li><strong>作用</strong>：微小物品识别、文字抓取、手部精细动作判定。</li>
+</ul>
+</li>
+</ol>
+<h3 id="2-2-严格受控的资源保护机制（Circuit-Breakers-Quotas）">2.2 严格受控的资源保护机制（Circuit Breakers &amp; Quotas）</h3>
+<p>为防止 Agent 在生产环境中发生不可控的 Token 泄露和死循环，系统设立了刚性熔断阀值：</p>
+<ul>
+<li><strong>最大交互轮次</strong>：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>≤</mo><mn>16</mn></mrow><annotation encoding="application/x-tex">R \le 16</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8193em;vertical-align:-0.136em;"></span><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≤</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">16</span></span></span></span> 轮；</li>
+<li><strong>视觉帧配额预算</strong>：整个会话期间累计返回帧数硬顶为 <strong>128 帧</strong>；</li>
+<li><strong>上下文容量上限</strong>：严格限制在 128K 窗口以内。</li>
+</ul>
+<hr>
+<h2 id="03-核心范式突破：离线特权测试桩（PQs）与在策略（On-Policy）实时结对纠偏">03. 核心范式突破：离线特权测试桩（PQs）与在策略（On-Policy）实时结对纠偏</h2>
+<p>如果模型在推理期没有任何额外提示，那么怎么才能让它在训练期掌握高超的探索本领？这篇论文最精妙的设计，正是其<strong>训练期与生产期的“不对称架构设计”</strong>。</p>
+<pre><code class="highlight mermaid">flowchart TD
+    subgraph OfflinePrep[&quot;离线数据流水线 (Data ETL)&quot;]
+        V[训练视频 V] --&gt; LLM[Gemini 3.1 Pro 离线出题]
+        LLM --&gt; PQ[&quot;感知问题集 Q(V)\n(指明&#x27;看什么/何时看&#x27;，严禁包含答案！)&quot;]
+    end
+
+    subgraph OnlineTraining[&quot;在线训练流水线 (On-Policy Distillation Loop)&quot;]
+        subgraph StudentSpace[&quot;学生环境 (Student - 生产态)&quot;]
+            S_Prompt[&quot;基础通用指令\n&#x27;请详细描述该视频&#x27;&quot;] --&gt; S_Model[&quot;Student 模型 (Qwen3.5 9B/4B)\n[参数可导求梯度]&quot;]
+            S_Model --&gt; Rollout[&quot;自主生成决策轨迹\nz1 -&gt; a1 -&gt; o1 -&gt; ... -&gt; y&quot;]
+        end
+
+        subgraph TeacherSpace[&quot;特权教师环境 (Teacher - 调试测试桩)&quot;]
+            T_Prompt[&quot;基础指令 + 特权小抄 Q(V)\n[只在训练期挂载]&quot;] --&gt; T_Model[&quot;Teacher 教师模型 (参数冻结)&quot;]
+        end
+
+        Rollout -.-&gt;|沿着学生踩出来的历史路径 ht| T_Model
+        T_Model --&gt;|输出当前步理想分布 q(·|ht)| JSD[Top-100 JSD 散度损失]
+        S_Model --&gt;|输出当前步实际分布 p(·|ht)| JSD
+        JSD --&gt;|梯度反向传播，仅更新 Student| S_Model
+    end</code></pre>
+<h3 id="3-1-什么是“感知问题（Perception-Questions-PQs）”？">3.1 什么是“感知问题（Perception Questions, PQs）”？</h3>
+<p>离线阶段，作者利用商用旗舰模型（Gemini 3.1 Pro）处理 5,979 个训练视频，自动提炼出 43,477 个结构化感知问题（平均每个视频约 7.27 个）。</p>
+<p>每个 PQ 的结构设计极为考究：</p>
+<ul>
+<li><strong>明确指出“去哪看”</strong>：必须包含具体的触发时间段（Timestamps）；</li>
+<li><strong>明确指出“看什么特征”</strong>：关注主要对象、人际互动、动作序列、物理状态突变；</li>
+<li><strong>典型示例</strong>：“<em>在视频 12.3 秒到 15.0 秒之间，左侧穿灰色外套的人递出的物体是什么？</em>”</li>
+</ul>
+<h3 id="3-2-黄金法则：只提测试要求（Query），严禁泄露测试结果（Answer）">3.2 黄金法则：只提测试要求（Query），严禁泄露测试结果（Answer）</h3>
+<p>在软件工程中，如果你给系统写自动化测试，你的测试用例不能直接在系统初始状态中硬编码好最终输出，否则系统就会绕过实际业务逻辑直接 return mock 数据。</p>
+<p>论文同样严格恪守这一底线：<strong>生成问题时产生的“标准答案”与“证据文本”只用于离线质检和人工抽查，进入训练流水线前全部剔除，Teacher 拿到的只有纯问题！</strong></p>
+<ul>
+<li>为什么？如果把答案透露给 Teacher，Teacher 在指导 Student 时就会倾向于“直接用语言脑补出答案”，从而破坏模型调用底层图像 API 进行探索的决心。</li>
+</ul>
+<h3 id="3-3-为什么是“在策略蒸馏（On-Policy）”，而不是“离线轨迹回放（Off-Policy-SFT）”？">3.3 为什么是“在策略蒸馏（On-Policy）”，而不是“离线轨迹回放（Off-Policy SFT）”？</h3>
+<p>很多团队在训练 Agent 时，习惯于让 GPT-4 跑出一批完美的调用日志（Tool Traces），然后让小模型去死记硬背（SFT）。论文用实验直接证明了这种做法的低效：</p>
+<ul>
+<li><strong>离策略（Off-Policy SFT）的硬伤</strong>：就像让新手死记硬背顶尖架构师敲完的代码。新手一旦在运行中某一步工具参数传错（比如 <code>seek</code> 的起止时间偏差了 1 秒），他就落入了从未见过的状态空间，引发链式雪崩错误（Cascading Errors）；</li>
+<li><strong>在策略（On-Policy Distillation）的威力</strong>：相当于<strong>资深架构师坐在新手旁边结对编程（Pair Programming）</strong>。让新手（Student）完全按照自己的策略去敲代码、调接口。无论新手这一步是探索正确还是稍微走偏，身边的 Teacher（凭借着手里的 PQ 特权小抄）都会在当前这个具体位置给出一个高质量的 Token 概率分布，实时校正它的下一步思路。</li>
+</ul>
+<p>通过仅微调 LLM 主干 372 个 Optimizer Steps，Student 彻底将这种敏锐的线索嗅觉内化为了自身本能。</p>
+<hr>
+<h2 id="04-震撼的工程反思：“答案泄漏”引发的缓存作弊与系统退化">04. 震撼的工程反思：“答案泄漏”引发的缓存作弊与系统退化</h2>
+<p>论文第 4.4 节进行了一个极具工程警示意义的对照实验：<strong>如果训练时逐步把 PQs 的答案“泄露（Leakage）”给 Teacher（从 0% 逐渐加码到 100%），会发生什么？</strong></p>
+<p>结果令人大跌眼镜：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">答案泄露比例:     0% (标准方案)  ------&gt;  50% 泄漏  ------&gt;  100% 完全泄露</span><br><span class="line">CaReBench F1:        40.6        ------&gt;    38.2    ------&gt;     35.8 (崩溃暴跌)</span><br><span class="line">DREAM-1K F1:         33.3        ------&gt;    30.5    ------&gt;     27.7 (甚至不如原始基线)</span><br><span class="line">平均工具调用数:       18.4 次      ------&gt;    12.1 次  ------&gt;      8.4 次 (锐减近 60%)</span><br><span class="line">零观测直接交卷率:      0.0%       ------&gt;     4.2%   ------&gt;     16.8% (彻底放弃调用工具)</span><br></pre></td></tr></table></figure>
+<h3 id="深度剖析背后的软件降级机理（Shortcut-Learning）">深度剖析背后的软件降级机理（Shortcut Learning）</h3>
+<ol>
+<li><strong>语义捷径绕过物理 I/O</strong>：当 Teacher 知道了答案文本，大模型的语言自回归本能会驱使它直接在上下文里把答案顺理成章地写出来。既然只靠文本补全就能“交差”，模型就学到了极度糟糕的懒惰策略——不再发出 <code>zoom</code> 或 <code>seek</code> 指令；</li>
+<li><strong>生产环境直接暴雷</strong>：在训练期依靠小抄蒙混过关，但一旦部署到生产环境（此时没有任何 PQs 和答案），系统已经丧失了主动调用 API 探查世界的能力，只能对着空白输入凭空胡编乱造（Hallucination）。有 <strong>16.8% 的样本甚至一眼视频都不看，直接盲写输出！</strong></li>
+</ol>
+<blockquote>
+<p><strong>架构师警示</strong>：在设计 Agent 的强化学习或知识蒸馏体系时，<strong>必须对特权信息进行严格的数据单向隔离</strong>。任何可以直接推导出最终结果的捷径数据，都会像毒药一样摧毁整个 Agent 的工具调用逻辑。</p>
+</blockquote>
+<hr>
+<h2 id="05-核心实验与轨迹解耦（Trajectory-Swapping）验证">05. 核心实验与轨迹解耦（Trajectory Swapping）验证</h2>
+<h3 id="5-1-全面领先的实验评测">5.1 全面领先的实验评测</h3>
+<p>在评测中，PQ-OPD 在多模态细粒度理解领域表现极为亮眼：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">架构形态</th>
+<th style="text-align:left">模型版本</th>
+<th style="text-align:center">DREAM-1K (Event F1)</th>
+<th style="text-align:center">CaReBench (Action / Object F1)</th>
+<th style="text-align:center">ShortVidBench (QA Acc)</th>
+<th style="text-align:center">MotionBench (QA Acc)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>商业闭源 (固定 32 帧)</strong></td>
+<td style="text-align:left">Gemini 3 Flash</td>
+<td style="text-align:center">37.6</td>
+<td style="text-align:center">42.4 / 40.3</td>
+<td style="text-align:center">78.6</td>
+<td style="text-align:center">57.6</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">Gemini 3.1 Pro</td>
+<td style="text-align:center">38.2</td>
+<td style="text-align:center">42.0 / 39.3</td>
+<td style="text-align:center">78.4</td>
+<td style="text-align:center">55.9</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>开源直出 (固定 32 帧)</strong></td>
+<td style="text-align:left">Qwen2.5-VL 7B</td>
+<td style="text-align:center">27.2</td>
+<td style="text-align:center">30.9 / 34.1</td>
+<td style="text-align:center">70.0</td>
+<td style="text-align:center">50.7</td>
+</tr>
+<tr>
+<td style="text-align:left" rowspan="2"></td>
+<td style="text-align:left">Qwen3-VL 8B</td>
+<td style="text-align:center">29.1</td>
+<td style="text-align:center">35.9 / 38.6</td>
+<td style="text-align:center">72.8</td>
+<td style="text-align:center">53.0</td>
+</tr>
+<tr>
+<td style="text-align:left">Qwen3.5 9B (底座)</td>
+<td style="text-align:center">30.3</td>
+<td style="text-align:center">36.9 / 38.3</td>
+<td style="text-align:center">74.8</td>
+<td style="text-align:center">56.6</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>原生 Agent (带工具)</strong></td>
+<td style="text-align:left">Qwen3.5 9B Agent</td>
+<td style="text-align:center">31.3</td>
+<td style="text-align:center">40.0 / 39.6</td>
+<td style="text-align:center">75.0</td>
+<td style="text-align:center">57.0</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>PQ-OPD (本文方案)</strong></td>
+<td style="text-align:left"><strong>PQ-OPD 4B</strong> (9B 教师)</td>
+<td style="text-align:center"><strong>32.6</strong></td>
+<td style="text-align:center">38.9 / <strong>41.4</strong></td>
+<td style="text-align:center"><strong>77.0</strong></td>
+<td style="text-align:center"><strong>57.9</strong></td>
+</tr>
+<tr>
+<td style="text-align:left" rowspan="2"></td>
+<td style="text-align:left"><strong>PQ-OPD 9B</strong> (9B 教师)</td>
+<td style="text-align:center"><strong>33.3</strong></td>
+<td style="text-align:center"><strong>40.1 / 41.0</strong></td>
+<td style="text-align:center"><strong>76.1</strong></td>
+<td style="text-align:center"><strong>59.0</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>PQ-OPD 9B</strong> (27B 教师)</td>
+<td style="text-align:center"><strong>33.4</strong></td>
+<td style="text-align:center"><strong>40.6 / 41.7</strong></td>
+<td style="text-align:center"><strong>78.5</strong></td>
+<td style="text-align:center"><strong>59.6</strong></td>
+</tr>
+</tbody>
+</table>
+<p>不仅刷新了同尺度开源模型的纪录，下游通过其描述回答视频问题的准确率（ShortVidBench 达到 78.5）甚至直逼 Gemini 3 系列！</p>
+<h3 id="5-2-绝妙的轨迹互换实验：到底是“检索做得好”还是“表达写得好”？">5.2 绝妙的轨迹互换实验：到底是“检索做得好”还是“表达写得好”？</h3>
+<p>为了在系统工程上归因“性能提升到底来自哪里”，作者设计了一个标准黑盒解耦实验（Trajectory Swapping）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[实验组 1] 未调优基线 Agent 探查  --&gt;  未调优基线 Agent 总结描述:  DREAM-1K = 31.3</span><br><span class="line">[实验组 2] PQ-OPD Agent 探查     --&gt;  PQ-OPD Agent 总结描述:      DREAM-1K = 33.3 (+2.0 完整收益)</span><br><span class="line"></span><br><span class="line">[交叉验证] PQ-OPD Agent 探查     --&gt;  交给【未调优基线 Agent】总结: DREAM-1K = 32.6 (直接拿到 +1.3 增益！)</span><br><span class="line">[交叉验证] 未调优基线 Agent 探查  --&gt;  交给【PQ-OPD Agent】总结:   DREAM-1K = 32.2</span><br></pre></td></tr></table></figure>
+<p><strong>工程推论</strong>：把 PQ-OPD 采集的图片轨迹打包直接喂给没经过专门训练的原始模型，后者的得分立刻实现了飞跃（占到了总涨幅的 <strong>65% 以上</strong>）。这确凿无疑地证明了：<strong>系统之所以强，核心是“数据检索层（I/O Policy）”变敏锐了，采到了最致命的关键帧；一旦喂饱了高质量的证据数据，下游的生成模块怎么写都不会差！</strong></p>
+<hr>
+<h2 id="06-生产落地权衡与工程直觉启示">06. 生产落地权衡与工程直觉启示</h2>
+<p>最后，作为一线软件研发团队，如果我们要将类似理念落地到具体的业务系统，需要把握以下几大核心直觉：</p>
+<h3 id="1-成本与延迟的工程权衡（Latency-vs-Completeness-Trade-off）">1. 成本与延迟的工程权衡（Latency vs. Completeness Trade-off）</h3>
+<ul>
+<li><strong>端到端延迟变化</strong>：论文附录实测数据显示，未经训练的 Agent 中位数耗时约 30 秒（平均发 11.1 次工具请求），而 PQ-OPD 提升至 41 秒（平均发 18.4 次工具请求）；</li>
+<li><strong>选型策略</strong>：
+<ul>
+<li><strong>高频低延时交互场景</strong>（如用户前台实时对话、搜索即时推荐）：继续采用分块缓存的固定短帧方案；</li>
+<li><strong>高价值密集分析场景</strong>（如工业视频质检、高危操作违规溯源、版权盗链查重、离线多模态大索引构建）：坚定采用 PQ-OPD 这种“按需懒加载”的 Agent 架构，以几十秒的离线计算，换取近乎零漏报的极高事实完备度。</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-算力约束下的“弹性预算”设计（Frame-Budget-Elasticity）">2. 算力约束下的“弹性预算”设计（Frame Budget Elasticity）</h3>
+<ul>
+<li>论文的消融分析显示，即便把工具返回的硬配额掐死在 <strong>16 帧甚至 8 帧</strong>，PQ-OPD 依然显著碾压均匀抽样。</li>
+<li>这启发我们在构建微服务时，可以向调用方暴露 <code>frame_budget</code> 参数：VIP 客户/核心审计任务给 64 帧的高配额深潜模式，普通批处理给 16 帧的高速模式，底层探索策略会自动在预算约束下求取最优证据子集。</li>
+</ul>
+<h3 id="3-“测试桩驱动开发（TDD）”在大模型训练中的具象化">3. “测试桩驱动开发（TDD）”在大模型训练中的具象化</h3>
+<ul>
+<li>想要让复杂 Agent 掌握某种自主能力，不要试图用单纯的 SFT 喂死数据，也不要无指引地全随机探索；</li>
+<li><strong>正解范式</strong>：在离线环境构造高标准的“规格断言（Specification / Checklist）”，用一个具备特权信息的 Evaluator/Teacher 在旁边做实时单步审查，训练完成后拆除测试桩，模型自成高手。</li>
+</ul>
+<hr>
+<h3 id="参考文献与相关资源">参考文献与相关资源</h3>
+<ul>
+<li><strong>arXiv 预印本</strong>：<a target="_blank" href="https://arxiv.org/abs/2611.22755" rel="external nofollow noreferrer noopener">arXiv:2611.22755</a></li>
+<li><strong>论文标题</strong>：<em>Teaching What to Look For: Privileged Perception Questions for Agentic On-Policy Distillation in Video Captioning</em></li>
+<li><strong>项目代码/权重</strong>：作者承诺开源发布，敬请关注后续更新。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BA%E6%96%87%E5%88%86%E4%BA%AB/" rel="tag"># 论文分享</a>
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E8%A7%86%E8%A7%92/" rel="tag"># 软件工程视角</a>
+              <a href="/tags/%E8%A7%86%E9%A2%91%E7%90%86%E8%A7%A3/" rel="tag"># 视频理解</a>
+              <a href="/tags/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%A4%A7%E6%A8%A1%E5%9E%8B/" rel="tag"># 多模态大模型</a>
+              <a href="/tags/%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F/" rel="tag"># 知识蒸馏</a>
+              <a href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93%E6%9E%B6%E6%9E%84/" rel="tag"># 智能体架构</a>
+              <a href="/tags/PQ-OPD/" rel="tag"># PQ-OPD</a>
+              <a href="/tags/%E5%9C%A8%E7%AD%96%E7%95%A5%E8%AE%AD%E7%BB%83/" rel="tag"># 在策略训练</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/27/Region-VAD/" rel="prev" title="【论文分享】反向操作颠覆端到端作弊：WACV 2027 新作 Region-VAD 如何用“特征差分+前缀和穷举”实现 1000+ FPS 的极速视频异常定位">
+                  <i class="fa fa-angle-left"></i> 【论文分享】反向操作颠覆端到端作弊：WACV 2027 新作 Region-VAD 如何用“特征差分+前缀和穷举”实现 1000+ FPS 的极速视频异常定位
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/papers/2026/11/27/WeMM-Embedding/" rel="next" title="【论文分享】2B 反超 8B、单次前向多切面提取与套娃降维：从软件工程视角深度拆解微信多模态向量基座 WeMM-Embedding">
+                  【论文分享】2B 反超 8B、单次前向多切面提取与套娃降维：从软件工程视角深度拆解微信多模态向量基座 WeMM-Embedding <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">豪豪</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">573k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">34:45</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"lewlh/lewlh.github.io","issue_term":"title","theme":"preferred-color-scheme"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
