@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">399</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">124</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">402</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">125</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">124</span>
+          <span class="site-state-item-count">125</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">399</span>
+        <span class="site-state-item-count">402</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,121 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/27/C-RADIOv4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/27/C-RADIOv4/" class="post-title-link" itemprop="url">【论文分享】多合一视觉底座的工程范式：NVIDIA C-RADIOv4 如何用多教师蒸馏、平移去噪与 ViTDet 重构多模态视觉网关</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2026-11-27 18:45:00 / 修改时间：18:53:07" itemprop="dateCreated datePublished" datetime="2026-11-27T18:45:00+08:00">2026-11-27</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>22 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在真实的 AI 工程落地中，视觉感知链路往往很容易演变成一套难以维护的**“异构大模型拼装车”**：</p>
+<ul>
+<li>如果业务既要支持<strong>自然语言搜图 / 搜视频</strong>，团队得部署一套 <code>CLIP</code> 或 <code>SigLIP</code>；</li>
+<li>如果业务还要在画面里<strong>零样本抠图 / 框选目标</strong>，显存里还得再塞一个 <code>SAM</code>；</li>
+<li>如果业务同时涉及<strong>细粒度空间匹配、镜头去重或 3D 深度估计</strong>，后端还得再挂一套 <code>DINO</code>。</li>
+</ul>
+<p>结果就是同一张图片或视频关键帧，不得不在显卡上连续编码 3 次，显存占用、GPU 算力成本与服务编排复杂度同时爆炸。</p>
+<p>针对这一“烟囱式视觉基础设施”的工程痛点，<strong>英伟达（NVIDIA Research）</strong> 推出了新一代聚合视觉基础模型（Agglomerative Vision Foundation Model）——<strong>C-RADIOv4</strong>：</p>
+<blockquote>
+<p><strong>论文题目</strong>：《C-RADIOv4 (Tech Report)》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2601.17237">https://arxiv.org/abs/2601.17237</a><br>
+<strong>HTML 预览</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2601.17237">https://arxiv.org/html/2601.17237</a><br>
+<strong>代码仓库</strong>：<a target="_blank" rel="noopener" href="https://github.com/NVlabs/RADIO">https://github.com/NVlabs/RADIO</a><br>
+<strong>开源权重</strong>：<a target="_blank" rel="noopener" href="https://huggingface.co/nvidia/C-RADIOv4-SO400M">C-RADIOv4-SO400M</a> / <a target="_blank" rel="noopener" href="https://huggingface.co/nvidia/C-RADIOv4-H">C-RADIOv4-H</a> / <a target="_blank" rel="noopener" href="https://huggingface.co/nvidia/C-RADIOv4-H-AV">C-RADIOv4-H-AV</a><br>
+<strong>作者团队</strong>：Mike Ranzinger, Greg Heinrich, Collin McCarthy, Jan Kautz, Andrew Tao, Bryan Catanzaro, Pavlo Molchanov (NVIDIA)<br>
+<strong>核心战果</strong>：</p>
+<ul>
+<li><strong>多强合一的统一视觉底座</strong>：通过多教师蒸馏同时对齐 <strong>SigLIP2</strong>（图文检索）、<strong>DINOv3</strong>（密集特征与语义分割）与 <strong>SAM3</strong>（万物分割），单次前向传播即可产出多路下游能力；</li>
+<li><strong>十分之一参数量追平 7B 巨兽</strong>：通用满血版 <code>C-RADIOv4-H</code>（<code>631M</code>）用不到 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi mathvariant="normal">/</mi><mn>10</mn></mrow><annotation encoding="application/x-tex">1/10</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1/10</span></span></span></span> 的参数量，在 <code>ADE20k</code> 语义分割上几乎追平 <code>DINOv3-7B</code>（<code>6.7B</code>），并在 <code>256px</code> 以上分辨率的 <code>k-NN</code> 分类中反超后者；</li>
+<li><strong>高分推理提速 4~5 倍且可热插拔替换 SAM3</strong>：重新引入 <code>ViTDet</code> 混合窗口注意力模式后，<code>C-RADIOv4-SO400M</code>（<code>412M</code>）在 A100 上单图耗时（<code>92.9~98.8ms</code>）快于 <code>SAM3</code> 原生编码器（<code>99.5ms</code>）；在 <code>4096px</code> 超高分辨率下，延迟从 <code>5000ms+</code> 暴降至约 <code>1000ms</code>；</li>
+<li><strong>宽松商用协议与行业衍生范式</strong>：全系采用商业友好的开源协议（NVIDIA Open Model License），已广泛应用于 <code>Nemotron Nano V2 VL</code>、自动驾驶检索（<code>-H-AV</code> 微调仅 <code>8.9M</code> 适配器 + 零开销 PCA 降维）、机器人与异常检测（如 <code>Region-VAD</code>）等工业管线。</li>
+</ul>
+</blockquote>
+<p>站在 <strong>软件开发工程师与系统架构师</strong> 的视角，这篇技术报告的价值远不止模型刷榜——它完整示范了<strong>如何把多个异构 AI 能力收拢为“一次前向、多路复用”的统一底层 SDK</strong>，以及如何用**“错位比对去噪、方差归一化、模糊测试随机采样、权重融合降维”<strong>等纯正工程范式攻克算法顽疾，并帮助我们划清它在</strong>目标定位、长视频处理与工业级视频湖（对比 <code>WeMM-Embedding</code>）**中的真实架构边界。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/27/C-RADIOv4/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -226,7 +341,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-27 18:10:00 / 修改时间：18:10:35" itemprop="dateCreated datePublished" datetime="2026-11-27T18:10:00+08:00">2026-11-27</time>
+      <time title="创建时间：2026-11-27 18:10:00 / 修改时间：18:53:07" itemprop="dateCreated datePublished" datetime="2026-11-27T18:10:00+08:00">2026-11-27</time>
     </span>
 
   
@@ -341,7 +456,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-27 15:10:00 / 修改时间：18:10:35" itemprop="dateCreated datePublished" datetime="2026-11-27T15:10:00+08:00">2026-11-27</time>
+      <time title="创建时间：2026-11-27 15:10:00 / 修改时间：18:53:07" itemprop="dateCreated datePublished" datetime="2026-11-27T15:10:00+08:00">2026-11-27</time>
     </span>
 
   
@@ -455,7 +570,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2026-11-27 14:35:00 / 修改时间：18:10:35" itemprop="dateCreated datePublished" datetime="2026-11-27T14:35:00+08:00">2026-11-27</time>
+      <time title="创建时间：2026-11-27 14:35:00 / 修改时间：18:53:07" itemprop="dateCreated datePublished" datetime="2026-11-27T14:35:00+08:00">2026-11-27</time>
     </span>
 
   
@@ -574,7 +689,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
+      <time title="修改时间：2026-11-27 18:53:07" itemprop="dateModified" datetime="2026-11-27T18:53:07+08:00">2026-11-27</time>
     </span>
 
   
@@ -629,104 +744,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/evaluations/2026/11/26/Inkling2MiniStrataBenchmark/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/evaluations/2026/11/26/Inkling2MiniStrataBenchmark/" class="post-title-link" itemprop="url">【性能评测】Inkling-2-Mini 在 1080Ti/2080Ti 上的 Strata 部署与推理性能横评</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-26 19:30:00" itemprop="dateCreated datePublished" datetime="2026-11-26T19:30:00+08:00">2026-11-26</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>2.6k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>9 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>之前我在 4 张 GTX1080Ti 上用 Strata 部署了 Thinking Machines Lab 的 Inkling-2-Mini（SQ-20 量化包），结果单流 decode 只有可怜的 ~17 tok/s。是量化包选大了？是多卡 PCIe 管线拖了后腿？还是 Pascal 老架构本身就不行了？这一轮我做了一组系统性对照实验：三种量化包 × 三种卡数 × 两代 GPU 架构 × 两个 CUDA 引擎变体 × CPU 专家通道（hybrid），把这几个假设逐一验证了一遍。结论相当反直觉：<strong>单张 2080Ti 跑最小的 SQ-10 包是全场最快，4 卡 1080Ti 加卡完全白费</strong>。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/evaluations/2026/11/26/Inkling2MiniStrataBenchmark/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -751,14 +768,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">573k</span>
+    <span title="站点总字数">580k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">34:45</span>
+    <span title="站点阅读时长">35:08</span>
   </span>
 </div>
 <div class="busuanzi-count">

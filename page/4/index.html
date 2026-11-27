@@ -127,7 +127,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">399</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">124</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="home  //首页 fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="user  //关于 fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="tags  //标签 fa-fw"></i>标签<span class="badge">402</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="archive //归档 fa-fw"></i>归档<span class="badge">125</span></a></li><li class="menu-item menu-item-sitemap"><a href="/sitemap.xml" rel="section"><i class="sitemap   //站点地图 fa-fw"></i>站点地图</a></li>
   </ul>
 </nav>
 
@@ -164,13 +164,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">124</span>
+          <span class="site-state-item-count">125</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">399</span>
+        <span class="site-state-item-count">402</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -187,6 +187,118 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/19/VIVID/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="豪豪">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lewlh's blog">
+      <meta itemprop="description" content="豪豪的博客">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Lewlh's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/papers/2026/11/19/VIVID/" class="post-title-link" itemprop="url">【论文分享】零Token开销与0.22%微调：VIVID 如何用“差量编解码+CDC事件溯源”击破视频大模型静态盲区</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-19 17:30:00" itemprop="dateCreated datePublished" datetime="2026-11-19T17:30:00+08:00">2026-11-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-11-27 18:53:07" itemprop="dateModified" datetime="2026-11-27T18:53:07+08:00">2026-11-27</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>18 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>在多模态大模型（Multimodal Large Language Models, MLLMs）的各类任务中，视频理解一直是一个兼具极高价值与严峻性能瓶颈的领域。视频承载着最丰富的连续世界物理演变，但当软件工程师尝试将视频流喂给庞大的 Transformer 大模型时，往往会迎面撞上极其高昂的算力与显存墙。</p>
+<p>受制于 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>N</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> 的注意力机制复杂度与上下文窗口（Context Window）限制，目前学术界与工业界的主流方案几乎都在采用一种无奈的妥协——<strong>“静态多图推理（Static Multi-Image Reasoning）”</strong>：一段几分钟乃至更长的视频，后台系统被硬生生限制只能抽取 <strong>8 到 16 张静态关键帧</strong>（Keyframes）。其余成百上千帧被直接抛弃，下游大模型把这几张孤立的静态图片当成“相册幻灯片”来逐张阅读，凭空脑补中间发生的物理变化。</p>
+<p>这种粗暴的降维工程，直接引发了视频大模型落地时屡见不鲜的致命幻觉：<strong>分不清小物体运动、混淆动作先后顺序、数不清重复次数、看反运动方向</strong>。</p>
+<p>针对这一根本性瓶颈，来自北京大学、上海交通大学、厦门大学、中科院自动化所等团队近期发表了一篇极具软件工程美感的破局之作：<strong>VIVID</strong>。</p>
+<blockquote>
+<p><strong>论文题目</strong>：《VIVID: Beyond Static Multi-Image Reasoning with Localized Visual Differences and Textual Entity Dynamics in Video MLLMs》<br>
+<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.23153">https://arxiv.org/abs/2611.23153</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.23153">https://arxiv.org/html/2611.23153</a>)<br>
+<strong>核心战果</strong>：</p>
+<ul>
+<li><strong>零 Token 膨胀（Zero Extra Anchor Tokens）</strong>：在输入给大模型的核心 Token 序列长度完全不增加（严格保持 8 帧预算）的前提下，完整捕获视频运动动态；</li>
+<li><strong>0.22% 极轻量微调</strong>：主干 27B 大模型冻结 99.78% 的参数，仅微调 60.2M 参数；</li>
+<li><strong>极高的数据与算力收益</strong>：轻量版 <strong>VIVID-Small</strong> 仅凭 <strong>50 条样本</strong>、在单张 <strong>NVIDIA H20 GPU 上运行 ~1.5 小时</strong>，即在横跨三大权威基准（MotionBench、Video-MME、TempCompass）共 8,083 道题目的总准确率上，全面击败全部 11 个主流 Baseline！</li>
+</ul>
+</blockquote>
+<p>本文立足于 <strong>软件开发工程师（后端架构 / 分布式系统 / 性能优化）</strong> 的视角，穿透学术论文中的数学推导，深度拆解其背后的<strong>视频差量编码哲学、In-place 就地变异机制、事件溯源（CDC）双路解耦设计</strong>以及核心工程防坑细节。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/papers/2026/11/19/VIVID/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -232,7 +344,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
+      <time title="修改时间：2026-11-27 18:53:07" itemprop="dateModified" datetime="2026-11-27T18:53:07+08:00">2026-11-27</time>
     </span>
 
   
@@ -341,7 +453,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
+      <time title="修改时间：2026-11-27 18:53:07" itemprop="dateModified" datetime="2026-11-27T18:53:07+08:00">2026-11-27</time>
     </span>
 
   
@@ -452,7 +564,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
+      <time title="修改时间：2026-11-27 18:53:07" itemprop="dateModified" datetime="2026-11-27T18:53:07+08:00">2026-11-27</time>
     </span>
 
   
@@ -570,7 +682,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
+      <time title="修改时间：2026-11-27 18:53:07" itemprop="dateModified" datetime="2026-11-27T18:53:07+08:00">2026-11-27</time>
     </span>
 
   
@@ -634,122 +746,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://lewlh.github.io/papers/2026/11/16/AURA2-Streaming/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="豪豪">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Lewlh's blog">
-      <meta itemprop="description" content="豪豪的博客">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Lewlh's blog">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/papers/2026/11/16/AURA2-Streaming/" class="post-title-link" itemprop="url">【论文分享】告别被动问答：AURA 2.0 如何用流式事件循环与分级记忆打造 344ms 极速主动多模态助手</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2026-11-16 19:58:00" itemprop="dateCreated datePublished" datetime="2026-11-16T19:58:00+08:00">2026-11-16</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2026-11-27 18:10:35" itemprop="dateModified" datetime="2026-11-27T18:10:35+08:00">2026-11-27</time>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>4.1k</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>15 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>在过往的多模态大模型（Multimodal LLMs）应用开发中，后端与算法工程师普遍面临着一个根本性的交互范式桎梏：<strong>系统本质上是一个单向、被动、同步阻塞的“请求-响应”（Request-Response / RPC）模型</strong>。</p>
-<ul>
-<li><strong>传统模式（Passive Query-Driven）</strong>：用户不主动打字或发语音，模型就处于深度休眠；用户上传一段 30 秒的视频并提问，服务端执行一次耗时数秒的重量级 Pre-fill 推理，然后全量吐回结果。</li>
-<li><strong>理想模式（Proactive Event-Driven）</strong>：AI 助手应该像坐在你副驾驶的老司机或身旁的真人助理一样，保持对环境的“全天候低功耗感知”。大多数时候它安安静静，但在发现关键事件（如你锅里的水烧开了、组装家具用错了螺丝、窗外出现著名地标）时，能够<strong>主动开麦提醒（Model-Initiated Conversation, MIC）</strong>，并在说话时同步调取外部 API（SATC）或在屏幕画框标出目标（IVG）。</li>
-</ul>
-<p>然而，要想在工程上落地这种“全天候流式视频交互”，有两座近乎绝望的大山挡在软件工程师面前：</p>
-<ol>
-<li><strong>显存与计算的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>N</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.109em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> 爆炸</strong>：源源不断的视频流以每秒数十帧的速率推入，如果把历史帧无休止塞进 Context Window，显存不出几分钟就会 OOM，且自注意力延迟随时间持续飙升；</li>
-<li><strong>极高频决策下的并发吞吐崩溃</strong>：如果系统每秒对视频帧轮询判定一次，那么在真实世界 95% 以上“无事发生”的平淡场景下，服务器都在浪费宝贵的 GPU 算力执行无效前向传播与语音合成。</li>
-</ol>
-<p>针对这些痛点，香港中文大学（CUHK）等团队重磅推出了开源流式视频大模型框架 <strong>AURA 2.0</strong>：</p>
-<blockquote>
-<p><strong>论文题目</strong>：《AURA 2.0: From User-Driven Responses to Model-Initiated Conversations in Streaming Video》<br>
-<strong>论文链接</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2611.17048">https://arxiv.org/abs/2611.17048</a> (HTML 版本：<a target="_blank" rel="noopener" href="https://arxiv.org/html/2611.17048">https://arxiv.org/html/2611.17048</a>)<br>
-<strong>官方开源仓库</strong>：<a target="_blank" rel="noopener" href="https://github.com/aurateam2026/AURA">https://github.com/aurateam2026/AURA</a><br>
-<strong>开源模型权重</strong>：<a target="_blank" rel="noopener" href="https://huggingface.co/aurateam/AURA">https://huggingface.co/aurateam/AURA</a> (基于 Qwen3.5-9B 全参数微调)<br>
-<strong>核心工程贡献</strong>：基于流式时间片（Chunk）的状态机控制协议、LSM-Tree 风格的分级记忆压缩（LHIM）、三阶段防遗忘微调流水线、以及端到端仅 <strong>344ms 客户端首包音频延迟（TTFP）</strong> 的极低时延推理优化。</p>
-</blockquote>
-<p>本文站在 <strong>软件开发工程师与分布式系统架构师</strong> 的视角，跳过复杂的学术套话，深度拆解其 <strong>系统架构、分级存储设计、双端短路机制与工程权衡（Trade-offs）</strong>。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/papers/2026/11/16/AURA2-Streaming/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" title="上一页" aria-label="上一页" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -774,14 +770,14 @@
       <i class="fa fa-chart-line"></i>
     </span>
       <span>站点总字数：</span>
-    <span title="站点总字数">573k</span>
+    <span title="站点总字数">580k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span>站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">34:45</span>
+    <span title="站点阅读时长">35:08</span>
   </span>
 </div>
 <div class="busuanzi-count">
